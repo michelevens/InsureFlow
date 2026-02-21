@@ -59,4 +59,14 @@ class Application extends Model
     {
         return $this->hasOne(InsuranceProfile::class);
     }
+
+    public function documents()
+    {
+        return $this->morphMany(Document::class, 'documentable');
+    }
+
+    public function signatures()
+    {
+        return $this->morphMany(Signature::class, 'signable');
+    }
 }

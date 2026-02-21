@@ -2,18 +2,11 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { Button, Input, Badge, Modal } from '@/components/ui';
 import { useAuth } from '@/hooks/useAuth';
 import { useRealTimeMessages } from '@/hooks/useRealTimeMessages';
-import { messagingService, type Conversation } from '@/services/api/messaging';
+import { messagingService, type Conversation, type ConversationUser } from '@/services/api/messaging';
 import {
   MessageSquare, Send, Search, Plus, Users, Check, CheckCheck,
   ArrowLeft, Circle,
 } from 'lucide-react';
-
-interface SearchUser {
-  id: number;
-  name: string;
-  email: string;
-  role: string;
-}
 
 function formatTime(iso: string): string {
   const d = new Date(iso);
@@ -53,10 +46,10 @@ export default function Messages() {
   const [activeConvId, setActiveConvId] = useState<number | null>(null);
   const [showCompose, setShowCompose] = useState(false);
   const [composeSearch, setComposeSearch] = useState('');
-  const [searchResults, setSearchResults] = useState<SearchUser[]>([]);
+  const [searchResults, setSearchResults] = useState<ConversationUser[]>([]);
   const [searchLoading, setSearchLoading] = useState(false);
   const [composeBody, setComposeBody] = useState('');
-  const [composeTo, setComposeTo] = useState<SearchUser | null>(null);
+  const [composeTo, setComposeTo] = useState<ConversationUser | null>(null);
   const [sending, setSending] = useState(false);
   const [mobileShowChat, setMobileShowChat] = useState(false);
   const [inputValue, setInputValue] = useState('');

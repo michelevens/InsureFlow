@@ -7,6 +7,7 @@ use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CarrierController;
 use App\Http\Controllers\CommissionController;
+use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\InsuranceProfileController;
 use App\Http\Controllers\InviteController;
 use App\Http\Controllers\LeadController;
@@ -16,6 +17,7 @@ use App\Http\Controllers\PolicyController;
 use App\Http\Controllers\QuoteController;
 use App\Http\Controllers\ReferralController;
 use App\Http\Controllers\RoutingRuleController;
+use App\Http\Controllers\SignatureController;
 use App\Http\Controllers\SubscriptionController;
 use Illuminate\Support\Facades\Route;
 
@@ -157,6 +159,19 @@ Route::middleware(['auth:sanctum', 'agency.scope'])->group(function () {
     Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount']);
     Route::put('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
     Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead']);
+
+    // Documents
+    Route::get('/documents', [DocumentController::class, 'index']);
+    Route::post('/documents', [DocumentController::class, 'store']);
+    Route::get('/documents/{document}/download', [DocumentController::class, 'download']);
+    Route::delete('/documents/{document}', [DocumentController::class, 'destroy']);
+
+    // E-Signatures
+    Route::get('/signatures/pending', [SignatureController::class, 'myPending']);
+    Route::get('/applications/{application}/signatures', [SignatureController::class, 'index']);
+    Route::post('/applications/{application}/signatures', [SignatureController::class, 'requestSignature']);
+    Route::put('/signatures/{signature}/sign', [SignatureController::class, 'sign']);
+    Route::put('/signatures/{signature}/reject', [SignatureController::class, 'reject']);
 
     // Agency invites (agency owners invite agents)
     Route::get('/agency/invites', [InviteController::class, 'agencyInvites']);

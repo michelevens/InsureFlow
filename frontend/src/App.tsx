@@ -48,6 +48,9 @@ const MyPolicies = lazy(() => import('@/pages/portal/MyPolicies'));
 const Messages = lazy(() => import('@/pages/messages/Messages'));
 const Notifications = lazy(() => import('@/pages/notifications/Notifications'));
 
+// Documents & E-Signature
+const DocumentsPage = lazy(() => import('@/pages/documents/Documents'));
+
 // Agent / Agency
 const Leads = lazy(() => import('@/pages/crm/Leads'));
 const Applications = lazy(() => import('@/pages/applications/Applications'));
@@ -108,6 +111,9 @@ export default function App() {
                 {/* Messaging & Notifications */}
                 <Route path="/messages" element={<Messages />} />
                 <Route path="/notifications" element={<Notifications />} />
+
+                {/* Documents & E-Signature */}
+                <Route path="/documents" element={<DocumentsPage />} />
 
                 {/* Agency */}
                 <Route path="/agency/team" element={<AgencyTeam />} />

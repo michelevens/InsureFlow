@@ -3,6 +3,7 @@ import { api } from './client';
 export interface ConversationUser {
   id: number;
   name: string;
+  email: string;
   role: string;
 }
 

@@ -18,11 +18,11 @@ export function useRealTimeMessages(activeConversationId: number | null) {
 
   const isActiveRef = useRef(true);
   const lastMessageIdRef = useRef(0);
-  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
-  const typingExpiryRef = useRef<ReturnType<typeof setTimeout>>();
-  const msgPollRef = useRef<ReturnType<typeof setInterval>>();
-  const convPollRef = useRef<ReturnType<typeof setInterval>>();
-  const typingPollRef = useRef<ReturnType<typeof setInterval>>();
+  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const typingExpiryRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const msgPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const convPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const typingPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Track window focus
   useEffect(() => {
@@ -176,7 +176,7 @@ export function useRealTimeMessages(activeConversationId: number | null) {
 
     messagingService.sendTyping(activeConversationId).catch(() => {});
     typingTimeoutRef.current = setTimeout(() => {
-      typingTimeoutRef.current = undefined;
+      typingTimeoutRef.current = null;
     }, TYPING_DEBOUNCE);
   }, [activeConversationId]);
 
