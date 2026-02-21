@@ -15,6 +15,7 @@ class User extends Authenticatable
         'name', 'email', 'password', 'role', 'phone', 'is_active', 'agency_id',
         'email_verification_token', 'approved_at',
         'mfa_secret', 'mfa_enabled', 'mfa_backup_codes',
+        'stripe_account_id', 'stripe_onboarded',
     ];
 
     protected $hidden = ['password', 'remember_token', 'mfa_secret', 'mfa_backup_codes'];
@@ -27,6 +28,7 @@ class User extends Authenticatable
             'password' => 'hashed',
             'is_active' => 'boolean',
             'mfa_enabled' => 'boolean',
+            'stripe_onboarded' => 'boolean',
         ];
     }
 
@@ -93,5 +95,10 @@ class User extends Authenticatable
     public function assignedProfiles()
     {
         return $this->hasMany(InsuranceProfile::class, 'assigned_agent_id');
+    }
+
+    public function payouts()
+    {
+        return $this->hasMany(CommissionPayout::class, 'agent_id');
     }
 }

@@ -17,3 +17,5 @@ export { notificationService } from './notifications';
 export type { AppNotification } from './notifications';
 export { documentService, signatureService } from './documents';
 export type { InsuranceDocument, SignatureRequest } from './documents';
+export { payoutService } from './payouts';
+export type { ConnectStatus, CommissionPayout, Commission } from './payouts';

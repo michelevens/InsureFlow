@@ -18,6 +18,7 @@ use App\Http\Controllers\QuoteController;
 use App\Http\Controllers\ReferralController;
 use App\Http\Controllers\RoutingRuleController;
 use App\Http\Controllers\SignatureController;
+use App\Http\Controllers\PayoutController;
 use App\Http\Controllers\SubscriptionController;
 use Illuminate\Support\Facades\Route;
 
@@ -172,6 +173,13 @@ Route::middleware(['auth:sanctum', 'agency.scope'])->group(function () {
     Route::post('/applications/{application}/signatures', [SignatureController::class, 'requestSignature']);
     Route::put('/signatures/{signature}/sign', [SignatureController::class, 'sign']);
     Route::put('/signatures/{signature}/reject', [SignatureController::class, 'reject']);
+
+    // Payouts (Stripe Connect)
+    Route::post('/payouts/connect-account', [PayoutController::class, 'createConnectAccount']);
+    Route::get('/payouts/connect-status', [PayoutController::class, 'connectAccountStatus']);
+    Route::post('/payouts/connect-refresh', [PayoutController::class, 'refreshConnectLink']);
+    Route::post('/payouts/request', [PayoutController::class, 'requestPayout']);
+    Route::get('/payouts/history', [PayoutController::class, 'history']);
 
     // Agency invites (agency owners invite agents)
     Route::get('/agency/invites', [InviteController::class, 'agencyInvites']);
