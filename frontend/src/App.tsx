@@ -1,0 +1,125 @@
+import { lazy, Suspense } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { AuthProvider } from '@/contexts/AuthContext';
+import { DashboardLayout } from '@/components/layout/DashboardLayout';
+
+const queryClient = new QueryClient({
+  defaultOptions: { queries: { retry: 1, staleTime: 5 * 60 * 1000 } },
+});
+
+// Loading fallback
+function PageLoader() {
+  return (
+    <div className="flex items-center justify-center min-h-[60vh]">
+      <div className="w-8 h-8 border-4 border-shield-200 border-t-shield-600 rounded-full animate-spin" />
+    </div>
+  );
+}
+
+// Lazy-loaded pages
+// Auth
+const Login = lazy(() => import('@/pages/auth/Login'));
+const Register = lazy(() => import('@/pages/auth/Register'));
+
+// Public
+const Landing = lazy(() => import('@/pages/public/Landing'));
+const Pricing = lazy(() => import('@/pages/public/Pricing'));
+
+// Calculator (public)
+const Calculator = lazy(() => import('@/pages/calculator/Calculator'));
+const QuoteResults = lazy(() => import('@/pages/calculator/QuoteResults'));
+
+// Marketplace (public)
+const Marketplace = lazy(() => import('@/pages/marketplace/Marketplace'));
+const AgentProfile = lazy(() => import('@/pages/marketplace/AgentProfile'));
+
+// Dashboard
+const Dashboard = lazy(() => import('@/pages/dashboard/Dashboard'));
+
+// Consumer Portal
+const MyQuotes = lazy(() => import('@/pages/portal/MyQuotes'));
+const MyApplications = lazy(() => import('@/pages/portal/MyApplications'));
+const MyPolicies = lazy(() => import('@/pages/portal/MyPolicies'));
+
+// Agent / Agency
+const Leads = lazy(() => import('@/pages/crm/Leads'));
+const Applications = lazy(() => import('@/pages/applications/Applications'));
+const Policies = lazy(() => import('@/pages/policies/Policies'));
+const Commissions = lazy(() => import('@/pages/analytics/Commissions'));
+const Reviews = lazy(() => import('@/pages/analytics/Reviews'));
+const AgencyTeam = lazy(() => import('@/pages/admin/AgencyTeam'));
+
+// Carrier
+const Products = lazy(() => import('@/pages/carriers/Products'));
+const Production = lazy(() => import('@/pages/carriers/Production'));
+
+// Admin
+const AdminUsers = lazy(() => import('@/pages/admin/AdminUsers'));
+const AdminAgencies = lazy(() => import('@/pages/admin/AdminAgencies'));
+const AdminAnalytics = lazy(() => import('@/pages/admin/AdminAnalytics'));
+const AdminPlans = lazy(() => import('@/pages/admin/AdminPlans'));
+
+// Settings
+const Settings = lazy(() => import('@/pages/public/Settings'));
+
+export default function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>
+        <AuthProvider>
+          <Suspense fallback={<PageLoader />}>
+            <Routes>
+              {/* Public routes */}
+              <Route path="/" element={<Landing />} />
+              <Route path="/pricing" element={<Pricing />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/calculator" element={<Calculator />} />
+              <Route path="/calculator/results" element={<QuoteResults />} />
+              <Route path="/marketplace" element={<Marketplace />} />
+              <Route path="/marketplace/:id" element={<AgentProfile />} />
+
+              {/* Protected routes (inside DashboardLayout) */}
+              <Route element={<DashboardLayout />}>
+                {/* Dashboard */}
+                <Route path="/dashboard" element={<Dashboard />} />
+
+                {/* Consumer portal */}
+                <Route path="/portal/quotes" element={<MyQuotes />} />
+                <Route path="/portal/applications" element={<MyApplications />} />
+                <Route path="/portal/policies" element={<MyPolicies />} />
+
+                {/* Agent / Agency CRM */}
+                <Route path="/crm/leads" element={<Leads />} />
+                <Route path="/applications" element={<Applications />} />
+                <Route path="/policies" element={<Policies />} />
+                <Route path="/commissions" element={<Commissions />} />
+                <Route path="/reviews" element={<Reviews />} />
+
+                {/* Agency */}
+                <Route path="/agency/team" element={<AgencyTeam />} />
+
+                {/* Carrier */}
+                <Route path="/carrier/products" element={<Products />} />
+                <Route path="/carrier/production" element={<Production />} />
+
+                {/* Admin */}
+                <Route path="/admin/users" element={<AdminUsers />} />
+                <Route path="/admin/agencies" element={<AdminAgencies />} />
+                <Route path="/admin/analytics" element={<AdminAnalytics />} />
+                <Route path="/admin/plans" element={<AdminPlans />} />
+
+                {/* Settings */}
+                <Route path="/settings" element={<Settings />} />
+              </Route>
+
+              {/* Catch-all */}
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </Suspense>
+        </AuthProvider>
+      </BrowserRouter>
+    </QueryClientProvider>
+  );
+}
