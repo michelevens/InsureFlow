@@ -14,8 +14,13 @@ export const authService = {
     password: string;
     password_confirmation: string;
     role: 'consumer' | 'agent' | 'agency_owner' | 'carrier';
+    agency_code?: string;
   }): Promise<AuthResponse> {
     return api.post<AuthResponse>('/auth/register', data);
+  },
+
+  async checkEmail(email: string): Promise<{ exists: boolean }> {
+    return api.post<{ exists: boolean }>('/auth/check-email', { email });
   },
 
   async registerFromQuote(data: {

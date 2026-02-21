@@ -17,6 +17,7 @@ interface AuthContextType extends AuthState {
     password: string;
     password_confirmation: string;
     role: 'consumer' | 'agent' | 'agency_owner' | 'carrier';
+    agency_code?: string;
   }) => Promise<void>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
@@ -62,6 +63,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     password: string;
     password_confirmation: string;
     role: 'consumer' | 'agent' | 'agency_owner' | 'carrier';
+    agency_code?: string;
   }) => {
     const response = await authService.register(data);
     localStorage.setItem('auth_token', response.token);

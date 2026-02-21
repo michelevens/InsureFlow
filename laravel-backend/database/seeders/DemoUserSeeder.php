@@ -14,17 +14,18 @@ class DemoUserSeeder extends Seeder
     public function run(): void
     {
         $password = Hash::make('password');
+        $verified = now();
 
         // Consumer
         $consumer = User::updateOrCreate(
             ['email' => 'consumer@insurons.com'],
-            ['name' => 'John Consumer', 'password' => $password, 'role' => 'consumer', 'phone' => '(555) 100-0001']
+            ['name' => 'John Consumer', 'password' => $password, 'role' => 'consumer', 'phone' => '(555) 100-0001', 'is_active' => true, 'email_verified_at' => $verified]
         );
 
         // Agent
         $agent = User::updateOrCreate(
             ['email' => 'agent@insurons.com'],
-            ['name' => 'Sarah Johnson', 'password' => $password, 'role' => 'agent', 'phone' => '(555) 200-0001']
+            ['name' => 'Sarah Johnson', 'password' => $password, 'role' => 'agent', 'phone' => '(555) 200-0001', 'is_active' => true, 'email_verified_at' => $verified]
         );
 
         AgentProfile::updateOrCreate(
@@ -48,13 +49,14 @@ class DemoUserSeeder extends Seeder
         // Agency Owner
         $agencyOwner = User::updateOrCreate(
             ['email' => 'agency@insurons.com'],
-            ['name' => 'Robert Martinez', 'password' => $password, 'role' => 'agency_owner', 'phone' => '(555) 300-0001']
+            ['name' => 'Robert Martinez', 'password' => $password, 'role' => 'agency_owner', 'phone' => '(555) 300-0001', 'is_active' => true, 'email_verified_at' => $verified]
         );
 
         $agency = Agency::updateOrCreate(
             ['slug' => 'martinez-insurance-group'],
             [
                 'name' => 'Martinez Insurance Group',
+                'agency_code' => 'MARTINEZ',
                 'owner_id' => $agencyOwner->id,
                 'description' => 'Full-service insurance agency serving Texas since 2010.',
                 'phone' => '(555) 300-0000',
@@ -68,13 +70,14 @@ class DemoUserSeeder extends Seeder
             ]
         );
 
-        // Assign agent to agency
+        // Assign agent & agency owner to agency
         $agent->update(['agency_id' => $agency->id]);
+        $agencyOwner->update(['agency_id' => $agency->id]);
 
         // Additional agent for agency
         $agent2 = User::updateOrCreate(
             ['email' => 'agent2@insurons.com'],
-            ['name' => 'Michael Chen', 'password' => $password, 'role' => 'agent', 'phone' => '(555) 200-0002', 'agency_id' => $agency->id]
+            ['name' => 'Michael Chen', 'password' => $password, 'role' => 'agent', 'phone' => '(555) 200-0002', 'agency_id' => $agency->id, 'is_active' => true, 'email_verified_at' => $verified]
         );
 
         AgentProfile::updateOrCreate(
@@ -98,19 +101,19 @@ class DemoUserSeeder extends Seeder
         // Carrier user
         User::updateOrCreate(
             ['email' => 'carrier@insurons.com'],
-            ['name' => 'Carrier Admin', 'password' => $password, 'role' => 'carrier', 'phone' => '(555) 400-0001']
+            ['name' => 'Carrier Admin', 'password' => $password, 'role' => 'carrier', 'phone' => '(555) 400-0001', 'is_active' => true, 'email_verified_at' => $verified]
         );
 
         // Admin
         User::updateOrCreate(
             ['email' => 'admin@insurons.com'],
-            ['name' => 'Admin User', 'password' => $password, 'role' => 'admin', 'phone' => '(555) 500-0001']
+            ['name' => 'Admin User', 'password' => $password, 'role' => 'admin', 'phone' => '(555) 500-0001', 'is_active' => true, 'email_verified_at' => $verified]
         );
 
         // Superadmin
         User::updateOrCreate(
             ['email' => 'superadmin@insurons.com'],
-            ['name' => 'Super Admin', 'password' => $password, 'role' => 'superadmin', 'phone' => '(555) 600-0001']
+            ['name' => 'Super Admin', 'password' => $password, 'role' => 'superadmin', 'phone' => '(555) 600-0001', 'is_active' => true, 'email_verified_at' => $verified]
         );
 
         // Create some reviews for the agents
@@ -123,7 +126,7 @@ class DemoUserSeeder extends Seeder
         foreach ($reviewers as $i => $reviewerData) {
             $reviewer = User::updateOrCreate(
                 ['email' => $reviewerData['email']],
-                ['name' => $reviewerData['name'], 'password' => $password, 'role' => 'consumer']
+                ['name' => $reviewerData['name'], 'password' => $password, 'role' => 'consumer', 'is_active' => true, 'email_verified_at' => $verified]
             );
 
             AgentReview::updateOrCreate(

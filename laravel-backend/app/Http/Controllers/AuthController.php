@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Mail\EmailVerificationMail;
 use App\Mail\RegistrationReceivedMail;
 use App\Mail\WelcomeMail;
+use App\Models\Agency;
 use App\Models\Lead;
 use App\Models\QuoteRequest;
 use App\Models\User;
@@ -23,14 +24,29 @@ class AuthController extends Controller
         $data = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users',
-            'password' => ['required', 'confirmed', Password::min(8)],
+            'password' => ['required', 'confirmed', Password::min(8)->letters()->mixedCase()->numbers()],
             'role' => 'sometimes|in:consumer,agent,agency_owner,carrier',
             'phone' => 'nullable|string|max:20',
             'referral_code' => 'nullable|string|max:20',
+            'agency_code' => 'nullable|string|max:20',
         ]);
 
         $role = $data['role'] ?? 'consumer';
         $needsApproval = in_array($role, ['agent', 'agency_owner', 'carrier']);
+
+        // Resolve agency from agency code (for agents joining an agency)
+        $agencyId = null;
+        if (!empty($data['agency_code']) && $role === 'agent') {
+            $agency = Agency::where('agency_code', strtoupper($data['agency_code']))
+                ->where('is_active', true)
+                ->first();
+
+            if (!$agency) {
+                return response()->json(['message' => 'Invalid agency code'], 422);
+            }
+
+            $agencyId = $agency->id;
+        }
 
         $user = User::create([
             'name' => $data['name'],
@@ -38,6 +54,7 @@ class AuthController extends Controller
             'password' => Hash::make($data['password']),
             'role' => $role,
             'phone' => $data['phone'] ?? null,
+            'agency_id' => $agencyId,
             'is_active' => !$needsApproval,
             'email_verification_token' => Str::random(64),
         ]);
@@ -214,6 +231,13 @@ class AuthController extends Controller
         Mail::to($user->email)->send(new EmailVerificationMail($user, $verificationUrl));
 
         return response()->json(['message' => 'Verification email sent']);
+    }
+
+    public function checkEmail(Request $request)
+    {
+        $request->validate(['email' => 'required|email']);
+        $exists = User::where('email', $request->email)->exists();
+        return response()->json(['exists' => $exists]);
     }
 
     public function forgotPassword(Request $request)
