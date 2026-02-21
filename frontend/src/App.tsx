@@ -21,6 +21,8 @@ function PageLoader() {
 // Auth
 const Login = lazy(() => import('@/pages/auth/Login'));
 const Register = lazy(() => import('@/pages/auth/Register'));
+const VerifyEmail = lazy(() => import('@/pages/auth/VerifyEmail'));
+const AcceptInvite = lazy(() => import('@/pages/auth/AcceptInvite'));
 
 // Public
 const Landing = lazy(() => import('@/pages/public/Landing'));
@@ -77,6 +79,8 @@ export default function App() {
               <Route path="/register" element={<Register />} />
               <Route path="/calculator" element={<Calculator />} />
               <Route path="/calculator/results" element={<QuoteResults />} />
+              <Route path="/verify-email/:token" element={<VerifyEmail />} />
+              <Route path="/invite/:token" element={<AcceptInvite />} />
               <Route path="/marketplace" element={<Marketplace />} />
               <Route path="/marketplace/:id" element={<AgentProfile />} />
 

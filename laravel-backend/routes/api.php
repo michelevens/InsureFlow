@@ -8,6 +8,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CarrierController;
 use App\Http\Controllers\CommissionController;
 use App\Http\Controllers\InsuranceProfileController;
+use App\Http\Controllers\InviteController;
 use App\Http\Controllers\LeadController;
 use App\Http\Controllers\PolicyController;
 use App\Http\Controllers\QuoteController;
@@ -52,17 +53,9 @@ Route::get('/subscription-plans', [SubscriptionController::class, 'plans']);
 // Stripe webhook (no auth)
 Route::post('/webhooks/stripe', [SubscriptionController::class, 'handleWebhook']);
 
-// Debug: test email delivery (remove after confirming)
-Route::get('/debug/test-email', function () {
-    try {
-        \Illuminate\Support\Facades\Mail::raw('Test email from Insurons at ' . now(), function ($msg) {
-            $msg->to('michelevens@gmail.com')->subject('Insurons Email Test');
-        });
-        return response()->json(['status' => 'sent', 'mailer' => config('mail.default')]);
-    } catch (\Exception $e) {
-        return response()->json(['status' => 'error', 'message' => $e->getMessage(), 'mailer' => config('mail.default')], 500);
-    }
-});
+// Invites (public — for viewing and accepting)
+Route::get('/invites/{token}', [InviteController::class, 'show']);
+Route::post('/invites/{token}/accept', [InviteController::class, 'accept']);
 
 /*
 |--------------------------------------------------------------------------
@@ -146,6 +139,10 @@ Route::middleware(['auth:sanctum', 'agency.scope'])->group(function () {
     Route::get('/referrals/dashboard', [ReferralController::class, 'dashboard']);
     Route::post('/referrals/apply', [ReferralController::class, 'applyCode']);
 
+    // Agency invites (agency owners invite agents)
+    Route::get('/agency/invites', [InviteController::class, 'agencyInvites']);
+    Route::post('/agency/invites', [InviteController::class, 'agencyInvite']);
+
     /*
     |----------------------------------------------------------------------
     | Admin Routes
@@ -173,5 +170,9 @@ Route::middleware(['auth:sanctum', 'agency.scope'])->group(function () {
 
         // Analytics
         Route::get('/analytics', [AdminController::class, 'analytics']);
+
+        // Invites (admin invites agents/agency_owners/carriers)
+        Route::get('/invites', [InviteController::class, 'adminListInvites']);
+        Route::post('/invites', [InviteController::class, 'adminInvite']);
     });
 });
