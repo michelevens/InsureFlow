@@ -18,6 +18,7 @@ use App\Http\Controllers\QuoteController;
 use App\Http\Controllers\ReferralController;
 use App\Http\Controllers\RoutingRuleController;
 use App\Http\Controllers\SignatureController;
+use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\PayoutController;
 use App\Http\Controllers\SubscriptionController;
 use Illuminate\Support\Facades\Route;
@@ -181,6 +182,9 @@ Route::middleware(['auth:sanctum', 'agency.scope'])->group(function () {
     Route::post('/payouts/request', [PayoutController::class, 'requestPayout']);
     Route::get('/payouts/history', [PayoutController::class, 'history']);
 
+    // Audit Logs (entity-level)
+    Route::get('/audit-logs/{entityType}/{entityId}', [AuditLogController::class, 'forEntity']);
+
     // Agency invites (agency owners invite agents)
     Route::get('/agency/invites', [InviteController::class, 'agencyInvites']);
     Route::post('/agency/invites', [InviteController::class, 'agencyInvite']);
@@ -212,6 +216,9 @@ Route::middleware(['auth:sanctum', 'agency.scope'])->group(function () {
 
         // Analytics
         Route::get('/analytics', [AdminController::class, 'analytics']);
+
+        // Audit Logs
+        Route::get('/audit-logs', [AuditLogController::class, 'index']);
 
         // Invites (admin invites agents/agency_owners/carriers)
         Route::get('/invites', [InviteController::class, 'adminListInvites']);

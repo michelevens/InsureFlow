@@ -19,3 +19,5 @@ export { documentService, signatureService } from './documents';
 export type { InsuranceDocument, SignatureRequest } from './documents';
 export { payoutService } from './payouts';
 export type { ConnectStatus, CommissionPayout, Commission } from './payouts';
+export { auditService } from './audit';
+export type { AuditLogEntry } from './audit';

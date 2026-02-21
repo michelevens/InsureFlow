@@ -68,6 +68,7 @@ const AdminUsers = lazy(() => import('@/pages/admin/AdminUsers'));
 const AdminAgencies = lazy(() => import('@/pages/admin/AdminAgencies'));
 const AdminAnalytics = lazy(() => import('@/pages/admin/AdminAnalytics'));
 const AdminPlans = lazy(() => import('@/pages/admin/AdminPlans'));
+const AdminAuditLog = lazy(() => import('@/pages/admin/AdminAuditLog'));
 
 // Settings
 const Settings = lazy(() => import('@/pages/public/Settings'));
@@ -127,6 +128,7 @@ export default function App() {
                 <Route path="/admin/agencies" element={<AdminAgencies />} />
                 <Route path="/admin/analytics" element={<AdminAnalytics />} />
                 <Route path="/admin/plans" element={<AdminPlans />} />
+                <Route path="/admin/audit-log" element={<AdminAuditLog />} />
 
                 {/* Settings */}
                 <Route path="/settings" element={<Settings />} />
