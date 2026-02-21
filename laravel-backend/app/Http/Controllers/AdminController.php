@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\AccountApprovedMail;
 use App\Models\Agency;
 use App\Models\SubscriptionPlan;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 
 class AdminController extends Controller
 {
@@ -56,6 +58,24 @@ class AdminController extends Controller
 
         $user->update($data);
         return response()->json($user);
+    }
+
+    public function approveUser(User $user)
+    {
+        $user->update([
+            'is_active' => true,
+            'approved_at' => now(),
+        ]);
+
+        Mail::to($user->email)->send(new AccountApprovedMail($user));
+
+        return response()->json(['message' => 'User approved', 'user' => $user]);
+    }
+
+    public function deactivateUser(User $user)
+    {
+        $user->update(['is_active' => false]);
+        return response()->json(['message' => 'User deactivated', 'user' => $user]);
     }
 
     // --- Agencies ---

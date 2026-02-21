@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\QuoteReceivedMail;
 use App\Models\CarrierProduct;
 use App\Models\Lead;
 use App\Models\Quote;
 use App\Models\QuoteRequest;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 
 class QuoteController extends Controller
 {
@@ -102,6 +104,18 @@ class QuoteController extends Controller
             'source' => 'calculator',
             'estimated_value' => $lowestQuote?->annual_premium,
         ]);
+
+        // Send quote received email
+        $quoteCount = $quoteRequest->quotes()->count();
+        $lowestPremium = $lowestQuote?->monthly_premium ?? '0.00';
+
+        Mail::to($data['email'])->send(new QuoteReceivedMail(
+            user: null,
+            firstName: $data['first_name'],
+            email: $data['email'],
+            quoteCount: $quoteCount,
+            lowestPremium: $lowestPremium,
+        ));
 
         return response()->json([
             'message' => 'Contact info saved',

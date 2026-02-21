@@ -10,6 +10,8 @@ use App\Http\Controllers\CommissionController;
 use App\Http\Controllers\LeadController;
 use App\Http\Controllers\PolicyController;
 use App\Http\Controllers\QuoteController;
+use App\Http\Controllers\ReferralController;
+use App\Http\Controllers\SubscriptionController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -22,6 +24,9 @@ use Illuminate\Support\Facades\Route;
 Route::post('/auth/register', [AuthController::class, 'register']);
 Route::post('/auth/register-from-quote', [AuthController::class, 'registerFromQuote']);
 Route::post('/auth/login', [AuthController::class, 'login']);
+Route::get('/auth/verify-email/{token}', [AuthController::class, 'verifyEmail']);
+Route::post('/auth/forgot-password', [AuthController::class, 'forgotPassword']);
+Route::post('/auth/reset-password', [AuthController::class, 'resetPassword']);
 
 // Calculator / Quote
 Route::post('/calculator/estimate', [QuoteController::class, 'estimate']);
@@ -34,6 +39,16 @@ Route::get('/marketplace/agents/{id}', [AgentController::class, 'show']);
 // Carriers (public)
 Route::get('/carriers', [CarrierController::class, 'index']);
 Route::get('/carriers/{carrier}', [CarrierController::class, 'show']);
+
+// Referral validation (public)
+Route::post('/referrals/validate', [ReferralController::class, 'validateCode']);
+Route::get('/referrals/leaderboard', [ReferralController::class, 'leaderboard']);
+
+// Subscription plans (public listing)
+Route::get('/subscription-plans', [SubscriptionController::class, 'plans']);
+
+// Stripe webhook (no auth)
+Route::post('/webhooks/stripe', [SubscriptionController::class, 'handleWebhook']);
 
 /*
 |--------------------------------------------------------------------------
@@ -48,6 +63,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/auth/logout', [AuthController::class, 'logout']);
     Route::put('/auth/profile', [AuthController::class, 'updateProfile']);
     Route::put('/auth/password', [AuthController::class, 'changePassword']);
+    Route::post('/auth/resend-verification', [AuthController::class, 'resendVerification']);
 
     // Dashboard stats
     Route::get('/stats/dashboard', [AnalyticsController::class, 'dashboard']);
@@ -92,17 +108,29 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/carrier/products/{product}', [CarrierController::class, 'updateProduct']);
     Route::get('/carrier/production', [CarrierController::class, 'production']);
 
+    // Subscriptions
+    Route::get('/subscriptions/current', [SubscriptionController::class, 'current']);
+    Route::post('/subscriptions/checkout', [SubscriptionController::class, 'checkout']);
+    Route::post('/subscriptions/cancel', [SubscriptionController::class, 'cancel']);
+    Route::post('/subscriptions/resume', [SubscriptionController::class, 'resume']);
+
+    // Referrals
+    Route::get('/referrals/dashboard', [ReferralController::class, 'dashboard']);
+    Route::post('/referrals/apply', [ReferralController::class, 'applyCode']);
+
     /*
     |----------------------------------------------------------------------
     | Admin Routes
     |----------------------------------------------------------------------
     */
 
-    Route::prefix('admin')->middleware('auth:sanctum')->group(function () {
+    Route::prefix('admin')->group(function () {
         // Users
         Route::get('/users', [AdminController::class, 'users']);
         Route::get('/users/{user}', [AdminController::class, 'showUser']);
         Route::put('/users/{user}', [AdminController::class, 'updateUser']);
+        Route::put('/users/{user}/approve', [AdminController::class, 'approveUser']);
+        Route::put('/users/{user}/deactivate', [AdminController::class, 'deactivateUser']);
 
         // Agencies
         Route::get('/agencies', [AdminController::class, 'agencies']);

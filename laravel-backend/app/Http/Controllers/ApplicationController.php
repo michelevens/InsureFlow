@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\ApplicationStatusMail;
 use App\Models\Application;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 
 class ApplicationController extends Controller
 {
@@ -75,6 +77,18 @@ class ApplicationController extends Controller
         ]);
 
         $application->update($data);
+
+        // Send status email to the applicant
+        $application->load('user');
+        if ($application->user) {
+            Mail::to($application->user->email)->send(new ApplicationStatusMail(
+                user: $application->user,
+                applicationId: $application->reference ?? (string) $application->id,
+                status: $data['status'],
+                insuranceType: $application->insurance_type,
+            ));
+        }
+
         return response()->json($application);
     }
 }

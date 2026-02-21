@@ -2,12 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\EmailVerificationMail;
+use App\Mail\RegistrationReceivedMail;
+use App\Mail\WelcomeMail;
 use App\Models\Lead;
 use App\Models\QuoteRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password;
 
 class AuthController extends Controller
@@ -20,21 +26,45 @@ class AuthController extends Controller
             'password' => ['required', 'confirmed', Password::min(8)],
             'role' => 'sometimes|in:consumer,agent,agency_owner,carrier',
             'phone' => 'nullable|string|max:20',
+            'referral_code' => 'nullable|string|max:20',
         ]);
+
+        $role = $data['role'] ?? 'consumer';
+        $needsApproval = in_array($role, ['agent', 'agency_owner', 'carrier']);
 
         $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
-            'role' => $data['role'] ?? 'consumer',
+            'role' => $role,
             'phone' => $data['phone'] ?? null,
+            'is_active' => !$needsApproval,
+            'email_verification_token' => Str::random(64),
         ]);
 
         $token = $user->createToken('auth-token')->plainTextToken;
 
+        // Send emails
+        $verificationUrl = rtrim(config('app.frontend_url', env('FRONTEND_URL', 'https://insureflow.com')), '/')
+            . '/verify-email/' . $user->email_verification_token;
+
+        Mail::to($user->email)->send(new WelcomeMail($user));
+        Mail::to($user->email)->send(new EmailVerificationMail($user, $verificationUrl));
+
+        if ($needsApproval) {
+            Mail::to($user->email)->send(new RegistrationReceivedMail($user));
+        }
+
+        // Apply referral code if provided
+        if (!empty($data['referral_code'])) {
+            $this->applyReferralCode($user, $data['referral_code']);
+        }
+
         return response()->json([
             'user' => $user,
             'token' => $token,
+            'email_verified' => false,
+            'needs_approval' => $needsApproval,
         ], 201);
     }
 
@@ -53,7 +83,7 @@ class AuthController extends Controller
 
         if (!$user->is_active) {
             Auth::logout();
-            return response()->json(['message' => 'Account is deactivated'], 403);
+            return response()->json(['message' => 'Account is deactivated or pending approval'], 403);
         }
 
         $token = $user->createToken('auth-token')->plainTextToken;
@@ -61,6 +91,7 @@ class AuthController extends Controller
         return response()->json([
             'user' => $user,
             'token' => $token,
+            'email_verified' => !is_null($user->email_verified_at),
         ]);
     }
 
@@ -123,6 +154,7 @@ class AuthController extends Controller
             'password' => Hash::make($data['password']),
             'role' => 'consumer',
             'phone' => $data['phone'] ?? null,
+            'email_verification_token' => Str::random(64),
         ]);
 
         $token = $user->createToken('auth-token')->plainTextToken;
@@ -137,9 +169,135 @@ class AuthController extends Controller
             ->whereNull('consumer_id')
             ->update(['consumer_id' => $user->id]);
 
+        // Send welcome email
+        Mail::to($user->email)->send(new WelcomeMail($user));
+
         return response()->json([
             'user' => $user,
             'token' => $token,
         ], 201);
+    }
+
+    public function verifyEmail(string $token)
+    {
+        $user = User::where('email_verification_token', $token)->first();
+
+        if (!$user) {
+            return response()->json(['message' => 'Invalid or expired verification token'], 422);
+        }
+
+        $user->update([
+            'email_verified_at' => now(),
+            'email_verification_token' => null,
+        ]);
+
+        return response()->json(['message' => 'Email verified successfully']);
+    }
+
+    public function resendVerification(Request $request)
+    {
+        $user = $request->user();
+
+        if ($user->email_verified_at) {
+            return response()->json(['message' => 'Email already verified'], 422);
+        }
+
+        $user->update(['email_verification_token' => Str::random(64)]);
+
+        $verificationUrl = rtrim(config('app.frontend_url', env('FRONTEND_URL', 'https://insureflow.com')), '/')
+            . '/verify-email/' . $user->email_verification_token;
+
+        Mail::to($user->email)->send(new EmailVerificationMail($user, $verificationUrl));
+
+        return response()->json(['message' => 'Verification email sent']);
+    }
+
+    public function forgotPassword(Request $request)
+    {
+        $request->validate(['email' => 'required|email']);
+
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user) {
+            // Don't reveal whether email exists
+            return response()->json(['message' => 'If that email exists, a reset link has been sent.']);
+        }
+
+        $token = Str::random(64);
+
+        DB::table('password_reset_tokens')->updateOrInsert(
+            ['email' => $user->email],
+            ['token' => Hash::make($token), 'created_at' => now()]
+        );
+
+        $resetUrl = rtrim(config('app.frontend_url', env('FRONTEND_URL', 'https://insureflow.com')), '/')
+            . '/reset-password?token=' . $token . '&email=' . urlencode($user->email);
+
+        Mail::to($user->email)->send(new \App\Mail\PasswordResetMail($user, $resetUrl));
+
+        return response()->json(['message' => 'If that email exists, a reset link has been sent.']);
+    }
+
+    public function resetPassword(Request $request)
+    {
+        $data = $request->validate([
+            'token' => 'required|string',
+            'email' => 'required|email',
+            'password' => ['required', 'confirmed', Password::min(8)],
+        ]);
+
+        $record = DB::table('password_reset_tokens')
+            ->where('email', $data['email'])
+            ->first();
+
+        if (!$record || !Hash::check($data['token'], $record->token)) {
+            return response()->json(['message' => 'Invalid or expired reset token'], 422);
+        }
+
+        // Check if token is older than 60 minutes
+        if (now()->diffInMinutes($record->created_at) > 60) {
+            return response()->json(['message' => 'Reset token has expired'], 422);
+        }
+
+        $user = User::where('email', $data['email'])->first();
+
+        if (!$user) {
+            return response()->json(['message' => 'User not found'], 404);
+        }
+
+        $user->update(['password' => Hash::make($data['password'])]);
+
+        DB::table('password_reset_tokens')->where('email', $data['email'])->delete();
+
+        return response()->json(['message' => 'Password reset successfully']);
+    }
+
+    private function applyReferralCode(User $user, string $code): void
+    {
+        $referralCode = \App\Models\ReferralCode::where('code', strtoupper($code))->first();
+
+        if (!$referralCode || $referralCode->user_id === $user->id) {
+            return;
+        }
+
+        if ($referralCode->max_uses && $referralCode->uses >= $referralCode->max_uses) {
+            return;
+        }
+
+        \App\Models\Referral::create([
+            'referrer_id' => $referralCode->user_id,
+            'referred_id' => $user->id,
+            'referral_code_id' => $referralCode->id,
+            'status' => 'pending',
+        ]);
+
+        $referralCode->increment('uses');
+
+        \App\Models\ReferralCredit::create([
+            'user_id' => $user->id,
+            'amount' => 10.00,
+            'type' => 'bonus',
+            'description' => 'Welcome bonus for joining via referral',
+        ]);
     }
 }

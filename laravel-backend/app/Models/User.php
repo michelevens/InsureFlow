@@ -13,16 +13,20 @@ class User extends Authenticatable
 
     protected $fillable = [
         'name', 'email', 'password', 'role', 'phone', 'is_active', 'agency_id',
+        'email_verification_token', 'approved_at',
+        'mfa_secret', 'mfa_enabled', 'mfa_backup_codes',
     ];
 
-    protected $hidden = ['password', 'remember_token'];
+    protected $hidden = ['password', 'remember_token', 'mfa_secret', 'mfa_backup_codes'];
 
     protected function casts(): array
     {
         return [
             'email_verified_at' => 'datetime',
+            'approved_at' => 'datetime',
             'password' => 'hashed',
             'is_active' => 'boolean',
+            'mfa_enabled' => 'boolean',
         ];
     }
 
@@ -69,5 +73,15 @@ class User extends Authenticatable
     public function quoteRequests()
     {
         return $this->hasMany(QuoteRequest::class);
+    }
+
+    public function subscription()
+    {
+        return $this->hasOne(Subscription::class)->latest();
+    }
+
+    public function referralCode()
+    {
+        return $this->hasOne(ReferralCode::class);
     }
 }

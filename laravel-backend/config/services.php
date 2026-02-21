@@ -1,8 +1,15 @@
 <?php
 
 return [
-    'stripe' => [
-        'key' => env('STRIPE_PUBLISHABLE_KEY'),
-        'secret' => env('STRIPE_SECRET_KEY'),
+
+    'resend' => [
+        'key' => env('RESEND_API_KEY'),
     ],
+
+    'stripe' => [
+        'secret' => env('STRIPE_SECRET_KEY'),
+        'publishable' => env('STRIPE_PUBLISHABLE_KEY'),
+        'webhook_secret' => env('STRIPE_WEBHOOK_SECRET'),
+    ],
+
 ];
