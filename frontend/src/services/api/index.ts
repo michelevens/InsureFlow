@@ -25,3 +25,5 @@ export { aiService } from './ai';
 export type { AiConversation, AiMessage, AiChatResponse } from './ai';
 export { leadScoringService } from './leadScoring';
 export type { LeadScore, LeadScoreFactors } from './leadScoring';
+export { claimService } from './claims';
+export type { Claim, ClaimActivity as ClaimActivityType } from './claims';

@@ -59,6 +59,9 @@ const Commissions = lazy(() => import('@/pages/analytics/Commissions'));
 const Reviews = lazy(() => import('@/pages/analytics/Reviews'));
 const AgencyTeam = lazy(() => import('@/pages/admin/AgencyTeam'));
 
+// Claims
+const ClaimsPage = lazy(() => import('@/pages/claims/Claims'));
+
 // Carrier
 const Products = lazy(() => import('@/pages/carriers/Products'));
 const Production = lazy(() => import('@/pages/carriers/Production'));
@@ -112,6 +115,9 @@ export default function App() {
                 {/* Messaging & Notifications */}
                 <Route path="/messages" element={<Messages />} />
                 <Route path="/notifications" element={<Notifications />} />
+
+                {/* Claims */}
+                <Route path="/claims" element={<ClaimsPage />} />
 
                 {/* Documents & E-Signature */}
                 <Route path="/documents" element={<DocumentsPage />} />

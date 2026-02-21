@@ -23,6 +23,7 @@ use App\Http\Controllers\PayoutController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\AiChatController;
 use App\Http\Controllers\LeadScoringController;
+use App\Http\Controllers\ClaimController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -120,6 +121,13 @@ Route::middleware(['auth:sanctum', 'agency.scope'])->group(function () {
     Route::post('/policies', [PolicyController::class, 'store']);
     Route::get('/policies/{policy}', [PolicyController::class, 'show']);
     Route::put('/policies/{policy}/status', [PolicyController::class, 'updateStatus']);
+
+    // Claims
+    Route::get('/claims', [ClaimController::class, 'index']);
+    Route::post('/claims', [ClaimController::class, 'store']);
+    Route::get('/claims/{claim}', [ClaimController::class, 'show']);
+    Route::put('/claims/{claim}/status', [ClaimController::class, 'updateStatus']);
+    Route::post('/claims/{claim}/notes', [ClaimController::class, 'addNote']);
 
     // CRM - Leads
     Route::get('/crm/leads', [LeadController::class, 'index']);
