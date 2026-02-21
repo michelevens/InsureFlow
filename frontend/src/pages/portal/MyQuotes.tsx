@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Card, Badge, Button } from '@/components/ui';
 import { EmptyState } from '@/components/dashboard/EmptyState';
-import { ClipboardList, ArrowRight, Star, Clock, Trash2, Calculator } from 'lucide-react';
+import { ClipboardList, ArrowRight, Clock, Trash2, Calculator } from 'lucide-react';
 
 interface SavedQuote {
   id: string;

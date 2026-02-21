@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Card, Badge, Button, Input, Select } from '@/components/ui';
-import { FileText, Search, Clock, CheckCircle2, XCircle, AlertCircle, Eye, ArrowRight } from 'lucide-react';
+import { FileText, Search, Clock, CheckCircle2, XCircle, AlertCircle, Eye } from 'lucide-react';
 
 type AppStatus = 'draft' | 'submitted' | 'under_review' | 'approved' | 'declined' | 'bound';
 

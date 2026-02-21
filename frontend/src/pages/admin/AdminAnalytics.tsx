@@ -1,8 +1,7 @@
 import { Card } from '@/components/ui';
 import { StatsCard } from '@/components/dashboard/StatsCard';
 import {
-  BarChart3, Users, Target, ShieldCheck, DollarSign, TrendingUp,
-  ArrowUp, ArrowDown,
+  Users, Target, ShieldCheck, DollarSign,
 } from 'lucide-react';
 
 const monthlyData = [

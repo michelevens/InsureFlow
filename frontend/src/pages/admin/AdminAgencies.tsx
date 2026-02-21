@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Card, Badge, Button, Input } from '@/components/ui';
-import { Building2, Search, Users, MapPin, Star, Eye, ShieldCheck } from 'lucide-react';
+import { Building2, Search, Star, Eye } from 'lucide-react';
 
 interface Agency {
   id: string;

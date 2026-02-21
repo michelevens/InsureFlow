@@ -66,7 +66,7 @@ const Settings = lazy(() => import('@/pages/public/Settings'));
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
+      <BrowserRouter basename={import.meta.env.BASE_URL}>
         <AuthProvider>
           <Suspense fallback={<PageLoader />}>
             <Routes>

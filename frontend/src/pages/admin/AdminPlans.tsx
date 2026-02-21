@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Card, Badge, Button, Input, Modal } from '@/components/ui';
+import { Card, Badge, Button } from '@/components/ui';
 import { DollarSign, Plus, Edit, Trash2, CheckCircle2, Users } from 'lucide-react';
 
 interface Plan {

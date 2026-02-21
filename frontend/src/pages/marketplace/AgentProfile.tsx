@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { Button, Card, Badge, Textarea } from '@/components/ui';
 import {
-  Shield, ShieldCheck, Star, MapPin, Phone, Mail, Globe, Clock, Award,
-  ArrowLeft, MessageSquare, Calendar, CheckCircle2, Users, Briefcase,
+  Shield, ShieldCheck, Star, MapPin, Phone, Clock, Award,
+  ArrowLeft, MessageSquare, Calendar, Users, Briefcase,
 } from 'lucide-react';
 
 const mockAgent = {
@@ -33,7 +33,7 @@ const mockAgent = {
 };
 
 export default function AgentProfile() {
-  const { id } = useParams();
+  const { id: _id } = useParams();
   const [showContact, setShowContact] = useState(false);
   const [message, setMessage] = useState('');
 

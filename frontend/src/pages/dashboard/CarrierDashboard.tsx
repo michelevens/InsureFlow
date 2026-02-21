@@ -1,9 +1,8 @@
 import { Link } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
 import { Card, Badge, Button } from '@/components/ui';
 import { StatsCard } from '@/components/dashboard/StatsCard';
 import {
-  Briefcase, BarChart3, FileText, DollarSign, TrendingUp, Users,
+  Briefcase, BarChart3, FileText, DollarSign, Users,
   ArrowRight, ShieldCheck, Package,
 } from 'lucide-react';
 
@@ -15,8 +14,6 @@ const products = [
 ];
 
 export default function CarrierDashboard() {
-  const { user } = useAuth();
-
   return (
     <div className="space-y-8">
       {/* Welcome */}

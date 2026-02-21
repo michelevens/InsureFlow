@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button, Card, Badge } from '@/components/ui';
-import { Shield, ShieldCheck, Star, ArrowRight, ArrowLeft, Check, Phone, Globe, DollarSign } from 'lucide-react';
+import { Shield, ShieldCheck, Star, ArrowRight, ArrowLeft, Check, Phone } from 'lucide-react';
 
 interface QuoteResult {
   id: string;

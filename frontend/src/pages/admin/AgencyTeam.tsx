@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { Card, Badge, Button, Input, Modal } from '@/components/ui';
-import { Users, Plus, Search, Mail, Phone, Star, MoreVertical, Edit, Trash2 } from 'lucide-react';
+import { Card, Badge, Button, Input } from '@/components/ui';
+import { Plus, Search, Mail, Phone, Star } from 'lucide-react';
 
 interface TeamMember {
   id: string;

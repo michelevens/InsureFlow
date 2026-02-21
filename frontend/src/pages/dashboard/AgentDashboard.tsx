@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { Card, Badge, Button } from '@/components/ui';
+import { Card, Button } from '@/components/ui';
 import { StatsCard } from '@/components/dashboard/StatsCard';
 import {
   Target, FileText, DollarSign, Star, Users, ArrowRight, TrendingUp,

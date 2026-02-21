@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Card, Badge, Button, Input, Select } from '@/components/ui';
-import { Users, Search, Shield, ShieldCheck, Ban, MoreVertical, Mail } from 'lucide-react';
+import { Search, ShieldCheck, Ban, Mail } from 'lucide-react';
 
 interface UserRow {
   id: string;

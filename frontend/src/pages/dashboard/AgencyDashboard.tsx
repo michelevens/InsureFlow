@@ -1,10 +1,9 @@
 import { Link } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
-import { Card, Badge, Button } from '@/components/ui';
+import { Card, Button } from '@/components/ui';
 import { StatsCard } from '@/components/dashboard/StatsCard';
 import {
-  Users, Target, DollarSign, FileText, TrendingUp, ArrowRight,
-  BarChart3, Award, Building2,
+  Users, Target, DollarSign, FileText, ArrowRight,
+  BarChart3, Award,
 } from 'lucide-react';
 
 const teamMembers = [
@@ -15,8 +14,6 @@ const teamMembers = [
 ];
 
 export default function AgencyDashboard() {
-  const { user } = useAuth();
-
   return (
     <div className="space-y-8">
       {/* Welcome */}

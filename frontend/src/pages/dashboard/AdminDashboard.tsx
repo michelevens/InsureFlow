@@ -1,9 +1,9 @@
 import { Link } from 'react-router-dom';
-import { Card, Badge, Button } from '@/components/ui';
+import { Card } from '@/components/ui';
 import { StatsCard } from '@/components/dashboard/StatsCard';
 import {
-  Users, Building2, BarChart3, DollarSign, TrendingUp, ArrowRight,
-  ShieldCheck, Target, FileText, AlertCircle,
+  Users, Building2, BarChart3, DollarSign,
+  ShieldCheck, Target,
 } from 'lucide-react';
 
 const recentActivity = [

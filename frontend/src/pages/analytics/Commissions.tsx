@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Card, Badge, Button, Select } from '@/components/ui';
-import { DollarSign, TrendingUp, Calendar, Download, ArrowUp, ArrowDown } from 'lucide-react';
+import { DollarSign, TrendingUp, Calendar, Download, ArrowUp } from 'lucide-react';
 
 interface CommissionRecord {
   id: string;

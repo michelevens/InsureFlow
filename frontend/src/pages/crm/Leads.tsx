@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { Card, Badge, Button, Input, Select } from '@/components/ui';
 import {
-  Target, Search, Filter, Phone, Mail, Clock, ArrowRight, Plus,
-  ChevronDown, User, MapPin, Calendar,
+  Search, Phone, Mail,
 } from 'lucide-react';
 
 type LeadStatus = 'new' | 'contacted' | 'quoted' | 'applied' | 'won' | 'lost';

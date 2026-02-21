@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button, Input, Card, Badge, Select } from '@/components/ui';
-import { Search, MapPin, Star, Shield, ShieldCheck, Phone, Mail, ArrowRight, Filter, Users } from 'lucide-react';
+import { Search, MapPin, Star, Shield, ShieldCheck, Phone, ArrowRight, Filter, Users } from 'lucide-react';
 
 const insuranceTypeOptions = [
   { value: '', label: 'All Types' },

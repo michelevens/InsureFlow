@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Card, Badge, Button, Textarea } from '@/components/ui';
-import { Star, MessageSquare, ThumbsUp, TrendingUp, Clock, Reply } from 'lucide-react';
+import { Star, MessageSquare, ThumbsUp, Reply } from 'lucide-react';
 
 interface Review {
   id: string;

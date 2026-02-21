@@ -1,7 +1,7 @@
 import { Card, Badge, Select } from '@/components/ui';
 import { useState } from 'react';
 import { StatsCard } from '@/components/dashboard/StatsCard';
-import { BarChart3, TrendingUp, DollarSign, ShieldCheck, Users, FileText } from 'lucide-react';
+import { TrendingUp, DollarSign, ShieldCheck, FileText } from 'lucide-react';
 
 const agentProduction = [
   { agent: 'Sarah Johnson', agency: 'Johnson Insurance Group', applications: 18, bound: 14, premium_volume: '$42,000', conversion: 78 },
