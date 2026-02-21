@@ -43,11 +43,11 @@ class AuthController extends Controller
             'password' => 'required',
         ]);
 
-        if (!Auth::attempt($data)) {
+        if (!Auth::guard('web')->attempt($data)) {
             return response()->json(['message' => 'Invalid credentials'], 401);
         }
 
-        $user = Auth::user();
+        $user = Auth::guard('web')->user();
 
         if (!$user->is_active) {
             Auth::logout();
