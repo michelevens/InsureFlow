@@ -15,14 +15,14 @@ WORKDIR /app
 # Copy backend files
 COPY laravel-backend/ .
 
-# Install dependencies
-RUN composer install --no-dev --optimize-autoloader --no-interaction
-
-# Create storage directories
+# Create required directories before composer install
 RUN mkdir -p storage/framework/{cache,sessions,views} storage/logs bootstrap/cache \
     && chmod -R 775 storage bootstrap/cache
 
-# Cache config and routes
+# Install dependencies
+RUN composer install --no-dev --optimize-autoloader --no-interaction
+
+# Cache config
 RUN php artisan config:clear || true
 
 EXPOSE 8080
