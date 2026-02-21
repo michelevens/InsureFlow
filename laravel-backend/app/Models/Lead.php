@@ -10,7 +10,7 @@ class Lead extends Model
     use HasFactory;
 
     protected $fillable = [
-        'agent_id', 'quote_request_id', 'consumer_id',
+        'agent_id', 'agency_id', 'quote_request_id', 'consumer_id',
         'first_name', 'last_name', 'email', 'phone',
         'insurance_type', 'status', 'source', 'estimated_value', 'notes',
     ];
@@ -40,5 +40,15 @@ class Lead extends Model
     public function activities()
     {
         return $this->hasMany(LeadActivity::class);
+    }
+
+    public function agency()
+    {
+        return $this->belongsTo(Agency::class);
+    }
+
+    public function insuranceProfile()
+    {
+        return $this->hasOne(InsuranceProfile::class);
     }
 }

@@ -32,4 +32,14 @@ class Agency extends Model
     {
         return $this->hasMany(User::class, 'agency_id');
     }
+
+    public function insuranceProfiles()
+    {
+        return $this->hasMany(InsuranceProfile::class);
+    }
+
+    public function routingRules()
+    {
+        return $this->hasMany(RoutingRule::class);
+    }
 }

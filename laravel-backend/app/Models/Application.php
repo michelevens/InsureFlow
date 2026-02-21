@@ -10,7 +10,7 @@ class Application extends Model
     use HasFactory;
 
     protected $fillable = [
-        'reference', 'user_id', 'agent_id', 'carrier_product_id',
+        'reference', 'user_id', 'agent_id', 'agency_id', 'carrier_product_id',
         'quote_id', 'insurance_type', 'carrier_name',
         'monthly_premium', 'status', 'applicant_data',
         'submitted_at',
@@ -48,5 +48,15 @@ class Application extends Model
     public function policy()
     {
         return $this->hasOne(Policy::class);
+    }
+
+    public function agency()
+    {
+        return $this->belongsTo(Agency::class);
+    }
+
+    public function insuranceProfile()
+    {
+        return $this->hasOne(InsuranceProfile::class);
     }
 }

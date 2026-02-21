@@ -4,14 +4,20 @@ namespace App\Http\Controllers;
 
 use App\Mail\QuoteReceivedMail;
 use App\Models\CarrierProduct;
+use App\Models\InsuranceProfile;
 use App\Models\Lead;
 use App\Models\Quote;
 use App\Models\QuoteRequest;
+use App\Services\RoutingEngine;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 
 class QuoteController extends Controller
 {
+    public function __construct(
+        private RoutingEngine $router,
+    ) {}
+
     public function estimate(Request $request)
     {
         $data = $request->validate([
@@ -24,10 +30,14 @@ class QuoteController extends Controller
             'email' => 'nullable|email',
             'phone' => 'nullable|string',
             'date_of_birth' => 'nullable|date',
+            'agency_id' => 'nullable|integer|exists:agencies,id',
         ]);
+
+        $agencyId = $data['agency_id'] ?? $request->attributes->get('agency_id');
 
         $quoteRequest = QuoteRequest::create([
             'user_id' => $request->user()?->id,
+            'agency_id' => $agencyId,
             'insurance_type' => $data['insurance_type'],
             'zip_code' => $data['zip_code'],
             'coverage_level' => $data['coverage_level'] ?? 'standard',
@@ -73,8 +83,19 @@ class QuoteController extends Controller
             $quotes[] = $quote;
         }
 
+        // Create UIP at intake stage
+        $profile = InsuranceProfile::findOrCreateFromQuote($quoteRequest, $agencyId);
+        if (!empty($quotes)) {
+            $lowestQuote = collect($quotes)->sortBy('monthly_premium')->first();
+            $profile->advanceTo('quoted', [
+                'monthly_premium' => $lowestQuote->monthly_premium,
+                'annual_premium' => $lowestQuote->annual_premium,
+            ]);
+        }
+
         return response()->json([
             'quote_request_id' => $quoteRequest->id,
+            'profile_id' => $profile->id,
             'quotes' => $quotes,
         ]);
     }
@@ -95,6 +116,7 @@ class QuoteController extends Controller
 
         $lead = Lead::create([
             'quote_request_id' => $quoteRequest->id,
+            'agency_id' => $quoteRequest->agency_id,
             'first_name' => $data['first_name'],
             'last_name' => $data['last_name'],
             'email' => $data['email'],
@@ -105,21 +127,51 @@ class QuoteController extends Controller
             'estimated_value' => $lowestQuote?->annual_premium,
         ]);
 
+        // Advance UIP to lead stage + route to agent
+        $profile = InsuranceProfile::where('quote_request_id', $quoteRequest->id)->first();
+        if ($profile) {
+            $profile->update([
+                'first_name' => $data['first_name'],
+                'last_name' => $data['last_name'],
+                'email' => $data['email'],
+                'phone' => $data['phone'] ?? $profile->phone,
+                'lead_id' => $lead->id,
+            ]);
+            $profile->advanceTo('lead', [
+                'estimated_value' => $lowestQuote?->annual_premium,
+            ]);
+
+            // Route to an agent
+            $this->router->route($profile);
+            $profile->refresh();
+
+            // Sync agent back to lead
+            if ($profile->assigned_agent_id && !$lead->agent_id) {
+                $lead->update(['agent_id' => $profile->assigned_agent_id]);
+            }
+        }
+
         // Send quote received email
         $quoteCount = $quoteRequest->quotes()->count();
         $lowestPremium = $lowestQuote?->monthly_premium ?? '0.00';
 
-        Mail::to($data['email'])->send(new QuoteReceivedMail(
-            user: null,
-            firstName: $data['first_name'],
-            email: $data['email'],
-            quoteCount: $quoteCount,
-            lowestPremium: $lowestPremium,
-        ));
+        try {
+            Mail::to($data['email'])->send(new QuoteReceivedMail(
+                user: null,
+                firstName: $data['first_name'],
+                email: $data['email'],
+                quoteCount: $quoteCount,
+                lowestPremium: $lowestPremium,
+            ));
+        } catch (\Exception $e) {
+            \Log::warning('Failed to send quote email', ['error' => $e->getMessage()]);
+        }
 
         return response()->json([
             'message' => 'Contact info saved',
             'lead_id' => $lead->id,
+            'profile_id' => $profile?->id,
+            'assigned_agent_id' => $profile?->assigned_agent_id,
             'quote_request_id' => $quoteRequest->id,
         ]);
     }

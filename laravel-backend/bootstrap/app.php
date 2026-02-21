@@ -9,7 +9,9 @@ return Application::configure(basePath: dirname(__DIR__))
         api: __DIR__.'/../routes/api.php',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        //
+        $middleware->alias([
+            'agency.scope' => \App\Http\Middleware\EnsureAgencyScope::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

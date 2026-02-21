@@ -10,7 +10,7 @@ class Policy extends Model
     use HasFactory;
 
     protected $fillable = [
-        'policy_number', 'application_id', 'user_id', 'agent_id',
+        'policy_number', 'application_id', 'user_id', 'agent_id', 'agency_id',
         'carrier_product_id', 'type', 'carrier_name',
         'monthly_premium', 'annual_premium', 'deductible',
         'coverage_limit', 'coverage_details', 'status',
@@ -52,5 +52,15 @@ class Policy extends Model
     public function commissions()
     {
         return $this->hasMany(Commission::class);
+    }
+
+    public function agency()
+    {
+        return $this->belongsTo(Agency::class);
+    }
+
+    public function insuranceProfile()
+    {
+        return $this->hasOne(InsuranceProfile::class);
     }
 }

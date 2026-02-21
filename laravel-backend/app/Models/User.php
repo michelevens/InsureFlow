@@ -84,4 +84,14 @@ class User extends Authenticatable
     {
         return $this->hasOne(ReferralCode::class);
     }
+
+    public function insuranceProfiles()
+    {
+        return $this->hasMany(InsuranceProfile::class);
+    }
+
+    public function assignedProfiles()
+    {
+        return $this->hasMany(InsuranceProfile::class, 'assigned_agent_id');
+    }
 }

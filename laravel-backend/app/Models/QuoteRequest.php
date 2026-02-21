@@ -10,7 +10,7 @@ class QuoteRequest extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id', 'insurance_type', 'zip_code', 'coverage_level',
+        'user_id', 'agency_id', 'insurance_type', 'zip_code', 'coverage_level',
         'details', 'first_name', 'last_name', 'email', 'phone',
         'date_of_birth',
     ];
@@ -31,5 +31,15 @@ class QuoteRequest extends Model
     public function quotes()
     {
         return $this->hasMany(Quote::class);
+    }
+
+    public function agency()
+    {
+        return $this->belongsTo(Agency::class);
+    }
+
+    public function insuranceProfile()
+    {
+        return $this->hasOne(InsuranceProfile::class);
     }
 }

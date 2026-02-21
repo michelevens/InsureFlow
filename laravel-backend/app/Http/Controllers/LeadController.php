@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\InsuranceProfile;
 use App\Models\Lead;
 use App\Models\LeadActivity;
 use Illuminate\Http\Request;
@@ -10,8 +11,25 @@ class LeadController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Lead::where('agent_id', $request->user()->id)
-            ->with('activities');
+        $user = $request->user();
+        $agencyId = $request->attributes->get('agency_id');
+        $isAdmin = $request->attributes->get('is_platform_admin');
+
+        $query = Lead::with('activities');
+
+        // Tenant scoping
+        if ($agencyId) {
+            $query->where('agency_id', $agencyId);
+        }
+
+        // Role-based filtering
+        if ($user->role === 'agent') {
+            $query->where('agent_id', $user->id);
+        } elseif ($user->role === 'agency_owner') {
+            // Agency owners see all leads in their agency (already scoped above)
+        } elseif (!$isAdmin) {
+            $query->where('agent_id', $user->id);
+        }
 
         if ($status = $request->query('status')) {
             $query->where('status', $status);
@@ -27,9 +45,12 @@ class LeadController extends Controller
 
         $leads = $query->orderByDesc('created_at')->paginate(20);
 
-        // Get counts by status
-        $counts = Lead::where('agent_id', $request->user()->id)
-            ->selectRaw("status, count(*) as count")
+        // Get counts by status (same scope)
+        $countQuery = Lead::query();
+        if ($agencyId) $countQuery->where('agency_id', $agencyId);
+        if ($user->role === 'agent') $countQuery->where('agent_id', $user->id);
+
+        $counts = $countQuery->selectRaw("status, count(*) as count")
             ->groupBy('status')
             ->pluck('count', 'status');
 
@@ -52,10 +73,30 @@ class LeadController extends Controller
             'notes' => 'nullable|string',
         ]);
 
+        $agencyId = $request->attributes->get('agency_id');
+
         $lead = Lead::create([
             ...$data,
             'agent_id' => $request->user()->id,
+            'agency_id' => $agencyId,
             'status' => 'new',
+        ]);
+
+        // Create a UIP for manually-created leads
+        InsuranceProfile::create([
+            'agency_id' => $agencyId,
+            'first_name' => $data['first_name'],
+            'last_name' => $data['last_name'],
+            'email' => $data['email'],
+            'phone' => $data['phone'] ?? null,
+            'insurance_type' => $data['insurance_type'],
+            'current_stage' => 'lead',
+            'lead_id' => $lead->id,
+            'assigned_agent_id' => $request->user()->id,
+            'source' => $data['source'] ?? 'direct',
+            'estimated_value' => $data['estimated_value'] ?? null,
+            'notes' => $data['notes'] ?? null,
+            'stage_updated_at' => now(),
         ]);
 
         return response()->json($lead, 201);
@@ -90,6 +131,16 @@ class LeadController extends Controller
                 'type' => 'status_change',
                 'description' => "Status changed from {$oldStatus} to {$data['status']}",
             ]);
+
+            // Sync lead status to UIP
+            $profile = InsuranceProfile::where('lead_id', $lead->id)->first();
+            if ($profile) {
+                if ($data['status'] === 'won') {
+                    $profile->update(['status' => 'converted']);
+                } elseif ($data['status'] === 'lost') {
+                    $profile->update(['status' => 'lost']);
+                }
+            }
         }
 
         return response()->json($lead);

@@ -7,10 +7,12 @@ use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CarrierController;
 use App\Http\Controllers\CommissionController;
+use App\Http\Controllers\InsuranceProfileController;
 use App\Http\Controllers\LeadController;
 use App\Http\Controllers\PolicyController;
 use App\Http\Controllers\QuoteController;
 use App\Http\Controllers\ReferralController;
+use App\Http\Controllers\RoutingRuleController;
 use App\Http\Controllers\SubscriptionController;
 use Illuminate\Support\Facades\Route;
 
@@ -52,11 +54,11 @@ Route::post('/webhooks/stripe', [SubscriptionController::class, 'handleWebhook']
 
 /*
 |--------------------------------------------------------------------------
-| Protected Routes (auth:sanctum)
+| Protected Routes (auth:sanctum + agency scope)
 |--------------------------------------------------------------------------
 */
 
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware(['auth:sanctum', 'agency.scope'])->group(function () {
 
     // Auth
     Route::get('/auth/me', [AuthController::class, 'me']);
@@ -71,6 +73,20 @@ Route::middleware('auth:sanctum')->group(function () {
     // Quotes
     Route::get('/quotes', [QuoteController::class, 'myQuotes']);
     Route::get('/quotes/{quoteRequest}', [QuoteController::class, 'show']);
+
+    // --- Unified Insurance Profiles (UIP) ---
+    Route::get('/profiles', [InsuranceProfileController::class, 'index']);
+    Route::get('/profiles/pipeline', [InsuranceProfileController::class, 'pipeline']);
+    Route::get('/profiles/{profile}', [InsuranceProfileController::class, 'show']);
+    Route::put('/profiles/{profile}', [InsuranceProfileController::class, 'update']);
+    Route::post('/profiles/{profile}/advance', [InsuranceProfileController::class, 'advanceStage']);
+    Route::post('/profiles/{profile}/reassign', [InsuranceProfileController::class, 'reassign']);
+
+    // --- Routing Rules (agency owners + admins) ---
+    Route::get('/routing-rules', [RoutingRuleController::class, 'index']);
+    Route::post('/routing-rules', [RoutingRuleController::class, 'store']);
+    Route::put('/routing-rules/{rule}', [RoutingRuleController::class, 'update']);
+    Route::delete('/routing-rules/{rule}', [RoutingRuleController::class, 'destroy']);
 
     // Applications
     Route::get('/applications', [ApplicationController::class, 'index']);
