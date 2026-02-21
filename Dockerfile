@@ -20,7 +20,7 @@ RUN mkdir -p storage/framework/{cache,sessions,views} storage/logs bootstrap/cac
     && chmod -R 775 storage bootstrap/cache
 
 # Install dependencies
-RUN composer install --no-dev --optimize-autoloader --no-interaction
+RUN composer update --no-dev --optimize-autoloader --no-interaction
 
 # Cache config
 RUN php artisan config:clear || true
