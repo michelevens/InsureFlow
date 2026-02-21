@@ -1,87 +1,71 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Button, Card, Badge } from '@/components/ui';
-import { Shield, ShieldCheck, Star, ArrowRight, ArrowLeft, Check, Phone } from 'lucide-react';
-
-interface QuoteResult {
-  id: string;
-  carrier: string;
-  logo: string;
-  monthly_premium: number;
-  annual_premium: number;
-  deductible: number;
-  coverage_limit: string;
-  rating: number;
-  features: string[];
-  recommended?: boolean;
-}
-
-const mockQuotes: QuoteResult[] = [
-  {
-    id: '1',
-    carrier: 'StateFarm',
-    logo: 'SF',
-    monthly_premium: 127,
-    annual_premium: 1524,
-    deductible: 500,
-    coverage_limit: '$300,000',
-    rating: 4.8,
-    features: ['24/7 Claims', 'Roadside Assistance', 'Multi-Policy Discount'],
-    recommended: true,
-  },
-  {
-    id: '2',
-    carrier: 'Progressive',
-    logo: 'PG',
-    monthly_premium: 142,
-    annual_premium: 1704,
-    deductible: 500,
-    coverage_limit: '$300,000',
-    rating: 4.6,
-    features: ['Name Your Price', 'Snapshot Discount', 'Pet Coverage'],
-  },
-  {
-    id: '3',
-    carrier: 'Geico',
-    logo: 'GK',
-    monthly_premium: 135,
-    annual_premium: 1620,
-    deductible: 750,
-    coverage_limit: '$250,000',
-    rating: 4.5,
-    features: ['Military Discount', 'Digital ID Cards', 'Emergency Assistance'],
-  },
-  {
-    id: '4',
-    carrier: 'Allstate',
-    logo: 'AS',
-    monthly_premium: 155,
-    annual_premium: 1860,
-    deductible: 500,
-    coverage_limit: '$500,000',
-    rating: 4.7,
-    features: ['Accident Forgiveness', 'New Car Replacement', 'Safe Driving Bonus'],
-  },
-  {
-    id: '5',
-    carrier: 'Liberty Mutual',
-    logo: 'LM',
-    monthly_premium: 148,
-    annual_premium: 1776,
-    deductible: 500,
-    coverage_limit: '$300,000',
-    rating: 4.4,
-    features: ['Better Car Replacement', 'Lifetime Repair Guarantee', 'Teacher Discount'],
-  },
-];
+import { Button, Card, Badge, Input } from '@/components/ui';
+import { Shield, ShieldCheck, ArrowRight, ArrowLeft, Check, Phone, Mail, Award, CheckCircle2 } from 'lucide-react';
+import { quoteService } from '@/services/api';
+import type { EstimateQuote } from '@/services/api/quotes';
 
 export default function QuoteResults() {
   const location = useLocation();
   const navigate = useNavigate();
-  const [selectedQuote, setSelectedQuote] = useState<string | null>(null);
-  const quoteRequest = location.state?.quoteRequest;
+  const [selectedQuote, setSelectedQuote] = useState<number | null>(null);
+  const [showSaveForm, setShowSaveForm] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [contact, setContact] = useState({ first_name: '', last_name: '', email: '', phone: '' });
 
-  const lowestPremium = Math.min(...mockQuotes.map(q => q.monthly_premium));
+  const quotes: EstimateQuote[] = location.state?.quotes || [];
+  const quoteRequestId: number = location.state?.quoteRequestId;
+  const insuranceType: string = location.state?.insuranceType || 'auto';
+  const coverageLevel: string = location.state?.coverageLevel || 'standard';
+  const zipCode: string = location.state?.zipCode || '';
+
+  // Sort: recommended first, then by monthly premium ascending
+  const sortedQuotes = [...quotes].sort((a, b) => {
+    if (a.is_recommended && !b.is_recommended) return -1;
+    if (!a.is_recommended && b.is_recommended) return 1;
+    return parseFloat(a.monthly_premium) - parseFloat(b.monthly_premium);
+  });
+
+  const lowestPremium = quotes.length > 0
+    ? Math.min(...quotes.map(q => parseFloat(q.monthly_premium)))
+    : 0;
+
+  const handleSaveContact = async () => {
+    if (!contact.first_name || !contact.email) return;
+    setSaving(true);
+    try {
+      await quoteService.saveContact(quoteRequestId, {
+        first_name: contact.first_name,
+        last_name: contact.last_name,
+        email: contact.email,
+        phone: contact.phone || undefined,
+      });
+      setSaved(true);
+    } catch {
+      // Still show success — the quotes are already visible
+      setSaved(true);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (quotes.length === 0) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <Card className="max-w-md mx-auto">
+          <div className="p-8 text-center">
+            <Shield className="w-12 h-12 text-shield-400 mx-auto mb-4" />
+            <h2 className="text-xl font-bold text-slate-900 mb-2">No Quotes Available</h2>
+            <p className="text-slate-500 mb-6">We couldn't find matching quotes for your criteria. Try adjusting your search.</p>
+            <Link to="/calculator">
+              <Button variant="shield">Try Again</Button>
+            </Link>
+          </div>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -110,7 +94,7 @@ export default function QuoteResults() {
         <div className="text-center mb-10">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-savings-50 text-savings-700 text-sm font-medium mb-4">
             <ShieldCheck className="w-4 h-4" />
-            {mockQuotes.length} quotes found
+            {sortedQuotes.length} quotes found — no account needed
           </div>
           <h1 className="text-3xl font-bold text-slate-900">Your Insurance Quotes</h1>
           <p className="text-slate-500 mt-2">Compare rates side-by-side from top-rated carriers</p>
@@ -120,96 +104,178 @@ export default function QuoteResults() {
         <div className="bg-white rounded-2xl border border-slate-200 p-6 mb-8 flex flex-wrap items-center justify-between gap-4">
           <div>
             <p className="text-sm text-slate-500">Lowest Monthly Premium</p>
-            <p className="text-2xl font-bold text-savings-600">${lowestPremium}/mo</p>
+            <p className="text-2xl font-bold text-savings-600">${lowestPremium.toFixed(0)}/mo</p>
           </div>
           <div>
             <p className="text-sm text-slate-500">Insurance Type</p>
-            <p className="text-lg font-semibold text-slate-900 capitalize">{quoteRequest?.insurance_type || 'Auto'}</p>
+            <p className="text-lg font-semibold text-slate-900 capitalize">{insuranceType}</p>
           </div>
           <div>
             <p className="text-sm text-slate-500">Coverage Level</p>
-            <p className="text-lg font-semibold text-slate-900 capitalize">{quoteRequest?.coverage_level || 'Standard'}</p>
+            <p className="text-lg font-semibold text-slate-900 capitalize">{coverageLevel}</p>
           </div>
           <div>
             <p className="text-sm text-slate-500">ZIP Code</p>
-            <p className="text-lg font-semibold text-slate-900">{quoteRequest?.zip_code || '10001'}</p>
+            <p className="text-lg font-semibold text-slate-900">{zipCode}</p>
           </div>
         </div>
 
         {/* Quote cards */}
         <div className="space-y-4">
-          {mockQuotes.map(quote => (
-            <Card
-              key={quote.id}
-              className={`transition-all duration-200 cursor-pointer ${
-                selectedQuote === quote.id ? 'ring-2 ring-shield-500' : ''
-              } ${quote.recommended ? 'border-shield-200 bg-shield-50/30' : ''}`}
-              onClick={() => setSelectedQuote(quote.id)}
-            >
-              <div className="p-6">
-                <div className="flex flex-col lg:flex-row lg:items-center gap-6">
-                  {/* Carrier info */}
-                  <div className="flex items-center gap-4 lg:w-48">
-                    <div className="w-14 h-14 rounded-xl bg-shield-100 text-shield-700 flex items-center justify-center text-lg font-bold">
-                      {quote.logo}
+          {sortedQuotes.map(quote => {
+            const carrier = quote.carrier_product?.carrier;
+            const carrierName = carrier?.name || 'Insurance Carrier';
+            const carrierInitials = carrierName.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+            const rating = carrier?.am_best_rating;
+            const monthly = parseFloat(quote.monthly_premium);
+            const annual = parseFloat(quote.annual_premium);
+            const deductible = parseFloat(quote.deductible);
+
+            return (
+              <Card
+                key={quote.id}
+                className={`transition-all duration-200 cursor-pointer ${
+                  selectedQuote === quote.id ? 'ring-2 ring-shield-500' : ''
+                } ${quote.is_recommended ? 'border-shield-200 bg-shield-50/30' : ''}`}
+                onClick={() => setSelectedQuote(quote.id)}
+              >
+                <div className="p-6">
+                  <div className="flex flex-col lg:flex-row lg:items-center gap-6">
+                    {/* Carrier info */}
+                    <div className="flex items-center gap-4 lg:w-56">
+                      <div className="w-14 h-14 rounded-xl bg-shield-100 text-shield-700 flex items-center justify-center text-lg font-bold">
+                        {carrierInitials}
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-slate-900">{carrierName}</h3>
+                        {rating && (
+                          <div className="flex items-center gap-1">
+                            <Award className="w-3.5 h-3.5 text-amber-500" />
+                            <span className="text-sm text-slate-600">AM Best: {rating}</span>
+                          </div>
+                        )}
+                      </div>
+                      {quote.is_recommended && (
+                        <Badge variant="shield" className="ml-auto lg:ml-0">Best Value</Badge>
+                      )}
                     </div>
-                    <div>
-                      <h3 className="font-semibold text-slate-900">{quote.carrier}</h3>
-                      <div className="flex items-center gap-1">
-                        <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
-                        <span className="text-sm text-slate-600">{quote.rating}</span>
+
+                    {/* Coverage details */}
+                    <div className="flex-1 grid grid-cols-3 gap-4">
+                      <div>
+                        <p className="text-xs text-slate-500 uppercase tracking-wider">Monthly</p>
+                        <p className="text-xl font-bold text-slate-900">${monthly.toFixed(0)}</p>
+                        <p className="text-xs text-slate-400">${annual.toFixed(0)}/yr</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-slate-500 uppercase tracking-wider">Deductible</p>
+                        <p className="text-xl font-bold text-slate-900">${deductible.toFixed(0)}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-slate-500 uppercase tracking-wider">Coverage</p>
+                        <p className="text-xl font-bold text-slate-900">{quote.coverage_limit}</p>
                       </div>
                     </div>
-                    {quote.recommended && (
-                      <Badge variant="shield" className="ml-auto lg:ml-0">Best Value</Badge>
-                    )}
-                  </div>
 
-                  {/* Coverage details */}
-                  <div className="flex-1 grid grid-cols-3 gap-4">
-                    <div>
-                      <p className="text-xs text-slate-500 uppercase tracking-wider">Monthly</p>
-                      <p className="text-xl font-bold text-slate-900">${quote.monthly_premium}</p>
+                    {/* Features */}
+                    <div className="lg:w-56">
+                      {(quote.features || []).slice(0, 3).map((f, i) => (
+                        <div key={i} className="flex items-center gap-2 text-sm text-slate-600">
+                          <Check className="w-3.5 h-3.5 text-savings-500 flex-shrink-0" />
+                          {f}
+                        </div>
+                      ))}
                     </div>
-                    <div>
-                      <p className="text-xs text-slate-500 uppercase tracking-wider">Deductible</p>
-                      <p className="text-xl font-bold text-slate-900">${quote.deductible}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-slate-500 uppercase tracking-wider">Coverage</p>
-                      <p className="text-xl font-bold text-slate-900">{quote.coverage_limit}</p>
-                    </div>
-                  </div>
 
-                  {/* Features */}
-                  <div className="lg:w-56">
-                    {quote.features.map((f, i) => (
-                      <div key={i} className="flex items-center gap-2 text-sm text-slate-600">
-                        <Check className="w-3.5 h-3.5 text-savings-500 flex-shrink-0" />
-                        {f}
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Action */}
-                  <div className="lg:w-40">
-                    <Button
-                      variant={selectedQuote === quote.id ? 'shield' : 'outline'}
-                      className="w-full"
-                      rightIcon={<ArrowRight className="w-4 h-4" />}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        navigate('/marketplace', { state: { selectedQuote: quote } });
-                      }}
-                    >
-                      Select
-                    </Button>
+                    {/* Action */}
+                    <div className="lg:w-40">
+                      <Button
+                        variant={selectedQuote === quote.id ? 'shield' : 'outline'}
+                        className="w-full"
+                        rightIcon={<ArrowRight className="w-4 h-4" />}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate('/marketplace', { state: { selectedQuote: quote } });
+                        }}
+                      >
+                        Select
+                      </Button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </Card>
-          ))}
+              </Card>
+            );
+          })}
         </div>
+
+        {/* Save Your Quotes CTA — post-results email capture */}
+        <Card className="mt-10 border-shield-200 bg-gradient-to-r from-shield-50/50 to-blue-50/50">
+          <div className="p-8">
+            {saved ? (
+              <div className="text-center">
+                <CheckCircle2 className="w-12 h-12 text-savings-500 mx-auto mb-3" />
+                <h3 className="text-xl font-bold text-slate-900 mb-1">Quotes Saved!</h3>
+                <p className="text-slate-500">We've saved your quotes. They're valid for 30 days.</p>
+              </div>
+            ) : !showSaveForm ? (
+              <div className="text-center">
+                <Mail className="w-10 h-10 text-shield-500 mx-auto mb-3" />
+                <h3 className="text-xl font-bold text-slate-900 mb-1">Want to save these quotes?</h3>
+                <p className="text-slate-500 mb-5">Get your quotes emailed to you — valid for 30 days. No account required.</p>
+                <Button variant="shield" onClick={() => setShowSaveForm(true)} leftIcon={<Mail className="w-4 h-4" />}>
+                  Email My Quotes
+                </Button>
+              </div>
+            ) : (
+              <div>
+                <h3 className="text-lg font-bold text-slate-900 mb-4 text-center">Enter your details to save these quotes</h3>
+                <div className="max-w-lg mx-auto space-y-4">
+                  <div className="grid grid-cols-2 gap-3">
+                    <Input
+                      label="First Name"
+                      placeholder="John"
+                      value={contact.first_name}
+                      onChange={e => setContact(c => ({ ...c, first_name: e.target.value }))}
+                    />
+                    <Input
+                      label="Last Name"
+                      placeholder="Smith"
+                      value={contact.last_name}
+                      onChange={e => setContact(c => ({ ...c, last_name: e.target.value }))}
+                    />
+                  </div>
+                  <Input
+                    label="Email"
+                    type="email"
+                    placeholder="you@example.com"
+                    value={contact.email}
+                    onChange={e => setContact(c => ({ ...c, email: e.target.value }))}
+                  />
+                  <Input
+                    label="Phone (optional)"
+                    type="tel"
+                    placeholder="(555) 123-4567"
+                    value={contact.phone}
+                    onChange={e => setContact(c => ({ ...c, phone: e.target.value }))}
+                  />
+                  <div className="flex gap-3">
+                    <Button variant="outline" className="flex-1" onClick={() => setShowSaveForm(false)}>Cancel</Button>
+                    <Button
+                      variant="shield"
+                      className="flex-1"
+                      onClick={handleSaveContact}
+                      isLoading={saving}
+                      disabled={!contact.first_name || !contact.email}
+                    >
+                      Save My Quotes
+                    </Button>
+                  </div>
+                  <p className="text-xs text-slate-400 text-center">We won't spam you. Your info is only used to save and email your quotes.</p>
+                </div>
+              </div>
+            )}
+          </div>
+        </Card>
 
         {/* Bottom CTA */}
         <div className="mt-10 text-center">

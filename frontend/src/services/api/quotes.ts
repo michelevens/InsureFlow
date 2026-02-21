@@ -1,33 +1,53 @@
 import { api } from './client';
-import type { QuoteRequest, Quote } from '@/types';
 
-export interface CalculateQuoteData {
+export interface EstimatePayload {
   insurance_type: string;
   zip_code: string;
-  state: string;
-  details: Record<string, unknown>;
+  coverage_level: string;
+  details?: Record<string, string>;
+  first_name?: string;
+  last_name?: string;
+  email?: string;
+  phone?: string;
+  date_of_birth?: string;
 }
 
-export interface QuoteResultsResponse {
-  quote_request: QuoteRequest;
-  quotes: Quote[];
-  count: number;
+export interface EstimateQuote {
+  id: number;
+  quote_request_id: number;
+  carrier_product_id: number;
+  monthly_premium: string;
+  annual_premium: string;
+  deductible: string;
+  coverage_limit: string;
+  features: string[];
+  is_recommended: boolean;
+  expires_at: string;
+  carrier_product: {
+    id: number;
+    carrier_id: number;
+    name: string;
+    insurance_type: string;
+    carrier: {
+      id: number;
+      name: string;
+      slug: string;
+      am_best_rating: string | null;
+    };
+  };
+}
+
+export interface EstimateResponse {
+  quote_request_id: number;
+  quotes: EstimateQuote[];
 }
 
 export const quoteService = {
-  async calculate(data: CalculateQuoteData): Promise<QuoteResultsResponse> {
-    return api.post<QuoteResultsResponse>('/quotes/calculate', data);
+  async estimate(data: EstimatePayload): Promise<EstimateResponse> {
+    return api.post<EstimateResponse>('/calculator/estimate', data);
   },
 
-  async getResults(requestId: number): Promise<QuoteResultsResponse> {
-    return api.get<QuoteResultsResponse>(`/quotes/${requestId}/results`);
-  },
-
-  async saveComparison(quoteIds: number[]): Promise<{ id: number }> {
-    return api.post<{ id: number }>('/quotes/compare', { quote_ids: quoteIds });
-  },
-
-  async selectQuote(quoteId: number): Promise<{ application_id: number }> {
-    return api.post<{ application_id: number }>(`/quotes/${quoteId}/select`);
+  async saveContact(quoteRequestId: number, data: { first_name: string; last_name: string; email: string; phone?: string }): Promise<{ message: string }> {
+    return api.put<{ message: string }>(`/calculator/${quoteRequestId}/contact`, data);
   },
 };

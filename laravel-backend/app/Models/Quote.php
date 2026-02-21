@@ -10,8 +10,8 @@ class Quote extends Model
     use HasFactory;
 
     protected $fillable = [
-        'quote_request_id', 'carrier_product_id', 'monthly_premium',
-        'annual_premium', 'deductible', 'coverage_limit',
+        'quote_request_id', 'carrier_product_id', 'carrier_name',
+        'monthly_premium', 'annual_premium', 'deductible', 'coverage_limit',
         'features', 'is_recommended', 'expires_at',
     ];
 

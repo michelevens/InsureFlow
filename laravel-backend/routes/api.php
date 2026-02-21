@@ -24,6 +24,7 @@ Route::post('/auth/login', [AuthController::class, 'login']);
 
 // Calculator / Quote
 Route::post('/calculator/estimate', [QuoteController::class, 'estimate']);
+Route::put('/calculator/{quoteRequest}/contact', [QuoteController::class, 'saveContact']);
 
 // Marketplace (public)
 Route::get('/marketplace/agents', [AgentController::class, 'index']);

@@ -56,6 +56,7 @@ class QuoteController extends Controller
             $quote = Quote::create([
                 'quote_request_id' => $quoteRequest->id,
                 'carrier_product_id' => $product->id,
+                'carrier_name' => $product->carrier?->name ?? $product->name,
                 'monthly_premium' => $monthly,
                 'annual_premium' => round($monthly * 11.5, 2),
                 'deductible' => $product->deductible_options[0] ?? 500,
@@ -73,6 +74,20 @@ class QuoteController extends Controller
             'quote_request_id' => $quoteRequest->id,
             'quotes' => $quotes,
         ]);
+    }
+
+    public function saveContact(Request $request, QuoteRequest $quoteRequest)
+    {
+        $data = $request->validate([
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'email' => 'required|email',
+            'phone' => 'nullable|string|max:20',
+        ]);
+
+        $quoteRequest->update($data);
+
+        return response()->json(['message' => 'Contact info saved']);
     }
 
     public function myQuotes(Request $request)
