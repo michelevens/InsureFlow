@@ -23,3 +23,5 @@ export { auditService } from './audit';
 export type { AuditLogEntry } from './audit';
 export { aiService } from './ai';
 export type { AiConversation, AiMessage, AiChatResponse } from './ai';
+export { leadScoringService } from './leadScoring';
+export type { LeadScore, LeadScoreFactors } from './leadScoring';

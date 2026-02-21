@@ -22,6 +22,7 @@ use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\PayoutController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\AiChatController;
+use App\Http\Controllers\LeadScoringController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -94,6 +95,12 @@ Route::middleware(['auth:sanctum', 'agency.scope'])->group(function () {
     Route::put('/profiles/{profile}', [InsuranceProfileController::class, 'update']);
     Route::post('/profiles/{profile}/advance', [InsuranceProfileController::class, 'advanceStage']);
     Route::post('/profiles/{profile}/reassign', [InsuranceProfileController::class, 'reassign']);
+
+    // --- Lead Scoring ---
+    Route::get('/profiles/{profileId}/score', [LeadScoringController::class, 'score']);
+    Route::post('/engagement/track', [LeadScoringController::class, 'trackEngagement']);
+    Route::get('/lead-scores/top', [LeadScoringController::class, 'topLeads']);
+    Route::post('/lead-scores/rescore', [LeadScoringController::class, 'rescoreAll']);
 
     // --- Routing Rules (agency owners + admins) ---
     Route::get('/routing-rules', [RoutingRuleController::class, 'index']);
