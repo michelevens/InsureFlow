@@ -10,6 +10,7 @@ use App\Http\Controllers\CommissionController;
 use App\Http\Controllers\InsuranceProfileController;
 use App\Http\Controllers\InviteController;
 use App\Http\Controllers\LeadController;
+use App\Http\Controllers\MessageController;
 use App\Http\Controllers\PolicyController;
 use App\Http\Controllers\QuoteController;
 use App\Http\Controllers\ReferralController;
@@ -138,6 +139,17 @@ Route::middleware(['auth:sanctum', 'agency.scope'])->group(function () {
     // Referrals
     Route::get('/referrals/dashboard', [ReferralController::class, 'dashboard']);
     Route::post('/referrals/apply', [ReferralController::class, 'applyCode']);
+
+    // Messaging
+    Route::get('/conversations', [MessageController::class, 'conversations']);
+    Route::post('/conversations', [MessageController::class, 'startConversation']);
+    Route::get('/conversations/users', [MessageController::class, 'searchUsers']);
+    Route::get('/conversations/{id}/messages', [MessageController::class, 'messages']);
+    Route::post('/conversations/{id}/messages', [MessageController::class, 'send']);
+    Route::get('/conversations/{id}/new-messages', [MessageController::class, 'newMessages']);
+    Route::post('/conversations/{id}/typing', [MessageController::class, 'typing']);
+    Route::get('/conversations/{id}/typing', [MessageController::class, 'typingStatus']);
+    Route::put('/messages/{id}/read', [MessageController::class, 'markRead']);
 
     // Agency invites (agency owners invite agents)
     Route::get('/agency/invites', [InviteController::class, 'agencyInvites']);

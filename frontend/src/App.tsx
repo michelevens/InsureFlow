@@ -44,6 +44,9 @@ const MyQuotes = lazy(() => import('@/pages/portal/MyQuotes'));
 const MyApplications = lazy(() => import('@/pages/portal/MyApplications'));
 const MyPolicies = lazy(() => import('@/pages/portal/MyPolicies'));
 
+// Messaging
+const Messages = lazy(() => import('@/pages/messages/Messages'));
+
 // Agent / Agency
 const Leads = lazy(() => import('@/pages/crm/Leads'));
 const Applications = lazy(() => import('@/pages/applications/Applications'));
@@ -100,6 +103,9 @@ export default function App() {
                 <Route path="/policies" element={<Policies />} />
                 <Route path="/commissions" element={<Commissions />} />
                 <Route path="/reviews" element={<Reviews />} />
+
+                {/* Messaging */}
+                <Route path="/messages" element={<Messages />} />
 
                 {/* Agency */}
                 <Route path="/agency/team" element={<AgencyTeam />} />

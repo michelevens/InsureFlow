@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils';
 import {
   Shield, LayoutDashboard, Calculator, Users, FileText, Briefcase,
   Building2, BarChart3, UserCircle, Settings, LogOut, Menu, X,
-  ClipboardList, Target, DollarSign, Star, ShieldCheck, ChevronDown,
+  ClipboardList, Target, DollarSign, Star, ShieldCheck, ChevronDown, MessageSquare,
 } from 'lucide-react';
 import type { ReactNode } from 'react';
 import type { UserRole } from '@/types';
@@ -31,6 +31,7 @@ const navItems: NavItem[] = [
   { label: 'My Team', href: '/agency/team', icon: <Users className="w-5 h-5" />, roles: ['agency_owner'] },
   { label: 'Products', href: '/carrier/products', icon: <Briefcase className="w-5 h-5" />, roles: ['carrier'] },
   { label: 'Production', href: '/carrier/production', icon: <BarChart3 className="w-5 h-5" />, roles: ['carrier'] },
+  { label: 'Messages', href: '/messages', icon: <MessageSquare className="w-5 h-5" />, roles: ['consumer', 'agent', 'agency_owner', 'carrier', 'admin', 'superadmin'] },
   { label: 'Find Agents', href: '/marketplace', icon: <Users className="w-5 h-5" />, roles: ['consumer'] },
   { label: 'Users', href: '/admin/users', icon: <Users className="w-5 h-5" />, roles: ['admin', 'superadmin'] },
   { label: 'Agencies', href: '/admin/agencies', icon: <Building2 className="w-5 h-5" />, roles: ['admin', 'superadmin'] },

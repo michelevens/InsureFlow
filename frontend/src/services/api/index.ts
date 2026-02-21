@@ -11,3 +11,5 @@ export { crmService } from './crm';
 export type { LeadActivity } from './crm';
 export { analyticsService } from './analytics';
 export { adminService } from './admin';
+export { messagingService } from './messaging';
+export type { Conversation, ChatMessage, ConversationUser } from './messaging';
