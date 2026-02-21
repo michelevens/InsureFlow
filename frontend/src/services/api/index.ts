@@ -21,3 +21,5 @@ export { payoutService } from './payouts';
 export type { ConnectStatus, CommissionPayout, Commission } from './payouts';
 export { auditService } from './audit';
 export type { AuditLogEntry } from './audit';
+export { aiService } from './ai';
+export type { AiConversation, AiMessage, AiChatResponse } from './ai';

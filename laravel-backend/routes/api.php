@@ -21,6 +21,7 @@ use App\Http\Controllers\SignatureController;
 use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\PayoutController;
 use App\Http\Controllers\SubscriptionController;
+use App\Http\Controllers\AiChatController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -185,6 +186,13 @@ Route::middleware(['auth:sanctum', 'agency.scope'])->group(function () {
 
     // Audit Logs (entity-level)
     Route::get('/audit-logs/{entityType}/{entityId}', [AuditLogController::class, 'forEntity']);
+
+    // AI Chat
+    Route::get('/ai/conversations', [AiChatController::class, 'conversations']);
+    Route::get('/ai/conversations/{conversationId}/messages', [AiChatController::class, 'messages']);
+    Route::post('/ai/chat', [AiChatController::class, 'chat']);
+    Route::get('/ai/suggestions', [AiChatController::class, 'suggestions']);
+    Route::delete('/ai/conversations/{conversationId}', [AiChatController::class, 'deleteConversation']);
 
     // Agency invites (agency owners invite agents)
     Route::get('/agency/invites', [InviteController::class, 'agencyInvites']);

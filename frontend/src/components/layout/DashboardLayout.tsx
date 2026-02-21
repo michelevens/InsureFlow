@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate, Outlet } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
 import { NotificationBell } from '@/components/notifications/NotificationBell';
+import { AiChatWidget } from '@/components/ai/AiChatWidget';
 import {
   Shield, LayoutDashboard, Calculator, Users, FileText, Briefcase,
   Building2, BarChart3, UserCircle, Settings, LogOut, Menu, X,
@@ -159,6 +160,9 @@ export function DashboardLayout() {
           <Outlet />
         </div>
       </main>
+
+      {/* AI Chat Widget */}
+      <AiChatWidget />
     </div>
   );
 }
