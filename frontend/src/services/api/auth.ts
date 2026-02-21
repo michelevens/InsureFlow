@@ -18,6 +18,17 @@ export const authService = {
     return api.post<AuthResponse>('/auth/register', data);
   },
 
+  async registerFromQuote(data: {
+    name: string;
+    email: string;
+    password: string;
+    password_confirmation: string;
+    phone?: string;
+    quote_request_id: number;
+  }): Promise<AuthResponse> {
+    return api.post<AuthResponse>('/auth/register-from-quote', data);
+  },
+
   async login(email: string, password: string): Promise<AuthResponse> {
     return api.post<AuthResponse>('/auth/login', { email, password });
   },

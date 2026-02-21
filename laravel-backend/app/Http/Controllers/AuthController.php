@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Lead;
+use App\Models\QuoteRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -103,5 +105,41 @@ class AuthController extends Controller
 
         $user->update(['password' => Hash::make($data['password'])]);
         return response()->json(['message' => 'Password updated']);
+    }
+
+    public function registerFromQuote(Request $request)
+    {
+        $data = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users',
+            'password' => ['required', 'confirmed', Password::min(8)],
+            'phone' => 'nullable|string|max:20',
+            'quote_request_id' => 'required|integer|exists:quote_requests,id',
+        ]);
+
+        $user = User::create([
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'password' => Hash::make($data['password']),
+            'role' => 'consumer',
+            'phone' => $data['phone'] ?? null,
+        ]);
+
+        $token = $user->createToken('auth-token')->plainTextToken;
+
+        // Link the quote request to the new user
+        QuoteRequest::where('id', $data['quote_request_id'])
+            ->whereNull('user_id')
+            ->update(['user_id' => $user->id]);
+
+        // Link any leads from this quote request to the new user
+        Lead::where('quote_request_id', $data['quote_request_id'])
+            ->whereNull('consumer_id')
+            ->update(['consumer_id' => $user->id]);
+
+        return response()->json([
+            'user' => $user,
+            'token' => $token,
+        ], 201);
     }
 }

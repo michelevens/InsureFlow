@@ -1,18 +1,27 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button, Card, Badge, Input } from '@/components/ui';
-import { Shield, ShieldCheck, ArrowRight, ArrowLeft, Check, Phone, Mail, Award, CheckCircle2 } from 'lucide-react';
-import { quoteService } from '@/services/api';
+import { Shield, ShieldCheck, ArrowRight, ArrowLeft, Check, Phone, Mail, Award, CheckCircle2, User, Lock } from 'lucide-react';
+import { quoteService, authService } from '@/services/api';
+import { useAuth } from '@/hooks/useAuth';
 import type { EstimateQuote } from '@/services/api/quotes';
 
 export default function QuoteResults() {
   const location = useLocation();
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
   const [selectedQuote, setSelectedQuote] = useState<number | null>(null);
   const [showSaveForm, setShowSaveForm] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [contact, setContact] = useState({ first_name: '', last_name: '', email: '', phone: '' });
+
+  // Account creation state (shown after saving contact)
+  const [showSignup, setShowSignup] = useState(false);
+  const [signupForm, setSignupForm] = useState({ password: '', password_confirmation: '' });
+  const [signingUp, setSigningUp] = useState(false);
+  const [signedUp, setSignedUp] = useState(false);
+  const [signupError, setSignupError] = useState('');
 
   const quotes: EstimateQuote[] = location.state?.quotes || [];
   const quoteRequestId: number = location.state?.quoteRequestId;
@@ -43,10 +52,49 @@ export default function QuoteResults() {
       });
       setSaved(true);
     } catch {
-      // Still show success — the quotes are already visible
       setSaved(true);
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleSignup = async () => {
+    if (signupForm.password.length < 8) {
+      setSignupError('Password must be at least 8 characters');
+      return;
+    }
+    if (signupForm.password !== signupForm.password_confirmation) {
+      setSignupError('Passwords do not match');
+      return;
+    }
+    setSigningUp(true);
+    setSignupError('');
+    try {
+      const response = await authService.registerFromQuote({
+        name: `${contact.first_name} ${contact.last_name}`.trim(),
+        email: contact.email,
+        password: signupForm.password,
+        password_confirmation: signupForm.password_confirmation,
+        phone: contact.phone || undefined,
+        quote_request_id: quoteRequestId,
+      });
+      localStorage.setItem('auth_token', response.token);
+      setSignedUp(true);
+    } catch (err) {
+      setSignupError(err instanceof Error ? err.message : 'Registration failed');
+    } finally {
+      setSigningUp(false);
+    }
+  };
+
+  const handleSelectQuote = (quote: EstimateQuote, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (isAuthenticated || signedUp) {
+      navigate('/marketplace', { state: { selectedQuote: quote } });
+    } else {
+      // Scroll to the save/signup section
+      setShowSaveForm(true);
+      document.getElementById('save-section')?.scrollIntoView({ behavior: 'smooth' });
     }
   };
 
@@ -82,9 +130,15 @@ export default function QuoteResults() {
             <Link to="/calculator">
               <Button variant="ghost" size="sm" leftIcon={<ArrowLeft className="w-4 h-4" />}>New Quote</Button>
             </Link>
-            <Link to="/marketplace">
-              <Button variant="outline" size="sm">Find an Agent</Button>
-            </Link>
+            {(isAuthenticated || signedUp) ? (
+              <Link to="/dashboard">
+                <Button variant="outline" size="sm">My Dashboard</Button>
+              </Link>
+            ) : (
+              <Link to="/marketplace">
+                <Button variant="outline" size="sm">Find an Agent</Button>
+              </Link>
+            )}
           </div>
         </div>
       </nav>
@@ -193,10 +247,7 @@ export default function QuoteResults() {
                         variant={selectedQuote === quote.id ? 'shield' : 'outline'}
                         className="w-full"
                         rightIcon={<ArrowRight className="w-4 h-4" />}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          navigate('/marketplace', { state: { selectedQuote: quote } });
-                        }}
+                        onClick={(e) => handleSelectQuote(quote, e)}
                       >
                         Select
                       </Button>
@@ -208,74 +259,143 @@ export default function QuoteResults() {
           })}
         </div>
 
-        {/* Save Your Quotes CTA — post-results email capture */}
-        <Card className="mt-10 border-shield-200 bg-gradient-to-r from-shield-50/50 to-blue-50/50">
-          <div className="p-8">
-            {saved ? (
-              <div className="text-center">
-                <CheckCircle2 className="w-12 h-12 text-savings-500 mx-auto mb-3" />
-                <h3 className="text-xl font-bold text-slate-900 mb-1">Quotes Saved!</h3>
-                <p className="text-slate-500">We've saved your quotes. They're valid for 30 days.</p>
-              </div>
-            ) : !showSaveForm ? (
-              <div className="text-center">
-                <Mail className="w-10 h-10 text-shield-500 mx-auto mb-3" />
-                <h3 className="text-xl font-bold text-slate-900 mb-1">Want to save these quotes?</h3>
-                <p className="text-slate-500 mb-5">Get your quotes emailed to you — valid for 30 days. No account required.</p>
-                <Button variant="shield" onClick={() => setShowSaveForm(true)} leftIcon={<Mail className="w-4 h-4" />}>
-                  Email My Quotes
-                </Button>
-              </div>
-            ) : (
-              <div>
-                <h3 className="text-lg font-bold text-slate-900 mb-4 text-center">Enter your details to save these quotes</h3>
-                <div className="max-w-lg mx-auto space-y-4">
-                  <div className="grid grid-cols-2 gap-3">
-                    <Input
-                      label="First Name"
-                      placeholder="John"
-                      value={contact.first_name}
-                      onChange={e => setContact(c => ({ ...c, first_name: e.target.value }))}
-                    />
-                    <Input
-                      label="Last Name"
-                      placeholder="Smith"
-                      value={contact.last_name}
-                      onChange={e => setContact(c => ({ ...c, last_name: e.target.value }))}
-                    />
+        {/* Save / Signup section */}
+        {!isAuthenticated && (
+          <div id="save-section">
+            <Card className="mt-10 border-shield-200 bg-gradient-to-r from-shield-50/50 to-blue-50/50">
+              <div className="p-8">
+                {signedUp ? (
+                  /* STEP 3: Account created */
+                  <div className="text-center">
+                    <CheckCircle2 className="w-12 h-12 text-savings-500 mx-auto mb-3" />
+                    <h3 className="text-xl font-bold text-slate-900 mb-1">You're all set!</h3>
+                    <p className="text-slate-500 mb-5">Your account is ready. Track your quotes, apply for policies, and connect with agents.</p>
+                    <div className="flex items-center justify-center gap-3">
+                      <Link to="/dashboard">
+                        <Button variant="shield" rightIcon={<ArrowRight className="w-4 h-4" />}>Go to Dashboard</Button>
+                      </Link>
+                      <Link to="/marketplace">
+                        <Button variant="outline">Find an Agent</Button>
+                      </Link>
+                    </div>
                   </div>
-                  <Input
-                    label="Email"
-                    type="email"
-                    placeholder="you@example.com"
-                    value={contact.email}
-                    onChange={e => setContact(c => ({ ...c, email: e.target.value }))}
-                  />
-                  <Input
-                    label="Phone (optional)"
-                    type="tel"
-                    placeholder="(555) 123-4567"
-                    value={contact.phone}
-                    onChange={e => setContact(c => ({ ...c, phone: e.target.value }))}
-                  />
-                  <div className="flex gap-3">
-                    <Button variant="outline" className="flex-1" onClick={() => setShowSaveForm(false)}>Cancel</Button>
-                    <Button
-                      variant="shield"
-                      className="flex-1"
-                      onClick={handleSaveContact}
-                      isLoading={saving}
-                      disabled={!contact.first_name || !contact.email}
-                    >
-                      Save My Quotes
+                ) : saved && !showSignup ? (
+                  /* STEP 2a: Contact saved — prompt account creation */
+                  <div className="text-center">
+                    <CheckCircle2 className="w-12 h-12 text-savings-500 mx-auto mb-3" />
+                    <h3 className="text-xl font-bold text-slate-900 mb-1">Quotes Saved!</h3>
+                    <p className="text-slate-500 mb-5">Create a free account to track your quotes, apply for policies, and get matched with agents.</p>
+                    <div className="flex items-center justify-center gap-3">
+                      <Button variant="shield" onClick={() => setShowSignup(true)} leftIcon={<User className="w-4 h-4" />}>
+                        Create Free Account
+                      </Button>
+                      <Link to="/marketplace">
+                        <Button variant="outline">Maybe Later</Button>
+                      </Link>
+                    </div>
+                  </div>
+                ) : saved && showSignup ? (
+                  /* STEP 2b: Account creation form */
+                  <div>
+                    <h3 className="text-lg font-bold text-slate-900 mb-1 text-center">Create your free account</h3>
+                    <p className="text-sm text-slate-500 mb-4 text-center">Just pick a password — we already have your details from saving your quotes.</p>
+                    <div className="max-w-sm mx-auto space-y-4">
+                      <div className="p-3 rounded-lg bg-slate-50 border border-slate-200 text-sm text-slate-600">
+                        <p><span className="font-medium">Name:</span> {contact.first_name} {contact.last_name}</p>
+                        <p><span className="font-medium">Email:</span> {contact.email}</p>
+                      </div>
+                      {signupError && <div className="p-3 rounded-lg bg-red-50 text-red-700 text-sm">{signupError}</div>}
+                      <Input
+                        label="Password"
+                        type="password"
+                        placeholder="Create a password (8+ characters)"
+                        value={signupForm.password}
+                        onChange={e => setSignupForm(f => ({ ...f, password: e.target.value }))}
+                        leftIcon={<Lock className="w-4 h-4" />}
+                      />
+                      <Input
+                        label="Confirm Password"
+                        type="password"
+                        placeholder="Confirm your password"
+                        value={signupForm.password_confirmation}
+                        onChange={e => setSignupForm(f => ({ ...f, password_confirmation: e.target.value }))}
+                        leftIcon={<Lock className="w-4 h-4" />}
+                      />
+                      <Button
+                        variant="shield"
+                        className="w-full"
+                        onClick={handleSignup}
+                        isLoading={signingUp}
+                        disabled={!signupForm.password || !signupForm.password_confirmation}
+                      >
+                        Create Account
+                      </Button>
+                      <p className="text-xs text-slate-400 text-center">Free forever for consumers. No credit card required.</p>
+                    </div>
+                  </div>
+                ) : !showSaveForm ? (
+                  /* STEP 1a: Initial CTA */
+                  <div className="text-center">
+                    <Mail className="w-10 h-10 text-shield-500 mx-auto mb-3" />
+                    <h3 className="text-xl font-bold text-slate-900 mb-1">Want to save these quotes?</h3>
+                    <p className="text-slate-500 mb-5">Get your quotes emailed to you — valid for 30 days. No account required.</p>
+                    <Button variant="shield" onClick={() => setShowSaveForm(true)} leftIcon={<Mail className="w-4 h-4" />}>
+                      Email My Quotes
                     </Button>
                   </div>
-                  <p className="text-xs text-slate-400 text-center">We won't spam you. Your info is only used to save and email your quotes.</p>
-                </div>
+                ) : (
+                  /* STEP 1b: Contact form */
+                  <div>
+                    <h3 className="text-lg font-bold text-slate-900 mb-4 text-center">Enter your details to save these quotes</h3>
+                    <div className="max-w-lg mx-auto space-y-4">
+                      <div className="grid grid-cols-2 gap-3">
+                        <Input
+                          label="First Name"
+                          placeholder="John"
+                          value={contact.first_name}
+                          onChange={e => setContact(c => ({ ...c, first_name: e.target.value }))}
+                        />
+                        <Input
+                          label="Last Name"
+                          placeholder="Smith"
+                          value={contact.last_name}
+                          onChange={e => setContact(c => ({ ...c, last_name: e.target.value }))}
+                        />
+                      </div>
+                      <Input
+                        label="Email"
+                        type="email"
+                        placeholder="you@example.com"
+                        value={contact.email}
+                        onChange={e => setContact(c => ({ ...c, email: e.target.value }))}
+                      />
+                      <Input
+                        label="Phone (optional)"
+                        type="tel"
+                        placeholder="(555) 123-4567"
+                        value={contact.phone}
+                        onChange={e => setContact(c => ({ ...c, phone: e.target.value }))}
+                      />
+                      <div className="flex gap-3">
+                        <Button variant="outline" className="flex-1" onClick={() => setShowSaveForm(false)}>Cancel</Button>
+                        <Button
+                          variant="shield"
+                          className="flex-1"
+                          onClick={handleSaveContact}
+                          isLoading={saving}
+                          disabled={!contact.first_name || !contact.email}
+                        >
+                          Save My Quotes
+                        </Button>
+                      </div>
+                      <p className="text-xs text-slate-400 text-center">We won't spam you. Your info is only used to save and email your quotes.</p>
+                    </div>
+                  </div>
+                )}
               </div>
-            )}
+            </Card>
           </div>
-        </Card>
+        )}
 
         {/* Bottom CTA */}
         <div className="mt-10 text-center">

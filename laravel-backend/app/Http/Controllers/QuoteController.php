@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\CarrierProduct;
+use App\Models\Lead;
 use App\Models\Quote;
 use App\Models\QuoteRequest;
 use Illuminate\Http\Request;
@@ -87,7 +88,26 @@ class QuoteController extends Controller
 
         $quoteRequest->update($data);
 
-        return response()->json(['message' => 'Contact info saved']);
+        // Create a lead from the quote request
+        $lowestQuote = $quoteRequest->quotes()->orderBy('monthly_premium')->first();
+
+        $lead = Lead::create([
+            'quote_request_id' => $quoteRequest->id,
+            'first_name' => $data['first_name'],
+            'last_name' => $data['last_name'],
+            'email' => $data['email'],
+            'phone' => $data['phone'] ?? null,
+            'insurance_type' => $quoteRequest->insurance_type,
+            'status' => 'new',
+            'source' => 'calculator',
+            'estimated_value' => $lowestQuote?->annual_premium,
+        ]);
+
+        return response()->json([
+            'message' => 'Contact info saved',
+            'lead_id' => $lead->id,
+            'quote_request_id' => $quoteRequest->id,
+        ]);
     }
 
     public function myQuotes(Request $request)

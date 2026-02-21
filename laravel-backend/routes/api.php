@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\Route;
 
 // Auth
 Route::post('/auth/register', [AuthController::class, 'register']);
+Route::post('/auth/register-from-quote', [AuthController::class, 'registerFromQuote']);
 Route::post('/auth/login', [AuthController::class, 'login']);
 
 // Calculator / Quote
