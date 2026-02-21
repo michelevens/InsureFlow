@@ -43,7 +43,7 @@ jobs:
       - name: Build
         run: npm run build
         env:
-          VITE_API_URL: https://insureflow-api-production.up.railway.app/api
+          VITE_API_URL: https://api.insurons.com/api
 
       - name: Copy index.html to 404.html for SPA routing
         run: cp dist/index.html dist/404.html

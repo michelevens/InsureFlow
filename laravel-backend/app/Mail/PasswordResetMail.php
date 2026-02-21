@@ -21,7 +21,7 @@ class PasswordResetMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Reset your password — InsureFlow',
+            subject: 'Reset your password — Insurons',
         );
     }
 

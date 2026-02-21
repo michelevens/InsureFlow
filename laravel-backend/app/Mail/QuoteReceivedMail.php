@@ -24,7 +24,7 @@ class QuoteReceivedMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Your Insurance Quotes — InsureFlow',
+            subject: 'Your Insurance Quotes — Insurons',
         );
     }
 

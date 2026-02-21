@@ -20,7 +20,7 @@ class WelcomeMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Welcome to InsureFlow!',
+            subject: 'Welcome to Insurons!',
         );
     }
 

@@ -8,6 +8,8 @@ return [
 
     'allowed_origins' => [
         env('FRONTEND_URL', 'http://localhost:5173'),
+        'https://insurons.com',
+        'https://www.insurons.com',
         'https://michelevens.github.io',
     ],
 

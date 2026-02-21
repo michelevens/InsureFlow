@@ -118,7 +118,7 @@ export default function Settings() {
                   { label: 'Email notifications', desc: 'Receive updates about your quotes and policies via email' },
                   { label: 'SMS notifications', desc: 'Get text messages for important policy updates' },
                   { label: 'Lead alerts', desc: 'Instant notifications when new leads are assigned' },
-                  { label: 'Marketing emails', desc: 'Receive tips and industry news from InsureFlow' },
+                  { label: 'Marketing emails', desc: 'Receive tips and industry news from Insurons' },
                 ].map((item, i) => (
                   <div key={i} className="flex items-center justify-between py-3 border-b border-slate-50 last:border-0">
                     <div>

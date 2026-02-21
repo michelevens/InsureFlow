@@ -124,7 +124,7 @@ export default function QuoteResults() {
             <div className="w-9 h-9 rounded-xl gradient-shield flex items-center justify-center">
               <Shield className="w-5 h-5 text-white" />
             </div>
-            <span className="text-xl font-bold text-slate-900">InsureFlow</span>
+            <span className="text-xl font-bold text-slate-900">Insurons</span>
           </Link>
           <div className="flex items-center gap-3">
             <Link to="/calculator">

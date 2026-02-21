@@ -84,7 +84,7 @@ export default function Pricing() {
             <div className="w-9 h-9 rounded-xl gradient-shield flex items-center justify-center">
               <Shield className="w-5 h-5 text-white" />
             </div>
-            <span className="text-xl font-bold text-slate-900">InsureFlow</span>
+            <span className="text-xl font-bold text-slate-900">Insurons</span>
           </Link>
           <div className="flex items-center gap-3">
             <Link to="/login"><Button variant="ghost" size="sm">Sign In</Button></Link>
@@ -97,7 +97,7 @@ export default function Pricing() {
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-slate-900 mb-3">Simple, transparent pricing</h1>
           <p className="text-lg text-slate-500 max-w-2xl mx-auto">
-            Choose the plan that fits your needs. Consumers always use InsureFlow for free.
+            Choose the plan that fits your needs. Consumers always use Insurons for free.
           </p>
 
           {/* Annual toggle */}

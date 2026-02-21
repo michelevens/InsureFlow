@@ -22,7 +22,7 @@
                                         <table cellpadding="0" cellspacing="0" style="margin:0 auto;">
                                             <tr>
                                                 <td style="width:36px;height:36px;background:rgba(255,255,255,0.2);border-radius:10px;text-align:center;vertical-align:middle;font-size:20px;color:#ffffff;font-weight:bold;">&#128737;</td>
-                                                <td style="padding-left:12px;font-size:26px;font-weight:800;color:#ffffff;letter-spacing:0.5px;">InsureFlow</td>
+                                                <td style="padding-left:12px;font-size:26px;font-weight:800;color:#ffffff;letter-spacing:0.5px;">Insurons</td>
                                             </tr>
                                         </table>
                                         <p style="margin:12px 0 0;color:rgba(255,255,255,0.8);font-size:13px;letter-spacing:2px;text-transform:uppercase;">Insurance Marketplace</p>
@@ -42,13 +42,13 @@
                                         <h1 style="margin:0 0 8px;color:#134e4a;font-size:24px;font-weight:700;text-align:center;">Registration Received</h1>
                                         <p style="margin:0 0 24px;color:#64748b;font-size:15px;text-align:center;line-height:1.5;">Hi {{ $user->name }}, we've received your registration as a {{ str_replace('_', ' ', $user->role) }}. Our team is reviewing your account and you'll hear back within 1-2 business days.</p>
 
-                                        <p style="margin:0 0 24px;color:#475569;font-size:15px;text-align:center;line-height:1.6;">In the meantime, you can explore the public areas of InsureFlow.</p>
+                                        <p style="margin:0 0 24px;color:#475569;font-size:15px;text-align:center;line-height:1.6;">In the meantime, you can explore the public areas of Insurons.</p>
 
                                         <!-- CTA -->
                                         <table cellpadding="0" cellspacing="0" style="margin:0 auto;">
                                             <tr>
                                                 <td style="background-color:#0f766e;border-radius:12px;">
-                                                    <a href="{{ env('FRONTEND_URL', 'https://insureflow.com') }}" style="display:inline-block;padding:16px 36px;color:#ffffff;text-decoration:none;font-size:15px;font-weight:700;">Explore InsureFlow</a>
+                                                    <a href="{{ env('FRONTEND_URL', 'https://insurons.com') }}" style="display:inline-block;padding:16px 36px;color:#ffffff;text-decoration:none;font-size:15px;font-weight:700;">Explore Insurons</a>
                                                 </td>
                                             </tr>
                                         </table>
@@ -58,9 +58,9 @@
                                 <!-- Footer -->
                                 <tr>
                                     <td style="padding:24px 48px;background-color:#f8fafc;border-top:1px solid #e2e8f0;text-align:center;">
-                                        <p style="margin:0 0 4px;font-size:13px;font-weight:600;color:#64748b;">InsureFlow</p>
+                                        <p style="margin:0 0 4px;font-size:13px;font-weight:600;color:#64748b;">Insurons</p>
                                         <p style="margin:0;color:#94a3b8;font-size:12px;">Your trusted insurance marketplace</p>
-                                        <p style="margin:12px 0 0;color:#cbd5e1;font-size:11px;">&copy; {{ date('Y') }} InsureFlow. All rights reserved.</p>
+                                        <p style="margin:12px 0 0;color:#cbd5e1;font-size:11px;">&copy; {{ date('Y') }} Insurons. All rights reserved.</p>
                                     </td>
                                 </tr>
                             </table>

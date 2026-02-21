@@ -20,7 +20,7 @@ export default function AdminDashboard() {
       {/* Welcome */}
       <div>
         <h1 className="text-2xl font-bold text-slate-900">Platform Overview</h1>
-        <p className="text-slate-500 mt-1">InsureFlow administration dashboard</p>
+        <p className="text-slate-500 mt-1">Insurons administration dashboard</p>
       </div>
 
       {/* Stats */}

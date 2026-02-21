@@ -23,7 +23,7 @@ class ApplicationStatusMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Application Update — InsureFlow',
+            subject: 'Application Update — Insurons',
         );
     }
 

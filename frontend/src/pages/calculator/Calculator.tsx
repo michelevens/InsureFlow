@@ -91,7 +91,7 @@ export default function Calculator() {
             <div className="w-9 h-9 rounded-xl gradient-shield flex items-center justify-center">
               <Shield className="w-5 h-5 text-white" />
             </div>
-            <span className="text-xl font-bold text-slate-900">InsureFlow</span>
+            <span className="text-xl font-bold text-slate-900">Insurons</span>
           </a>
           <div className="flex items-center gap-2 text-sm text-slate-500">
             <ShieldCheck className="w-4 h-4 text-shield-600" />

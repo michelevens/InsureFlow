@@ -20,7 +20,7 @@ class AccountApprovedMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Your InsureFlow Account is Approved!',
+            subject: 'Your Insurons Account is Approved!',
         );
     }
 

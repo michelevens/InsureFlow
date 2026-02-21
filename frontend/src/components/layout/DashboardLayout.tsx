@@ -62,7 +62,7 @@ export function DashboardLayout() {
         </button>
         <div className="flex items-center gap-2">
           <Shield className="w-6 h-6 text-shield-600" />
-          <span className="font-bold text-slate-900">InsureFlow</span>
+          <span className="font-bold text-slate-900">Insurons</span>
         </div>
         <div className="w-10" />
       </div>
@@ -85,7 +85,7 @@ export function DashboardLayout() {
             <div className="w-9 h-9 rounded-xl gradient-shield flex items-center justify-center">
               <Shield className="w-5 h-5 text-white" />
             </div>
-            <span className="text-xl font-bold text-slate-900">InsureFlow</span>
+            <span className="text-xl font-bold text-slate-900">Insurons</span>
           </Link>
           <button onClick={() => setSidebarOpen(false)} className="lg:hidden p-1 rounded hover:bg-slate-100">
             <X className="w-5 h-5 text-slate-400" />

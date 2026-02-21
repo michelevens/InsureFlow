@@ -34,7 +34,7 @@ class ReferralController extends Controller
 
         return response()->json([
             'code' => $code->code,
-            'referral_url' => rtrim(config('app.frontend_url', env('FRONTEND_URL', 'https://insureflow.com')), '/') . '/register?ref=' . $code->code,
+            'referral_url' => rtrim(config('app.frontend_url', env('FRONTEND_URL', 'https://insurons.com')), '/') . '/register?ref=' . $code->code,
             'stats' => [
                 'total_referrals' => $referrals->count(),
                 'pending' => $referrals->where('status', 'pending')->count(),
@@ -72,7 +72,7 @@ class ReferralController extends Controller
 
         return response()->json([
             'valid' => true,
-            'referrer_name' => $code->user->name ?? 'An InsureFlow user',
+            'referrer_name' => $code->user->name ?? 'An Insurons user',
         ]);
     }
 

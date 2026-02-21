@@ -41,7 +41,7 @@ export default function Register() {
             <Shield className="w-7 h-7 text-white" />
           </div>
           <h1 className="text-2xl font-bold text-slate-900">Create your account</h1>
-          <p className="text-slate-500 mt-1">Join InsureFlow and get started</p>
+          <p className="text-slate-500 mt-1">Join Insurons and get started</p>
         </div>
 
         <div className="bg-white rounded-2xl border border-slate-200 p-8">

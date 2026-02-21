@@ -12,7 +12,7 @@ export default function Landing() {
             <div className="w-9 h-9 rounded-xl gradient-shield flex items-center justify-center">
               <Shield className="w-5 h-5 text-white" />
             </div>
-            <span className="text-xl font-bold text-slate-900">InsureFlow</span>
+            <span className="text-xl font-bold text-slate-900">Insurons</span>
           </Link>
           <div className="hidden md:flex items-center gap-6">
             <Link to="/calculator" className="text-sm text-slate-600 hover:text-slate-900">Get Quotes</Link>
@@ -65,7 +65,7 @@ export default function Landing() {
       {/* How it works */}
       <section className="py-20 bg-slate-50">
         <div className="max-w-7xl mx-auto px-6">
-          <h2 className="text-3xl font-bold text-slate-900 text-center mb-12">How InsureFlow Works</h2>
+          <h2 className="text-3xl font-bold text-slate-900 text-center mb-12">How Insurons Works</h2>
           <div className="grid md:grid-cols-4 gap-8">
             {[
               { icon: <Calculator className="w-6 h-6" />, title: 'Enter Your Info', desc: 'Answer a few quick questions about your coverage needs' },
@@ -125,12 +125,12 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <Shield className="w-5 h-5 text-shield-600" />
-            <span className="font-bold text-slate-900">InsureFlow</span>
+            <span className="font-bold text-slate-900">Insurons</span>
           </div>
           <div className="flex items-center gap-6 text-sm text-slate-500">
             <Link to="/privacy" className="hover:text-slate-700">Privacy</Link>
             <Link to="/terms" className="hover:text-slate-700">Terms</Link>
-            <span>&copy; {new Date().getFullYear()} InsureFlow</span>
+            <span>&copy; {new Date().getFullYear()} Insurons</span>
           </div>
         </div>
       </footer>

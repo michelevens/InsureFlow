@@ -17,13 +17,13 @@ class DemoUserSeeder extends Seeder
 
         // Consumer
         $consumer = User::updateOrCreate(
-            ['email' => 'consumer@insureflow.com'],
+            ['email' => 'consumer@insurons.com'],
             ['name' => 'John Consumer', 'password' => $password, 'role' => 'consumer', 'phone' => '(555) 100-0001']
         );
 
         // Agent
         $agent = User::updateOrCreate(
-            ['email' => 'agent@insureflow.com'],
+            ['email' => 'agent@insurons.com'],
             ['name' => 'Sarah Johnson', 'password' => $password, 'role' => 'agent', 'phone' => '(555) 200-0001']
         );
 
@@ -47,7 +47,7 @@ class DemoUserSeeder extends Seeder
 
         // Agency Owner
         $agencyOwner = User::updateOrCreate(
-            ['email' => 'agency@insureflow.com'],
+            ['email' => 'agency@insurons.com'],
             ['name' => 'Robert Martinez', 'password' => $password, 'role' => 'agency_owner', 'phone' => '(555) 300-0001']
         );
 
@@ -73,7 +73,7 @@ class DemoUserSeeder extends Seeder
 
         // Additional agent for agency
         $agent2 = User::updateOrCreate(
-            ['email' => 'agent2@insureflow.com'],
+            ['email' => 'agent2@insurons.com'],
             ['name' => 'Michael Chen', 'password' => $password, 'role' => 'agent', 'phone' => '(555) 200-0002', 'agency_id' => $agency->id]
         );
 
@@ -97,19 +97,19 @@ class DemoUserSeeder extends Seeder
 
         // Carrier user
         User::updateOrCreate(
-            ['email' => 'carrier@insureflow.com'],
+            ['email' => 'carrier@insurons.com'],
             ['name' => 'Carrier Admin', 'password' => $password, 'role' => 'carrier', 'phone' => '(555) 400-0001']
         );
 
         // Admin
         User::updateOrCreate(
-            ['email' => 'admin@insureflow.com'],
+            ['email' => 'admin@insurons.com'],
             ['name' => 'Admin User', 'password' => $password, 'role' => 'admin', 'phone' => '(555) 500-0001']
         );
 
         // Superadmin
         User::updateOrCreate(
-            ['email' => 'superadmin@insureflow.com'],
+            ['email' => 'superadmin@insurons.com'],
             ['name' => 'Super Admin', 'password' => $password, 'role' => 'superadmin', 'phone' => '(555) 600-0001']
         );
 

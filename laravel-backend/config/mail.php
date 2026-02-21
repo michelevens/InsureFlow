@@ -34,8 +34,8 @@ return [
     ],
 
     'from' => [
-        'address' => env('MAIL_FROM_ADDRESS', 'noreply@insureflow.com'),
-        'name' => env('MAIL_FROM_NAME', 'InsureFlow'),
+        'address' => env('MAIL_FROM_ADDRESS', 'noreply@insurons.com'),
+        'name' => env('MAIL_FROM_NAME', 'Insurons'),
     ],
 
 ];

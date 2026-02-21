@@ -62,8 +62,8 @@ class SubscriptionController extends Controller
                     'plan_id' => $plan->id,
                     'billing_cycle' => $data['billing_cycle'],
                 ],
-                'success_url' => rtrim(config('app.frontend_url', env('FRONTEND_URL', 'https://insureflow.com')), '/') . '/billing?success=true',
-                'cancel_url' => rtrim(config('app.frontend_url', env('FRONTEND_URL', 'https://insureflow.com')), '/') . '/pricing?canceled=true',
+                'success_url' => rtrim(config('app.frontend_url', env('FRONTEND_URL', 'https://insurons.com')), '/') . '/billing?success=true',
+                'cancel_url' => rtrim(config('app.frontend_url', env('FRONTEND_URL', 'https://insurons.com')), '/') . '/pricing?canceled=true',
             ]);
 
             return response()->json(['checkout_url' => $session->url]);

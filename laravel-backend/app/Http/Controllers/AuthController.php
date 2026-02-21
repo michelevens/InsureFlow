@@ -45,7 +45,7 @@ class AuthController extends Controller
         $token = $user->createToken('auth-token')->plainTextToken;
 
         // Send emails
-        $verificationUrl = rtrim(config('app.frontend_url', env('FRONTEND_URL', 'https://insureflow.com')), '/')
+        $verificationUrl = rtrim(config('app.frontend_url', env('FRONTEND_URL', 'https://insurons.com')), '/')
             . '/verify-email/' . $user->email_verification_token;
 
         Mail::to($user->email)->send(new WelcomeMail($user));
@@ -204,7 +204,7 @@ class AuthController extends Controller
 
         $user->update(['email_verification_token' => Str::random(64)]);
 
-        $verificationUrl = rtrim(config('app.frontend_url', env('FRONTEND_URL', 'https://insureflow.com')), '/')
+        $verificationUrl = rtrim(config('app.frontend_url', env('FRONTEND_URL', 'https://insurons.com')), '/')
             . '/verify-email/' . $user->email_verification_token;
 
         Mail::to($user->email)->send(new EmailVerificationMail($user, $verificationUrl));
@@ -230,7 +230,7 @@ class AuthController extends Controller
             ['token' => Hash::make($token), 'created_at' => now()]
         );
 
-        $resetUrl = rtrim(config('app.frontend_url', env('FRONTEND_URL', 'https://insureflow.com')), '/')
+        $resetUrl = rtrim(config('app.frontend_url', env('FRONTEND_URL', 'https://insurons.com')), '/')
             . '/reset-password?token=' . $token . '&email=' . urlencode($user->email);
 
         Mail::to($user->email)->send(new \App\Mail\PasswordResetMail($user, $resetUrl));

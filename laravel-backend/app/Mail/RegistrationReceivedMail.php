@@ -20,7 +20,7 @@ class RegistrationReceivedMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Registration Received — InsureFlow',
+            subject: 'Registration Received — Insurons',
         );
     }
 

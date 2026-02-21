@@ -24,7 +24,7 @@ class LeadAssignedMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'New Lead Assigned — InsureFlow',
+            subject: 'New Lead Assigned — Insurons',
         );
     }
 
