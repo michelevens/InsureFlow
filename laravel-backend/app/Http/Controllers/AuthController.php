@@ -44,15 +44,19 @@ class AuthController extends Controller
 
         $token = $user->createToken('auth-token')->plainTextToken;
 
-        // Send emails
+        // Send emails (non-blocking — registration succeeds even if email fails)
         $verificationUrl = rtrim(config('app.frontend_url', env('FRONTEND_URL', 'https://insurons.com')), '/')
             . '/verify-email/' . $user->email_verification_token;
 
-        Mail::to($user->email)->send(new WelcomeMail($user));
-        Mail::to($user->email)->send(new EmailVerificationMail($user, $verificationUrl));
+        try {
+            Mail::to($user->email)->send(new WelcomeMail($user));
+            Mail::to($user->email)->send(new EmailVerificationMail($user, $verificationUrl));
 
-        if ($needsApproval) {
-            Mail::to($user->email)->send(new RegistrationReceivedMail($user));
+            if ($needsApproval) {
+                Mail::to($user->email)->send(new RegistrationReceivedMail($user));
+            }
+        } catch (\Exception $e) {
+            \Log::warning('Registration emails failed for user ' . $user->id . ': ' . $e->getMessage());
         }
 
         // Apply referral code if provided

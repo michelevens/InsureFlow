@@ -52,6 +52,18 @@ Route::get('/subscription-plans', [SubscriptionController::class, 'plans']);
 // Stripe webhook (no auth)
 Route::post('/webhooks/stripe', [SubscriptionController::class, 'handleWebhook']);
 
+// Debug: test email delivery (remove after confirming)
+Route::get('/debug/test-email', function () {
+    try {
+        \Illuminate\Support\Facades\Mail::raw('Test email from Insurons at ' . now(), function ($msg) {
+            $msg->to('michelevens@gmail.com')->subject('Insurons Email Test');
+        });
+        return response()->json(['status' => 'sent', 'mailer' => config('mail.default')]);
+    } catch (\Exception $e) {
+        return response()->json(['status' => 'error', 'message' => $e->getMessage(), 'mailer' => config('mail.default')], 500);
+    }
+});
+
 /*
 |--------------------------------------------------------------------------
 | Protected Routes (auth:sanctum + agency scope)
