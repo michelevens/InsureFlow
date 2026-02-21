@@ -11,6 +11,7 @@ use App\Http\Controllers\InsuranceProfileController;
 use App\Http\Controllers\InviteController;
 use App\Http\Controllers\LeadController;
 use App\Http\Controllers\MessageController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PolicyController;
 use App\Http\Controllers\QuoteController;
 use App\Http\Controllers\ReferralController;
@@ -150,6 +151,12 @@ Route::middleware(['auth:sanctum', 'agency.scope'])->group(function () {
     Route::post('/conversations/{id}/typing', [MessageController::class, 'typing']);
     Route::get('/conversations/{id}/typing', [MessageController::class, 'typingStatus']);
     Route::put('/messages/{id}/read', [MessageController::class, 'markRead']);
+
+    // Notifications
+    Route::get('/notifications', [NotificationController::class, 'index']);
+    Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount']);
+    Route::put('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
+    Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead']);
 
     // Agency invites (agency owners invite agents)
     Route::get('/agency/invites', [InviteController::class, 'agencyInvites']);

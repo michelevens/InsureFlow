@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useLocation, useNavigate, Outlet } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
+import { NotificationBell } from '@/components/notifications/NotificationBell';
 import {
   Shield, LayoutDashboard, Calculator, Users, FileText, Briefcase,
   Building2, BarChart3, UserCircle, Settings, LogOut, Menu, X,
@@ -65,7 +66,7 @@ export function DashboardLayout() {
           <Shield className="w-6 h-6 text-shield-600" />
           <span className="font-bold text-slate-900">Insurons</span>
         </div>
-        <div className="w-10" />
+        <NotificationBell />
       </div>
 
       {/* Mobile sidebar overlay */}
@@ -149,6 +150,10 @@ export function DashboardLayout() {
 
       {/* Main content */}
       <main className="lg:ml-64 min-h-screen">
+        {/* Desktop top bar */}
+        <div className="hidden lg:flex items-center justify-end px-8 py-3 border-b border-slate-200 bg-white">
+          <NotificationBell />
+        </div>
         <div className="p-6 lg:p-8">
           <Outlet />
         </div>

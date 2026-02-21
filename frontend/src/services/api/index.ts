@@ -13,3 +13,5 @@ export { analyticsService } from './analytics';
 export { adminService } from './admin';
 export { messagingService } from './messaging';
 export type { Conversation, ChatMessage, ConversationUser } from './messaging';
+export { notificationService } from './notifications';
+export type { AppNotification } from './notifications';
