@@ -53,8 +53,6 @@ const navItems: NavItem[] = [
   { label: 'Partners', href: '/partners', icon: <Handshake className="w-5 h-5" />, roles: ['agent', 'agency_owner', 'consumer'] },
   { label: 'Campaigns', href: '/campaigns', icon: <Mail className="w-5 h-5" />, roles: ['agent', 'agency_owner', 'admin', 'superadmin'] },
   { label: 'Reports', href: '/reports', icon: <FileBarChart className="w-5 h-5" />, roles: ['agent', 'agency_owner', 'carrier', 'admin', 'superadmin'] },
-  { label: 'Help Center', href: '/help', icon: <HelpCircle className="w-5 h-5" />, roles: ['consumer', 'agent', 'agency_owner', 'carrier', 'admin', 'superadmin'] },
-  { label: 'Messages', href: '/messages', icon: <MessageSquare className="w-5 h-5" />, roles: ['consumer', 'agent', 'agency_owner', 'carrier', 'admin', 'superadmin'] },
   { label: 'Find Agents', href: '/marketplace', icon: <Users className="w-5 h-5" />, roles: ['consumer'] },
   { label: 'Users', href: '/admin/users', icon: <Users className="w-5 h-5" />, roles: ['admin', 'superadmin'] },
   { label: 'Agencies', href: '/admin/agencies', icon: <Building2 className="w-5 h-5" />, roles: ['admin', 'superadmin'] },
@@ -62,7 +60,6 @@ const navItems: NavItem[] = [
   { label: 'Plans', href: '/admin/plans', icon: <DollarSign className="w-5 h-5" />, roles: ['admin', 'superadmin'] },
   { label: 'Audit Log', href: '/admin/audit-log', icon: <Activity className="w-5 h-5" />, roles: ['admin', 'superadmin'] },
   { label: 'SSO Config', href: '/admin/sso', icon: <Key className="w-5 h-5" />, roles: ['admin', 'superadmin', 'agency_owner'] },
-  { label: 'Settings', href: '/settings', icon: <Settings className="w-5 h-5" />, roles: ['consumer', 'agent', 'agency_owner', 'carrier', 'admin', 'superadmin'] },
 ];
 
 export function DashboardLayout() {
@@ -89,7 +86,12 @@ export function DashboardLayout() {
         <div className="flex items-center gap-2">
           <img src="/logo.png" alt="Insurons" className="h-10 w-auto" />
         </div>
-        <NotificationBell />
+        <div className="flex items-center gap-1">
+          <Link to="/messages" className="p-2 rounded-lg text-slate-500 hover:bg-slate-100">
+            <MessageSquare className="w-5 h-5" />
+          </Link>
+          <NotificationBell />
+        </div>
       </div>
 
       {/* Mobile sidebar overlay */}
@@ -137,26 +139,74 @@ export function DashboardLayout() {
           })}
         </nav>
 
-        {/* User menu */}
-        <div className="border-t border-slate-100 p-3">
+        {/* User menu (mobile only — desktop uses top bar) */}
+        <div className="border-t border-slate-100 p-3 lg:hidden">
+          <Link to="/settings" onClick={() => setSidebarOpen(false)} className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50">
+            <Settings className="w-5 h-5" /> Settings
+          </Link>
+          <Link to="/help" onClick={() => setSidebarOpen(false)} className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50">
+            <HelpCircle className="w-5 h-5" /> Help Center
+          </Link>
+          <button onClick={handleLogout} className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm font-medium text-red-600 hover:bg-red-50">
+            <LogOut className="w-5 h-5" /> Sign Out
+          </button>
+        </div>
+      </aside>
+
+      {/* Main content */}
+      <main className="lg:ml-64 min-h-screen">
+        {/* Desktop top bar */}
+        <div className="hidden lg:flex items-center justify-end gap-1 px-8 py-3 border-b border-slate-200 bg-white">
+          <Link
+            to="/messages"
+            className={cn(
+              'p-2 rounded-lg transition-colors relative',
+              location.pathname === '/messages' ? 'bg-shield-50 text-shield-700' : 'text-slate-500 hover:bg-slate-100 hover:text-slate-700'
+            )}
+            title="Messages"
+          >
+            <MessageSquare className="w-5 h-5" />
+          </Link>
+          <NotificationBell />
+          <Link
+            to="/help"
+            className={cn(
+              'p-2 rounded-lg transition-colors',
+              location.pathname === '/help' ? 'bg-shield-50 text-shield-700' : 'text-slate-500 hover:bg-slate-100 hover:text-slate-700'
+            )}
+            title="Help Center"
+          >
+            <HelpCircle className="w-5 h-5" />
+          </Link>
+          <Link
+            to="/settings"
+            className={cn(
+              'p-2 rounded-lg transition-colors',
+              location.pathname === '/settings' ? 'bg-shield-50 text-shield-700' : 'text-slate-500 hover:bg-slate-100 hover:text-slate-700'
+            )}
+            title="Settings"
+          >
+            <Settings className="w-5 h-5" />
+          </Link>
+          <div className="w-px h-6 bg-slate-200 mx-2" />
           <div className="relative">
             <button
               onClick={() => setProfileOpen(!profileOpen)}
-              className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl hover:bg-slate-50 transition-colors"
+              className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-slate-50 transition-colors"
             >
               <div className="w-8 h-8 rounded-full gradient-shield flex items-center justify-center text-white text-sm font-bold">
                 {user?.name?.charAt(0) || 'U'}
               </div>
-              <div className="flex-1 text-left">
-                <p className="text-sm font-medium text-slate-900 truncate">{user?.name}</p>
+              <div className="text-left hidden xl:block">
+                <p className="text-sm font-medium text-slate-900 truncate max-w-[120px]">{user?.name}</p>
                 <p className="text-xs text-slate-500 capitalize">{user?.role?.replace('_', ' ')}</p>
               </div>
               <ChevronDown className={cn('w-4 h-4 text-slate-400 transition-transform', profileOpen && 'rotate-180')} />
             </button>
 
             {profileOpen && (
-              <div className="absolute bottom-full left-0 w-full mb-1 bg-white border border-slate-200 rounded-xl shadow-lg overflow-hidden">
-                <Link to="/settings" className="flex items-center gap-2 px-4 py-2.5 text-sm text-slate-600 hover:bg-slate-50">
+              <div className="absolute right-0 top-full mt-1 w-48 bg-white border border-slate-200 rounded-xl shadow-lg overflow-hidden z-50">
+                <Link to="/settings" onClick={() => setProfileOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm text-slate-600 hover:bg-slate-50">
                   <UserCircle className="w-4 h-4" /> Profile
                 </Link>
                 <button onClick={handleLogout} className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-red-600 hover:bg-red-50">
@@ -165,14 +215,6 @@ export function DashboardLayout() {
               </div>
             )}
           </div>
-        </div>
-      </aside>
-
-      {/* Main content */}
-      <main className="lg:ml-64 min-h-screen">
-        {/* Desktop top bar */}
-        <div className="hidden lg:flex items-center justify-end px-8 py-3 border-b border-slate-200 bg-white">
-          <NotificationBell />
         </div>
         <div className="p-6 lg:p-8">
           <Outlet />
