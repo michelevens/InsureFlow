@@ -300,6 +300,46 @@ class AuthController extends Controller
         return response()->json(['message' => 'Password reset successfully']);
     }
 
+    public function demoLogin(Request $request)
+    {
+        $data = $request->validate([
+            'email' => 'required|email',
+        ]);
+
+        // Only allow known demo accounts
+        $demoEmails = [
+            'consumer@insurons.com',
+            'agent@insurons.com',
+            'agent2@insurons.com',
+            'agency@insurons.com',
+            'carrier@insurons.com',
+            'admin@insurons.com',
+            'superadmin@insurons.com',
+        ];
+
+        if (!in_array($data['email'], $demoEmails)) {
+            return response()->json(['message' => 'Not a demo account'], 403);
+        }
+
+        $user = User::where('email', $data['email'])->first();
+
+        if (!$user) {
+            return response()->json(['message' => 'Demo account not found. Please run the seeder.'], 404);
+        }
+
+        // Reset password to known value (fixes any corruption from double-hashing)
+        $user->password = 'password'; // 'hashed' cast auto-hashes
+        $user->save();
+
+        $token = $user->createToken('auth-token')->plainTextToken;
+
+        return response()->json([
+            'user' => $user,
+            'token' => $token,
+            'email_verified' => !is_null($user->email_verified_at),
+        ]);
+    }
+
     private function applyReferralCode(User $user, string $code): void
     {
         $referralCode = \App\Models\ReferralCode::where('code', strtoupper($code))->first();

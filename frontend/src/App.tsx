@@ -25,6 +25,8 @@ const Login = lazy(() => import('@/pages/auth/Login'));
 const Register = lazy(() => import('@/pages/auth/Register'));
 const VerifyEmail = lazy(() => import('@/pages/auth/VerifyEmail'));
 const AcceptInvite = lazy(() => import('@/pages/auth/AcceptInvite'));
+const ForgotPassword = lazy(() => import('@/pages/auth/ForgotPassword'));
+const ResetPassword = lazy(() => import('@/pages/auth/ResetPassword'));
 const SsoLogin = lazy(() => import('@/pages/auth/SsoLogin'));
 const SsoCallback = lazy(() => import('@/pages/auth/SsoCallback'));
 
@@ -140,6 +142,8 @@ export default function App() {
               <Route path="/terms" element={<Terms />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/calculator" element={<Calculator />} />
               <Route path="/calculator/results" element={<QuoteResults />} />
               <Route path="/verify-email/:token" element={<VerifyEmail />} />

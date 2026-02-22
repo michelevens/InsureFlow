@@ -61,6 +61,7 @@ Route::get('/auth/verify-email/{token}', [AuthController::class, 'verifyEmail'])
 Route::post('/auth/forgot-password', [AuthController::class, 'forgotPassword']);
 Route::post('/auth/reset-password', [AuthController::class, 'resetPassword']);
 Route::post('/auth/check-email', [AuthController::class, 'checkEmail']);
+Route::post('/auth/demo-login', [AuthController::class, 'demoLogin']);
 
 // Calculator / Quote
 Route::post('/calculator/estimate', [QuoteController::class, 'estimate']);

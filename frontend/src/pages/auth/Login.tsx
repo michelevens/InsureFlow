@@ -13,7 +13,7 @@ const demoAccounts = [
 ];
 
 export default function Login() {
-  const { login } = useAuth();
+  const { login, demoLogin } = useAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -39,7 +39,7 @@ export default function Login() {
     setError('');
     setDemoLoading(demoEmail);
     try {
-      await login(demoEmail, 'password');
+      await demoLogin(demoEmail);
       navigate('/dashboard');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Demo login failed');
