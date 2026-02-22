@@ -1,20 +1,42 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Card } from '@/components/ui';
 import { StatsCard } from '@/components/dashboard/StatsCard';
+import { analyticsService } from '@/services/api/analytics';
 import {
   Users, Building2, BarChart3, DollarSign,
-  ShieldCheck, Target,
+  ShieldCheck, Target, Loader2,
 } from 'lucide-react';
 
-const recentActivity = [
-  { type: 'user', text: 'New agent registered: Michael Chen', time: '2 hours ago' },
-  { type: 'policy', text: 'Policy #INS-4521 bound via Sarah Johnson', time: '3 hours ago' },
-  { type: 'lead', text: '15 new consumer leads generated', time: '5 hours ago' },
-  { type: 'payment', text: 'Commission payout processed: $12,400', time: '1 day ago' },
-  { type: 'user', text: 'New agency onboarded: Pacific Shield Insurance', time: '1 day ago' },
-];
+interface AdminStats {
+  total_users: number;
+  total_agents: number;
+  total_agencies: number;
+  total_leads: number;
+  total_policies: number;
+  total_applications: number;
+  platform_revenue: number;
+}
 
 export default function AdminDashboard() {
+  const [stats, setStats] = useState<AdminStats | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    analyticsService.getDashboardStats()
+      .then((data) => setStats(data as unknown as AdminStats))
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  const fmt = (n: number | undefined) => n?.toLocaleString() ?? '0';
+  const fmtCurrency = (n: number | undefined) => {
+    const val = n ?? 0;
+    if (val >= 1000000) return `$${(val / 1000000).toFixed(1)}M`;
+    if (val >= 1000) return `$${(val / 1000).toFixed(1)}K`;
+    return `$${val.toLocaleString()}`;
+  };
+
   return (
     <div className="space-y-8">
       {/* Welcome */}
@@ -25,35 +47,66 @@ export default function AdminDashboard() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
-        <StatsCard icon={<Users className="w-5 h-5" />} label="Total Users" value="2,847" change="+124 this month" />
-        <StatsCard icon={<Building2 className="w-5 h-5" />} label="Agencies" value="156" change="+8" />
-        <StatsCard icon={<Target className="w-5 h-5" />} label="Leads Generated" value="4,521" change="+892 this month" />
-        <StatsCard icon={<ShieldCheck className="w-5 h-5" />} label="Policies Bound" value="1,235" change="+187" />
-        <StatsCard icon={<DollarSign className="w-5 h-5" />} label="Platform Revenue" value="$84.5K" variant="savings" change="+22%" />
+        {loading ? (
+          Array.from({ length: 5 }).map((_, i) => (
+            <Card key={i} className="p-5 animate-pulse">
+              <div className="h-4 w-20 bg-slate-200 rounded mb-2" />
+              <div className="h-7 w-16 bg-slate-200 rounded" />
+            </Card>
+          ))
+        ) : (
+          <>
+            <StatsCard icon={<Users className="w-5 h-5" />} label="Total Users" value={fmt(stats?.total_users)} />
+            <StatsCard icon={<Building2 className="w-5 h-5" />} label="Agencies" value={fmt(stats?.total_agencies)} />
+            <StatsCard icon={<Target className="w-5 h-5" />} label="Leads Generated" value={fmt(stats?.total_leads)} />
+            <StatsCard icon={<ShieldCheck className="w-5 h-5" />} label="Policies Bound" value={fmt(stats?.total_policies)} />
+            <StatsCard icon={<DollarSign className="w-5 h-5" />} label="Platform Revenue" value={fmtCurrency(stats?.platform_revenue)} variant="savings" />
+          </>
+        )}
       </div>
 
       <div className="grid lg:grid-cols-3 gap-6">
-        {/* Recent activity */}
+        {/* Platform metrics */}
         <div className="lg:col-span-2">
           <Card>
             <div className="p-6">
-              <h2 className="text-lg font-semibold text-slate-900 mb-4">Recent Activity</h2>
-              <div className="space-y-4">
-                {recentActivity.map((item, i) => (
-                  <div key={i} className="flex items-start gap-3 pb-4 border-b border-slate-50 last:border-0 last:pb-0">
-                    <div className="w-8 h-8 rounded-full bg-shield-100 text-shield-600 flex items-center justify-center flex-shrink-0">
-                      {item.type === 'user' && <Users className="w-4 h-4" />}
-                      {item.type === 'policy' && <ShieldCheck className="w-4 h-4" />}
-                      {item.type === 'lead' && <Target className="w-4 h-4" />}
-                      {item.type === 'payment' && <DollarSign className="w-4 h-4" />}
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-sm text-slate-700">{item.text}</p>
-                      <p className="text-xs text-slate-400 mt-0.5">{item.time}</p>
-                    </div>
+              <h2 className="text-lg font-semibold text-slate-900 mb-4">Platform Metrics</h2>
+              {loading ? (
+                <div className="flex items-center justify-center py-12">
+                  <Loader2 className="w-6 h-6 animate-spin text-shield-400" />
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  <div className="p-4 rounded-xl bg-shield-50">
+                    <p className="text-sm text-slate-500">Total Agents</p>
+                    <p className="text-2xl font-bold text-shield-700 mt-1">{fmt(stats?.total_agents)}</p>
                   </div>
-                ))}
-              </div>
+                  <div className="p-4 rounded-xl bg-confidence-50">
+                    <p className="text-sm text-slate-500">Applications</p>
+                    <p className="text-2xl font-bold text-confidence-700 mt-1">{fmt(stats?.total_applications)}</p>
+                  </div>
+                  <div className="p-4 rounded-xl bg-savings-50">
+                    <p className="text-sm text-slate-500">Conversion Rate</p>
+                    <p className="text-2xl font-bold text-savings-700 mt-1">
+                      {stats?.total_leads && stats?.total_policies
+                        ? `${((stats.total_policies / stats.total_leads) * 100).toFixed(1)}%`
+                        : '0%'}
+                    </p>
+                  </div>
+                  <div className="p-4 rounded-xl bg-amber-50">
+                    <p className="text-sm text-slate-500">Agencies</p>
+                    <p className="text-2xl font-bold text-amber-700 mt-1">{fmt(stats?.total_agencies)}</p>
+                  </div>
+                  <div className="p-4 rounded-xl bg-purple-50">
+                    <p className="text-sm text-slate-500">Total Leads</p>
+                    <p className="text-2xl font-bold text-purple-700 mt-1">{fmt(stats?.total_leads)}</p>
+                  </div>
+                  <div className="p-4 rounded-xl bg-rose-50">
+                    <p className="text-sm text-slate-500">Policies Bound</p>
+                    <p className="text-2xl font-bold text-rose-700 mt-1">{fmt(stats?.total_policies)}</p>
+                  </div>
+                </div>
+              )}
             </div>
           </Card>
         </div>

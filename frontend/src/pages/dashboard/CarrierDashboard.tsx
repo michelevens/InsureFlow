@@ -1,19 +1,39 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Card, Badge, Button } from '@/components/ui';
+import { Card, Button } from '@/components/ui';
 import { StatsCard } from '@/components/dashboard/StatsCard';
+import { analyticsService } from '@/services/api/analytics';
 import {
   Briefcase, BarChart3, FileText, DollarSign, Users,
-  ArrowRight, ShieldCheck, Package,
+  ArrowRight, ShieldCheck, Package, Loader2,
 } from 'lucide-react';
 
-const products = [
-  { name: 'Auto Standard', type: 'Auto', applications: 45, bound: 32, premium_volume: '$128,000', status: 'active' },
-  { name: 'Home Premium', type: 'Home', applications: 28, bound: 20, premium_volume: '$96,000', status: 'active' },
-  { name: 'Life Term 20', type: 'Life', applications: 15, bound: 10, premium_volume: '$45,000', status: 'active' },
-  { name: 'Business General', type: 'Business', applications: 12, bound: 8, premium_volume: '$72,000', status: 'active' },
-];
+interface CarrierStats {
+  active_products: number;
+  total_applications: number;
+  total_policies: number;
+  premium_volume: number;
+}
 
 export default function CarrierDashboard() {
+  const [stats, setStats] = useState<CarrierStats | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    analyticsService.getDashboardStats()
+      .then((data) => setStats(data as unknown as CarrierStats))
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  const fmt = (n: number | undefined) => n?.toLocaleString() ?? '0';
+  const fmtCurrency = (n: number | undefined) => {
+    const val = n ?? 0;
+    if (val >= 1000000) return `$${(val / 1000000).toFixed(1)}M`;
+    if (val >= 1000) return `$${(val / 1000).toFixed(0)}K`;
+    return `$${val.toLocaleString()}`;
+  };
+
   return (
     <div className="space-y-8">
       {/* Welcome */}
@@ -29,47 +49,58 @@ export default function CarrierDashboard() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatsCard icon={<Briefcase className="w-5 h-5" />} label="Active Products" value="4" />
-        <StatsCard icon={<FileText className="w-5 h-5" />} label="Applications" value="100" change="+22 this month" />
-        <StatsCard icon={<ShieldCheck className="w-5 h-5" />} label="Policies Bound" value="70" change="+15 this month" />
-        <StatsCard icon={<DollarSign className="w-5 h-5" />} label="Premium Volume" value="$341K" variant="savings" change="+12%" />
+        {loading ? (
+          Array.from({ length: 4 }).map((_, i) => (
+            <Card key={i} className="p-5 animate-pulse">
+              <div className="h-4 w-20 bg-slate-200 rounded mb-2" />
+              <div className="h-7 w-16 bg-slate-200 rounded" />
+            </Card>
+          ))
+        ) : (
+          <>
+            <StatsCard icon={<Briefcase className="w-5 h-5" />} label="Active Products" value={fmt(stats?.active_products)} />
+            <StatsCard icon={<FileText className="w-5 h-5" />} label="Applications" value={fmt(stats?.total_applications)} />
+            <StatsCard icon={<ShieldCheck className="w-5 h-5" />} label="Policies Bound" value={fmt(stats?.total_policies)} />
+            <StatsCard icon={<DollarSign className="w-5 h-5" />} label="Premium Volume" value={fmtCurrency(stats?.premium_volume)} variant="savings" />
+          </>
+        )}
       </div>
 
-      {/* Product performance */}
+      {/* Platform overview */}
       <Card>
         <div className="p-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-slate-900">Product Performance</h2>
+            <h2 className="text-lg font-semibold text-slate-900">Platform Overview</h2>
             <Link to="/carrier/production" className="text-sm text-shield-600 hover:underline">View details</Link>
           </div>
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-slate-100">
-                  <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider pb-3">Product</th>
-                  <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider pb-3">Type</th>
-                  <th className="text-right text-xs font-medium text-slate-500 uppercase tracking-wider pb-3">Applications</th>
-                  <th className="text-right text-xs font-medium text-slate-500 uppercase tracking-wider pb-3">Bound</th>
-                  <th className="text-right text-xs font-medium text-slate-500 uppercase tracking-wider pb-3">Premium Volume</th>
-                  <th className="text-right text-xs font-medium text-slate-500 uppercase tracking-wider pb-3">Bind Rate</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-50">
-                {products.map((p, i) => (
-                  <tr key={i} className="hover:bg-slate-50">
-                    <td className="py-3 font-medium text-slate-900">{p.name}</td>
-                    <td className="py-3"><Badge variant="outline">{p.type}</Badge></td>
-                    <td className="py-3 text-right text-sm text-slate-700">{p.applications}</td>
-                    <td className="py-3 text-right text-sm text-slate-700">{p.bound}</td>
-                    <td className="py-3 text-right text-sm font-medium text-savings-600">{p.premium_volume}</td>
-                    <td className="py-3 text-right text-sm font-medium text-slate-900">
-                      {Math.round((p.bound / p.applications) * 100)}%
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          {loading ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="w-6 h-6 animate-spin text-shield-400" />
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="p-4 rounded-xl bg-shield-50 text-center">
+                <p className="text-2xl font-bold text-shield-700">{fmt(stats?.active_products)}</p>
+                <p className="text-sm text-slate-500 mt-1">Products</p>
+              </div>
+              <div className="p-4 rounded-xl bg-amber-50 text-center">
+                <p className="text-2xl font-bold text-amber-700">{fmt(stats?.total_applications)}</p>
+                <p className="text-sm text-slate-500 mt-1">Applications</p>
+              </div>
+              <div className="p-4 rounded-xl bg-savings-50 text-center">
+                <p className="text-2xl font-bold text-savings-700">{fmt(stats?.total_policies)}</p>
+                <p className="text-sm text-slate-500 mt-1">Policies</p>
+              </div>
+              <div className="p-4 rounded-xl bg-confidence-50 text-center">
+                <p className="text-2xl font-bold text-confidence-700">
+                  {stats?.total_applications && stats?.total_policies
+                    ? `${Math.round((stats.total_policies / stats.total_applications) * 100)}%`
+                    : '0%'}
+                </p>
+                <p className="text-sm text-slate-500 mt-1">Bind Rate</p>
+              </div>
+            </div>
+          )}
         </div>
       </Card>
 

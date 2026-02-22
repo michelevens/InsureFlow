@@ -1,19 +1,43 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, Button } from '@/components/ui';
 import { StatsCard } from '@/components/dashboard/StatsCard';
+import { analyticsService } from '@/services/api/analytics';
+import type { AgentPerformanceEntry } from '@/services/api/analytics';
 import {
   Users, Target, DollarSign, FileText, ArrowRight,
-  BarChart3, Award,
+  BarChart3, Award, Loader2,
 } from 'lucide-react';
 
-const teamMembers = [
-  { name: 'Sarah Johnson', role: 'Senior Agent', leads: 12, policies: 24, commission: '$4,250', status: 'active' },
-  { name: 'Michael Chen', role: 'Agent', leads: 8, policies: 15, commission: '$2,800', status: 'active' },
-  { name: 'Amanda Rodriguez', role: 'Agent', leads: 10, policies: 18, commission: '$3,100', status: 'active' },
-  { name: 'David Williams', role: 'Junior Agent', leads: 5, policies: 8, commission: '$1,400', status: 'active' },
-];
+interface AgencyStats {
+  team_members: number;
+  total_leads: number;
+  total_policies: number;
+  total_revenue: number;
+}
 
 export default function AgencyDashboard() {
+  const [stats, setStats] = useState<AgencyStats | null>(null);
+  const [team, setTeam] = useState<AgentPerformanceEntry[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    Promise.all([
+      analyticsService.getDashboardStats(),
+      analyticsService.getAgentPerformance(3, 10).catch(() => ({ agents: [] })),
+    ])
+      .then(([s, t]) => {
+        setStats(s as unknown as AgencyStats);
+        setTeam(t.agents);
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  const fmt = (n: number | undefined) => n?.toLocaleString() ?? '0';
+  const fmtCurrency = (n: number | undefined) =>
+    `$${(n ?? 0).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+
   return (
     <div className="space-y-8">
       {/* Welcome */}
@@ -29,10 +53,21 @@ export default function AgencyDashboard() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatsCard icon={<Users className="w-5 h-5" />} label="Team Members" value="4" />
-        <StatsCard icon={<Target className="w-5 h-5" />} label="Total Leads" value="35" change="+8 this week" />
-        <StatsCard icon={<FileText className="w-5 h-5" />} label="Policies Bound" value="65" change="+12 this month" />
-        <StatsCard icon={<DollarSign className="w-5 h-5" />} label="Agency Revenue" value="$11,550" variant="savings" change="+18%" />
+        {loading ? (
+          Array.from({ length: 4 }).map((_, i) => (
+            <Card key={i} className="p-5 animate-pulse">
+              <div className="h-4 w-20 bg-slate-200 rounded mb-2" />
+              <div className="h-7 w-16 bg-slate-200 rounded" />
+            </Card>
+          ))
+        ) : (
+          <>
+            <StatsCard icon={<Users className="w-5 h-5" />} label="Team Members" value={fmt(stats?.team_members)} />
+            <StatsCard icon={<Target className="w-5 h-5" />} label="Total Leads" value={fmt(stats?.total_leads)} />
+            <StatsCard icon={<FileText className="w-5 h-5" />} label="Policies Bound" value={fmt(stats?.total_policies)} />
+            <StatsCard icon={<DollarSign className="w-5 h-5" />} label="Agency Revenue" value={fmtCurrency(stats?.total_revenue)} variant="savings" />
+          </>
+        )}
       </div>
 
       {/* Team performance table */}
@@ -42,37 +77,45 @@ export default function AgencyDashboard() {
             <h2 className="text-lg font-semibold text-slate-900">Team Performance</h2>
             <Link to="/agency/team" className="text-sm text-shield-600 hover:underline">View all</Link>
           </div>
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-slate-100">
-                  <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider pb-3">Agent</th>
-                  <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider pb-3">Role</th>
-                  <th className="text-right text-xs font-medium text-slate-500 uppercase tracking-wider pb-3">Leads</th>
-                  <th className="text-right text-xs font-medium text-slate-500 uppercase tracking-wider pb-3">Policies</th>
-                  <th className="text-right text-xs font-medium text-slate-500 uppercase tracking-wider pb-3">Commission</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-50">
-                {teamMembers.map((member, i) => (
-                  <tr key={i} className="hover:bg-slate-50">
-                    <td className="py-3">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full gradient-shield flex items-center justify-center text-white text-xs font-bold">
-                          {member.name.split(' ').map(n => n[0]).join('')}
-                        </div>
-                        <span className="font-medium text-slate-900">{member.name}</span>
-                      </div>
-                    </td>
-                    <td className="py-3 text-sm text-slate-500">{member.role}</td>
-                    <td className="py-3 text-right text-sm font-medium text-slate-900">{member.leads}</td>
-                    <td className="py-3 text-right text-sm font-medium text-slate-900">{member.policies}</td>
-                    <td className="py-3 text-right text-sm font-medium text-savings-600">{member.commission}</td>
+          {loading ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="w-6 h-6 animate-spin text-shield-400" />
+            </div>
+          ) : team.length === 0 ? (
+            <p className="text-sm text-slate-500 text-center py-8">No agent performance data yet. As your team writes business, their metrics will appear here.</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-slate-100">
+                    <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider pb-3">Agent</th>
+                    <th className="text-right text-xs font-medium text-slate-500 uppercase tracking-wider pb-3">Leads</th>
+                    <th className="text-right text-xs font-medium text-slate-500 uppercase tracking-wider pb-3">Policies</th>
+                    <th className="text-right text-xs font-medium text-slate-500 uppercase tracking-wider pb-3">Commission</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody className="divide-y divide-slate-50">
+                  {team.map((member) => (
+                    <tr key={member.id} className="hover:bg-slate-50">
+                      <td className="py-3">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-full gradient-shield flex items-center justify-center text-white text-xs font-bold">
+                            {member.name.split(' ').map(n => n[0]).join('')}
+                          </div>
+                          <span className="font-medium text-slate-900">{member.name}</span>
+                        </div>
+                      </td>
+                      <td className="py-3 text-right text-sm font-medium text-slate-900">{member.lead_count}</td>
+                      <td className="py-3 text-right text-sm font-medium text-slate-900">{member.policy_count}</td>
+                      <td className="py-3 text-right text-sm font-medium text-savings-600">
+                        {member.total_commission ? `$${Number(member.total_commission).toLocaleString()}` : '$0'}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       </Card>
 

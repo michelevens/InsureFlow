@@ -2,8 +2,8 @@ import { api } from './client';
 import type { Commission, DashboardStats } from '@/types';
 
 export const analyticsService = {
-  async getDashboardStats(role: string): Promise<DashboardStats> {
-    return api.get<DashboardStats>(`/stats/${role}`);
+  async getDashboardStats(): Promise<DashboardStats> {
+    return api.get<DashboardStats>('/stats/dashboard');
   },
 
   async getCommissions(params?: { status?: string }): Promise<{ items: Commission[]; total: number }> {
