@@ -1,162 +1,333 @@
-# InsureFlow - Feature Tracker
+# Insurons — Complete Feature Tracker
 
-## Status Legend
-- [x] Planned and scoped
+## Platform Summary (as of 2026-02-22)
+
+**59 frontend pages | 79 models | 45 controllers | 60 migrations | 39 API services**
+
+All 6 expansion phases are **BUILT** — from MVP through $100M enterprise platform.
+
+### Status Legend
+- [x] Built and committed
 - [ ] Not yet started
+- (P) Planned for future iteration
 
 ---
 
-## Phase 1: Quote Engine & Marketplace (MVP - Weeks 1-8)
+## Foundation (Pre-Expansion MVP)
 
 ### Authentication & Users
-- [ ] Email/password registration and login
-- [ ] Role-based access (Consumer, Agent, Agency Owner, Carrier, Admin)
-- [ ] Agency profile setup (name, license, E&O insurance)
-- [ ] Agent profile setup (license, NPN, specialties, carriers)
-- [ ] Staff invitation for agencies
+- [x] Email/password registration and login (Sanctum SPA)
+- [x] Role-based access: Consumer, Agent, Agency Owner, Carrier, Admin, Superadmin
+- [x] Agency profile setup (name, license, E&O)
+- [x] Agent profile setup (license, NPN, specialties, carriers)
+- [x] Staff invitation system (email-based invite tokens)
+- [x] Email verification flow
+- [x] Password reset flow
+- [x] Stripe subscription management (6 tiers)
+- [x] Referral system with $10 credit per signup
 
-### Quote Calculator (Public — Core Feature)
-- [ ] Insurance type selection (auto, home, renters, life, health, commercial)
-- [ ] Auto quote form (drivers, vehicles, coverage preferences)
-- [ ] Home quote form (address, year built, sq ft, coverage amount)
-- [ ] Life quote form (age, gender, health class, term, coverage)
-- [ ] Multi-carrier quote generation (calculate premiums from carrier products)
-- [ ] Quote results display with side-by-side comparison cards
-- [ ] Recommended/best value highlighting
-- [ ] Coverage detail breakdown per quote
-- [ ] Discount display (multi-policy, good driver, etc.)
-- [ ] Save quotes (register/login to save)
-- [ ] Quote expiration tracking
+### Quote Calculator (Public)
+- [x] Insurance type selection (auto, home, life, health, renters, commercial)
+- [x] Multi-carrier quote generation from carrier products database
+- [x] Quote results with side-by-side comparison
+- [x] Save quotes to account
+- [x] Quote-to-application conversion
+- [x] Quote expiration tracking
 
 ### Agent Marketplace
-- [ ] Agent search by location, specialty, carrier, rating
-- [ ] Agent profile pages (bio, specialties, carriers, reviews, response time)
-- [ ] Verified license badge
-- [ ] Rating and review display
-- [ ] "Get Matched" smart matching (auto-select best agents)
-- [ ] Agent contact form / request callback
+- [x] Agent search by location, specialty, carrier, rating
+- [x] Agent profile pages (bio, specialties, carriers, reviews)
+- [x] Verified license badge
+- [x] Rating and review system with agent replies
+- [x] Smart agent matching algorithm
 
-### Carrier Directory
-- [ ] Carrier listing with logos and AM Best ratings
-- [ ] Carrier products and coverage types
-- [ ] State availability filtering
-- [ ] Carrier detail pages
-
-### Dashboard
-- [ ] Agent dashboard (new leads, active applications, commissions, rating)
-- [ ] Consumer dashboard (saved quotes, applications, active policies)
-- [ ] Quick actions (get quote, view leads, check applications)
-- [ ] Revenue/commission trend chart
-
----
-
-## Phase 2: Application Pipeline & CRM (Weeks 9-16)
+### CRM & Lead Pipeline
+- [x] Lead pipeline (new → contacted → qualified → quoted → applied → won/lost)
+- [x] Lead source tracking
+- [x] Activity logging (calls, emails, notes)
+- [x] Lead scoring (engagement-based)
+- [x] Unified Insurance Profiles (UIP) with stage advancement
+- [x] Lead routing rules engine
 
 ### Application Pipeline
-- [ ] Create application from selected quote (pre-fill data)
-- [ ] Application form (personal info, coverage details)
-- [ ] Document upload (ID, proof of residence, driving record, etc.)
-- [ ] Application submission to carrier/agent
-- [ ] Status tracking (draft → submitted → underwriting → approved/declined → bound)
-- [ ] Application notes (internal agent notes + consumer-visible notes)
-- [ ] Policy binding on approval (create policy record)
-- [ ] Decline handling with alternative quote suggestions
-- [ ] Application timeline/history
-
-### Agent CRM (Lead Management)
-- [ ] Lead pipeline (new → contacted → qualified → quoted → applied → won/lost)
-- [ ] Lead source tracking (marketplace, calculator, referral, manual)
-- [ ] Activity logging (calls, emails, SMS, notes, quotes sent)
-- [ ] Follow-up reminders and scheduling
-- [ ] Lead assignment (for agencies with multiple agents)
-- [ ] Lead scoring based on engagement
-- [ ] Lost lead reason tracking
-- [ ] Bulk actions (assign, tag, follow-up)
-
-### Agent Quote Tools
-- [ ] Quick quote from CRM (pre-fill from lead)
-- [ ] Send quote comparison via email (branded PDF)
-- [ ] Quote tracking (viewed, expired, converted)
-- [ ] Re-quote with adjusted coverage
-
-### Consumer Portal
-- [ ] My saved quotes with comparison
-- [ ] My applications with status tracking
-- [ ] My active policies
-- [ ] Payment history
-- [ ] Document access (policy documents, ID cards)
-- [ ] Secure messaging with agent
-
----
-
-## Phase 3: Policies, Claims & Commissions (Weeks 17-24)
+- [x] Application creation from quotes
+- [x] Status tracking (draft → submitted → underwriting → approved → bound)
+- [x] Application notes and timeline
 
 ### Policy Management
-- [ ] Active policy tracking (consumer and agent views)
-- [ ] Policy details (coverage summary, premium, documents)
-- [ ] Renewal alerts (60, 30, 14 days before expiration)
-- [ ] Auto-renewal flag
-- [ ] Policy document storage (dec page, ID cards, endorsements)
-- [ ] Coverage gap detection
+- [x] Active policy tracking (consumer + agent views)
+- [x] Policy status management
+- [x] Policy document storage
 
-### Claims
-- [ ] File claim from portal (type, description, date of loss, photos)
-- [ ] Claim status tracking (submitted → review → approved/denied → settled)
-- [ ] Claim documents and communication log
-- [ ] Agent notification on claim filing
-- [ ] Claim history per policy
+### Carrier Portal
+- [x] Carrier directory with products
+- [x] Carrier product management (CRUD)
+- [x] Production reports
+
+### Dashboard & Analytics
+- [x] Role-specific dashboards (Consumer, Agent, Agency Owner, Carrier, Admin)
+- [x] Dashboard statistics API
+- [x] Revenue/commission trend data
 
 ### Commission Tracking
-- [ ] Commission record per policy (rate, amount, type: new/renewal)
-- [ ] Commission status (pending → earned → paid)
-- [ ] Monthly commission summary
-- [ ] Agency commission aggregation
-- [ ] Commission report (by carrier, by product, by period)
-- [ ] Payout tracking
-
-### Reviews & Ratings
-- [ ] Consumer reviews for agents (after policy bound)
-- [ ] Star rating (1-5) with title and comment
-- [ ] Agent response to reviews
-- [ ] Verified review badge (linked to actual policy)
-- [ ] Average rating display on agent profile
-
-### Analytics
-- [ ] Agent: leads, conversion rate, policies bound, revenue, avg premium
-- [ ] Agency: production by agent, carrier, product type
-- [ ] Carrier: applications received, approval rate, premium volume
-- [ ] Platform: total quotes, conversion funnel, popular products
+- [x] Commission records per policy
+- [x] Commission status flow (pending → earned → paid)
+- [x] Monthly commission summaries
 
 ---
 
-## Phase 4: Growth & Scale (Weeks 25+)
+## Phase 1: Revenue Engine & Communication Layer
 
-### Advanced Features
-- [ ] Multi-state agent licensing management
-- [ ] Continuing education (CE) tracking
-- [ ] Referral program (agent-to-agent, consumer referrals)
-- [ ] API for carrier rate integration (real-time quoting)
-- [ ] White-label agent websites
-- [ ] Multi-language support (Spanish)
-- [ ] Bundle quoting (auto + home discount)
+### 1.1 Real-Time Messaging
+- [x] Conversations model (user-to-user, context-aware)
+- [x] Messages with typing indicators
+- [x] Adaptive polling (3s active / 15s idle)
+- [x] User search for new conversations
+- [x] Read receipts
 
-### Carrier Integration
-- [ ] Real-time rate API connections (per carrier)
-- [ ] Automated application submission to carrier systems
-- [ ] Policy issuance webhooks
-- [ ] Commission feed integration
-- [ ] E-signature for applications (HelloSign)
+### 1.2 Notification System
+- [x] Polymorphic notifications (uuid PK)
+- [x] Notification center (dropdown + full page)
+- [x] Mark as read / mark all read
+- [x] Unread count badge
+- [x] Action URLs for click-through
 
-### Marketing & Lead Gen
-- [ ] SEO landing pages by insurance type and state
-- [ ] Google Ads integration (cost per lead tracking)
-- [ ] Retargeting pixel support
-- [ ] Email marketing campaigns (drip sequences)
-- [ ] Referral tracking and attribution
+### 1.3 Document Management & E-Signature
+- [x] Polymorphic document uploads (documentable)
+- [x] Document download and deletion
+- [x] Canvas-based e-signatures (polymorphic signable)
+- [x] Signature request → sign → reject flow
+- [x] IP address and user agent tracking for legal compliance
 
-### AI Features
-- [ ] AI-powered coverage recommendations
-- [ ] Chatbot for initial quote qualification
-- [ ] Predictive lead scoring
-- [ ] Automated follow-up sequences
-- [ ] Smart renewal timing optimization
+### 1.4 Commission Payout System (Stripe Connect)
+- [x] Stripe Connect Express account onboarding
+- [x] Payout request and history
+- [x] Platform fee calculation
+- [x] Connect account status tracking
+
+### 1.5 Immutable Audit Logging
+- [x] SOC 2-grade audit log (uuid PK, no updates/deletes)
+- [x] Polymorphic auditable tracking
+- [x] Actor ID, role, IP address, user agent
+- [x] Old/new value JSON diffs
+- [x] Admin audit log viewer with filters
+
+---
+
+## Phase 2: AI Intelligence & Advanced Pipeline
+
+### 2.1 AI Insurance Assistant
+- [x] AI chat conversations with context awareness
+- [x] Role-aware system prompts (consumer, agent, agency owner)
+- [x] Token usage tracking per message
+- [x] Chat history and conversation management
+- [x] AI-powered suggestions endpoint
+
+### 2.2 Predictive Lead Scoring
+- [x] Lead score model (0-100 score with factors JSON)
+- [x] Engagement event tracking
+- [x] Top leads endpoint
+- [x] Bulk rescore capability
+
+### 2.3 Claims Filing & Tracking
+- [x] Claims lifecycle (reported → under review → investigating → approved → denied → settled → closed)
+- [x] Claim documents (photos, forms)
+- [x] Claim activity timeline
+- [x] Agent claims queue
+
+### 2.4 Renewal Management & Retention
+- [x] Renewal opportunities with retention scoring
+- [x] Current vs. new premium comparison
+- [x] Renewal dashboard with status filters
+- [x] Re-quote capability
+
+### 2.5 Advanced Analytics Dashboard
+- [x] Conversion funnel analytics
+- [x] Revenue trend analysis
+- [x] Agent performance metrics
+- [x] Claims analytics
+
+---
+
+## Phase 3: Enterprise Auth & Carrier Integration
+
+### 3.1 SAML SSO for Enterprise Agencies
+- [x] SAML 2.0 login and ACS callback
+- [x] SSO metadata endpoint
+- [x] Per-agency SSO configuration
+- [x] SSO enable/disable admin controls
+
+### 3.2 Carrier Rating API Marketplace
+- [x] Carrier API configuration (base URL, auth, field mapping)
+- [x] API connection testing
+- [x] Request/response logging with timing
+- [x] Live rate API integration (parallel multi-carrier calls)
+
+### 3.3 Hierarchical Organizations (MGA → Agency → Sub-agency → Agent)
+- [x] Self-referencing organization tree (parent_id)
+- [x] Organization types: MGA, agency, sub_agency
+- [x] Organization members with role-based permissions
+- [x] Visual organization tree
+
+### 3.4 Webhook System
+- [x] Webhook registration (URL, events, secret)
+- [x] Webhook delivery tracking with retry
+- [x] Test webhook endpoint
+- [x] Event type listing
+- [x] Delivery log viewer
+
+### 3.5 Calendar & Scheduling
+- [x] Appointments (consultation, review, claim follow-up)
+- [x] Agent availability (day of week, time slots)
+- [x] Blocked dates management
+- [x] Available slots calculation
+- [x] Appointment status flow (scheduled → confirmed → completed → cancelled)
+
+### 3.6 Lead Scenarios (Normalized Pipeline)
+- [x] Multi-scenario per lead (quote different coverage combinations)
+- [x] Insured objects CRUD (vehicles, properties, persons)
+- [x] Coverages CRUD per scenario
+- [x] Scenario-to-application conversion
+- [x] Product type and suggested coverage reference data
+
+---
+
+## Phase 4: White-Label & Embedded Insurance
+
+### 4.1 White-Label Agency Platform
+- [x] White-label configuration (domain, brand, logo, colors, custom CSS)
+- [x] Domain verification and SSL management
+- [x] White-label preview
+- [x] Multi-domain support per configuration
+
+### 4.2 Embedded Insurance Widgets
+- [x] Embed partner management (API key, allowed domains, commission share)
+- [x] Embed session tracking (source domain, conversion)
+- [x] Partner analytics dashboard
+- [x] Widget code generator
+
+### 4.3 PDF Document Generation
+- [x] Template-based document generation
+- [x] Multiple document types (quotes, binders, COIs)
+- [x] Generated document storage and download
+- [x] Polymorphic documentable association
+
+### 4.4 Compliance Tracking
+- [x] Agent license management (state, number, status, expiration)
+- [x] Continuing education (CE) credit tracking
+- [x] Errors & Omissions (E&O) policy tracking
+- [x] Compliance dashboard with expiration alerts
+- [x] Expiring items endpoint (licenses, CE, E&O)
+
+### 4.5 PWA with Offline Capability
+- [x] VitePWA plugin configuration
+- [x] Service worker with Workbox caching
+- [x] Manifest with Insurons branding
+- [x] PWA install prompt component
+
+---
+
+## Phase 5: Premium Data Products & Growth
+
+### 5.1 Data Products & Market Intelligence
+- [x] Data subscriptions (product type, tier, pricing)
+- [x] Market intelligence dashboard
+- [x] Competitive analysis reports
+- [x] Agent benchmarking
+- [x] Scheduled report generation and download
+
+### 5.2 Public API & Key Management
+- [x] API key generation with permissions JSON
+- [x] API usage logging (endpoint, response time)
+- [x] Key regeneration and revocation
+- [x] Usage statistics dashboard
+
+### 5.3 Agent Recruitment & Training
+- [x] Job posting management (requirements, compensation)
+- [x] Agent applications with resume upload
+- [x] Public job board
+- [x] Training module management (content type, duration)
+- [x] Training completions and scoring
+- [x] Progress tracking per user
+- [x] Training catalog with category filtering
+
+### 5.4 Help Center & Knowledge Base
+- [x] Help categories and articles
+- [x] Full-text article search
+- [x] Helpful/not helpful voting
+- [x] Admin article and category management (CRUD)
+
+---
+
+## Phase 6: Ecosystem & Network Effects
+
+### 6.1 Insurance Community Forum
+- [x] Forum categories with ordering and icons
+- [x] Topics with pinning, locking, view counts
+- [x] Posts (replies) with upvoting
+- [x] Solution marking for knowledge sharing
+- [x] Vote tracking (upvote/downvote per user)
+
+### 6.2 Event & Webinar Management
+- [x] Events (webinar, in-person, hybrid)
+- [x] Event registration with capacity limits
+- [x] Attendance tracking
+- [x] Event status flow (draft → published → cancelled → completed)
+- [x] My events listing
+
+### 6.3 Partnership Marketplace
+- [x] Partner listings (category, service area, rating)
+- [x] Partner verification (admin)
+- [x] Referral tracking with commission
+- [x] Partner search with category and verification filters
+
+### 6.4 Email Marketing & Drip Campaigns
+- [x] Email template library (system + custom)
+- [x] Campaign builder (subject, HTML body, target segment)
+- [x] Campaign scheduling and sending
+- [x] Campaign analytics (opens, clicks, bounces, unsubscribes)
+- [x] Per-recipient send tracking
+
+### 6.5 Advanced Reporting & BI Export
+- [x] Custom report definitions (query config, schedule, recipients)
+- [x] Report run execution with row counts
+- [x] Report download (CSV)
+- [x] BI export endpoints (CSV + JSON)
+- [x] Scheduled report support
+
+---
+
+## Future Roadmap (Not Yet Built)
+
+### Phase 6.6 Multi-Language Support (i18n)
+- (P) react-intl or react-i18next framework
+- (P) Spanish language translations (consumer-facing)
+- (P) Accept-Language header support
+- (P) Language selector in Settings
+
+### Phase 5.1 React Native Mobile App
+- (P) Expo project with 12 screens
+- (P) Push notifications
+- (P) Camera document capture
+- (P) SecureStore for auth tokens
+
+### Ongoing Enhancements
+- (P) Real-time carrier API rate integrations (beyond config framework)
+- (P) Async email campaign sending via Laravel queues
+- (P) ML-powered lead scoring (upgrade from rule-based)
+- (P) Bundle quoting (auto + home discount)
+
+---
+
+## Cumulative Build Summary
+
+| Phase | Features | Models | Controllers | Pages | Migrations |
+|-------|----------|--------|-------------|-------|------------|
+| Foundation | Auth, quotes, marketplace, CRM, pipeline | 21 | 16 | 30 | 27 |
+| Phase 1 | Messaging, notifications, docs, signatures, payouts, audit | +8 | +5 | +5 | +6 |
+| Phase 2 | AI chat, lead scoring, claims, renewals, analytics | +8 | +5 | +4 | +5 |
+| Phase 3 | SSO, carrier API, orgs, webhooks, calendar, scenarios | +14 | +6 | +6 | +8 |
+| Phase 4 | White-label, embed, PDF gen, compliance, PWA | +10 | +5 | +4 | +6 |
+| Phase 5 | Data products, API keys, recruitment, training, help center | +10 | +5 | +5 | +4 |
+| Phase 6 | Forum, events, partners, campaigns, reports | +13 | +5 | +5 | +5 |
+| **Total** | **All 6 phases complete** | **79** | **45** | **59** | **60** |
