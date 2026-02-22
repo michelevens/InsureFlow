@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { api } from '@/services/api';
-import { Shield, CheckCircle, XCircle, Loader2 } from 'lucide-react';
+import { CheckCircle, XCircle, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui';
 
 export default function VerifyEmail() {
@@ -33,9 +33,7 @@ export default function VerifyEmail() {
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4">
       <div className="w-full max-w-md text-center">
-        <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl gradient-shield mb-6">
-          <Shield className="w-7 h-7 text-white" />
-        </div>
+        <img src="/logo.png" alt="Insurons" className="h-12 w-auto mx-auto mb-6" />
 
         <div className="bg-white rounded-2xl border border-slate-200 p-8">
           {status === 'loading' && (

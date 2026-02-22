@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { Shield, XCircle } from 'lucide-react';
+import { XCircle } from 'lucide-react';
 
 export default function SsoCallback() {
   const [searchParams] = useSearchParams();
@@ -49,9 +49,7 @@ export default function SsoCallback() {
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4">
       <div className="w-full max-w-md text-center">
-        <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl gradient-shield mb-4">
-          <Shield className="w-7 h-7 text-white" />
-        </div>
+        <img src="/logo.png" alt="Insurons" className="h-12 w-auto mx-auto mb-4" />
         <h1 className="text-2xl font-bold text-slate-900 mb-2">Completing SSO Login</h1>
         <div className="flex items-center justify-center gap-2 text-slate-500">
           <div className="w-5 h-5 border-2 border-shield-200 border-t-shield-600 rounded-full animate-spin" />

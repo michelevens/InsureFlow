@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { authService } from '@/services/api';
 import { Button, Input, Select } from '@/components/ui';
-import { Shield, User, Mail, Lock, Building2, CheckCircle, XCircle, AlertCircle, Eye, EyeOff } from 'lucide-react';
+import { User, Mail, Lock, Building2, CheckCircle, XCircle, AlertCircle, Eye, EyeOff } from 'lucide-react';
 
 const roleOptions = [
   { value: 'consumer', label: 'I need insurance (Consumer)' },
@@ -102,9 +102,7 @@ export default function Register() {
     <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl gradient-shield mb-4">
-            <Shield className="w-7 h-7 text-white" />
-          </div>
+          <img src="/logo.png" alt="Insurons" className="h-12 w-auto mx-auto mb-4" />
           <h1 className="text-2xl font-bold text-slate-900">Create your account</h1>
           <p className="text-slate-500 mt-1">Join Insurons and get started</p>
         </div>

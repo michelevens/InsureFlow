@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils';
 import { NotificationBell } from '@/components/notifications/NotificationBell';
 import { AiChatWidget } from '@/components/ai/AiChatWidget';
 import {
-  Shield, LayoutDashboard, Calculator, Users, FileText, Briefcase,
+  LayoutDashboard, Calculator, Users, FileText, Briefcase,
   Building2, BarChart3, UserCircle, Settings, LogOut, Menu, X,
   ClipboardList, Target, DollarSign, Star, ShieldCheck, ChevronDown, MessageSquare, Activity, AlertTriangle, RefreshCw, TrendingUp, Key, Plug, Network, CalendarDays, Palette, Code, Award, Database, BookOpen, HelpCircle,
   MessagesSquare, Calendar, Handshake, Mail, FileBarChart,
@@ -87,8 +87,7 @@ export function DashboardLayout() {
           <Menu className="w-6 h-6 text-slate-600" />
         </button>
         <div className="flex items-center gap-2">
-          <Shield className="w-6 h-6 text-shield-600" />
-          <span className="font-bold text-slate-900">Insurons</span>
+          <img src="/logo.png" alt="Insurons" className="h-7 w-auto" />
         </div>
         <NotificationBell />
       </div>
@@ -108,10 +107,7 @@ export function DashboardLayout() {
         {/* Logo */}
         <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100">
           <Link to="/dashboard" className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl gradient-shield flex items-center justify-center">
-              <Shield className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-xl font-bold text-slate-900">Insurons</span>
+            <img src="/logo.png" alt="Insurons" className="h-8 w-auto" />
           </Link>
           <button onClick={() => setSidebarOpen(false)} className="lg:hidden p-1 rounded hover:bg-slate-100">
             <X className="w-5 h-5 text-slate-400" />

@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui';
 import {
-  Shield, Calculator, Users, FileText, ShieldCheck, ArrowRight, Star,
+  Calculator, Users, FileText, ShieldCheck, ArrowRight, Star,
   CheckCircle2, Building2, BarChart3, Route, Lock, Zap, Globe,
   UserCheck, PieChart, Network,
 } from 'lucide-react';
@@ -13,10 +13,7 @@ export default function Landing() {
       <nav className="border-b border-slate-100 sticky top-0 bg-white/95 backdrop-blur z-50">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl gradient-shield flex items-center justify-center">
-              <Shield className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-xl font-bold text-slate-900">Insurons</span>
+            <img src="/logo.png" alt="Insurons" className="h-8 w-auto" />
           </Link>
           <div className="hidden md:flex items-center gap-6">
             <a href="#consumers" className="text-sm text-slate-600 hover:text-slate-900">For Consumers</a>
@@ -341,10 +338,7 @@ export default function Landing() {
           <div className="grid md:grid-cols-4 gap-8 mb-8">
             <div>
               <div className="flex items-center gap-2 mb-3">
-                <div className="w-8 h-8 rounded-lg gradient-shield flex items-center justify-center">
-                  <Shield className="w-4 h-4 text-white" />
-                </div>
-                <span className="font-bold text-slate-900">Insurons</span>
+                <img src="/logo.png" alt="Insurons" className="h-7 w-auto" />
               </div>
               <p className="text-sm text-slate-500">The unified insurance distribution platform for consumers, agents, and agencies.</p>
             </div>

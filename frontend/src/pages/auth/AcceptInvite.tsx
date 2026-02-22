@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { api } from '@/services/api';
 import { useAuth } from '@/hooks/useAuth';
 import { Button, Input } from '@/components/ui';
-import { Shield, Users, Mail, Lock, User } from 'lucide-react';
+import { Users, Mail, Lock, User } from 'lucide-react';
 
 interface InviteInfo {
   email: string;
@@ -92,9 +92,7 @@ export default function AcceptInvite() {
     <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl gradient-shield mb-4">
-            <Shield className="w-7 h-7 text-white" />
-          </div>
+          <img src="/logo.png" alt="Insurons" className="h-12 w-auto mx-auto mb-4" />
           <h1 className="text-2xl font-bold text-slate-900">Join {invite.agency_name}</h1>
           <p className="text-slate-500 mt-1">
             You've been invited as <span className="font-semibold text-teal-700">{invite.role}</span>

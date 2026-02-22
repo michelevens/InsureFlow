@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button, Input, Select, Card } from '@/components/ui';
-import { Shield, Calculator as CalcIcon, ArrowRight, ShieldCheck, Clock, CheckCircle2 } from 'lucide-react';
+import { Calculator as CalcIcon, ArrowRight, ShieldCheck, Clock, CheckCircle2 } from 'lucide-react';
 import { quoteService } from '@/services/api';
 
 const insuranceTypes = [
@@ -88,10 +88,7 @@ export default function Calculator() {
       <nav className="bg-white border-b border-slate-100">
         <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
           <a href="/" className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl gradient-shield flex items-center justify-center">
-              <Shield className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-xl font-bold text-slate-900">Insurons</span>
+            <img src="/logo.png" alt="Insurons" className="h-8 w-auto" />
           </a>
           <div className="flex items-center gap-2 text-sm text-slate-500">
             <ShieldCheck className="w-4 h-4 text-shield-600" />

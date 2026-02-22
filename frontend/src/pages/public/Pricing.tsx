@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button, Card, Badge } from '@/components/ui';
-import { Shield, CheckCircle2, ArrowRight, Zap } from 'lucide-react';
+import { CheckCircle2, ArrowRight, Zap } from 'lucide-react';
 
 const plans = [
   {
@@ -81,10 +81,7 @@ export default function Pricing() {
       <nav className="border-b border-slate-100">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl gradient-shield flex items-center justify-center">
-              <Shield className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-xl font-bold text-slate-900">Insurons</span>
+            <img src="/logo.png" alt="Insurons" className="h-8 w-auto" />
           </Link>
           <div className="flex items-center gap-3">
             <Link to="/login"><Button variant="ghost" size="sm">Sign In</Button></Link>

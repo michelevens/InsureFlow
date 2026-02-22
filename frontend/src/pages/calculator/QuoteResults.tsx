@@ -121,10 +121,7 @@ export default function QuoteResults() {
       <nav className="bg-white border-b border-slate-100">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl gradient-shield flex items-center justify-center">
-              <Shield className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-xl font-bold text-slate-900">Insurons</span>
+            <img src="/logo.png" alt="Insurons" className="h-8 w-auto" />
           </Link>
           <div className="flex items-center gap-3">
             <Link to="/calculator">
