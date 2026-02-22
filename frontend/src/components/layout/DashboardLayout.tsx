@@ -8,6 +8,7 @@ import {
   Shield, LayoutDashboard, Calculator, Users, FileText, Briefcase,
   Building2, BarChart3, UserCircle, Settings, LogOut, Menu, X,
   ClipboardList, Target, DollarSign, Star, ShieldCheck, ChevronDown, MessageSquare, Activity, AlertTriangle, RefreshCw, TrendingUp, Key, Plug, Network, CalendarDays, Palette, Code, Award, Database, BookOpen, HelpCircle,
+  MessagesSquare, Calendar, Handshake, Mail, FileBarChart,
 } from 'lucide-react';
 import type { ReactNode } from 'react';
 import type { UserRole } from '@/types';
@@ -47,6 +48,11 @@ const navItems: NavItem[] = [
   { label: 'API Keys', href: '/api-keys', icon: <Key className="w-5 h-5" />, roles: ['agency_owner', 'carrier', 'admin', 'superadmin'] },
   { label: 'Recruitment', href: '/recruitment', icon: <Briefcase className="w-5 h-5" />, roles: ['agency_owner', 'admin', 'superadmin'] },
   { label: 'Training', href: '/training', icon: <BookOpen className="w-5 h-5" />, roles: ['agent', 'agency_owner'] },
+  { label: 'Forum', href: '/forum', icon: <MessagesSquare className="w-5 h-5" />, roles: ['agent', 'agency_owner', 'carrier', 'admin', 'superadmin'] },
+  { label: 'Events', href: '/events', icon: <Calendar className="w-5 h-5" />, roles: ['agent', 'agency_owner', 'carrier', 'admin', 'superadmin'] },
+  { label: 'Partners', href: '/partners', icon: <Handshake className="w-5 h-5" />, roles: ['agent', 'agency_owner', 'consumer'] },
+  { label: 'Campaigns', href: '/campaigns', icon: <Mail className="w-5 h-5" />, roles: ['agent', 'agency_owner', 'admin', 'superadmin'] },
+  { label: 'Reports', href: '/reports', icon: <FileBarChart className="w-5 h-5" />, roles: ['agent', 'agency_owner', 'carrier', 'admin', 'superadmin'] },
   { label: 'Help Center', href: '/help', icon: <HelpCircle className="w-5 h-5" />, roles: ['consumer', 'agent', 'agency_owner', 'carrier', 'admin', 'superadmin'] },
   { label: 'Messages', href: '/messages', icon: <MessageSquare className="w-5 h-5" />, roles: ['consumer', 'agent', 'agency_owner', 'carrier', 'admin', 'superadmin'] },
   { label: 'Find Agents', href: '/marketplace', icon: <Users className="w-5 h-5" />, roles: ['consumer'] },

@@ -113,6 +113,13 @@ const TrainingCatalog = lazy(() => import('@/pages/training/TrainingCatalog'));
 // Help Center
 const HelpCenterPage = lazy(() => import('@/pages/help/HelpCenter'));
 
+// Phase 6: Ecosystem
+const ForumHome = lazy(() => import('@/pages/forum/ForumHome'));
+const EventCalendar = lazy(() => import('@/pages/events/EventCalendar'));
+const PartnerDirectory = lazy(() => import('@/pages/partners/PartnerDirectory'));
+const CampaignBuilder = lazy(() => import('@/pages/campaigns/CampaignBuilder'));
+const ReportBuilder = lazy(() => import('@/pages/reports/ReportBuilder'));
+
 // Settings
 const Settings = lazy(() => import('@/pages/public/Settings'));
 
@@ -198,6 +205,13 @@ export default function App() {
 
                 {/* Help Center */}
                 <Route path="/help" element={<HelpCenterPage />} />
+
+                {/* Phase 6: Ecosystem */}
+                <Route path="/forum" element={<ForumHome />} />
+                <Route path="/events" element={<EventCalendar />} />
+                <Route path="/partners" element={<PartnerDirectory />} />
+                <Route path="/campaigns" element={<CampaignBuilder />} />
+                <Route path="/reports" element={<ReportBuilder />} />
 
                 {/* Agency */}
                 <Route path="/agency/team" element={<AgencyTeam />} />

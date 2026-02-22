@@ -40,6 +40,11 @@ use App\Http\Controllers\ApiKeyController;
 use App\Http\Controllers\RecruitmentController;
 use App\Http\Controllers\TrainingController;
 use App\Http\Controllers\HelpCenterController;
+use App\Http\Controllers\ForumController;
+use App\Http\Controllers\EventController;
+use App\Http\Controllers\PartnerMarketplaceController;
+use App\Http\Controllers\EmailCampaignController;
+use App\Http\Controllers\ReportController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -414,6 +419,69 @@ Route::middleware(['auth:sanctum', 'agency.scope'])->group(function () {
     Route::get('/help/articles/{slug}', [HelpCenterController::class, 'showArticle']);
     Route::get('/help/search', [HelpCenterController::class, 'search']);
     Route::post('/help/articles/{article}/vote', [HelpCenterController::class, 'vote']);
+
+    // Forum
+    Route::get('/forum/categories', [ForumController::class, 'categories']);
+    Route::post('/forum/categories', [ForumController::class, 'storeCategory']);
+    Route::get('/forum/categories/{categoryId}/topics', [ForumController::class, 'topics']);
+    Route::get('/forum/topics/{topicId}', [ForumController::class, 'showTopic']);
+    Route::post('/forum/topics', [ForumController::class, 'storeTopic']);
+    Route::put('/forum/topics/{topicId}', [ForumController::class, 'updateTopic']);
+    Route::delete('/forum/topics/{topicId}', [ForumController::class, 'destroyTopic']);
+    Route::post('/forum/topics/{topicId}/posts', [ForumController::class, 'storePost']);
+    Route::put('/forum/posts/{postId}', [ForumController::class, 'updatePost']);
+    Route::delete('/forum/posts/{postId}', [ForumController::class, 'destroyPost']);
+    Route::post('/forum/posts/{postId}/vote', [ForumController::class, 'vote']);
+    Route::post('/forum/posts/{postId}/solution', [ForumController::class, 'markSolution']);
+
+    // Events
+    Route::get('/events', [EventController::class, 'index']);
+    Route::post('/events', [EventController::class, 'store']);
+    Route::get('/events/my', [EventController::class, 'myEvents']);
+    Route::get('/events/{eventId}', [EventController::class, 'show']);
+    Route::put('/events/{eventId}', [EventController::class, 'update']);
+    Route::delete('/events/{eventId}', [EventController::class, 'destroy']);
+    Route::post('/events/{eventId}/register', [EventController::class, 'register']);
+    Route::post('/events/{eventId}/cancel-registration', [EventController::class, 'cancelRegistration']);
+    Route::post('/events/{eventId}/attend/{userId}', [EventController::class, 'attend']);
+
+    // Partner Marketplace
+    Route::get('/partners', [PartnerMarketplaceController::class, 'index']);
+    Route::post('/partners', [PartnerMarketplaceController::class, 'store']);
+    Route::get('/partners/referrals', [PartnerMarketplaceController::class, 'referrals']);
+    Route::get('/partners/{listingId}', [PartnerMarketplaceController::class, 'show']);
+    Route::put('/partners/{listingId}', [PartnerMarketplaceController::class, 'update']);
+    Route::delete('/partners/{listingId}', [PartnerMarketplaceController::class, 'destroy']);
+    Route::post('/partners/{listingId}/refer', [PartnerMarketplaceController::class, 'refer']);
+    Route::put('/partners/referrals/{referralId}', [PartnerMarketplaceController::class, 'updateReferral']);
+    Route::post('/partners/{listingId}/verify', [PartnerMarketplaceController::class, 'verify']);
+
+    // Email Campaigns
+    Route::get('/email/templates', [EmailCampaignController::class, 'templates']);
+    Route::post('/email/templates', [EmailCampaignController::class, 'storeTemplate']);
+    Route::put('/email/templates/{templateId}', [EmailCampaignController::class, 'updateTemplate']);
+    Route::delete('/email/templates/{templateId}', [EmailCampaignController::class, 'destroyTemplate']);
+    Route::get('/email/campaigns', [EmailCampaignController::class, 'campaigns']);
+    Route::post('/email/campaigns', [EmailCampaignController::class, 'storeCampaign']);
+    Route::get('/email/campaigns/{campaignId}', [EmailCampaignController::class, 'showCampaign']);
+    Route::put('/email/campaigns/{campaignId}', [EmailCampaignController::class, 'updateCampaign']);
+    Route::delete('/email/campaigns/{campaignId}', [EmailCampaignController::class, 'destroyCampaign']);
+    Route::post('/email/campaigns/{campaignId}/send', [EmailCampaignController::class, 'sendCampaign']);
+    Route::post('/email/campaigns/{campaignId}/cancel', [EmailCampaignController::class, 'cancelCampaign']);
+    Route::get('/email/campaigns/{campaignId}/analytics', [EmailCampaignController::class, 'campaignAnalytics']);
+    Route::get('/email/campaigns/{campaignId}/sends', [EmailCampaignController::class, 'campaignSends']);
+
+    // Reports & BI Export
+    Route::get('/reports', [ReportController::class, 'index']);
+    Route::post('/reports', [ReportController::class, 'store']);
+    Route::get('/reports/{reportId}', [ReportController::class, 'show']);
+    Route::put('/reports/{reportId}', [ReportController::class, 'update']);
+    Route::delete('/reports/{reportId}', [ReportController::class, 'destroy']);
+    Route::post('/reports/{reportId}/run', [ReportController::class, 'run']);
+    Route::get('/reports/{reportId}/runs', [ReportController::class, 'runs']);
+    Route::get('/report-runs/{runId}/download', [ReportController::class, 'download']);
+    Route::post('/export/csv', [ReportController::class, 'exportCsv']);
+    Route::post('/export/json', [ReportController::class, 'exportJson']);
 
     /*
     |----------------------------------------------------------------------
