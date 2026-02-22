@@ -102,6 +102,17 @@ const EmbedPartnerDashboard = lazy(() => import('@/pages/embed/EmbedPartnerDashb
 // Compliance
 const ComplianceDashboard = lazy(() => import('@/pages/compliance/ComplianceDashboard'));
 
+// Data Products & API Keys
+const MarketIntelDashboard = lazy(() => import('@/pages/data/MarketIntelDashboard'));
+const ApiKeyManagement = lazy(() => import('@/pages/apikeys/ApiKeyManagement'));
+
+// Recruitment & Training
+const RecruitmentDashboard = lazy(() => import('@/pages/recruitment/RecruitmentDashboard'));
+const TrainingCatalog = lazy(() => import('@/pages/training/TrainingCatalog'));
+
+// Help Center
+const HelpCenterPage = lazy(() => import('@/pages/help/HelpCenter'));
+
 // Settings
 const Settings = lazy(() => import('@/pages/public/Settings'));
 
@@ -176,6 +187,17 @@ export default function App() {
 
                 {/* Compliance */}
                 <Route path="/compliance" element={<ComplianceDashboard />} />
+
+                {/* Data Products & API Keys */}
+                <Route path="/data/market-intel" element={<MarketIntelDashboard />} />
+                <Route path="/api-keys" element={<ApiKeyManagement />} />
+
+                {/* Recruitment & Training */}
+                <Route path="/recruitment" element={<RecruitmentDashboard />} />
+                <Route path="/training" element={<TrainingCatalog />} />
+
+                {/* Help Center */}
+                <Route path="/help" element={<HelpCenterPage />} />
 
                 {/* Agency */}
                 <Route path="/agency/team" element={<AgencyTeam />} />

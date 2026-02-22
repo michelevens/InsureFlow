@@ -35,6 +35,11 @@ use App\Http\Controllers\WhiteLabelController;
 use App\Http\Controllers\EmbedController;
 use App\Http\Controllers\DocumentGenerationController;
 use App\Http\Controllers\ComplianceController;
+use App\Http\Controllers\DataProductController;
+use App\Http\Controllers\ApiKeyController;
+use App\Http\Controllers\RecruitmentController;
+use App\Http\Controllers\TrainingController;
+use App\Http\Controllers\HelpCenterController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -358,6 +363,58 @@ Route::middleware(['auth:sanctum', 'agency.scope'])->group(function () {
     Route::delete('/compliance/eo-policies/{eoPolicy}', [ComplianceController::class, 'destroyEoPolicy']);
     Route::get('/compliance/expiring', [ComplianceController::class, 'expiring']);
 
+    // Data Products & Market Intelligence
+    Route::get('/data/subscriptions', [DataProductController::class, 'subscriptions']);
+    Route::post('/data/subscriptions', [DataProductController::class, 'subscribe']);
+    Route::delete('/data/subscriptions/{subscription}', [DataProductController::class, 'cancelSubscription']);
+    Route::get('/data/market-intel', [DataProductController::class, 'marketIntel']);
+    Route::get('/data/competitive-analysis', [DataProductController::class, 'competitiveAnalysis']);
+    Route::get('/data/agent-benchmarking', [DataProductController::class, 'agentBenchmarking']);
+    Route::get('/data/reports', [DataProductController::class, 'reports']);
+    Route::post('/data/reports/generate', [DataProductController::class, 'generateReport']);
+    Route::get('/data/reports/{report}/download', [DataProductController::class, 'downloadReport']);
+
+    // API Keys
+    Route::get('/api-keys', [ApiKeyController::class, 'index']);
+    Route::post('/api-keys', [ApiKeyController::class, 'store']);
+    Route::put('/api-keys/{apiKey}', [ApiKeyController::class, 'update']);
+    Route::delete('/api-keys/{apiKey}', [ApiKeyController::class, 'destroy']);
+    Route::post('/api-keys/{apiKey}/regenerate', [ApiKeyController::class, 'regenerate']);
+    Route::get('/api-keys/{apiKey}/usage', [ApiKeyController::class, 'usage']);
+    Route::get('/api-keys/{apiKey}/logs', [ApiKeyController::class, 'logs']);
+    Route::get('/api-keys/permissions', [ApiKeyController::class, 'permissions']);
+
+    // Recruitment
+    Route::get('/recruitment/postings', [RecruitmentController::class, 'index']);
+    Route::post('/recruitment/postings', [RecruitmentController::class, 'store']);
+    Route::get('/recruitment/postings/{posting}', [RecruitmentController::class, 'show']);
+    Route::put('/recruitment/postings/{posting}', [RecruitmentController::class, 'update']);
+    Route::delete('/recruitment/postings/{posting}', [RecruitmentController::class, 'destroy']);
+    Route::get('/recruitment/postings/{posting}/applications', [RecruitmentController::class, 'applications']);
+    Route::get('/recruitment/applications/{application}', [RecruitmentController::class, 'showApplication']);
+    Route::put('/recruitment/applications/{application}', [RecruitmentController::class, 'updateApplication']);
+    Route::get('/recruitment/jobs', [RecruitmentController::class, 'publicJobs']);
+    Route::post('/recruitment/jobs/{posting}/apply', [RecruitmentController::class, 'apply']);
+
+    // Training
+    Route::get('/training/modules', [TrainingController::class, 'index']);
+    Route::post('/training/modules', [TrainingController::class, 'store']);
+    Route::get('/training/modules/{module}', [TrainingController::class, 'show']);
+    Route::put('/training/modules/{module}', [TrainingController::class, 'update']);
+    Route::delete('/training/modules/{module}', [TrainingController::class, 'destroy']);
+    Route::get('/training/catalog', [TrainingController::class, 'catalog']);
+    Route::post('/training/modules/{module}/start', [TrainingController::class, 'startModule']);
+    Route::post('/training/modules/{module}/complete', [TrainingController::class, 'completeModule']);
+    Route::get('/training/progress', [TrainingController::class, 'progress']);
+    Route::get('/training/categories', [TrainingController::class, 'categories']);
+
+    // Help Center
+    Route::get('/help/categories', [HelpCenterController::class, 'categories']);
+    Route::get('/help/categories/{slug}/articles', [HelpCenterController::class, 'articlesByCategory']);
+    Route::get('/help/articles/{slug}', [HelpCenterController::class, 'showArticle']);
+    Route::get('/help/search', [HelpCenterController::class, 'search']);
+    Route::post('/help/articles/{article}/vote', [HelpCenterController::class, 'vote']);
+
     /*
     |----------------------------------------------------------------------
     | Admin Routes
@@ -392,5 +449,14 @@ Route::middleware(['auth:sanctum', 'agency.scope'])->group(function () {
         // Invites (admin invites agents/agency_owners/carriers)
         Route::get('/invites', [InviteController::class, 'adminListInvites']);
         Route::post('/invites', [InviteController::class, 'adminInvite']);
+
+        // Help Center Admin
+        Route::get('/help/articles', [HelpCenterController::class, 'adminListArticles']);
+        Route::post('/help/articles', [HelpCenterController::class, 'storeArticle']);
+        Route::put('/help/articles/{article}', [HelpCenterController::class, 'updateArticle']);
+        Route::delete('/help/articles/{article}', [HelpCenterController::class, 'destroyArticle']);
+        Route::post('/help/categories', [HelpCenterController::class, 'storeCategory']);
+        Route::put('/help/categories/{category}', [HelpCenterController::class, 'updateCategory']);
+        Route::delete('/help/categories/{category}', [HelpCenterController::class, 'destroyCategory']);
     });
 });
