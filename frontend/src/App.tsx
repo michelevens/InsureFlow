@@ -92,6 +92,15 @@ const WebhookSettings = lazy(() => import('@/pages/webhooks/WebhookSettings'));
 // Calendar
 const CalendarPage = lazy(() => import('@/pages/calendar/Calendar'));
 
+// White-Label
+const WhiteLabelConfigPage = lazy(() => import('@/pages/whitelabel/WhiteLabelConfig'));
+
+// Embed Partners
+const EmbedPartnerDashboard = lazy(() => import('@/pages/embed/EmbedPartnerDashboard'));
+
+// Compliance
+const ComplianceDashboard = lazy(() => import('@/pages/compliance/ComplianceDashboard'));
+
 // Settings
 const Settings = lazy(() => import('@/pages/public/Settings'));
 
@@ -157,6 +166,15 @@ export default function App() {
 
                 {/* Calendar */}
                 <Route path="/calendar" element={<CalendarPage />} />
+
+                {/* White-Label */}
+                <Route path="/white-label" element={<WhiteLabelConfigPage />} />
+
+                {/* Embed Partners */}
+                <Route path="/embed" element={<EmbedPartnerDashboard />} />
+
+                {/* Compliance */}
+                <Route path="/compliance" element={<ComplianceDashboard />} />
 
                 {/* Agency */}
                 <Route path="/agency/team" element={<AgencyTeam />} />

@@ -31,6 +31,10 @@ use App\Http\Controllers\LeadScenarioController;
 use App\Http\Controllers\OrganizationController;
 use App\Http\Controllers\WebhookController;
 use App\Http\Controllers\AppointmentController;
+use App\Http\Controllers\WhiteLabelController;
+use App\Http\Controllers\EmbedController;
+use App\Http\Controllers\DocumentGenerationController;
+use App\Http\Controllers\ComplianceController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -308,6 +312,51 @@ Route::middleware(['auth:sanctum', 'agency.scope'])->group(function () {
     Route::post('/blocked-dates', [AppointmentController::class, 'blockDate']);
     Route::delete('/blocked-dates/{blockedDate}', [AppointmentController::class, 'unblockDate']);
     Route::get('/available-slots', [AppointmentController::class, 'availableSlots']);
+
+    // White-Label
+    Route::get('/white-label', [WhiteLabelController::class, 'index']);
+    Route::post('/white-label', [WhiteLabelController::class, 'store']);
+    Route::get('/white-label/{config}', [WhiteLabelController::class, 'show']);
+    Route::put('/white-label/{config}', [WhiteLabelController::class, 'update']);
+    Route::delete('/white-label/{config}', [WhiteLabelController::class, 'destroy']);
+    Route::post('/white-label/{config}/domains', [WhiteLabelController::class, 'addDomain']);
+    Route::post('/white-label/domains/{domain}/verify', [WhiteLabelController::class, 'verifyDomain']);
+    Route::delete('/white-label/domains/{domain}', [WhiteLabelController::class, 'removeDomain']);
+    Route::get('/white-label/{config}/preview', [WhiteLabelController::class, 'preview']);
+
+    // Embed Partners (admin)
+    Route::get('/embed/partners', [EmbedController::class, 'index']);
+    Route::post('/embed/partners', [EmbedController::class, 'store']);
+    Route::get('/embed/partners/{partner}', [EmbedController::class, 'show']);
+    Route::put('/embed/partners/{partner}', [EmbedController::class, 'update']);
+    Route::delete('/embed/partners/{partner}', [EmbedController::class, 'destroy']);
+    Route::post('/embed/partners/{partner}/regenerate-key', [EmbedController::class, 'regenerateKey']);
+    Route::get('/embed/partners/{partner}/sessions', [EmbedController::class, 'sessions']);
+    Route::get('/embed/partners/{partner}/analytics', [EmbedController::class, 'analytics']);
+    Route::get('/embed/partners/{partner}/widget-code', [EmbedController::class, 'widgetCode']);
+
+    // Document Generation
+    Route::get('/documents/generate/templates', [DocumentGenerationController::class, 'templates']);
+    Route::post('/documents/generate/{type}', [DocumentGenerationController::class, 'generate']);
+    Route::get('/documents/generated', [DocumentGenerationController::class, 'index']);
+    Route::get('/documents/generated/{document}/download', [DocumentGenerationController::class, 'download']);
+    Route::delete('/documents/generated/{document}', [DocumentGenerationController::class, 'destroy']);
+
+    // Compliance Tracking
+    Route::get('/compliance/dashboard', [ComplianceController::class, 'dashboard']);
+    Route::get('/compliance/licenses', [ComplianceController::class, 'licenses']);
+    Route::post('/compliance/licenses', [ComplianceController::class, 'storeLicense']);
+    Route::put('/compliance/licenses/{license}', [ComplianceController::class, 'updateLicense']);
+    Route::delete('/compliance/licenses/{license}', [ComplianceController::class, 'destroyLicense']);
+    Route::get('/compliance/ce-credits', [ComplianceController::class, 'ceCredits']);
+    Route::post('/compliance/ce-credits', [ComplianceController::class, 'storeCeCredit']);
+    Route::put('/compliance/ce-credits/{credit}', [ComplianceController::class, 'updateCeCredit']);
+    Route::delete('/compliance/ce-credits/{credit}', [ComplianceController::class, 'destroyCeCredit']);
+    Route::get('/compliance/eo-policies', [ComplianceController::class, 'eoPolicy']);
+    Route::post('/compliance/eo-policies', [ComplianceController::class, 'storeEoPolicy']);
+    Route::put('/compliance/eo-policies/{eoPolicy}', [ComplianceController::class, 'updateEoPolicy']);
+    Route::delete('/compliance/eo-policies/{eoPolicy}', [ComplianceController::class, 'destroyEoPolicy']);
+    Route::get('/compliance/expiring', [ComplianceController::class, 'expiring']);
 
     /*
     |----------------------------------------------------------------------
