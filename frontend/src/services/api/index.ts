@@ -33,3 +33,5 @@ export { ssoService } from './sso';
 export type { SsoLoginResponse, SsoConfigPayload } from './sso';
 export { carrierApiService } from './carrierApi';
 export type { CarrierApiConfig as CarrierApiConfigType, CarrierApiLog, LiveRate } from './carrierApi';
+export { scenarioService } from './leadScenarios';
+export type { LeadScenario, InsuredObject, Coverage, ProductTypeMap, SuggestedCoverageInfo, ScenarioStatus, ObjectType, CoverageCategory } from './leadScenarios';

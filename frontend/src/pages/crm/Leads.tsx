@@ -1,81 +1,494 @@
-import { useState } from 'react';
-import { Card, Badge, Button, Input, Select } from '@/components/ui';
+import { useState, useEffect, useCallback } from 'react';
+import { Card, Badge, Button, Input, Select, Modal, Textarea } from '@/components/ui';
+import { crmService, scenarioService } from '@/services/api';
+import type { Lead } from '@/types';
+import type {
+  LeadScenario, Coverage,
+  CreateScenarioPayload, ScenarioStatus, ObjectType, ProductTypeMap,
+  SuggestedCoverageInfo,
+} from '@/services/api/leadScenarios';
 import {
-  Search, Phone, Mail,
+  Search, Phone, Mail, Plus, ChevronRight, ChevronDown,
+  User, Car, Home, Building2, HelpCircle, Shield, Trash2, FileText, ArrowRight,
+  Layers, Target, ClipboardList,
 } from 'lucide-react';
 
-type LeadStatus = 'new' | 'contacted' | 'quoted' | 'applied' | 'won' | 'lost';
+// ── Status configs ─────────────────────────────────
 
-interface Lead {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  insurance_type: string;
-  status: LeadStatus;
-  source: string;
-  created_at: string;
-  location: string;
-  value: string;
-}
+type LeadStatus = Lead['status'];
 
-const mockLeads: Lead[] = [
-  { id: '1', name: 'John Miller', email: 'john@email.com', phone: '(555) 123-4567', insurance_type: 'Auto', status: 'new', source: 'Website', created_at: '2 hours ago', location: 'Dallas, TX', value: '$1,200' },
-  { id: '2', name: 'Emily Davis', email: 'emily@email.com', phone: '(555) 234-5678', insurance_type: 'Home', status: 'contacted', source: 'Referral', created_at: '5 hours ago', location: 'Austin, TX', value: '$2,400' },
-  { id: '3', name: 'Robert Wilson', email: 'robert@email.com', phone: '(555) 345-6789', insurance_type: 'Life', status: 'quoted', source: 'Website', created_at: '1 day ago', location: 'Houston, TX', value: '$3,600' },
-  { id: '4', name: 'Sarah Brown', email: 'sarah@email.com', phone: '(555) 456-7890', insurance_type: 'Auto + Home', status: 'applied', source: 'Marketplace', created_at: '2 days ago', location: 'San Antonio, TX', value: '$4,800' },
-  { id: '5', name: 'James Taylor', email: 'james@email.com', phone: '(555) 567-8901', insurance_type: 'Business', status: 'new', source: 'Website', created_at: '3 days ago', location: 'Fort Worth, TX', value: '$6,000' },
-  { id: '6', name: 'Jennifer Martinez', email: 'jennifer@email.com', phone: '(555) 678-9012', insurance_type: 'Health', status: 'won', source: 'Referral', created_at: '5 days ago', location: 'El Paso, TX', value: '$2,100' },
-  { id: '7', name: 'David Anderson', email: 'david@email.com', phone: '(555) 789-0123', insurance_type: 'Umbrella', status: 'lost', source: 'Website', created_at: '1 week ago', location: 'Plano, TX', value: '$1,800' },
-];
-
-const statusConfig: Record<LeadStatus, { label: string; variant: 'default' | 'shield' | 'success' | 'warning' | 'danger' | 'info' }> = {
+const leadStatusConfig: Record<LeadStatus, { label: string; variant: 'default' | 'shield' | 'success' | 'warning' | 'danger' | 'info' }> = {
   new: { label: 'New', variant: 'shield' },
   contacted: { label: 'Contacted', variant: 'info' },
+  qualified: { label: 'Qualified', variant: 'info' },
   quoted: { label: 'Quoted', variant: 'warning' },
   applied: { label: 'Applied', variant: 'info' },
   won: { label: 'Won', variant: 'success' },
   lost: { label: 'Lost', variant: 'danger' },
 };
 
+const scenarioStatusConfig: Record<ScenarioStatus, { label: string; variant: 'default' | 'shield' | 'success' | 'warning' | 'danger' | 'info' }> = {
+  draft: { label: 'Draft', variant: 'default' },
+  quoting: { label: 'Quoting', variant: 'shield' },
+  quoted: { label: 'Quoted', variant: 'warning' },
+  comparing: { label: 'Comparing', variant: 'info' },
+  selected: { label: 'Selected', variant: 'info' },
+  applied: { label: 'Applied', variant: 'info' },
+  bound: { label: 'Bound', variant: 'success' },
+  declined: { label: 'Declined', variant: 'danger' },
+  expired: { label: 'Expired', variant: 'danger' },
+};
+
+const objectTypeIcons: Record<ObjectType, typeof User> = {
+  person: User,
+  vehicle: Car,
+  property: Home,
+  business: Building2,
+  other: HelpCircle,
+};
+
 const statusOptions = [
   { value: '', label: 'All Statuses' },
   { value: 'new', label: 'New' },
   { value: 'contacted', label: 'Contacted' },
+  { value: 'qualified', label: 'Qualified' },
   { value: 'quoted', label: 'Quoted' },
   { value: 'applied', label: 'Applied' },
   { value: 'won', label: 'Won' },
   { value: 'lost', label: 'Lost' },
 ];
 
+// ── Helpers ─────────────────────────────────────
+
+function formatCurrency(val: number | null | undefined): string {
+  if (val == null) return '—';
+  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(val);
+}
+
+function formatDate(val: string | null | undefined): string {
+  if (!val) return '—';
+  return new Date(val).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function coverageLabel(type: string): string {
+  return type.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+}
+
+// ── Main component ─────────────────────────────────
+
 export default function Leads() {
+  const [leads, setLeads] = useState<Lead[]>([]);
+  const [counts, setCounts] = useState({ total: 0, new: 0, contacted: 0, qualified: 0, quoted: 0, applied: 0, won: 0, lost: 0 });
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
+  const [loading, setLoading] = useState(true);
 
-  const filtered = mockLeads.filter(lead => {
-    if (search && !lead.name.toLowerCase().includes(search.toLowerCase()) && !lead.email.toLowerCase().includes(search.toLowerCase())) return false;
-    if (statusFilter && lead.status !== statusFilter) return false;
-    return true;
-  });
+  // Detail / scenario state
+  const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
+  const [scenarios, setScenarios] = useState<LeadScenario[]>([]);
+  const [expandedScenario, setExpandedScenario] = useState<number | null>(null);
+  const [scenariosLoading, setScenariosLoading] = useState(false);
 
-  const counts = {
-    total: mockLeads.length,
-    new: mockLeads.filter(l => l.status === 'new').length,
-    active: mockLeads.filter(l => ['contacted', 'quoted', 'applied'].includes(l.status)).length,
-    won: mockLeads.filter(l => l.status === 'won').length,
+  // Modals
+  const [showNewScenario, setShowNewScenario] = useState(false);
+  const [showAddObject, setShowAddObject] = useState<number | null>(null);
+  const [showAddCoverage, setShowAddCoverage] = useState<number | null>(null);
+  const [showConvert, setShowConvert] = useState<number | null>(null);
+
+  // Reference data
+  const [productTypes, setProductTypes] = useState<ProductTypeMap>({});
+
+  // ── Load leads ─────────────────────────────────
+
+  const fetchLeads = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await crmService.getLeads({ status: statusFilter || undefined, search: search || undefined });
+      setLeads(res.items);
+      setCounts(res.counts);
+    } catch {
+      // silently fail
+    } finally {
+      setLoading(false);
+    }
+  }, [statusFilter, search]);
+
+  useEffect(() => { fetchLeads(); }, [fetchLeads]);
+
+  useEffect(() => {
+    scenarioService.productTypes().then(setProductTypes).catch(() => {});
+  }, []);
+
+  // ── Open lead detail ─────────────────────────
+
+  const openLead = async (lead: Lead) => {
+    setSelectedLead(lead);
+    setScenariosLoading(true);
+    try {
+      const data = await scenarioService.list(lead.id);
+      setScenarios(data);
+    } catch {
+      setScenarios([]);
+    } finally {
+      setScenariosLoading(false);
+    }
   };
+
+  const closeLead = () => {
+    setSelectedLead(null);
+    setScenarios([]);
+    setExpandedScenario(null);
+  };
+
+  const refreshScenarios = async () => {
+    if (!selectedLead) return;
+    const data = await scenarioService.list(selectedLead.id);
+    setScenarios(data);
+  };
+
+  const deleteScenario = async (scenarioId: number) => {
+    if (!selectedLead) return;
+    await scenarioService.remove(selectedLead.id, scenarioId);
+    await refreshScenarios();
+  };
+
+  const deleteObject = async (scenarioId: number, objectId: number) => {
+    if (!selectedLead) return;
+    await scenarioService.removeObject(selectedLead.id, scenarioId, objectId);
+    await refreshScenarios();
+  };
+
+  const deleteCoverage = async (scenarioId: number, coverageId: number) => {
+    if (!selectedLead) return;
+    await scenarioService.removeCoverage(selectedLead.id, scenarioId, coverageId);
+    await refreshScenarios();
+  };
+
+  // ── Flatten product types for selects ─────────
+
+  const productOptions = Object.entries(productTypes).flatMap(([category, types]) =>
+    Object.entries(types).map(([value, label]) => ({ value, label: `${label} (${category})` }))
+  );
+
+  // ── Lead Detail View ─────────────────────────
+
+  if (selectedLead) {
+    const statusCfg = leadStatusConfig[selectedLead.status] || leadStatusConfig.new;
+
+    return (
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="sm" onClick={closeLead}>
+            <ChevronRight className="w-4 h-4 rotate-180" /> Back
+          </Button>
+          <div className="flex-1">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-full bg-shield-100 text-shield-700 flex items-center justify-center text-lg font-bold">
+                {selectedLead.name.split(' ').map(n => n[0]).join('')}
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-slate-900">{selectedLead.name}</h1>
+                <div className="flex items-center gap-3 text-sm text-slate-500">
+                  <span>{selectedLead.email}</span>
+                  <span>{selectedLead.phone}</span>
+                  <Badge variant={statusCfg.variant}>{statusCfg.label}</Badge>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Info cards */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <Card className="p-4">
+            <p className="text-xs text-slate-500 mb-1">Insurance Type</p>
+            <p className="font-medium text-slate-900 capitalize">{selectedLead.insurance_type}</p>
+          </Card>
+          <Card className="p-4">
+            <p className="text-xs text-slate-500 mb-1">Source</p>
+            <p className="font-medium text-slate-900 capitalize">{selectedLead.source}</p>
+          </Card>
+          <Card className="p-4">
+            <p className="text-xs text-slate-500 mb-1">Scenarios</p>
+            <p className="font-medium text-slate-900">{scenarios.length}</p>
+          </Card>
+          <Card className="p-4">
+            <p className="text-xs text-slate-500 mb-1">Created</p>
+            <p className="font-medium text-slate-900">{formatDate(selectedLead.created_at)}</p>
+          </Card>
+        </div>
+
+        {/* Scenarios header */}
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+            <Layers className="w-5 h-5 text-shield-600" /> Scenarios
+          </h2>
+          <Button variant="shield" size="sm" onClick={() => setShowNewScenario(true)}>
+            <Plus className="w-4 h-4 mr-1" /> New Scenario
+          </Button>
+        </div>
+
+        {/* Scenario list */}
+        {scenariosLoading ? (
+          <Card className="p-8 text-center">
+            <div className="w-8 h-8 border-4 border-shield-200 border-t-shield-600 rounded-full animate-spin mx-auto" />
+          </Card>
+        ) : scenarios.length === 0 ? (
+          <Card className="p-8 text-center">
+            <Target className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+            <p className="text-slate-500 mb-4">No scenarios yet. Create one to start building coverage options.</p>
+            <Button variant="shield" onClick={() => setShowNewScenario(true)}>
+              <Plus className="w-4 h-4 mr-1" /> Create First Scenario
+            </Button>
+          </Card>
+        ) : (
+          <div className="space-y-3">
+            {scenarios.map(scenario => {
+              const isExpanded = expandedScenario === scenario.id;
+              const sCfg = scenarioStatusConfig[scenario.status] || scenarioStatusConfig.draft;
+              const productLabel = productOptions.find(p => p.value === scenario.product_type)?.label || scenario.product_type;
+
+              return (
+                <Card key={scenario.id} className="overflow-hidden">
+                  {/* Header */}
+                  <button
+                    className="w-full flex items-center justify-between p-4 hover:bg-slate-50 transition-colors text-left"
+                    onClick={() => setExpandedScenario(isExpanded ? null : scenario.id)}
+                  >
+                    <div className="flex items-center gap-3">
+                      {isExpanded ? <ChevronDown className="w-5 h-5 text-slate-400" /> : <ChevronRight className="w-5 h-5 text-slate-400" />}
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-semibold text-slate-900">{scenario.scenario_name}</span>
+                          <Badge variant={sCfg.variant}>{sCfg.label}</Badge>
+                          <span className="text-xs text-slate-400">P{scenario.priority}</span>
+                        </div>
+                        <p className="text-sm text-slate-500 mt-0.5">{productLabel}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-4 text-sm text-slate-500">
+                      {scenario.target_premium_monthly != null && (
+                        <span>Target: {formatCurrency(scenario.target_premium_monthly)}/mo</span>
+                      )}
+                      {scenario.best_quoted_premium != null && (
+                        <span className="text-savings-600 font-medium">Best: {formatCurrency(scenario.best_quoted_premium)}/mo</span>
+                      )}
+                      <span>{scenario.insured_objects.length} objects</span>
+                      <span>{scenario.coverages.length} coverages</span>
+                    </div>
+                  </button>
+
+                  {/* Expanded */}
+                  {isExpanded && (
+                    <div className="border-t border-slate-100 p-4 space-y-6">
+                      {/* Details grid */}
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                        {scenario.effective_date_desired && (
+                          <div><span className="text-slate-500">Effective Date:</span> <span className="font-medium">{formatDate(scenario.effective_date_desired)}</span></div>
+                        )}
+                        {scenario.current_carrier && (
+                          <div><span className="text-slate-500">Current Carrier:</span> <span className="font-medium">{scenario.current_carrier}</span></div>
+                        )}
+                        {scenario.current_premium_monthly != null && (
+                          <div><span className="text-slate-500">Current Premium:</span> <span className="font-medium">{formatCurrency(scenario.current_premium_monthly)}/mo</span></div>
+                        )}
+                        {scenario.current_policy_expiration && (
+                          <div><span className="text-slate-500">Expiration:</span> <span className="font-medium">{formatDate(scenario.current_policy_expiration)}</span></div>
+                        )}
+                      </div>
+
+                      {/* Insured Objects */}
+                      <div>
+                        <div className="flex items-center justify-between mb-3">
+                          <h3 className="text-sm font-bold text-slate-700 flex items-center gap-1.5">
+                            <User className="w-4 h-4" /> Insured Objects
+                          </h3>
+                          <Button variant="outline" size="sm" onClick={() => setShowAddObject(scenario.id)}>
+                            <Plus className="w-3 h-3 mr-1" /> Add
+                          </Button>
+                        </div>
+                        {scenario.insured_objects.length === 0 ? (
+                          <p className="text-sm text-slate-400 italic">No insured objects added yet</p>
+                        ) : (
+                          <div className="space-y-2">
+                            {scenario.insured_objects.map(obj => {
+                              const Icon = objectTypeIcons[obj.object_type] || HelpCircle;
+                              return (
+                                <div key={obj.id} className="flex items-center justify-between bg-slate-50 rounded-lg px-3 py-2">
+                                  <div className="flex items-center gap-3">
+                                    <Icon className="w-4 h-4 text-shield-600" />
+                                    <div>
+                                      <span className="font-medium text-slate-900 text-sm">{obj.name}</span>
+                                      {obj.relationship && <span className="text-xs text-slate-500 ml-2">({obj.relationship})</span>}
+                                      <div className="text-xs text-slate-400 mt-0.5">
+                                        {obj.object_type === 'person' && obj.date_of_birth && `DOB: ${formatDate(obj.date_of_birth)}`}
+                                        {obj.object_type === 'vehicle' && obj.vehicle_year && `${obj.vehicle_year} ${obj.vehicle_make} ${obj.vehicle_model}`}
+                                        {obj.object_type === 'property' && obj.address_line1 && `${obj.address_line1}, ${obj.city} ${obj.state}`}
+                                        {obj.object_type === 'business' && obj.naics_code && `NAICS: ${obj.naics_code}`}
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <Button variant="ghost" size="sm" onClick={() => deleteObject(scenario.id, obj.id)}>
+                                    <Trash2 className="w-3.5 h-3.5 text-red-400" />
+                                  </Button>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Coverages */}
+                      <div>
+                        <div className="flex items-center justify-between mb-3">
+                          <h3 className="text-sm font-bold text-slate-700 flex items-center gap-1.5">
+                            <Shield className="w-4 h-4" /> Coverages
+                          </h3>
+                          <Button variant="outline" size="sm" onClick={() => setShowAddCoverage(scenario.id)}>
+                            <Plus className="w-3 h-3 mr-1" /> Add
+                          </Button>
+                        </div>
+                        {scenario.coverages.length === 0 ? (
+                          <p className="text-sm text-slate-400 italic">No coverages configured yet</p>
+                        ) : (
+                          <div className="overflow-x-auto">
+                            <table className="w-full text-sm">
+                              <thead>
+                                <tr className="text-left text-xs text-slate-500 border-b border-slate-100">
+                                  <th className="pb-2 pr-4">Coverage</th>
+                                  <th className="pb-2 pr-4">Category</th>
+                                  <th className="pb-2 pr-4 text-right">Limit</th>
+                                  <th className="pb-2 pr-4 text-right">Deductible</th>
+                                  <th className="pb-2 pr-4 text-right">Benefit</th>
+                                  <th className="pb-2 text-center">Included</th>
+                                  <th className="pb-2"></th>
+                                </tr>
+                              </thead>
+                              <tbody className="divide-y divide-slate-50">
+                                {scenario.coverages.map(cov => (
+                                  <tr key={cov.id}>
+                                    <td className="py-2 pr-4 font-medium text-slate-900">{coverageLabel(cov.coverage_type)}</td>
+                                    <td className="py-2 pr-4"><Badge variant="default">{cov.coverage_category}</Badge></td>
+                                    <td className="py-2 pr-4 text-right">{formatCurrency(cov.limit_amount)}</td>
+                                    <td className="py-2 pr-4 text-right">{formatCurrency(cov.deductible_amount)}</td>
+                                    <td className="py-2 pr-4 text-right">{formatCurrency(cov.benefit_amount)}</td>
+                                    <td className="py-2 text-center">
+                                      {cov.is_included ? <span className="text-savings-600">Yes</span> : <span className="text-slate-400">No</span>}
+                                    </td>
+                                    <td className="py-2 text-right">
+                                      <Button variant="ghost" size="sm" onClick={() => deleteCoverage(scenario.id, cov.id)}>
+                                        <Trash2 className="w-3.5 h-3.5 text-red-400" />
+                                      </Button>
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Notes */}
+                      {scenario.notes && (
+                        <div>
+                          <h3 className="text-sm font-bold text-slate-700 mb-1">Notes</h3>
+                          <p className="text-sm text-slate-600 whitespace-pre-wrap">{scenario.notes}</p>
+                        </div>
+                      )}
+
+                      {/* Applications */}
+                      {scenario.applications && scenario.applications.length > 0 && (
+                        <div>
+                          <h3 className="text-sm font-bold text-slate-700 flex items-center gap-1.5 mb-2">
+                            <ClipboardList className="w-4 h-4" /> Applications ({scenario.applications.length})
+                          </h3>
+                          <div className="space-y-2">
+                            {scenario.applications.map(app => (
+                              <div key={app.id} className="flex items-center justify-between bg-slate-50 rounded-lg px-3 py-2 text-sm">
+                                <div>
+                                  <span className="font-medium">{app.reference}</span>
+                                  <span className="text-slate-500 ml-2">{app.carrier_name}</span>
+                                </div>
+                                <Badge variant="info">{app.status}</Badge>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Actions */}
+                      <div className="flex items-center gap-2 pt-2 border-t border-slate-100">
+                        <Button variant="shield" size="sm" onClick={() => setShowConvert(scenario.id)}>
+                          <ArrowRight className="w-4 h-4 mr-1" /> Convert to Application
+                        </Button>
+                        <Button variant="danger" size="sm" onClick={() => deleteScenario(scenario.id)}>
+                          <Trash2 className="w-4 h-4 mr-1" /> Delete
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </Card>
+              );
+            })}
+          </div>
+        )}
+
+        {/* ── Modals ───────────────────────────────── */}
+
+        {showNewScenario && (
+          <NewScenarioModal
+            leadId={selectedLead.id}
+            productOptions={productOptions}
+            onClose={() => setShowNewScenario(false)}
+            onCreated={refreshScenarios}
+          />
+        )}
+
+        {showAddObject !== null && (
+          <AddObjectModal
+            leadId={selectedLead.id}
+            scenarioId={showAddObject}
+            onClose={() => setShowAddObject(null)}
+            onCreated={refreshScenarios}
+          />
+        )}
+
+        {showAddCoverage !== null && (
+          <AddCoverageModal
+            leadId={selectedLead.id}
+            scenarioId={showAddCoverage}
+            scenario={scenarios.find(s => s.id === showAddCoverage)}
+            onClose={() => setShowAddCoverage(null)}
+            onCreated={refreshScenarios}
+          />
+        )}
+
+        {showConvert !== null && (
+          <ConvertModal
+            leadId={selectedLead.id}
+            scenarioId={showConvert}
+            onClose={() => setShowConvert(null)}
+            onConverted={() => { refreshScenarios(); fetchLeads(); }}
+          />
+        )}
+      </div>
+    );
+  }
+
+  // ── Lead List View ─────────────────────────
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Lead Pipeline</h1>
-          <p className="text-slate-500 mt-1">Manage and track your insurance leads</p>
+          <p className="text-slate-500 mt-1">Manage leads, scenarios, and applications</p>
         </div>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card className="p-4 text-center">
           <p className="text-2xl font-bold text-slate-900">{counts.total}</p>
           <p className="text-sm text-slate-500">Total Leads</p>
@@ -85,7 +498,7 @@ export default function Leads() {
           <p className="text-sm text-slate-500">New</p>
         </Card>
         <Card className="p-4 text-center">
-          <p className="text-2xl font-bold text-confidence-600">{counts.active}</p>
+          <p className="text-2xl font-bold text-confidence-600">{counts.contacted + counts.qualified + counts.quoted + counts.applied}</p>
           <p className="text-sm text-slate-500">In Progress</p>
         </Card>
         <Card className="p-4 text-center">
@@ -106,55 +519,460 @@ export default function Leads() {
 
       {/* Lead list */}
       <Card>
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-slate-100">
-                <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider p-4">Lead</th>
-                <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider p-4">Insurance</th>
-                <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider p-4">Status</th>
-                <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider p-4">Source</th>
-                <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider p-4">Value</th>
-                <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider p-4">Date</th>
-                <th className="text-right text-xs font-medium text-slate-500 uppercase tracking-wider p-4">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-50">
-              {filtered.map(lead => {
-                const config = statusConfig[lead.status];
-                return (
-                  <tr key={lead.id} className="hover:bg-slate-50">
-                    <td className="p-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-full bg-shield-100 text-shield-700 flex items-center justify-center text-sm font-bold">
-                          {lead.name.split(' ').map(n => n[0]).join('')}
+        {loading ? (
+          <div className="flex items-center justify-center py-12">
+            <div className="w-8 h-8 border-4 border-shield-200 border-t-shield-600 rounded-full animate-spin" />
+          </div>
+        ) : leads.length === 0 ? (
+          <div className="text-center py-12 text-slate-500">No leads found</div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-slate-100">
+                  <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider p-4">Lead</th>
+                  <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider p-4">Insurance</th>
+                  <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider p-4">Status</th>
+                  <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider p-4">Source</th>
+                  <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider p-4">Date</th>
+                  <th className="text-right text-xs font-medium text-slate-500 uppercase tracking-wider p-4">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-50">
+                {leads.map(lead => {
+                  const config = leadStatusConfig[lead.status] || leadStatusConfig.new;
+                  return (
+                    <tr key={lead.id} className="hover:bg-slate-50 cursor-pointer" onClick={() => openLead(lead)}>
+                      <td className="p-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-9 h-9 rounded-full bg-shield-100 text-shield-700 flex items-center justify-center text-sm font-bold">
+                            {lead.name.split(' ').map(n => n[0]).join('')}
+                          </div>
+                          <div>
+                            <p className="font-medium text-slate-900">{lead.name}</p>
+                            <p className="text-xs text-slate-500">{lead.email}</p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="font-medium text-slate-900">{lead.name}</p>
-                          <p className="text-xs text-slate-500">{lead.location}</p>
+                      </td>
+                      <td className="p-4 text-sm text-slate-700 capitalize">{lead.insurance_type}</td>
+                      <td className="p-4"><Badge variant={config.variant}>{config.label}</Badge></td>
+                      <td className="p-4 text-sm text-slate-500 capitalize">{lead.source}</td>
+                      <td className="p-4 text-sm text-slate-500">{formatDate(lead.created_at)}</td>
+                      <td className="p-4 text-right">
+                        <div className="flex items-center justify-end gap-1">
+                          <Button variant="ghost" size="sm" onClick={e => { e.stopPropagation(); window.location.href = `tel:${lead.phone}`; }}><Phone className="w-4 h-4" /></Button>
+                          <Button variant="ghost" size="sm" onClick={e => { e.stopPropagation(); window.location.href = `mailto:${lead.email}`; }}><Mail className="w-4 h-4" /></Button>
+                          <Button variant="ghost" size="sm" onClick={e => { e.stopPropagation(); openLead(lead); }}><ChevronRight className="w-4 h-4" /></Button>
                         </div>
-                      </div>
-                    </td>
-                    <td className="p-4 text-sm text-slate-700">{lead.insurance_type}</td>
-                    <td className="p-4">
-                      <Badge variant={config.variant}>{config.label}</Badge>
-                    </td>
-                    <td className="p-4 text-sm text-slate-500">{lead.source}</td>
-                    <td className="p-4 text-sm font-medium text-slate-900">{lead.value}</td>
-                    <td className="p-4 text-sm text-slate-500">{lead.created_at}</td>
-                    <td className="p-4 text-right">
-                      <div className="flex items-center justify-end gap-1">
-                        <Button variant="ghost" size="sm"><Phone className="w-4 h-4" /></Button>
-                        <Button variant="ghost" size="sm"><Mail className="w-4 h-4" /></Button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
       </Card>
     </div>
+  );
+}
+
+// ── New Scenario Modal ─────────────────────────────
+
+function NewScenarioModal({ leadId, productOptions, onClose, onCreated }: {
+  leadId: number;
+  productOptions: { value: string; label: string }[];
+  onClose: () => void;
+  onCreated: () => Promise<void>;
+}) {
+  const [form, setForm] = useState<CreateScenarioPayload>({
+    scenario_name: '',
+    product_type: '',
+    priority: 1,
+    notes: '',
+  });
+  const [saving, setSaving] = useState(false);
+
+  const handleSubmit = async () => {
+    if (!form.scenario_name || !form.product_type) return;
+    setSaving(true);
+    try {
+      await scenarioService.create(leadId, form);
+      await onCreated();
+      onClose();
+    } catch {
+      // handle error
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <Modal isOpen onClose={onClose} title="New Scenario">
+      <div className="space-y-4">
+        <Input
+          label="Scenario Name"
+          placeholder="e.g. Primary Auto Coverage"
+          value={form.scenario_name}
+          onChange={e => setForm({ ...form, scenario_name: e.target.value })}
+        />
+        <Select
+          label="Product Type"
+          options={[{ value: '', label: 'Select product type...' }, ...productOptions]}
+          value={form.product_type}
+          onChange={e => setForm({ ...form, product_type: e.target.value })}
+        />
+        <div className="grid grid-cols-2 gap-4">
+          <Select
+            label="Priority"
+            options={[1, 2, 3, 4, 5].map(n => ({ value: String(n), label: `P${n}` }))}
+            value={String(form.priority)}
+            onChange={e => setForm({ ...form, priority: Number(e.target.value) })}
+          />
+          <Input
+            label="Target Premium ($/mo)"
+            type="number"
+            placeholder="0.00"
+            value={form.target_premium_monthly?.toString() || ''}
+            onChange={e => setForm({ ...form, target_premium_monthly: e.target.value ? Number(e.target.value) : undefined })}
+          />
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          <Input
+            label="Effective Date"
+            type="date"
+            value={form.effective_date_desired || ''}
+            onChange={e => setForm({ ...form, effective_date_desired: e.target.value || null })}
+          />
+          <Input
+            label="Current Carrier"
+            placeholder="e.g. State Farm"
+            value={form.current_carrier || ''}
+            onChange={e => setForm({ ...form, current_carrier: e.target.value || null })}
+          />
+        </div>
+        <Textarea
+          label="Notes"
+          placeholder="Any additional notes..."
+          value={form.notes || ''}
+          onChange={e => setForm({ ...form, notes: e.target.value || null })}
+          rows={3}
+        />
+        <div className="flex justify-end gap-2 pt-2">
+          <Button variant="ghost" onClick={onClose}>Cancel</Button>
+          <Button variant="shield" onClick={handleSubmit} disabled={saving || !form.scenario_name || !form.product_type}>
+            {saving ? 'Creating...' : 'Create Scenario'}
+          </Button>
+        </div>
+      </div>
+    </Modal>
+  );
+}
+
+// ── Add Insured Object Modal ─────────────────────────
+
+function AddObjectModal({ leadId, scenarioId, onClose, onCreated }: {
+  leadId: number;
+  scenarioId: number;
+  onClose: () => void;
+  onCreated: () => Promise<void>;
+}) {
+  const [objectType, setObjectType] = useState<ObjectType>('person');
+  const [name, setName] = useState('');
+  const [fields, setFields] = useState<Record<string, string>>({});
+  const [saving, setSaving] = useState(false);
+
+  const handleSubmit = async () => {
+    if (!name) return;
+    setSaving(true);
+    try {
+      const payload: Record<string, unknown> = { object_type: objectType, name };
+      Object.entries(fields).forEach(([key, val]) => {
+        if (!val) return;
+        if (['vehicle_year', 'year_built', 'square_footage', 'employee_count', 'height_inches', 'weight_lbs'].includes(key)) {
+          payload[key] = Number(val);
+        } else if (['annual_revenue', 'annual_income'].includes(key)) {
+          payload[key] = Number(val);
+        } else if (key === 'tobacco_use') {
+          payload[key] = val === 'true';
+        } else {
+          payload[key] = val;
+        }
+      });
+      await scenarioService.addObject(leadId, scenarioId, payload as never);
+      await onCreated();
+      onClose();
+    } catch {
+      // handle error
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const objectTypeOptions = [
+    { value: 'person', label: 'Person' },
+    { value: 'vehicle', label: 'Vehicle' },
+    { value: 'property', label: 'Property' },
+    { value: 'business', label: 'Business' },
+    { value: 'other', label: 'Other' },
+  ];
+
+  return (
+    <Modal isOpen onClose={onClose} title="Add Insured Object">
+      <div className="space-y-4">
+        <Select
+          label="Object Type"
+          options={objectTypeOptions}
+          value={objectType}
+          onChange={e => { setObjectType(e.target.value as ObjectType); setFields({}); }}
+        />
+        <Input
+          label="Name"
+          placeholder={objectType === 'person' ? 'John Doe' : objectType === 'vehicle' ? '2024 Honda Civic' : 'Name'}
+          value={name}
+          onChange={e => setName(e.target.value)}
+        />
+
+        {objectType === 'person' && (
+          <>
+            <div className="grid grid-cols-2 gap-4">
+              <Input label="Relationship" placeholder="e.g. Primary, Spouse" value={fields.relationship || ''} onChange={e => setFields({ ...fields, relationship: e.target.value })} />
+              <Input label="Date of Birth" type="date" value={fields.date_of_birth || ''} onChange={e => setFields({ ...fields, date_of_birth: e.target.value })} />
+            </div>
+            <div className="grid grid-cols-3 gap-4">
+              <Select label="Gender" options={[{ value: '', label: 'Select...' }, { value: 'male', label: 'Male' }, { value: 'female', label: 'Female' }, { value: 'other', label: 'Other' }]} value={fields.gender || ''} onChange={e => setFields({ ...fields, gender: e.target.value })} />
+              <Input label="Height (in)" type="number" value={fields.height_inches || ''} onChange={e => setFields({ ...fields, height_inches: e.target.value })} />
+              <Input label="Weight (lbs)" type="number" value={fields.weight_lbs || ''} onChange={e => setFields({ ...fields, weight_lbs: e.target.value })} />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <Select label="Tobacco Use" options={[{ value: '', label: 'Select...' }, { value: 'false', label: 'No' }, { value: 'true', label: 'Yes' }]} value={fields.tobacco_use || ''} onChange={e => setFields({ ...fields, tobacco_use: e.target.value })} />
+              <Input label="Occupation" value={fields.occupation || ''} onChange={e => setFields({ ...fields, occupation: e.target.value })} />
+            </div>
+            <Input label="Annual Income" type="number" placeholder="0.00" value={fields.annual_income || ''} onChange={e => setFields({ ...fields, annual_income: e.target.value })} />
+          </>
+        )}
+
+        {objectType === 'vehicle' && (
+          <>
+            <div className="grid grid-cols-3 gap-4">
+              <Input label="Year" type="number" value={fields.vehicle_year || ''} onChange={e => setFields({ ...fields, vehicle_year: e.target.value })} />
+              <Input label="Make" placeholder="Honda" value={fields.vehicle_make || ''} onChange={e => setFields({ ...fields, vehicle_make: e.target.value })} />
+              <Input label="Model" placeholder="Civic" value={fields.vehicle_model || ''} onChange={e => setFields({ ...fields, vehicle_model: e.target.value })} />
+            </div>
+            <Input label="VIN" placeholder="17-character VIN" value={fields.vin || ''} onChange={e => setFields({ ...fields, vin: e.target.value })} />
+          </>
+        )}
+
+        {objectType === 'property' && (
+          <>
+            <Input label="Address" placeholder="123 Main St" value={fields.address_line1 || ''} onChange={e => setFields({ ...fields, address_line1: e.target.value })} />
+            <div className="grid grid-cols-3 gap-4">
+              <Input label="City" value={fields.city || ''} onChange={e => setFields({ ...fields, city: e.target.value })} />
+              <Input label="State" placeholder="TX" value={fields.state || ''} onChange={e => setFields({ ...fields, state: e.target.value })} />
+              <Input label="ZIP" value={fields.zip || ''} onChange={e => setFields({ ...fields, zip: e.target.value })} />
+            </div>
+            <div className="grid grid-cols-3 gap-4">
+              <Input label="Year Built" type="number" value={fields.year_built || ''} onChange={e => setFields({ ...fields, year_built: e.target.value })} />
+              <Input label="Sq Footage" type="number" value={fields.square_footage || ''} onChange={e => setFields({ ...fields, square_footage: e.target.value })} />
+              <Input label="Construction" placeholder="Frame, Brick, etc." value={fields.construction_type || ''} onChange={e => setFields({ ...fields, construction_type: e.target.value })} />
+            </div>
+          </>
+        )}
+
+        {objectType === 'business' && (
+          <>
+            <div className="grid grid-cols-2 gap-4">
+              <Input label="FEIN" value={fields.fein || ''} onChange={e => setFields({ ...fields, fein: e.target.value })} />
+              <Input label="NAICS Code" value={fields.naics_code || ''} onChange={e => setFields({ ...fields, naics_code: e.target.value })} />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <Input label="Annual Revenue" type="number" placeholder="0.00" value={fields.annual_revenue || ''} onChange={e => setFields({ ...fields, annual_revenue: e.target.value })} />
+              <Input label="Employee Count" type="number" value={fields.employee_count || ''} onChange={e => setFields({ ...fields, employee_count: e.target.value })} />
+            </div>
+          </>
+        )}
+
+        <div className="flex justify-end gap-2 pt-2">
+          <Button variant="ghost" onClick={onClose}>Cancel</Button>
+          <Button variant="shield" onClick={handleSubmit} disabled={saving || !name}>
+            {saving ? 'Adding...' : 'Add Object'}
+          </Button>
+        </div>
+      </div>
+    </Modal>
+  );
+}
+
+// ── Add Coverage Modal ─────────────────────────────
+
+function AddCoverageModal({ leadId, scenarioId, scenario, onClose, onCreated }: {
+  leadId: number;
+  scenarioId: number;
+  scenario?: LeadScenario;
+  onClose: () => void;
+  onCreated: () => Promise<void>;
+}) {
+  const [coverageType, setCoverageType] = useState('');
+  const [coverageCategory, setCoverageCategory] = useState('liability');
+  const [limitAmount, setLimitAmount] = useState('');
+  const [deductible, setDeductible] = useState('');
+  const [benefitAmount, setBenefitAmount] = useState('');
+  const [benefitPeriod, setBenefitPeriod] = useState('');
+  const [eliminationDays, setEliminationDays] = useState('');
+  const [isIncluded, setIsIncluded] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  const [suggested, setSuggested] = useState<SuggestedCoverageInfo | null>(null);
+  useEffect(() => {
+    if (scenario?.product_type) {
+      scenarioService.suggestedCoverages(scenario.product_type).then(setSuggested).catch(() => {});
+    }
+  }, [scenario?.product_type]);
+
+  const categoryOptions = [
+    { value: 'liability', label: 'Liability' },
+    { value: 'property', label: 'Property' },
+    { value: 'medical', label: 'Medical' },
+    { value: 'life', label: 'Life' },
+    { value: 'disability', label: 'Disability' },
+    { value: 'specialty', label: 'Specialty' },
+  ];
+
+  const handleSubmit = async () => {
+    if (!coverageType || !coverageCategory) return;
+    setSaving(true);
+    try {
+      await scenarioService.addCoverage(leadId, scenarioId, {
+        coverage_type: coverageType,
+        coverage_category: coverageCategory as Coverage['coverage_category'],
+        limit_amount: limitAmount ? Number(limitAmount) : null,
+        deductible_amount: deductible ? Number(deductible) : null,
+        benefit_amount: benefitAmount ? Number(benefitAmount) : null,
+        benefit_period: benefitPeriod || null,
+        elimination_period_days: eliminationDays ? Number(eliminationDays) : null,
+        is_included: isIncluded,
+      } as never);
+      await onCreated();
+      onClose();
+    } catch {
+      // handle error
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const quickAddTypes = suggested?.coverage_types
+    ? Object.entries(suggested.coverage_types).flatMap(([cat, types]) =>
+        types.map(t => ({ type: t, category: cat }))
+      )
+    : [];
+
+  return (
+    <Modal isOpen onClose={onClose} title="Add Coverage">
+      <div className="space-y-4">
+        {quickAddTypes.length > 0 && (
+          <div>
+            <p className="text-xs text-slate-500 mb-2">Quick select:</p>
+            <div className="flex flex-wrap gap-1.5">
+              {quickAddTypes.slice(0, 12).map(({ type, category }) => (
+                <button
+                  key={type}
+                  className="text-xs px-2 py-1 rounded-full bg-shield-50 text-shield-700 hover:bg-shield-100 transition-colors"
+                  onClick={() => { setCoverageType(type); setCoverageCategory(category); }}
+                >
+                  {coverageLabel(type)}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <Input
+          label="Coverage Type"
+          placeholder="e.g. bodily_injury_per_person"
+          value={coverageType}
+          onChange={e => setCoverageType(e.target.value)}
+        />
+        <Select
+          label="Category"
+          options={categoryOptions}
+          value={coverageCategory}
+          onChange={e => setCoverageCategory(e.target.value)}
+        />
+        <div className="grid grid-cols-2 gap-4">
+          <Input label="Limit ($)" type="number" placeholder="0.00" value={limitAmount} onChange={e => setLimitAmount(e.target.value)} />
+          <Input label="Deductible ($)" type="number" placeholder="0.00" value={deductible} onChange={e => setDeductible(e.target.value)} />
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          <Input label="Benefit Amount ($)" type="number" placeholder="0.00" value={benefitAmount} onChange={e => setBenefitAmount(e.target.value)} />
+          <Input label="Benefit Period" placeholder="e.g. 20 years, to age 65" value={benefitPeriod} onChange={e => setBenefitPeriod(e.target.value)} />
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          <Input label="Elimination Period (days)" type="number" value={eliminationDays} onChange={e => setEliminationDays(e.target.value)} />
+          <Select
+            label="Included"
+            options={[{ value: 'true', label: 'Yes' }, { value: 'false', label: 'No (Optional)' }]}
+            value={String(isIncluded)}
+            onChange={e => setIsIncluded(e.target.value === 'true')}
+          />
+        </div>
+
+        <div className="flex justify-end gap-2 pt-2">
+          <Button variant="ghost" onClick={onClose}>Cancel</Button>
+          <Button variant="shield" onClick={handleSubmit} disabled={saving || !coverageType}>
+            {saving ? 'Adding...' : 'Add Coverage'}
+          </Button>
+        </div>
+      </div>
+    </Modal>
+  );
+}
+
+// ── Convert to Application Modal ─────────────────────
+
+function ConvertModal({ leadId, scenarioId, onClose, onConverted }: {
+  leadId: number;
+  scenarioId: number;
+  onClose: () => void;
+  onConverted: () => void;
+}) {
+  const [carrierName, setCarrierName] = useState('');
+  const [saving, setSaving] = useState(false);
+
+  const handleSubmit = async () => {
+    if (!carrierName) return;
+    setSaving(true);
+    try {
+      await scenarioService.convert(leadId, scenarioId, { carrier_name: carrierName });
+      onConverted();
+      onClose();
+    } catch {
+      // handle error
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <Modal isOpen onClose={onClose} title="Convert to Application">
+      <div className="space-y-4">
+        <p className="text-sm text-slate-600">
+          This will create a new application from this scenario, copying all insured objects and coverages.
+        </p>
+        <Input
+          label="Carrier Name"
+          placeholder="e.g. State Farm, Progressive, Mutual of Omaha"
+          value={carrierName}
+          onChange={e => setCarrierName(e.target.value)}
+        />
+        <div className="flex justify-end gap-2 pt-2">
+          <Button variant="ghost" onClick={onClose}>Cancel</Button>
+          <Button variant="shield" onClick={handleSubmit} disabled={saving || !carrierName}>
+            <FileText className="w-4 h-4 mr-1" />
+            {saving ? 'Converting...' : 'Create Application'}
+          </Button>
+        </div>
+      </div>
+    </Modal>
   );
 }

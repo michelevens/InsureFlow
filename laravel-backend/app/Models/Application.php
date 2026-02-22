@@ -11,7 +11,7 @@ class Application extends Model
 
     protected $fillable = [
         'reference', 'user_id', 'agent_id', 'agency_id', 'carrier_product_id',
-        'quote_id', 'insurance_type', 'carrier_name',
+        'quote_id', 'lead_scenario_id', 'lead_id', 'insurance_type', 'carrier_name',
         'monthly_premium', 'status', 'applicant_data',
         'submitted_at',
     ];
@@ -68,5 +68,25 @@ class Application extends Model
     public function signatures()
     {
         return $this->morphMany(Signature::class, 'signable');
+    }
+
+    public function leadScenario()
+    {
+        return $this->belongsTo(LeadScenario::class);
+    }
+
+    public function lead()
+    {
+        return $this->belongsTo(Lead::class);
+    }
+
+    public function insuredObjects()
+    {
+        return $this->morphMany(InsuredObject::class, 'insurable')->orderBy('sort_order');
+    }
+
+    public function coverages()
+    {
+        return $this->morphMany(Coverage::class, 'coverable')->orderBy('sort_order');
     }
 }

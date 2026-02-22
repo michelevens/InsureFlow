@@ -29,18 +29,18 @@ export const crmService = {
     const query = new URLSearchParams();
     if (params?.status) query.set('status', params.status);
     if (params?.search) query.set('search', params.search);
-    return api.get<LeadListResponse>(`/agent/leads?${query}`);
+    return api.get<LeadListResponse>(`/crm/leads?${query}`);
   },
 
   async getLead(id: number): Promise<{ item: Lead; activities: LeadActivity[] }> {
-    return api.get<{ item: Lead; activities: LeadActivity[] }>(`/agent/leads/${id}`);
+    return api.get<{ item: Lead; activities: LeadActivity[] }>(`/crm/leads/${id}`);
   },
 
   async updateLead(id: number, data: Partial<Lead>): Promise<{ message: string; item: Lead }> {
-    return api.put<{ message: string; item: Lead }>(`/agent/leads/${id}`, data);
+    return api.put<{ message: string; item: Lead }>(`/crm/leads/${id}`, data);
   },
 
   async logActivity(leadId: number, data: { type: string; description: string }): Promise<{ message: string }> {
-    return api.post<{ message: string }>(`/agent/leads/${leadId}/activity`, data);
+    return api.post<{ message: string }>(`/crm/leads/${leadId}/activity`, data);
   },
 };

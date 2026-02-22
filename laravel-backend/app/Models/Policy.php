@@ -11,7 +11,7 @@ class Policy extends Model
 
     protected $fillable = [
         'policy_number', 'application_id', 'user_id', 'agent_id', 'agency_id',
-        'carrier_product_id', 'type', 'carrier_name',
+        'carrier_product_id', 'type', 'product_type', 'carrier_name',
         'monthly_premium', 'annual_premium', 'deductible',
         'coverage_limit', 'coverage_details', 'status',
         'effective_date', 'expiration_date',
@@ -62,5 +62,15 @@ class Policy extends Model
     public function insuranceProfile()
     {
         return $this->hasOne(InsuranceProfile::class);
+    }
+
+    public function insuredObjects()
+    {
+        return $this->morphMany(InsuredObject::class, 'insurable')->orderBy('sort_order');
+    }
+
+    public function coverages()
+    {
+        return $this->morphMany(Coverage::class, 'coverable')->orderBy('sort_order');
     }
 }

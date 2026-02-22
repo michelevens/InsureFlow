@@ -51,4 +51,14 @@ class Lead extends Model
     {
         return $this->hasOne(InsuranceProfile::class);
     }
+
+    public function scenarios()
+    {
+        return $this->hasMany(LeadScenario::class);
+    }
+
+    public function applications()
+    {
+        return $this->hasMany(Application::class);
+    }
 }

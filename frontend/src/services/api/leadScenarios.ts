@@ -1,0 +1,209 @@
+import { api } from './client';
+
+// ── Types ─────────────────────────────────────────
+
+export type ObjectType = 'person' | 'vehicle' | 'property' | 'business' | 'other';
+export type CoverageCategory = 'liability' | 'property' | 'medical' | 'life' | 'disability' | 'specialty';
+
+export type ScenarioStatus =
+  | 'draft' | 'quoting' | 'quoted' | 'comparing'
+  | 'selected' | 'applied' | 'bound' | 'declined' | 'expired';
+
+export interface InsuredObject {
+  id: number;
+  insurable_type: string;
+  insurable_id: number;
+  object_type: ObjectType;
+  name: string;
+  sort_order: number;
+  relationship?: string | null;
+  date_of_birth?: string | null;
+  gender?: string | null;
+  address_line1?: string | null;
+  address_line2?: string | null;
+  city?: string | null;
+  state?: string | null;
+  zip?: string | null;
+  // Vehicle
+  vehicle_year?: number | null;
+  vehicle_make?: string | null;
+  vehicle_model?: string | null;
+  vin?: string | null;
+  // Property
+  year_built?: number | null;
+  square_footage?: number | null;
+  construction_type?: string | null;
+  // Business
+  fein?: string | null;
+  naics_code?: string | null;
+  annual_revenue?: number | null;
+  employee_count?: number | null;
+  // Person extras
+  height_inches?: number | null;
+  weight_lbs?: number | null;
+  tobacco_use?: boolean | null;
+  occupation?: string | null;
+  annual_income?: number | null;
+  details_json?: Record<string, unknown> | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Coverage {
+  id: number;
+  coverable_type: string;
+  coverable_id: number;
+  coverage_type: string;
+  coverage_category: CoverageCategory;
+  sort_order: number;
+  limit_amount?: number | null;
+  per_occurrence_limit?: number | null;
+  aggregate_limit?: number | null;
+  deductible_amount?: number | null;
+  benefit_amount?: number | null;
+  benefit_period?: string | null;
+  elimination_period_days?: number | null;
+  coinsurance_pct?: number | null;
+  copay_amount?: number | null;
+  is_included: boolean;
+  premium_allocated?: number | null;
+  details_json?: Record<string, unknown> | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface LeadScenario {
+  id: number;
+  lead_id: number;
+  agent_id: number;
+  scenario_name: string;
+  product_type: string;
+  priority: number;
+  status: ScenarioStatus;
+  selected_carrier_id?: number | null;
+  effective_date_desired?: string | null;
+  current_carrier?: string | null;
+  current_premium_monthly?: number | null;
+  current_policy_number?: string | null;
+  current_policy_expiration?: string | null;
+  target_premium_monthly?: number | null;
+  best_quoted_premium?: number | null;
+  total_applications: number;
+  total_quotes_received: number;
+  risk_factors?: string[] | null;
+  metadata_json?: Record<string, unknown> | null;
+  notes?: string | null;
+  insured_objects: InsuredObject[];
+  coverages: Coverage[];
+  selected_carrier?: { id: number; name: string } | null;
+  applications?: { id: number; reference: string; status: string; carrier_name: string }[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ProductTypeMap {
+  [category: string]: Record<string, string>;
+}
+
+export interface SuggestedCoverageInfo {
+  product_type: string;
+  primary_object_type: ObjectType;
+  coverages: Partial<Coverage>[];
+  coverage_types: Record<string, string[]>;
+}
+
+// ── Payloads ─────────────────────────────────────
+
+export type CreateScenarioPayload = {
+  scenario_name: string;
+  product_type: string;
+  priority?: number;
+  effective_date_desired?: string | null;
+  current_carrier?: string | null;
+  current_premium_monthly?: number | null;
+  current_policy_number?: string | null;
+  current_policy_expiration?: string | null;
+  target_premium_monthly?: number | null;
+  risk_factors?: string[] | null;
+  metadata_json?: Record<string, unknown> | null;
+  notes?: string | null;
+};
+
+export type UpdateScenarioPayload = Partial<CreateScenarioPayload> & {
+  status?: ScenarioStatus;
+  selected_carrier_id?: number | null;
+  best_quoted_premium?: number | null;
+};
+
+export type InsuredObjectPayload = Omit<InsuredObject, 'id' | 'insurable_type' | 'insurable_id' | 'sort_order' | 'created_at' | 'updated_at'>;
+export type CoveragePayload = Omit<Coverage, 'id' | 'coverable_type' | 'coverable_id' | 'sort_order' | 'created_at' | 'updated_at'>;
+
+export type ConvertPayload = {
+  carrier_name: string;
+  carrier_product_id?: number | null;
+};
+
+// ── Service ─────────────────────────────────────
+
+export const scenarioService = {
+  // Scenarios
+  async list(leadId: number): Promise<LeadScenario[]> {
+    return api.get<LeadScenario[]>(`/crm/leads/${leadId}/scenarios`);
+  },
+
+  async get(leadId: number, scenarioId: number): Promise<LeadScenario> {
+    return api.get<LeadScenario>(`/crm/leads/${leadId}/scenarios/${scenarioId}`);
+  },
+
+  async create(leadId: number, data: CreateScenarioPayload): Promise<LeadScenario> {
+    return api.post<LeadScenario>(`/crm/leads/${leadId}/scenarios`, data);
+  },
+
+  async update(leadId: number, scenarioId: number, data: UpdateScenarioPayload): Promise<LeadScenario> {
+    return api.put<LeadScenario>(`/crm/leads/${leadId}/scenarios/${scenarioId}`, data);
+  },
+
+  async remove(leadId: number, scenarioId: number): Promise<void> {
+    return api.delete(`/crm/leads/${leadId}/scenarios/${scenarioId}`);
+  },
+
+  // Insured Objects
+  async addObject(leadId: number, scenarioId: number, data: InsuredObjectPayload): Promise<InsuredObject> {
+    return api.post<InsuredObject>(`/crm/leads/${leadId}/scenarios/${scenarioId}/objects`, data);
+  },
+
+  async updateObject(leadId: number, scenarioId: number, objectId: number, data: Partial<InsuredObjectPayload>): Promise<InsuredObject> {
+    return api.put<InsuredObject>(`/crm/leads/${leadId}/scenarios/${scenarioId}/objects/${objectId}`, data);
+  },
+
+  async removeObject(leadId: number, scenarioId: number, objectId: number): Promise<void> {
+    return api.delete(`/crm/leads/${leadId}/scenarios/${scenarioId}/objects/${objectId}`);
+  },
+
+  // Coverages
+  async addCoverage(leadId: number, scenarioId: number, data: CoveragePayload): Promise<Coverage> {
+    return api.post<Coverage>(`/crm/leads/${leadId}/scenarios/${scenarioId}/coverages`, data);
+  },
+
+  async updateCoverage(leadId: number, scenarioId: number, coverageId: number, data: Partial<CoveragePayload>): Promise<Coverage> {
+    return api.put<Coverage>(`/crm/leads/${leadId}/scenarios/${scenarioId}/coverages/${coverageId}`, data);
+  },
+
+  async removeCoverage(leadId: number, scenarioId: number, coverageId: number): Promise<void> {
+    return api.delete(`/crm/leads/${leadId}/scenarios/${scenarioId}/coverages/${coverageId}`);
+  },
+
+  // Convert to application
+  async convert(leadId: number, scenarioId: number, data: ConvertPayload): Promise<unknown> {
+    return api.post(`/crm/leads/${leadId}/scenarios/${scenarioId}/convert`, data);
+  },
+
+  // Reference data
+  async productTypes(): Promise<ProductTypeMap> {
+    return api.get<ProductTypeMap>('/insurance/product-types');
+  },
+
+  async suggestedCoverages(productType: string): Promise<SuggestedCoverageInfo> {
+    return api.get<SuggestedCoverageInfo>(`/insurance/suggested-coverages/${productType}`);
+  },
+};

@@ -27,6 +27,7 @@ use App\Http\Controllers\ClaimController;
 use App\Http\Controllers\RenewalController;
 use App\Http\Controllers\SamlController;
 use App\Http\Controllers\CarrierApiController;
+use App\Http\Controllers\LeadScenarioController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -155,6 +156,30 @@ Route::middleware(['auth:sanctum', 'agency.scope'])->group(function () {
     Route::get('/crm/leads/{lead}', [LeadController::class, 'show']);
     Route::put('/crm/leads/{lead}', [LeadController::class, 'update']);
     Route::post('/crm/leads/{lead}/activity', [LeadController::class, 'addActivity']);
+
+    // Lead Scenarios (nested under leads)
+    Route::get('/crm/leads/{lead}/scenarios', [LeadScenarioController::class, 'index']);
+    Route::post('/crm/leads/{lead}/scenarios', [LeadScenarioController::class, 'store']);
+    Route::get('/crm/leads/{lead}/scenarios/{scenario}', [LeadScenarioController::class, 'show']);
+    Route::put('/crm/leads/{lead}/scenarios/{scenario}', [LeadScenarioController::class, 'update']);
+    Route::delete('/crm/leads/{lead}/scenarios/{scenario}', [LeadScenarioController::class, 'destroy']);
+
+    // Scenario — Insured Objects
+    Route::post('/crm/leads/{lead}/scenarios/{scenario}/objects', [LeadScenarioController::class, 'addInsuredObject']);
+    Route::put('/crm/leads/{lead}/scenarios/{scenario}/objects/{object}', [LeadScenarioController::class, 'updateInsuredObject']);
+    Route::delete('/crm/leads/{lead}/scenarios/{scenario}/objects/{object}', [LeadScenarioController::class, 'removeInsuredObject']);
+
+    // Scenario — Coverages
+    Route::post('/crm/leads/{lead}/scenarios/{scenario}/coverages', [LeadScenarioController::class, 'addCoverage']);
+    Route::put('/crm/leads/{lead}/scenarios/{scenario}/coverages/{coverage}', [LeadScenarioController::class, 'updateCoverage']);
+    Route::delete('/crm/leads/{lead}/scenarios/{scenario}/coverages/{coverage}', [LeadScenarioController::class, 'removeCoverage']);
+
+    // Scenario — Convert to Application
+    Route::post('/crm/leads/{lead}/scenarios/{scenario}/convert', [LeadScenarioController::class, 'convertToApplication']);
+
+    // Reference data (product types, suggested coverages)
+    Route::get('/insurance/product-types', [LeadScenarioController::class, 'productTypes']);
+    Route::get('/insurance/suggested-coverages/{productType}', [LeadScenarioController::class, 'suggestedCoverages']);
 
     // Commissions
     Route::get('/commissions', [CommissionController::class, 'index']);
