@@ -125,6 +125,10 @@ const PartnerDirectory = lazy(() => import('@/pages/partners/PartnerDirectory'))
 const CampaignBuilder = lazy(() => import('@/pages/campaigns/CampaignBuilder'));
 const ReportBuilder = lazy(() => import('@/pages/reports/ReportBuilder'));
 
+// Video Meetings
+const MeetingsPage = lazy(() => import('@/pages/meetings/Meetings'));
+const MeetingRoom = lazy(() => import('@/pages/meetings/MeetingRoom'));
+
 // Settings
 const Settings = lazy(() => import('@/pages/public/Settings'));
 
@@ -214,6 +218,10 @@ export default function App() {
 
                 {/* Help Center */}
                 <Route path="/help" element={<HelpCenterPage />} />
+
+                {/* Video Meetings */}
+                <Route path="/meetings" element={<MeetingsPage />} />
+                <Route path="/meetings/:meetingId/room" element={<MeetingRoom />} />
 
                 {/* Phase 6: Ecosystem */}
                 <Route path="/forum" element={<ForumHome />} />

@@ -8,7 +8,7 @@ import {
   LayoutDashboard, Calculator, Users, FileText, Briefcase,
   Building2, BarChart3, UserCircle, Settings, LogOut, Menu, X,
   ClipboardList, Target, DollarSign, Star, ShieldCheck, ChevronDown, MessageSquare, Activity, AlertTriangle, RefreshCw, TrendingUp, Key, Plug, Network, CalendarDays, Palette, Code, Award, Database, BookOpen, HelpCircle,
-  MessagesSquare, Calendar, Handshake, Mail, FileBarChart,
+  MessagesSquare, Calendar, Handshake, Mail, FileBarChart, Video,
 } from 'lucide-react';
 import type { ReactNode } from 'react';
 import type { UserRole } from '@/types';
@@ -66,6 +66,7 @@ const navSections: NavSection[] = [
       { label: 'Reviews', href: '/reviews', icon: <Star className="w-5 h-5" />, roles: ['agent', 'agency_owner'] },
       { label: 'Analytics', href: '/analytics', icon: <TrendingUp className="w-5 h-5" />, roles: ['agent', 'agency_owner'] },
       { label: 'Calendar', href: '/calendar', icon: <CalendarDays className="w-5 h-5" />, roles: ['agent', 'agency_owner'] },
+      { label: 'Meetings', href: '/meetings', icon: <Video className="w-5 h-5" />, roles: ['agent', 'agency_owner'] },
       { label: 'Compliance', href: '/compliance', icon: <Award className="w-5 h-5" />, roles: ['agent', 'agency_owner'] },
     ],
   },

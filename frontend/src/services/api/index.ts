@@ -69,3 +69,5 @@ export { emailCampaignService } from './emailCampaigns';
 export type { EmailTemplate, EmailCampaign, CampaignAnalytics } from './emailCampaigns';
 export { reportService } from './reports';
 export type { ReportDefinition, ReportRun } from './reports';
+export { videoMeetingService } from './videoMeetings';
+export type { VideoMeeting, VideoMeetingSetting, MeetingStatus, MeetingType, MeetingLink } from './videoMeetings';

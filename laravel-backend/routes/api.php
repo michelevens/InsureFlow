@@ -45,6 +45,7 @@ use App\Http\Controllers\EventController;
 use App\Http\Controllers\PartnerMarketplaceController;
 use App\Http\Controllers\EmailCampaignController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\VideoMeetingController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -309,6 +310,18 @@ Route::middleware(['auth:sanctum', 'agency.scope'])->group(function () {
     Route::post('/webhooks/{webhook}/test', [WebhookController::class, 'test']);
     Route::post('/webhook-deliveries/{delivery}/retry', [WebhookController::class, 'retry']);
     Route::get('/webhooks/event-types', [WebhookController::class, 'eventTypes']);
+
+    // Video Meetings
+    Route::get('/meetings', [VideoMeetingController::class, 'index']);
+    Route::post('/meetings', [VideoMeetingController::class, 'store']);
+    Route::get('/meetings/settings', [VideoMeetingController::class, 'getSettings']);
+    Route::put('/meetings/settings', [VideoMeetingController::class, 'updateSettings']);
+    Route::get('/meetings/token/{token}', [VideoMeetingController::class, 'showByToken']);
+    Route::get('/meetings/{meetingId}', [VideoMeetingController::class, 'show']);
+    Route::post('/meetings/{meetingId}/start', [VideoMeetingController::class, 'start']);
+    Route::post('/meetings/{meetingId}/end', [VideoMeetingController::class, 'end']);
+    Route::post('/meetings/{meetingId}/cancel', [VideoMeetingController::class, 'cancel']);
+    Route::get('/meetings/{meetingId}/link', [VideoMeetingController::class, 'generateLink']);
 
     // Appointments & Calendar
     Route::get('/appointments', [AppointmentController::class, 'index']);
