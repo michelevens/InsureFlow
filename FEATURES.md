@@ -1,6 +1,6 @@
 # Insurons — Complete Feature Tracker
 
-## Platform Summary (as of 2026-02-22)
+## Platform Summary (as of 2026-02-23)
 
 **59 frontend pages | 79 models | 45 controllers | 60 migrations | 39 API services**
 
@@ -294,6 +294,25 @@ All 6 expansion phases are **BUILT** — from MVP through $100M enterprise platf
 - [x] Report download (CSV)
 - [x] BI export endpoints (CSV + JSON)
 - [x] Scheduled report support
+
+---
+
+## UI/UX & Branding
+
+### Platform Branding
+- [x] Custom Insurons logo (shield + connected nodes) integrated across all pages
+- [x] Logo in sidebar (desktop) and mobile header
+- [x] Logo on all auth pages (Login, Register, VerifyEmail, AcceptInvite, SsoLogin, SsoCallback)
+- [x] Logo on all public page navbars (Landing, Pricing, Calculator, QuoteResults, AgentProfile)
+- [x] Logo in footer (Landing page)
+
+### Dashboard Layout
+- [x] Responsive sidebar with role-filtered navigation
+- [x] Desktop top-right header bar with Messages, Notifications, Help, Settings icons
+- [x] User avatar + profile dropdown in top-right (desktop)
+- [x] Mobile header with hamburger menu, logo, Messages + Notifications
+- [x] Mobile sidebar with Settings, Help, Sign Out at bottom
+- [x] AI Chat Widget (floating, all pages)
 
 ---
 

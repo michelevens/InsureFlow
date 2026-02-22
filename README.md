@@ -86,6 +86,14 @@ Community forum, event/webinar management, partnership marketplace, email campai
 - **Embedded API fees** — Per-transaction for partner integrations
 - **Data products** — Market intelligence for carriers and MGAs
 
+## UI/UX
+
+- **Custom branding** — Insurons logo integrated across all pages (auth, navbars, sidebar, footer)
+- **Dashboard layout** — Role-filtered sidebar + top-right header bar (Messages, Notifications, Help, Settings, user profile)
+- **Responsive** — Mobile hamburger menu, adaptive header icons, sidebar overlay
+- **AI Chat Widget** — Floating assistant on every authenticated page
+- **PWA** — Installable with offline support via VitePWA + Workbox
+
 ## Quick Start
 
 ### Frontend

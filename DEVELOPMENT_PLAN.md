@@ -3,7 +3,7 @@
 ## Vision
 The modern insurance marketplace and enterprise platform — instant quotes, smart agent matching, AI-powered pipeline, white-label infrastructure, and ecosystem network effects. Built to scale from MVP to $100M ARR.
 
-**Current state (2026-02-22):** All 6 expansion phases COMPLETE. 59 pages, 79 models, 45 controllers, 60 migrations.
+**Current state (2026-02-23):** All 6 expansion phases COMPLETE. 59 pages, 79 models, 45 controllers, 60 migrations. Custom branding and optimized dashboard layout.
 
 ---
 
@@ -187,6 +187,41 @@ EmailTemplate, EmailCampaign, EmailSend
 
 ### Reporting
 ReportDefinition, ReportRun
+
+---
+
+## UI/UX Architecture
+
+### Branding
+Custom Insurons logo (shield with connected nodes, green/blue gradient + navy text) replaces placeholder Shield icons across all 12+ pages: auth flows, public navbars, sidebar, mobile header, and footer.
+
+### Dashboard Layout Pattern
+```
+┌──────────────────────────────────────────────────────────┐
+│  [☰]        [Logo]        [💬] [🔔]  (mobile header)    │
+├────────┬─────────────────────────────────────────────────┤
+│ Logo   │              [💬] [🔔] [?] [⚙] | [Avatar ▾]   │
+│────────│  ← Desktop top bar (Messages, Notifications,    │
+│ Dashboard │   Help, Settings, User profile dropdown)     │
+│ Leads    │─────────────────────────────────────────────  │
+│ Apps     │                                               │
+│ Policies │         Main Content (<Outlet />)             │
+│ Claims   │                                               │
+│ ...      │                                               │
+│ (role-   │                                               │
+│ filtered)│                                               │
+│          │                                        [AI 💬]│
+├──────────┤                                               │
+│ Settings │ ← mobile only                                 │
+│ Help     │                                               │
+│ Sign Out │                                               │
+└──────────┴───────────────────────────────────────────────┘
+```
+
+- **Sidebar:** Role-filtered navigation (consumer, agent, agency_owner, carrier, admin, superadmin)
+- **Top bar (desktop):** Messages, Notifications, Help Center, Settings icons + user avatar dropdown
+- **Mobile header:** Hamburger menu, centered logo, Messages + Notifications icons
+- **Mobile sidebar footer:** Settings, Help, Sign Out links
 
 ---
 
