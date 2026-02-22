@@ -59,7 +59,7 @@ class EventController extends Controller
         ]);
 
         $validated['host_id'] = $request->user()->id;
-        $validated['organization_id'] = $request->user()->organization_id;
+        $validated['organization_id'] = $request->user()->agency_id;
 
         $event = Event::create($validated);
 

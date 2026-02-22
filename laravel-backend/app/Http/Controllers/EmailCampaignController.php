@@ -33,7 +33,7 @@ class EmailCampaignController extends Controller
             'category' => 'string|max:255',
         ]);
 
-        $validated['organization_id'] = $request->user()->organization_id;
+        $validated['organization_id'] = $request->user()->agency_id;
 
         $template = EmailTemplate::create($validated);
 
@@ -96,7 +96,7 @@ class EmailCampaignController extends Controller
             'scheduled_at' => 'nullable|date|after:now',
         ]);
 
-        $validated['organization_id'] = $request->user()->organization_id;
+        $validated['organization_id'] = $request->user()->agency_id;
         $validated['status'] = $validated['scheduled_at'] ? 'scheduled' : 'draft';
 
         $campaign = EmailCampaign::create($validated);

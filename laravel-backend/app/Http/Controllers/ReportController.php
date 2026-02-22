@@ -45,7 +45,7 @@ class ReportController extends Controller
         ]);
 
         $validated['user_id'] = $request->user()->id;
-        $validated['organization_id'] = $request->user()->organization_id;
+        $validated['organization_id'] = $request->user()->agency_id;
 
         $report = ReportDefinition::create($validated);
 
