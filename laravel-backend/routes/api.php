@@ -481,6 +481,7 @@ Route::middleware(['auth:sanctum', 'agency.scope'])->group(function () {
     Route::post('/reports/{reportId}/run', [ReportController::class, 'run']);
     Route::get('/reports/{reportId}/runs', [ReportController::class, 'runs']);
     Route::get('/report-runs/{runId}/download', [ReportController::class, 'download']);
+    Route::post('/report-runs/{runId}/email', [ReportController::class, 'emailRun']);
     Route::post('/export/csv', [ReportController::class, 'exportCsv']);
     Route::post('/export/json', [ReportController::class, 'exportJson']);
 
