@@ -13,7 +13,7 @@ export default function Landing() {
       <nav className="border-b border-slate-100 sticky top-0 bg-white/95 backdrop-blur z-50">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2.5">
-            <img src="/logo.png" alt="Insurons" className="h-8 w-auto" />
+            <img src="/logo.png" alt="Insurons" className="h-12 w-auto" />
           </Link>
           <div className="hidden md:flex items-center gap-6">
             <a href="#consumers" className="text-sm text-slate-600 hover:text-slate-900">For Consumers</a>
@@ -338,7 +338,7 @@ export default function Landing() {
           <div className="grid md:grid-cols-4 gap-8 mb-8">
             <div>
               <div className="flex items-center gap-2 mb-3">
-                <img src="/logo.png" alt="Insurons" className="h-7 w-auto" />
+                <img src="/logo.png" alt="Insurons" className="h-10 w-auto" />
               </div>
               <p className="text-sm text-slate-500">The unified insurance distribution platform for consumers, agents, and agencies.</p>
             </div>

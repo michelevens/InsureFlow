@@ -45,7 +45,7 @@ export default function AgentProfile() {
       <nav className="bg-white border-b border-slate-100">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2.5">
-            <img src="/logo.png" alt="Insurons" className="h-8 w-auto" />
+            <img src="/logo.png" alt="Insurons" className="h-12 w-auto" />
           </Link>
           <Link to="/marketplace">
             <Button variant="ghost" size="sm" leftIcon={<ArrowLeft className="w-4 h-4" />}>Back to Agents</Button>

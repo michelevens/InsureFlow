@@ -92,7 +92,7 @@ export default function AcceptInvite() {
     <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <img src="/logo.png" alt="Insurons" className="h-12 w-auto mx-auto mb-4" />
+          <img src="/logo.png" alt="Insurons" className="h-20 w-auto mx-auto mb-4" />
           <h1 className="text-2xl font-bold text-slate-900">Join {invite.agency_name}</h1>
           <p className="text-slate-500 mt-1">
             You've been invited as <span className="font-semibold text-teal-700">{invite.role}</span>

@@ -81,7 +81,7 @@ export default function Pricing() {
       <nav className="border-b border-slate-100">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2.5">
-            <img src="/logo.png" alt="Insurons" className="h-8 w-auto" />
+            <img src="/logo.png" alt="Insurons" className="h-12 w-auto" />
           </Link>
           <div className="flex items-center gap-3">
             <Link to="/login"><Button variant="ghost" size="sm">Sign In</Button></Link>

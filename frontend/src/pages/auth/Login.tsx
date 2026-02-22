@@ -52,7 +52,7 @@ export default function Login() {
     <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <img src="/logo.png" alt="Insurons" className="h-12 w-auto mx-auto mb-4" />
+          <img src="/logo.png" alt="Insurons" className="h-20 w-auto mx-auto mb-4" />
           <h1 className="text-2xl font-bold text-slate-900">Welcome back</h1>
           <p className="text-slate-500 mt-1">Sign in to your Insurons account</p>
         </div>
