@@ -1,17 +1,22 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Card, Badge, Button, Input, Select, Modal, Textarea } from '@/components/ui';
-import { crmService, scenarioService } from '@/services/api';
+import { crmService, scenarioService, ratingService } from '@/services/api';
 import type { Lead } from '@/types';
 import type {
   LeadScenario, Coverage,
   CreateScenarioPayload, ScenarioStatus, ObjectType, ProductTypeMap,
   SuggestedCoverageInfo,
 } from '@/services/api/leadScenarios';
+import type {
+  RatingResult, RatingOptions, RatingRunAudit, RateScenarioPayload,
+} from '@/services/api/rating';
 import {
   Search, Phone, Mail, Plus, ChevronRight, ChevronDown,
   User, Car, Home, Building2, HelpCircle, Shield, Trash2, FileText, ArrowRight,
-  Layers, Target, ClipboardList,
+  Layers, Target, ClipboardList, Calculator, DollarSign, History, CheckCircle2,
+  XCircle, TrendingUp, ToggleLeft, ToggleRight, RefreshCw,
 } from 'lucide-react';
+import { toast } from 'sonner';
 
 // ── Status configs ─────────────────────────────────
 
@@ -90,6 +95,7 @@ export default function Leads() {
   const [showAddObject, setShowAddObject] = useState<number | null>(null);
   const [showAddCoverage, setShowAddCoverage] = useState<number | null>(null);
   const [showConvert, setShowConvert] = useState<number | null>(null);
+  const [showRating, setShowRating] = useState<number | null>(null);
 
   // Reference data
   const [productTypes, setProductTypes] = useState<ProductTypeMap>({});
@@ -415,6 +421,9 @@ export default function Leads() {
 
                       {/* Actions */}
                       <div className="flex items-center gap-2 pt-2 border-t border-slate-100">
+                        <Button variant="shield" size="sm" onClick={() => setShowRating(scenario.id)}>
+                          <Calculator className="w-4 h-4 mr-1" /> Rate Scenario
+                        </Button>
                         <Button variant="shield" size="sm" onClick={() => setShowConvert(scenario.id)}>
                           <ArrowRight className="w-4 h-4 mr-1" /> Convert to Application
                         </Button>
@@ -466,6 +475,14 @@ export default function Leads() {
             scenarioId={showConvert}
             onClose={() => setShowConvert(null)}
             onConverted={() => { refreshScenarios(); fetchLeads(); }}
+          />
+        )}
+
+        {showRating !== null && (
+          <RatingPanel
+            scenario={scenarios.find(s => s.id === showRating)!}
+            onClose={() => setShowRating(null)}
+            onRated={refreshScenarios}
           />
         )}
       </div>
@@ -968,6 +985,430 @@ function ConvertModal({ leadId, scenarioId, onClose, onConverted }: {
             {saving ? 'Converting...' : 'Create Application'}
           </Button>
         </div>
+      </div>
+    </Modal>
+  );
+}
+
+// ── Rating Panel ─────────────────────────────────────
+
+function RatingPanel({ scenario, onClose, onRated }: {
+  scenario: LeadScenario;
+  onClose: () => void;
+  onRated: () => Promise<void>;
+}) {
+  const [tab, setTab] = useState<'rate' | 'results' | 'history'>('rate');
+  const [loading, setLoading] = useState(false);
+  const [optionsLoading, setOptionsLoading] = useState(true);
+  const [options, setOptions] = useState<RatingOptions | null>(null);
+  const [result, setResult] = useState<RatingResult | null>(null);
+  const [history, setHistory] = useState<RatingRunAudit[]>([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
+
+  // User selections
+  const [paymentMode, setPaymentMode] = useState<'monthly' | 'quarterly' | 'semiannual' | 'annual'>('monthly');
+  const [factorSelections, setFactorSelections] = useState<Record<string, string>>({});
+  const [riderSelections, setRiderSelections] = useState<Record<string, boolean>>({});
+
+  // Load options on mount
+  useEffect(() => {
+    setOptionsLoading(true);
+    ratingService.getOptions(scenario.product_type)
+      .then(opts => {
+        setOptions(opts);
+        // Pre-select default riders
+        const defaults: Record<string, boolean> = {};
+        opts.riders.forEach(r => { defaults[r.rider_code] = r.is_default; });
+        setRiderSelections(defaults);
+      })
+      .catch(() => toast.error('Failed to load rating options'))
+      .finally(() => setOptionsLoading(false));
+  }, [scenario.product_type]);
+
+  const handleRate = async () => {
+    setLoading(true);
+    try {
+      const payload: RateScenarioPayload = {
+        payment_mode: paymentMode,
+        factor_selections: factorSelections,
+        rider_selections: riderSelections,
+      };
+      const res = await ratingService.rateScenario(scenario.id, payload);
+      setResult(res);
+      setTab('results');
+      await onRated();
+      if (res.eligible) {
+        toast.success(`Premium: ${fmtCurrency(res.premium_modal)}/${paymentMode}`);
+      } else {
+        toast.warning(`Ineligible: ${res.ineligible_reason}`);
+      }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Rating failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadHistory = async () => {
+    setHistoryLoading(true);
+    try {
+      const data = await ratingService.getHistory(scenario.id);
+      setHistory(data);
+    } catch {
+      toast.error('Failed to load rating history');
+    } finally {
+      setHistoryLoading(false);
+    }
+  };
+
+  useEffect(() => { if (tab === 'history') loadHistory(); }, [tab]);
+
+  const fmtCurrency = (val: number | null | undefined) => {
+    if (val == null) return '—';
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(val);
+  };
+
+  const factorGroups = options ? Object.entries(options.factors) : [];
+
+  return (
+    <Modal isOpen onClose={onClose} title={`Rate: ${scenario.scenario_name}`}>
+      <div className="min-w-[600px]">
+        {/* Tabs */}
+        <div className="flex border-b border-slate-200 mb-4">
+          {[
+            { key: 'rate' as const, label: 'Configure', icon: Calculator },
+            { key: 'results' as const, label: 'Results', icon: DollarSign },
+            { key: 'history' as const, label: 'History', icon: History },
+          ].map(t => (
+            <button
+              key={t.key}
+              className={`flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
+                tab === t.key
+                  ? 'border-shield-600 text-shield-700'
+                  : 'border-transparent text-slate-500 hover:text-slate-700'
+              }`}
+              onClick={() => setTab(t.key)}
+            >
+              <t.icon className="w-4 h-4" />
+              {t.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Configure tab */}
+        {tab === 'rate' && (
+          <div className="space-y-5 max-h-[60vh] overflow-y-auto pr-1">
+            {optionsLoading ? (
+              <div className="flex items-center justify-center py-12">
+                <div className="w-8 h-8 border-4 border-shield-200 border-t-shield-600 rounded-full animate-spin" />
+              </div>
+            ) : !options ? (
+              <div className="text-center py-8 text-slate-500">
+                <XCircle className="w-10 h-10 mx-auto mb-2 text-slate-300" />
+                <p>No rate table available for <strong>{scenario.product_type}</strong></p>
+              </div>
+            ) : (
+              <>
+                {/* Product info */}
+                <div className="bg-shield-50 rounded-lg p-3">
+                  <p className="text-sm font-medium text-shield-800">
+                    Product: <span className="capitalize">{scenario.product_type.replace(/_/g, ' ')}</span>
+                  </p>
+                  <p className="text-xs text-shield-600 mt-0.5">
+                    Rate Table v{options.rate_table_version} &bull; {scenario.insured_objects.length} insured objects &bull; {scenario.coverages.length} coverages
+                  </p>
+                </div>
+
+                {/* Payment Mode */}
+                <div>
+                  <label className="text-sm font-medium text-slate-700 block mb-1.5">Payment Mode</label>
+                  <div className="grid grid-cols-4 gap-2">
+                    {(['monthly', 'quarterly', 'semiannual', 'annual'] as const).map(mode => (
+                      <button
+                        key={mode}
+                        className={`text-sm py-2 rounded-lg font-medium transition-colors ${
+                          paymentMode === mode
+                            ? 'bg-shield-600 text-white'
+                            : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                        }`}
+                        onClick={() => setPaymentMode(mode)}
+                      >
+                        {mode.charAt(0).toUpperCase() + mode.slice(1)}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Factors */}
+                {factorGroups.length > 0 && (
+                  <div>
+                    <h3 className="text-sm font-bold text-slate-700 mb-3 flex items-center gap-1.5">
+                      <TrendingUp className="w-4 h-4" /> Rating Factors
+                    </h3>
+                    <div className="grid grid-cols-2 gap-3">
+                      {factorGroups.map(([code, opts]) => (
+                        <div key={code}>
+                          <label className="text-xs font-medium text-slate-600 block mb-1 capitalize">
+                            {code.replace(/_/g, ' ')}
+                          </label>
+                          <select
+                            className="w-full text-sm border border-slate-200 rounded-lg px-3 py-2 focus:ring-2 focus:ring-shield-500 focus:border-shield-500"
+                            value={factorSelections[code] || ''}
+                            onChange={e => setFactorSelections({ ...factorSelections, [code]: e.target.value })}
+                          >
+                            <option value="">— Not selected —</option>
+                            {opts.map(o => (
+                              <option key={o.option_value} value={o.option_value}>
+                                {o.option_label || o.option_value} ({o.apply_mode === 'multiply' ? `×${o.factor_value}` : `+${o.factor_value}`})
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Riders */}
+                {options.riders.length > 0 && (
+                  <div>
+                    <h3 className="text-sm font-bold text-slate-700 mb-3 flex items-center gap-1.5">
+                      <Shield className="w-4 h-4" /> Riders & Endorsements
+                    </h3>
+                    <div className="space-y-2">
+                      {options.riders.map(rider => {
+                        const isOn = riderSelections[rider.rider_code] ?? rider.is_default;
+                        return (
+                          <button
+                            key={rider.rider_code}
+                            className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm transition-colors ${
+                              isOn ? 'bg-shield-50 border border-shield-200' : 'bg-slate-50 border border-slate-100'
+                            }`}
+                            onClick={() => setRiderSelections({ ...riderSelections, [rider.rider_code]: !isOn })}
+                          >
+                            <div className="flex items-center gap-2">
+                              {isOn
+                                ? <ToggleRight className="w-5 h-5 text-shield-600" />
+                                : <ToggleLeft className="w-5 h-5 text-slate-400" />
+                              }
+                              <span className={isOn ? 'text-shield-800 font-medium' : 'text-slate-600'}>{rider.rider_label}</span>
+                            </div>
+                            <span className="text-xs text-slate-500">
+                              {rider.apply_mode === 'add' ? fmtCurrency(rider.rider_value) : `×${rider.rider_value}`}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {/* Rate Button */}
+                <div className="pt-2">
+                  <Button variant="shield" className="w-full" onClick={handleRate} disabled={loading}>
+                    {loading ? (
+                      <><RefreshCw className="w-4 h-4 mr-2 animate-spin" /> Calculating...</>
+                    ) : (
+                      <><Calculator className="w-4 h-4 mr-2" /> Calculate Premium</>
+                    )}
+                  </Button>
+                </div>
+              </>
+            )}
+          </div>
+        )}
+
+        {/* Results tab */}
+        {tab === 'results' && (
+          <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-1">
+            {!result ? (
+              <div className="text-center py-8 text-slate-500">
+                <Calculator className="w-10 h-10 mx-auto mb-2 text-slate-300" />
+                <p>Run a rating first to see results</p>
+              </div>
+            ) : !result.eligible ? (
+              <div className="text-center py-8">
+                <XCircle className="w-12 h-12 mx-auto mb-3 text-red-400" />
+                <p className="text-lg font-semibold text-red-600">Ineligible</p>
+                <p className="text-sm text-slate-500 mt-1">{result.ineligible_reason}</p>
+              </div>
+            ) : (
+              <>
+                {/* Premium hero */}
+                <div className="bg-gradient-to-br from-shield-600 to-shield-800 rounded-xl p-6 text-white text-center">
+                  <p className="text-sm opacity-80 mb-1">
+                    {paymentMode.charAt(0).toUpperCase() + paymentMode.slice(1)} Premium
+                  </p>
+                  <p className="text-4xl font-bold">{fmtCurrency(result.premium_modal)}</p>
+                  <p className="text-sm opacity-80 mt-2">
+                    Annual: {fmtCurrency(result.premium_annual)}
+                  </p>
+                </div>
+
+                {/* DI-specific info */}
+                {result.monthly_benefit_approved != null && (
+                  <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+                    <p className="text-sm font-medium text-amber-800">
+                      Monthly Benefit Approved: {fmtCurrency(result.monthly_benefit_approved)}
+                    </p>
+                    {result.income_replacement_ratio != null && (
+                      <p className="text-xs text-amber-600 mt-0.5">
+                        Income Replacement: {(result.income_replacement_ratio * 100).toFixed(0)}%
+                        {result.occupation_class && ` | Occ Class: ${result.occupation_class}`}
+                      </p>
+                    )}
+                  </div>
+                )}
+
+                {/* Premium breakdown */}
+                <div>
+                  <h4 className="text-sm font-bold text-slate-700 mb-2">Premium Breakdown</h4>
+                  <div className="bg-slate-50 rounded-lg divide-y divide-slate-100">
+                    <div className="flex justify-between px-4 py-2.5 text-sm">
+                      <span className="text-slate-600">Exposure</span>
+                      <span className="font-medium">{result.exposure.toFixed(4)}</span>
+                    </div>
+                    <div className="flex justify-between px-4 py-2.5 text-sm">
+                      <span className="text-slate-600">Base Rate ({result.base_rate_key})</span>
+                      <span className="font-medium">{result.base_rate_value.toFixed(4)}</span>
+                    </div>
+                    <div className="flex justify-between px-4 py-2.5 text-sm">
+                      <span className="text-slate-600">Base Premium</span>
+                      <span className="font-medium">{fmtCurrency(result.base_premium)}</span>
+                    </div>
+
+                    {/* Factors */}
+                    {result.factors_applied.length > 0 && (
+                      <>
+                        {result.factors_applied.map((f, i) => (
+                          <div key={i} className="flex justify-between px-4 py-2 text-sm">
+                            <span className="text-slate-500 pl-4">
+                              {f.label}: {f.option} ({f.mode === 'multiply' ? `×${f.value}` : `+${f.value}`})
+                            </span>
+                          </div>
+                        ))}
+                        <div className="flex justify-between px-4 py-2.5 text-sm">
+                          <span className="text-slate-600">After Factors</span>
+                          <span className="font-medium">{fmtCurrency(result.premium_factored)}</span>
+                        </div>
+                      </>
+                    )}
+
+                    {/* Riders */}
+                    {result.riders_applied.length > 0 && (
+                      <>
+                        {result.riders_applied.map((r, i) => (
+                          <div key={i} className="flex justify-between px-4 py-2 text-sm">
+                            <span className="text-slate-500 pl-4">{r.label}</span>
+                            <span className="text-slate-600">{r.charge >= 0 ? '+' : ''}{fmtCurrency(r.charge)}</span>
+                          </div>
+                        ))}
+                        <div className="flex justify-between px-4 py-2.5 text-sm">
+                          <span className="text-slate-600">After Riders</span>
+                          <span className="font-medium">{fmtCurrency(result.premium_with_riders)}</span>
+                        </div>
+                      </>
+                    )}
+
+                    {/* Fees */}
+                    {result.fees_applied.length > 0 && (
+                      <>
+                        {result.fees_applied.map((f, i) => (
+                          <div key={i} className="flex justify-between px-4 py-2 text-sm">
+                            <span className={`pl-4 ${f.type === 'credit' ? 'text-savings-600' : 'text-slate-500'}`}>
+                              {f.label} ({f.type})
+                            </span>
+                            <span className={f.type === 'credit' ? 'text-savings-600' : 'text-slate-600'}>
+                              {f.amount >= 0 ? '+' : ''}{fmtCurrency(f.amount)}
+                            </span>
+                          </div>
+                        ))}
+                      </>
+                    )}
+
+                    <div className="flex justify-between px-4 py-3 text-sm font-bold bg-shield-50">
+                      <span className="text-shield-800">Annual Premium</span>
+                      <span className="text-shield-800">{fmtCurrency(result.premium_annual)}</span>
+                    </div>
+                    <div className="flex justify-between px-4 py-2.5 text-sm">
+                      <span className="text-slate-600">
+                        Modal: {result.modal_mode} (×{result.modal_factor}{result.modal_fee > 0 ? ` +${fmtCurrency(result.modal_fee)}` : ''})
+                      </span>
+                      <span className="font-bold text-shield-700">{fmtCurrency(result.premium_modal)}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Meta */}
+                <div className="flex items-center gap-4 text-xs text-slate-400">
+                  <span>Engine v{result.engine_version}</span>
+                  <span>Table v{result.rate_table_version}</span>
+                </div>
+
+                {/* Re-rate button */}
+                <Button variant="outline" className="w-full" onClick={() => setTab('rate')}>
+                  <RefreshCw className="w-4 h-4 mr-2" /> Adjust & Re-Rate
+                </Button>
+              </>
+            )}
+          </div>
+        )}
+
+        {/* History tab */}
+        {tab === 'history' && (
+          <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-1">
+            {historyLoading ? (
+              <div className="flex items-center justify-center py-12">
+                <div className="w-8 h-8 border-4 border-shield-200 border-t-shield-600 rounded-full animate-spin" />
+              </div>
+            ) : history.length === 0 ? (
+              <div className="text-center py-8 text-slate-500">
+                <History className="w-10 h-10 mx-auto mb-2 text-slate-300" />
+                <p>No rating history yet</p>
+              </div>
+            ) : (
+              history.map(run => (
+                <Card key={run.id} className="p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      {run.status === 'success' ? (
+                        <CheckCircle2 className="w-4 h-4 text-savings-600" />
+                      ) : run.status === 'ineligible' ? (
+                        <XCircle className="w-4 h-4 text-amber-500" />
+                      ) : (
+                        <XCircle className="w-4 h-4 text-red-500" />
+                      )}
+                      <Badge variant={run.status === 'success' ? 'success' : run.status === 'ineligible' ? 'warning' : 'danger'}>
+                        {run.status}
+                      </Badge>
+                      <span className="text-xs text-slate-400">{run.duration_ms}ms</span>
+                    </div>
+                    <span className="text-xs text-slate-400">
+                      {new Date(run.created_at).toLocaleString()}
+                    </span>
+                  </div>
+                  {run.output_snapshot?.eligible && (
+                    <div className="flex items-center gap-4 text-sm">
+                      <span className="font-bold text-shield-700">
+                        {fmtCurrency(run.output_snapshot.premium_modal)}/{run.output_snapshot.modal_mode}
+                      </span>
+                      <span className="text-slate-500">
+                        Annual: {fmtCurrency(run.output_snapshot.premium_annual)}
+                      </span>
+                    </div>
+                  )}
+                  {run.error_message && (
+                    <p className="text-sm text-red-600 mt-1">{run.error_message}</p>
+                  )}
+                  <div className="flex items-center gap-3 mt-1 text-xs text-slate-400">
+                    <span>v{run.engine_version}</span>
+                    <span>Table v{run.rate_table_version}</span>
+                  </div>
+                </Card>
+              ))
+            )}
+          </div>
+        )}
       </div>
     </Modal>
   );

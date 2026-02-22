@@ -46,6 +46,7 @@ use App\Http\Controllers\PartnerMarketplaceController;
 use App\Http\Controllers\EmailCampaignController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\VideoMeetingController;
+use App\Http\Controllers\RatingController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -199,6 +200,13 @@ Route::middleware(['auth:sanctum', 'agency.scope'])->group(function () {
     // Reference data (product types, suggested coverages)
     Route::get('/insurance/product-types', [LeadScenarioController::class, 'productTypes']);
     Route::get('/insurance/suggested-coverages/{productType}', [LeadScenarioController::class, 'suggestedCoverages']);
+
+    // --- Rating Engine ---
+    Route::post('/rate/scenario/{scenarioId}', [RatingController::class, 'rateScenario']);
+    Route::get('/rate/options/{productType}', [RatingController::class, 'productOptions']);
+    Route::get('/rate/audit/{runId}', [RatingController::class, 'auditRun']);
+    Route::get('/rate/history/{scenarioId}', [RatingController::class, 'scenarioHistory']);
+    Route::get('/rate/products', [RatingController::class, 'registeredProducts']);
 
     // Commissions
     Route::get('/commissions', [CommissionController::class, 'index']);
