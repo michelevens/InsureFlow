@@ -16,6 +16,7 @@ class User extends Authenticatable
         'email_verification_token', 'approved_at',
         'mfa_secret', 'mfa_enabled', 'mfa_backup_codes',
         'stripe_account_id', 'stripe_onboarded',
+        'sso_provider', 'sso_id', 'email_verified_at',
     ];
 
     protected $hidden = ['password', 'remember_token', 'mfa_secret', 'mfa_backup_codes'];

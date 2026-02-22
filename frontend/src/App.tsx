@@ -23,6 +23,8 @@ const Login = lazy(() => import('@/pages/auth/Login'));
 const Register = lazy(() => import('@/pages/auth/Register'));
 const VerifyEmail = lazy(() => import('@/pages/auth/VerifyEmail'));
 const AcceptInvite = lazy(() => import('@/pages/auth/AcceptInvite'));
+const SsoLogin = lazy(() => import('@/pages/auth/SsoLogin'));
+const SsoCallback = lazy(() => import('@/pages/auth/SsoCallback'));
 
 // Public
 const Landing = lazy(() => import('@/pages/public/Landing'));
@@ -78,6 +80,7 @@ const AdminAgencies = lazy(() => import('@/pages/admin/AdminAgencies'));
 const AdminAnalytics = lazy(() => import('@/pages/admin/AdminAnalytics'));
 const AdminPlans = lazy(() => import('@/pages/admin/AdminPlans'));
 const AdminAuditLog = lazy(() => import('@/pages/admin/AdminAuditLog'));
+const SsoConfig = lazy(() => import('@/pages/admin/SsoConfig'));
 
 // Settings
 const Settings = lazy(() => import('@/pages/public/Settings'));
@@ -100,6 +103,8 @@ export default function App() {
               <Route path="/invite/:token" element={<AcceptInvite />} />
               <Route path="/marketplace" element={<Marketplace />} />
               <Route path="/marketplace/:id" element={<AgentProfile />} />
+              <Route path="/sso/login/:agencySlug" element={<SsoLogin />} />
+              <Route path="/sso/callback" element={<SsoCallback />} />
 
               {/* Protected routes (inside DashboardLayout) */}
               <Route element={<DashboardLayout />}>
@@ -147,6 +152,7 @@ export default function App() {
                 <Route path="/admin/analytics" element={<AdminAnalytics />} />
                 <Route path="/admin/plans" element={<AdminPlans />} />
                 <Route path="/admin/audit-log" element={<AdminAuditLog />} />
+                <Route path="/admin/sso" element={<SsoConfig />} />
 
                 {/* Settings */}
                 <Route path="/settings" element={<Settings />} />

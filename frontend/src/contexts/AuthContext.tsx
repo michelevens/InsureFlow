@@ -21,6 +21,7 @@ interface AuthContextType extends AuthState {
   }) => Promise<void>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
+  setToken: (token: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -70,6 +71,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setState({ user: response.user, isAuthenticated: true, isLoading: false });
   };
 
+  const setToken = async (token: string) => {
+    localStorage.setItem('auth_token', token);
+    await refreshUser();
+  };
+
   const logout = async () => {
     try {
       await authService.logout();
@@ -80,7 +86,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ ...state, login, register, logout, refreshUser }}>
+    <AuthContext.Provider value={{ ...state, login, register, logout, refreshUser, setToken }}>
       {children}
     </AuthContext.Provider>
   );

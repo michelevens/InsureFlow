@@ -13,6 +13,8 @@ class Agency extends Model
         'name', 'slug', 'agency_code', 'owner_id', 'description', 'phone', 'email',
         'website', 'address', 'city', 'state', 'zip_code',
         'is_verified', 'is_active',
+        'saml_entity_id', 'saml_sso_url', 'saml_certificate',
+        'sso_enabled', 'sso_default_role',
     ];
 
     protected function casts(): array
@@ -20,6 +22,7 @@ class Agency extends Model
         return [
             'is_verified' => 'boolean',
             'is_active' => 'boolean',
+            'sso_enabled' => 'boolean',
         ];
     }
 

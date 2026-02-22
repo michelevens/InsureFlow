@@ -7,6 +7,7 @@ export interface User {
   role: UserRole;
   phone: string | null;
   avatar: string | null;
+  agency_id: number | null;
   email_verified_at: string | null;
   created_at: string;
 }

@@ -25,6 +25,7 @@ use App\Http\Controllers\AiChatController;
 use App\Http\Controllers\LeadScoringController;
 use App\Http\Controllers\ClaimController;
 use App\Http\Controllers\RenewalController;
+use App\Http\Controllers\SamlController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -67,6 +68,11 @@ Route::post('/webhooks/stripe', [SubscriptionController::class, 'handleWebhook']
 // Invites (public — for viewing and accepting)
 Route::get('/invites/{token}', [InviteController::class, 'show']);
 Route::post('/invites/{token}/accept', [InviteController::class, 'accept']);
+
+// SSO (public — SAML login, ACS callback, metadata)
+Route::get('/sso/login/{agencySlug}', [SamlController::class, 'login']);
+Route::post('/sso/acs/{agencySlug}', [SamlController::class, 'acs']);
+Route::get('/sso/metadata', [SamlController::class, 'metadata']);
 
 /*
 |--------------------------------------------------------------------------
@@ -225,6 +231,10 @@ Route::middleware(['auth:sanctum', 'agency.scope'])->group(function () {
     // Agency invites (agency owners invite agents)
     Route::get('/agency/invites', [InviteController::class, 'agencyInvites']);
     Route::post('/agency/invites', [InviteController::class, 'agencyInvite']);
+
+    // SSO Configuration (admin/agency_owner)
+    Route::post('/sso/configure', [SamlController::class, 'configure']);
+    Route::post('/sso/disable/{agency}', [SamlController::class, 'disable']);
 
     /*
     |----------------------------------------------------------------------

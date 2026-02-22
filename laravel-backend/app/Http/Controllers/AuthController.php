@@ -51,7 +51,7 @@ class AuthController extends Controller
         $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],
-            'password' => Hash::make($data['password']),
+            'password' => $data['password'], // 'hashed' cast auto-hashes
             'role' => $role,
             'phone' => $data['phone'] ?? null,
             'agency_id' => $agencyId,
@@ -155,7 +155,7 @@ class AuthController extends Controller
             return response()->json(['message' => 'Current password is incorrect'], 422);
         }
 
-        $user->update(['password' => Hash::make($data['password'])]);
+        $user->update(['password' => $data['password']]); // 'hashed' cast auto-hashes
         return response()->json(['message' => 'Password updated']);
     }
 
@@ -172,7 +172,7 @@ class AuthController extends Controller
         $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],
-            'password' => Hash::make($data['password']),
+            'password' => $data['password'], // 'hashed' cast auto-hashes
             'role' => 'consumer',
             'phone' => $data['phone'] ?? null,
             'email_verification_token' => Str::random(64),
@@ -293,7 +293,7 @@ class AuthController extends Controller
             return response()->json(['message' => 'User not found'], 404);
         }
 
-        $user->update(['password' => Hash::make($data['password'])]);
+        $user->update(['password' => $data['password']]); // 'hashed' cast auto-hashes
 
         DB::table('password_reset_tokens')->where('email', $data['email'])->delete();
 

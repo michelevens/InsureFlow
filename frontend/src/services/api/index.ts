@@ -29,3 +29,5 @@ export { claimService } from './claims';
 export type { Claim, ClaimActivity as ClaimActivityType } from './claims';
 export { renewalService } from './renewals';
 export type { RenewalOpportunity, RenewalDashboard } from './renewals';
+export { ssoService } from './sso';
+export type { SsoLoginResponse, SsoConfigPayload } from './sso';

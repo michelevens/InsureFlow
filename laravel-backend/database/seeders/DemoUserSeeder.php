@@ -7,13 +7,13 @@ use App\Models\AgentProfile;
 use App\Models\AgentReview;
 use App\Models\User;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Hash;
+
 
 class DemoUserSeeder extends Seeder
 {
     public function run(): void
     {
-        $password = Hash::make('password');
+        $password = 'password'; // 'hashed' cast on User model auto-hashes
         $verified = now();
 
         // Consumer
