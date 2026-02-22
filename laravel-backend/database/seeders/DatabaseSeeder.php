@@ -12,6 +12,14 @@ class DatabaseSeeder extends Seeder
             SubscriptionPlanSeeder::class,
             CarrierSeeder::class,
             DemoUserSeeder::class,
+            ForumSeeder::class,
+            EventSeeder::class,
+            PartnerSeeder::class,
+            HelpCenterSeeder::class,
+            TrainingSeeder::class,
+            EmailTemplateSeeder::class,
+            RecruitmentSeeder::class,
+            ReportSeeder::class,
         ]);
     }
 }
