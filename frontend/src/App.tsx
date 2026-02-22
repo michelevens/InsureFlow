@@ -62,6 +62,9 @@ const AgencyTeam = lazy(() => import('@/pages/admin/AgencyTeam'));
 // Claims
 const ClaimsPage = lazy(() => import('@/pages/claims/Claims'));
 
+// Renewals
+const RenewalsPage = lazy(() => import('@/pages/renewals/Renewals'));
+
 // Carrier
 const Products = lazy(() => import('@/pages/carriers/Products'));
 const Production = lazy(() => import('@/pages/carriers/Production'));
@@ -118,6 +121,9 @@ export default function App() {
 
                 {/* Claims */}
                 <Route path="/claims" element={<ClaimsPage />} />
+
+                {/* Renewals */}
+                <Route path="/renewals" element={<RenewalsPage />} />
 
                 {/* Documents & E-Signature */}
                 <Route path="/documents" element={<DocumentsPage />} />

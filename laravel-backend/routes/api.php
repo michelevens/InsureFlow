@@ -24,6 +24,7 @@ use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\AiChatController;
 use App\Http\Controllers\LeadScoringController;
 use App\Http\Controllers\ClaimController;
+use App\Http\Controllers\RenewalController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -128,6 +129,12 @@ Route::middleware(['auth:sanctum', 'agency.scope'])->group(function () {
     Route::get('/claims/{claim}', [ClaimController::class, 'show']);
     Route::put('/claims/{claim}/status', [ClaimController::class, 'updateStatus']);
     Route::post('/claims/{claim}/notes', [ClaimController::class, 'addNote']);
+
+    // Renewals
+    Route::get('/renewals', [RenewalController::class, 'index']);
+    Route::get('/renewals/dashboard', [RenewalController::class, 'dashboard']);
+    Route::get('/renewals/{renewal}', [RenewalController::class, 'show']);
+    Route::put('/renewals/{renewal}/status', [RenewalController::class, 'updateStatus']);
 
     // CRM - Leads
     Route::get('/crm/leads', [LeadController::class, 'index']);
