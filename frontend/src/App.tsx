@@ -70,6 +70,7 @@ const RenewalsPage = lazy(() => import('@/pages/renewals/Renewals'));
 // Carrier
 const Products = lazy(() => import('@/pages/carriers/Products'));
 const Production = lazy(() => import('@/pages/carriers/Production'));
+const CarrierApiConfigPage = lazy(() => import('@/pages/carriers/CarrierApiConfig'));
 
 // Analytics
 const AdvancedAnalytics = lazy(() => import('@/pages/analytics/AdvancedAnalytics'));
@@ -145,6 +146,7 @@ export default function App() {
                 {/* Carrier */}
                 <Route path="/carrier/products" element={<Products />} />
                 <Route path="/carrier/production" element={<Production />} />
+                <Route path="/carrier/api-config" element={<CarrierApiConfigPage />} />
 
                 {/* Admin */}
                 <Route path="/admin/users" element={<AdminUsers />} />

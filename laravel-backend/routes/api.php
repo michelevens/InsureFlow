@@ -26,6 +26,7 @@ use App\Http\Controllers\LeadScoringController;
 use App\Http\Controllers\ClaimController;
 use App\Http\Controllers\RenewalController;
 use App\Http\Controllers\SamlController;
+use App\Http\Controllers\CarrierApiController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -235,6 +236,15 @@ Route::middleware(['auth:sanctum', 'agency.scope'])->group(function () {
     // SSO Configuration (admin/agency_owner)
     Route::post('/sso/configure', [SamlController::class, 'configure']);
     Route::post('/sso/disable/{agency}', [SamlController::class, 'disable']);
+
+    // Carrier API Integration
+    Route::get('/carrier-api/configs', [CarrierApiController::class, 'index']);
+    Route::post('/carrier-api/configs', [CarrierApiController::class, 'store']);
+    Route::put('/carrier-api/configs/{config}', [CarrierApiController::class, 'update']);
+    Route::delete('/carrier-api/configs/{config}', [CarrierApiController::class, 'destroy']);
+    Route::post('/carrier-api/configs/{config}/test', [CarrierApiController::class, 'test']);
+    Route::get('/carrier-api/configs/{config}/logs', [CarrierApiController::class, 'logs']);
+    Route::post('/carrier-api/live-rates', [CarrierApiController::class, 'getLiveRates']);
 
     /*
     |----------------------------------------------------------------------

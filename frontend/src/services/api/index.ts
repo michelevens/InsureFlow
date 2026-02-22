@@ -31,3 +31,5 @@ export { renewalService } from './renewals';
 export type { RenewalOpportunity, RenewalDashboard } from './renewals';
 export { ssoService } from './sso';
 export type { SsoLoginResponse, SsoConfigPayload } from './sso';
+export { carrierApiService } from './carrierApi';
+export type { CarrierApiConfig as CarrierApiConfigType, CarrierApiLog, LiveRate } from './carrierApi';
