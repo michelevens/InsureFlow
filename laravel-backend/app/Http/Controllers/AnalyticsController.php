@@ -3,10 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\Application;
+use App\Models\Claim;
 use App\Models\Lead;
 use App\Models\Policy;
+use App\Models\RenewalOpportunity;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class AnalyticsController extends Controller
 {
@@ -22,6 +25,132 @@ class AnalyticsController extends Controller
             'admin', 'superadmin' => $this->adminStats(),
             default => response()->json(['message' => 'Unknown role'], 400),
         };
+    }
+
+    /**
+     * Conversion funnel: lead → application → policy
+     */
+    public function conversionFunnel(Request $request)
+    {
+        $user = $request->user();
+        $months = (int) $request->input('months', 6);
+        $since = now()->subMonths($months);
+
+        $baseLeadQuery = Lead::where('created_at', '>=', $since);
+        $baseAppQuery = Application::where('created_at', '>=', $since);
+        $basePolicyQuery = Policy::where('created_at', '>=', $since);
+
+        if (in_array($user->role, ['agent'])) {
+            $baseLeadQuery->where('agent_id', $user->id);
+            $baseAppQuery->where('agent_id', $user->id);
+            $basePolicyQuery->where('agent_id', $user->id);
+        } elseif ($user->role === 'agency_owner' && $user->ownedAgency) {
+            $agentIds = $user->ownedAgency->agents()->pluck('id');
+            $baseLeadQuery->whereIn('agent_id', $agentIds);
+            $baseAppQuery->whereIn('agent_id', $agentIds);
+            $basePolicyQuery->whereIn('agent_id', $agentIds);
+        }
+
+        $leads = (clone $baseLeadQuery)->count();
+        $contacted = (clone $baseLeadQuery)->whereIn('status', ['contacted', 'qualified', 'proposal', 'won', 'lost'])->count();
+        $qualified = (clone $baseLeadQuery)->whereIn('status', ['qualified', 'proposal', 'won'])->count();
+        $applications = (clone $baseAppQuery)->count();
+        $submitted = (clone $baseAppQuery)->whereIn('status', ['submitted', 'under_review', 'approved', 'issued'])->count();
+        $policies = (clone $basePolicyQuery)->count();
+
+        return response()->json([
+            'funnel' => [
+                ['stage' => 'Leads', 'count' => $leads],
+                ['stage' => 'Contacted', 'count' => $contacted],
+                ['stage' => 'Qualified', 'count' => $qualified],
+                ['stage' => 'Applications', 'count' => $applications],
+                ['stage' => 'Submitted', 'count' => $submitted],
+                ['stage' => 'Policies Bound', 'count' => $policies],
+            ],
+            'conversion_rate' => $leads > 0 ? round(($policies / $leads) * 100, 1) : 0,
+            'period_months' => $months,
+        ]);
+    }
+
+    /**
+     * Revenue trends by month.
+     */
+    public function revenueTrends(Request $request)
+    {
+        $months = (int) $request->input('months', 12);
+
+        $trends = Policy::where('created_at', '>=', now()->subMonths($months))
+            ->select(
+                DB::raw("TO_CHAR(created_at, 'YYYY-MM') as month"),
+                DB::raw('COUNT(*) as policies_count'),
+                DB::raw('SUM(annual_premium) as premium_volume')
+            )
+            ->groupBy('month')
+            ->orderBy('month')
+            ->get();
+
+        return response()->json(['trends' => $trends]);
+    }
+
+    /**
+     * Agent performance leaderboard.
+     */
+    public function agentPerformance(Request $request)
+    {
+        $months = (int) $request->input('months', 3);
+        $since = now()->subMonths($months);
+        $limit = min((int) $request->input('limit', 20), 50);
+
+        $agents = User::where('role', 'agent')
+            ->withCount([
+                'leads as lead_count' => fn($q) => $q->where('created_at', '>=', $since),
+                'policies as policy_count' => fn($q) => $q->where('created_at', '>=', $since),
+            ])
+            ->withSum(
+                ['commissions as total_commission' => fn($q) => $q->where('created_at', '>=', $since)],
+                'commission_amount'
+            )
+            ->having('policy_count', '>', 0)
+            ->orderByDesc('total_commission')
+            ->limit($limit)
+            ->get(['id', 'name', 'email']);
+
+        return response()->json(['agents' => $agents]);
+    }
+
+    /**
+     * Claims analytics.
+     */
+    public function claimsAnalytics(Request $request)
+    {
+        $months = (int) $request->input('months', 6);
+        $since = now()->subMonths($months);
+
+        $byStatus = Claim::where('created_at', '>=', $since)
+            ->select('status', DB::raw('COUNT(*) as count'))
+            ->groupBy('status')
+            ->get();
+
+        $byType = Claim::where('created_at', '>=', $since)
+            ->select('type', DB::raw('COUNT(*) as count'))
+            ->groupBy('type')
+            ->get();
+
+        $total = Claim::where('created_at', '>=', $since)->count();
+        $settled = Claim::where('created_at', '>=', $since)->where('status', 'settled')->count();
+        $totalSettlement = Claim::where('created_at', '>=', $since)
+            ->where('status', 'settled')
+            ->sum('settlement_amount');
+        $avgSettlement = $settled > 0 ? round($totalSettlement / $settled, 2) : 0;
+
+        return response()->json([
+            'by_status' => $byStatus,
+            'by_type' => $byType,
+            'total_claims' => $total,
+            'settled_claims' => $settled,
+            'total_settlement' => $totalSettlement,
+            'avg_settlement' => $avgSettlement,
+        ]);
     }
 
     private function consumerStats($user)

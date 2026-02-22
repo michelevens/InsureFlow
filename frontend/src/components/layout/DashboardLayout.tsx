@@ -7,7 +7,7 @@ import { AiChatWidget } from '@/components/ai/AiChatWidget';
 import {
   Shield, LayoutDashboard, Calculator, Users, FileText, Briefcase,
   Building2, BarChart3, UserCircle, Settings, LogOut, Menu, X,
-  ClipboardList, Target, DollarSign, Star, ShieldCheck, ChevronDown, MessageSquare, Activity, AlertTriangle, RefreshCw,
+  ClipboardList, Target, DollarSign, Star, ShieldCheck, ChevronDown, MessageSquare, Activity, AlertTriangle, RefreshCw, TrendingUp,
 } from 'lucide-react';
 import type { ReactNode } from 'react';
 import type { UserRole } from '@/types';
@@ -32,6 +32,7 @@ const navItems: NavItem[] = [
   { label: 'Renewals', href: '/renewals', icon: <RefreshCw className="w-5 h-5" />, roles: ['agent', 'agency_owner', 'admin', 'superadmin'] },
   { label: 'Commissions', href: '/commissions', icon: <DollarSign className="w-5 h-5" />, roles: ['agent', 'agency_owner'] },
   { label: 'Reviews', href: '/reviews', icon: <Star className="w-5 h-5" />, roles: ['agent', 'agency_owner'] },
+  { label: 'Analytics', href: '/analytics', icon: <TrendingUp className="w-5 h-5" />, roles: ['agent', 'agency_owner'] },
   { label: 'My Team', href: '/agency/team', icon: <Users className="w-5 h-5" />, roles: ['agency_owner'] },
   { label: 'Products', href: '/carrier/products', icon: <Briefcase className="w-5 h-5" />, roles: ['carrier'] },
   { label: 'Production', href: '/carrier/production', icon: <BarChart3 className="w-5 h-5" />, roles: ['carrier'] },

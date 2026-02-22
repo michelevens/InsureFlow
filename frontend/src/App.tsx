@@ -69,6 +69,9 @@ const RenewalsPage = lazy(() => import('@/pages/renewals/Renewals'));
 const Products = lazy(() => import('@/pages/carriers/Products'));
 const Production = lazy(() => import('@/pages/carriers/Production'));
 
+// Analytics
+const AdvancedAnalytics = lazy(() => import('@/pages/analytics/AdvancedAnalytics'));
+
 // Admin
 const AdminUsers = lazy(() => import('@/pages/admin/AdminUsers'));
 const AdminAgencies = lazy(() => import('@/pages/admin/AdminAgencies'));
@@ -124,6 +127,9 @@ export default function App() {
 
                 {/* Renewals */}
                 <Route path="/renewals" element={<RenewalsPage />} />
+
+                {/* Advanced Analytics */}
+                <Route path="/analytics" element={<AdvancedAnalytics />} />
 
                 {/* Documents & E-Signature */}
                 <Route path="/documents" element={<DocumentsPage />} />

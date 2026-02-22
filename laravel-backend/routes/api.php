@@ -86,6 +86,12 @@ Route::middleware(['auth:sanctum', 'agency.scope'])->group(function () {
     // Dashboard stats
     Route::get('/stats/dashboard', [AnalyticsController::class, 'dashboard']);
 
+    // Advanced Analytics
+    Route::get('/analytics/conversion-funnel', [AnalyticsController::class, 'conversionFunnel']);
+    Route::get('/analytics/revenue-trends', [AnalyticsController::class, 'revenueTrends']);
+    Route::get('/analytics/agent-performance', [AnalyticsController::class, 'agentPerformance']);
+    Route::get('/analytics/claims', [AnalyticsController::class, 'claimsAnalytics']);
+
     // Quotes
     Route::get('/quotes', [QuoteController::class, 'myQuotes']);
     Route::get('/quotes/{quoteRequest}', [QuoteController::class, 'show']);
