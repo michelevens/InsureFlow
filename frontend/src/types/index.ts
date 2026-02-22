@@ -161,7 +161,7 @@ export interface Policy {
   agent?: AgentProfile;
 }
 
-export type LeadStatus = 'new' | 'contacted' | 'qualified' | 'quoted' | 'applied' | 'won' | 'lost';
+export type LeadStatus = 'new' | 'contacted' | 'quoted' | 'applied' | 'won' | 'lost';
 
 export interface Lead {
   id: number;
@@ -169,14 +169,17 @@ export interface Lead {
   agent_id: number | null;
   quote_request_id: number | null;
   consumer_id: number | null;
-  source: 'marketplace' | 'calculator' | 'referral' | 'website' | 'manual';
-  name: string;
+  source: string | null;
+  first_name: string;
+  last_name: string;
   email: string;
-  phone: string;
-  insurance_type: InsuranceType;
+  phone: string | null;
+  insurance_type: string;
   status: LeadStatus;
-  follow_up_date: string | null;
+  estimated_value: number | null;
+  notes: string | null;
   created_at: string;
+  updated_at: string;
 }
 
 export interface AgentReview {

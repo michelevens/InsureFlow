@@ -83,6 +83,15 @@ const AdminPlans = lazy(() => import('@/pages/admin/AdminPlans'));
 const AdminAuditLog = lazy(() => import('@/pages/admin/AdminAuditLog'));
 const SsoConfig = lazy(() => import('@/pages/admin/SsoConfig'));
 
+// Organizations
+const OrganizationTree = lazy(() => import('@/pages/organizations/OrganizationTree'));
+
+// Webhooks
+const WebhookSettings = lazy(() => import('@/pages/webhooks/WebhookSettings'));
+
+// Calendar
+const CalendarPage = lazy(() => import('@/pages/calendar/Calendar'));
+
 // Settings
 const Settings = lazy(() => import('@/pages/public/Settings'));
 
@@ -139,6 +148,15 @@ export default function App() {
 
                 {/* Documents & E-Signature */}
                 <Route path="/documents" element={<DocumentsPage />} />
+
+                {/* Organizations */}
+                <Route path="/organizations" element={<OrganizationTree />} />
+
+                {/* Webhooks */}
+                <Route path="/webhooks" element={<WebhookSettings />} />
+
+                {/* Calendar */}
+                <Route path="/calendar" element={<CalendarPage />} />
 
                 {/* Agency */}
                 <Route path="/agency/team" element={<AgencyTeam />} />

@@ -28,6 +28,9 @@ use App\Http\Controllers\RenewalController;
 use App\Http\Controllers\SamlController;
 use App\Http\Controllers\CarrierApiController;
 use App\Http\Controllers\LeadScenarioController;
+use App\Http\Controllers\OrganizationController;
+use App\Http\Controllers\WebhookController;
+use App\Http\Controllers\AppointmentController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -270,6 +273,41 @@ Route::middleware(['auth:sanctum', 'agency.scope'])->group(function () {
     Route::post('/carrier-api/configs/{config}/test', [CarrierApiController::class, 'test']);
     Route::get('/carrier-api/configs/{config}/logs', [CarrierApiController::class, 'logs']);
     Route::post('/carrier-api/live-rates', [CarrierApiController::class, 'getLiveRates']);
+
+    // Organizations (MGA hierarchy)
+    Route::get('/organizations', [OrganizationController::class, 'index']);
+    Route::post('/organizations', [OrganizationController::class, 'store']);
+    Route::get('/organizations/{organization}/tree', [OrganizationController::class, 'tree']);
+    Route::put('/organizations/{organization}', [OrganizationController::class, 'update']);
+    Route::delete('/organizations/{organization}', [OrganizationController::class, 'destroy']);
+    Route::get('/organizations/{organization}/members', [OrganizationController::class, 'members']);
+    Route::post('/organizations/{organization}/members', [OrganizationController::class, 'addMember']);
+    Route::put('/organizations/{organization}/members/{member}', [OrganizationController::class, 'updateMember']);
+    Route::delete('/organizations/{organization}/members/{member}', [OrganizationController::class, 'removeMember']);
+
+    // Webhooks
+    Route::get('/webhooks', [WebhookController::class, 'index']);
+    Route::post('/webhooks', [WebhookController::class, 'store']);
+    Route::put('/webhooks/{webhook}', [WebhookController::class, 'update']);
+    Route::delete('/webhooks/{webhook}', [WebhookController::class, 'destroy']);
+    Route::get('/webhooks/{webhook}/deliveries', [WebhookController::class, 'deliveries']);
+    Route::post('/webhooks/{webhook}/test', [WebhookController::class, 'test']);
+    Route::post('/webhook-deliveries/{delivery}/retry', [WebhookController::class, 'retry']);
+    Route::get('/webhooks/event-types', [WebhookController::class, 'eventTypes']);
+
+    // Appointments & Calendar
+    Route::get('/appointments', [AppointmentController::class, 'index']);
+    Route::post('/appointments', [AppointmentController::class, 'store']);
+    Route::get('/appointments/{appointment}', [AppointmentController::class, 'show']);
+    Route::put('/appointments/{appointment}', [AppointmentController::class, 'update']);
+    Route::put('/appointments/{appointment}/status', [AppointmentController::class, 'updateStatus']);
+    Route::delete('/appointments/{appointment}', [AppointmentController::class, 'destroy']);
+    Route::get('/availability', [AppointmentController::class, 'getAvailability']);
+    Route::post('/availability', [AppointmentController::class, 'setAvailability']);
+    Route::get('/blocked-dates', [AppointmentController::class, 'getBlockedDates']);
+    Route::post('/blocked-dates', [AppointmentController::class, 'blockDate']);
+    Route::delete('/blocked-dates/{blockedDate}', [AppointmentController::class, 'unblockDate']);
+    Route::get('/available-slots', [AppointmentController::class, 'availableSlots']);
 
     /*
     |----------------------------------------------------------------------

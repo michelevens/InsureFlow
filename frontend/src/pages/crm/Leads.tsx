@@ -15,12 +15,9 @@ import {
 
 // ── Status configs ─────────────────────────────────
 
-type LeadStatus = Lead['status'];
-
-const leadStatusConfig: Record<LeadStatus, { label: string; variant: 'default' | 'shield' | 'success' | 'warning' | 'danger' | 'info' }> = {
+const leadStatusConfig: Record<string, { label: string; variant: 'default' | 'shield' | 'success' | 'warning' | 'danger' | 'info' }> = {
   new: { label: 'New', variant: 'shield' },
   contacted: { label: 'Contacted', variant: 'info' },
-  qualified: { label: 'Qualified', variant: 'info' },
   quoted: { label: 'Quoted', variant: 'warning' },
   applied: { label: 'Applied', variant: 'info' },
   won: { label: 'Won', variant: 'success' },
@@ -51,7 +48,6 @@ const statusOptions = [
   { value: '', label: 'All Statuses' },
   { value: 'new', label: 'New' },
   { value: 'contacted', label: 'Contacted' },
-  { value: 'qualified', label: 'Qualified' },
   { value: 'quoted', label: 'Quoted' },
   { value: 'applied', label: 'Applied' },
   { value: 'won', label: 'Won' },
@@ -78,7 +74,7 @@ function coverageLabel(type: string): string {
 
 export default function Leads() {
   const [leads, setLeads] = useState<Lead[]>([]);
-  const [counts, setCounts] = useState({ total: 0, new: 0, contacted: 0, qualified: 0, quoted: 0, applied: 0, won: 0, lost: 0 });
+  const [counts, setCounts] = useState({ total: 0, new: 0, contacted: 0, quoted: 0, applied: 0, won: 0, lost: 0 });
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [loading, setLoading] = useState(true);
@@ -185,10 +181,10 @@ export default function Leads() {
           <div className="flex-1">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-full bg-shield-100 text-shield-700 flex items-center justify-center text-lg font-bold">
-                {selectedLead.name.split(' ').map(n => n[0]).join('')}
+                {selectedLead.first_name[0]}{selectedLead.last_name[0]}
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-slate-900">{selectedLead.name}</h1>
+                <h1 className="text-2xl font-bold text-slate-900">{selectedLead.first_name} {selectedLead.last_name}</h1>
                 <div className="flex items-center gap-3 text-sm text-slate-500">
                   <span>{selectedLead.email}</span>
                   <span>{selectedLead.phone}</span>
@@ -498,7 +494,7 @@ export default function Leads() {
           <p className="text-sm text-slate-500">New</p>
         </Card>
         <Card className="p-4 text-center">
-          <p className="text-2xl font-bold text-confidence-600">{counts.contacted + counts.qualified + counts.quoted + counts.applied}</p>
+          <p className="text-2xl font-bold text-confidence-600">{counts.contacted + counts.quoted + counts.applied}</p>
           <p className="text-sm text-slate-500">In Progress</p>
         </Card>
         <Card className="p-4 text-center">
@@ -546,10 +542,10 @@ export default function Leads() {
                       <td className="p-4">
                         <div className="flex items-center gap-3">
                           <div className="w-9 h-9 rounded-full bg-shield-100 text-shield-700 flex items-center justify-center text-sm font-bold">
-                            {lead.name.split(' ').map(n => n[0]).join('')}
+                            {lead.first_name[0]}{lead.last_name[0]}
                           </div>
                           <div>
-                            <p className="font-medium text-slate-900">{lead.name}</p>
+                            <p className="font-medium text-slate-900">{lead.first_name} {lead.last_name}</p>
                             <p className="text-xs text-slate-500">{lead.email}</p>
                           </div>
                         </div>
