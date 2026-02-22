@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { toast } from 'sonner';
 import { Card, Badge, Button } from '@/components/ui';
 import { helpCenterService } from '@/services/api';
 import type { HelpCategory, HelpArticle } from '@/services/api/helpCenter';
@@ -56,20 +57,25 @@ export default function HelpCenter() {
       setArticle(art);
       setView('article');
     } catch {
-      // handle error
+      toast.error('Failed to load article');
     } finally {
       setLoading(false);
     }
   };
 
   const vote = async (articleId: number, helpful: boolean) => {
-    await helpCenterService.voteHelpful(articleId, helpful);
-    if (article && article.id === articleId) {
-      setArticle({
-        ...article,
-        helpful_count: helpful ? article.helpful_count + 1 : article.helpful_count,
-        not_helpful_count: !helpful ? article.not_helpful_count + 1 : article.not_helpful_count,
-      });
+    try {
+      await helpCenterService.voteHelpful(articleId, helpful);
+      toast.success('Thank you for your feedback!');
+      if (article && article.id === articleId) {
+        setArticle({
+          ...article,
+          helpful_count: helpful ? article.helpful_count + 1 : article.helpful_count,
+          not_helpful_count: !helpful ? article.not_helpful_count + 1 : article.not_helpful_count,
+        });
+      }
+    } catch {
+      toast.error('Failed to submit your vote');
     }
   };
 

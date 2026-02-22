@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { toast } from 'sonner';
 import { Card, Badge, Button } from '@/components/ui';
 import { trainingService } from '@/services/api';
 import type { TrainingModule, TrainingProgress } from '@/services/api/training';
@@ -26,7 +27,7 @@ export default function TrainingCatalog() {
         setProgress(prog);
         setCategories(cats);
       } catch {
-        // handle error
+        toast.error('Failed to load training catalog');
       } finally {
         setLoading(false);
       }
@@ -50,9 +51,14 @@ export default function TrainingCatalog() {
   };
 
   const completeModule = async (moduleId: number) => {
-    await trainingService.completeModule(moduleId, { score: 100 });
-    const updatedProgress = await trainingService.getProgress();
-    setProgress(updatedProgress);
+    try {
+      await trainingService.completeModule(moduleId, { score: 100 });
+      toast.success('Training module completed!');
+      const updatedProgress = await trainingService.getProgress();
+      setProgress(updatedProgress);
+    } catch {
+      toast.error('Failed to complete training module');
+    }
   };
 
   const contentTypeIcons: Record<string, string> = {

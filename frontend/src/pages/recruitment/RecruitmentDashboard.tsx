@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { toast } from 'sonner';
 import { Card, Badge, Button, Input, Modal } from '@/components/ui';
 import { recruitmentService } from '@/services/api';
 import type { JobPosting, JobApplication } from '@/services/api/recruitment';
@@ -41,7 +42,7 @@ export default function RecruitmentDashboard() {
           setPublicJobs(data);
         }
       } catch {
-        // handle error
+        toast.error('Failed to load recruitment data');
       } finally {
         setLoading(false);
       }
@@ -60,14 +61,24 @@ export default function RecruitmentDashboard() {
   };
 
   const deletePosting = async (id: number) => {
-    await recruitmentService.deletePosting(id);
-    setPostings(prev => prev.filter(p => p.id !== id));
-    if (selectedPosting?.id === id) setSelectedPosting(null);
+    try {
+      await recruitmentService.deletePosting(id);
+      toast.success('Job posting deleted');
+      setPostings(prev => prev.filter(p => p.id !== id));
+      if (selectedPosting?.id === id) setSelectedPosting(null);
+    } catch {
+      toast.error('Failed to delete job posting');
+    }
   };
 
   const updateAppStatus = async (appId: number, status: string) => {
-    await recruitmentService.updateApplication(appId, { status });
-    if (selectedPosting) loadApplications(selectedPosting);
+    try {
+      await recruitmentService.updateApplication(appId, { status });
+      toast.success(`Application status updated to ${status}`);
+      if (selectedPosting) loadApplications(selectedPosting);
+    } catch {
+      toast.error('Failed to update application status');
+    }
   };
 
   const tabs: { key: Tab; label: string }[] = [
@@ -243,9 +254,10 @@ function CreateJobModal({ onClose, onCreated }: { onClose: () => void; onCreated
     setSaving(true);
     try {
       await recruitmentService.createPosting({ title, description, location, is_remote: isRemote, status: 'published' } as Partial<JobPosting>);
+      toast.success('Job posting published successfully');
       onCreated();
     } catch {
-      // handle error
+      toast.error('Failed to create job posting');
     } finally {
       setSaving(false);
     }

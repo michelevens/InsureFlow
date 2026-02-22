@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { toast } from 'sonner';
 import { Card, Badge, Button, Input, Modal } from '@/components/ui';
 import { apiKeyService } from '@/services/api';
 import type { ApiKey, ApiUsageStats } from '@/services/api/apiKeys';
@@ -20,7 +21,7 @@ export default function ApiKeyManagement() {
       const data = await apiKeyService.list();
       setKeys(data);
     } catch {
-      // handle error
+      toast.error('Failed to load API keys');
     } finally {
       setLoading(false);
     }
@@ -39,9 +40,14 @@ export default function ApiKeyManagement() {
   };
 
   const revokeKey = async (id: number) => {
-    await apiKeyService.revoke(id);
-    fetchKeys();
-    if (selectedKey?.id === id) { setSelectedKey(null); setUsage(null); }
+    try {
+      await apiKeyService.revoke(id);
+      toast.success('API key revoked successfully');
+      fetchKeys();
+      if (selectedKey?.id === id) { setSelectedKey(null); setUsage(null); }
+    } catch {
+      toast.error('Failed to revoke API key');
+    }
   };
 
   return (
@@ -71,7 +77,7 @@ export default function ApiKeyManagement() {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => { navigator.clipboard.writeText(newKeyPlainText); }}
+                  onClick={() => { navigator.clipboard.writeText(newKeyPlainText); toast.success('API key copied to clipboard'); }}
                 >
                   <Copy className="w-4 h-4" />
                 </Button>
@@ -133,7 +139,7 @@ export default function ApiKeyManagement() {
                   <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); revokeKey(key.id); }}>
                     <Trash2 className="w-3.5 h-3.5 text-red-400 mr-1" /> Revoke
                   </Button>
-                  <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); apiKeyService.regenerate(key.id).then(res => { setNewKeyPlainText(res.plain_text_key); fetchKeys(); }); }}>
+                  <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); apiKeyService.regenerate(key.id).then(res => { setNewKeyPlainText(res.plain_text_key); fetchKeys(); toast.success('API key regenerated successfully'); }).catch(() => { toast.error('Failed to regenerate API key'); }); }}>
                     <RotateCcw className="w-3.5 h-3.5 mr-1" /> Regenerate
                   </Button>
                 </div>
@@ -231,9 +237,10 @@ function CreateKeyModal({ onClose, onCreated }: { onClose: () => void; onCreated
     setSaving(true);
     try {
       const result = await apiKeyService.create({ name, permissions, rate_limit: parseInt(rateLimit) || 60 });
+      toast.success('API key created successfully');
       onCreated(result.plain_text_key);
     } catch {
-      // handle error
+      toast.error('Failed to create API key');
     } finally {
       setSaving(false);
     }

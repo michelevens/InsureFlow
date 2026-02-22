@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { toast } from 'sonner';
 import { Card, Badge } from '@/components/ui';
 import { dataProductService } from '@/services/api';
 import type { MarketIntelData, CompetitiveAnalysis, AgentBenchmark } from '@/services/api/dataProducts';
@@ -31,7 +32,7 @@ export default function MarketIntelDashboard() {
           setBenchmarks(data);
         }
       } catch {
-        // handle error
+        toast.error('Failed to load market intelligence data');
       } finally {
         setLoading(false);
       }

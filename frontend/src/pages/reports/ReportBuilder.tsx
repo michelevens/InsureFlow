@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { toast } from 'sonner';
 import { Card, Badge, Button, Input, Modal } from '@/components/ui';
 import { reportService } from '@/services/api';
 import type { ReportDefinition, ReportRun } from '@/services/api/reports';
@@ -26,7 +27,7 @@ export default function ReportBuilder() {
       const data = await reportService.list();
       setDefinitions(data);
     } catch {
-      // handle error
+      toast.error('Failed to load report definitions');
     } finally {
       setLoading(false);
     }
@@ -47,19 +48,21 @@ export default function ReportBuilder() {
   const runReport = async (defId: number) => {
     try {
       const run = await reportService.run(defId);
+      toast.success('Report run started');
       setRuns(prev => [run, ...prev]);
     } catch {
-      // handle error
+      toast.error('Failed to run report');
     }
   };
 
   const deleteDefinition = async (id: number) => {
     try {
       await reportService.destroy(id);
+      toast.success('Report definition deleted');
       setDefinitions(prev => prev.filter(d => d.id !== id));
       if (selectedDef?.id === id) { setSelectedDef(null); setRuns([]); }
     } catch {
-      // handle error
+      toast.error('Failed to delete report definition');
     }
   };
 
@@ -203,9 +206,10 @@ function CreateReportModal({ onClose, onCreated }: { onClose: () => void; onCrea
         query_config: {},
         schedule: schedule || null,
       });
+      toast.success('Report definition created successfully');
       onCreated();
     } catch {
-      // handle error
+      toast.error('Failed to create report definition');
     } finally {
       setSaving(false);
     }

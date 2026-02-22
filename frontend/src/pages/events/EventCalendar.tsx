@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { toast } from 'sonner';
 import { Card, Badge, Button, Input, Modal } from '@/components/ui';
 import { eventService } from '@/services/api';
 import type { InsuronsEvent } from '@/services/api/events';
@@ -30,7 +31,7 @@ export default function EventCalendar() {
         setEvents(evts.data);
         setUpcoming(up);
       } catch {
-        // handle error
+        toast.error('Failed to load events');
       } finally {
         setLoading(false);
       }
@@ -41,20 +42,22 @@ export default function EventCalendar() {
   const handleRegister = async (eventId: number) => {
     try {
       await eventService.register(eventId);
+      toast.success('Successfully registered for event');
       setEvents(prev => prev.map(e => e.id === eventId ? { ...e, is_registered: true, registration_count: e.registration_count + 1 } : e));
       setUpcoming(prev => prev.map(e => e.id === eventId ? { ...e, is_registered: true, registration_count: e.registration_count + 1 } : e));
     } catch {
-      // handle error
+      toast.error('Failed to register for event');
     }
   };
 
   const handleCancel = async (eventId: number) => {
     try {
       await eventService.cancelRegistration(eventId);
+      toast.success('Event registration cancelled');
       setEvents(prev => prev.map(e => e.id === eventId ? { ...e, is_registered: false, registration_count: e.registration_count - 1 } : e));
       setUpcoming(prev => prev.map(e => e.id === eventId ? { ...e, is_registered: false, registration_count: e.registration_count - 1 } : e));
     } catch {
-      // handle error
+      toast.error('Failed to cancel registration');
     }
   };
 
@@ -205,9 +208,10 @@ function CreateEventModal({ onClose, onCreated }: { onClose: () => void; onCreat
     setSaving(true);
     try {
       const evt = await eventService.create({ title, description, type, start_at: startAt, end_at: endAt, location: location || null, status: 'published' });
+      toast.success('Event created successfully');
       onCreated(evt);
     } catch {
-      // handle error
+      toast.error('Failed to create event');
     } finally {
       setSaving(false);
     }

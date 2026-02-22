@@ -20,46 +20,115 @@ interface NavItem {
   roles: UserRole[];
 }
 
-const navItems: NavItem[] = [
-  { label: 'Dashboard', href: '/dashboard', icon: <LayoutDashboard className="w-5 h-5" />, roles: ['consumer', 'agent', 'agency_owner', 'carrier', 'admin', 'superadmin'] },
-  { label: 'Get Quotes', href: '/calculator', icon: <Calculator className="w-5 h-5" />, roles: ['consumer'] },
-  { label: 'My Quotes', href: '/portal/quotes', icon: <ClipboardList className="w-5 h-5" />, roles: ['consumer'] },
-  { label: 'My Applications', href: '/portal/applications', icon: <FileText className="w-5 h-5" />, roles: ['consumer'] },
-  { label: 'My Policies', href: '/portal/policies', icon: <ShieldCheck className="w-5 h-5" />, roles: ['consumer'] },
-  { label: 'Leads', href: '/crm/leads', icon: <Target className="w-5 h-5" />, roles: ['agent', 'agency_owner'] },
-  { label: 'Applications', href: '/applications', icon: <FileText className="w-5 h-5" />, roles: ['agent', 'agency_owner', 'carrier'] },
-  { label: 'Policies', href: '/policies', icon: <ShieldCheck className="w-5 h-5" />, roles: ['agent', 'agency_owner'] },
-  { label: 'Claims', href: '/claims', icon: <AlertTriangle className="w-5 h-5" />, roles: ['consumer', 'agent', 'agency_owner', 'admin', 'superadmin'] },
-  { label: 'Renewals', href: '/renewals', icon: <RefreshCw className="w-5 h-5" />, roles: ['agent', 'agency_owner', 'admin', 'superadmin'] },
-  { label: 'Commissions', href: '/commissions', icon: <DollarSign className="w-5 h-5" />, roles: ['agent', 'agency_owner'] },
-  { label: 'Reviews', href: '/reviews', icon: <Star className="w-5 h-5" />, roles: ['agent', 'agency_owner'] },
-  { label: 'Analytics', href: '/analytics', icon: <TrendingUp className="w-5 h-5" />, roles: ['agent', 'agency_owner'] },
-  { label: 'My Team', href: '/agency/team', icon: <Users className="w-5 h-5" />, roles: ['agency_owner'] },
-  { label: 'Products', href: '/carrier/products', icon: <Briefcase className="w-5 h-5" />, roles: ['carrier'] },
-  { label: 'Production', href: '/carrier/production', icon: <BarChart3 className="w-5 h-5" />, roles: ['carrier'] },
-  { label: 'API Config', href: '/carrier/api-config', icon: <Plug className="w-5 h-5" />, roles: ['carrier', 'admin', 'superadmin'] },
-  { label: 'Calendar', href: '/calendar', icon: <CalendarDays className="w-5 h-5" />, roles: ['agent', 'agency_owner'] },
-  { label: 'Organizations', href: '/organizations', icon: <Network className="w-5 h-5" />, roles: ['agency_owner', 'admin', 'superadmin'] },
-  { label: 'Webhooks', href: '/webhooks', icon: <Plug className="w-5 h-5" />, roles: ['agent', 'agency_owner', 'carrier', 'admin', 'superadmin'] },
-  { label: 'White-Label', href: '/white-label', icon: <Palette className="w-5 h-5" />, roles: ['agency_owner', 'admin', 'superadmin'] },
-  { label: 'Embed Widgets', href: '/embed', icon: <Code className="w-5 h-5" />, roles: ['agency_owner', 'admin', 'superadmin'] },
-  { label: 'Compliance', href: '/compliance', icon: <Award className="w-5 h-5" />, roles: ['agent', 'agency_owner'] },
-  { label: 'Market Intel', href: '/data/market-intel', icon: <Database className="w-5 h-5" />, roles: ['agency_owner', 'carrier', 'admin', 'superadmin'] },
-  { label: 'API Keys', href: '/api-keys', icon: <Key className="w-5 h-5" />, roles: ['agency_owner', 'carrier', 'admin', 'superadmin'] },
-  { label: 'Recruitment', href: '/recruitment', icon: <Briefcase className="w-5 h-5" />, roles: ['agency_owner', 'admin', 'superadmin'] },
-  { label: 'Training', href: '/training', icon: <BookOpen className="w-5 h-5" />, roles: ['agent', 'agency_owner'] },
-  { label: 'Forum', href: '/forum', icon: <MessagesSquare className="w-5 h-5" />, roles: ['agent', 'agency_owner', 'carrier', 'admin', 'superadmin'] },
-  { label: 'Events', href: '/events', icon: <Calendar className="w-5 h-5" />, roles: ['agent', 'agency_owner', 'carrier', 'admin', 'superadmin'] },
-  { label: 'Partners', href: '/partners', icon: <Handshake className="w-5 h-5" />, roles: ['agent', 'agency_owner', 'consumer'] },
-  { label: 'Campaigns', href: '/campaigns', icon: <Mail className="w-5 h-5" />, roles: ['agent', 'agency_owner', 'admin', 'superadmin'] },
-  { label: 'Reports', href: '/reports', icon: <FileBarChart className="w-5 h-5" />, roles: ['agent', 'agency_owner', 'carrier', 'admin', 'superadmin'] },
-  { label: 'Find Agents', href: '/marketplace', icon: <Users className="w-5 h-5" />, roles: ['consumer'] },
-  { label: 'Users', href: '/admin/users', icon: <Users className="w-5 h-5" />, roles: ['admin', 'superadmin'] },
-  { label: 'Agencies', href: '/admin/agencies', icon: <Building2 className="w-5 h-5" />, roles: ['admin', 'superadmin'] },
-  { label: 'Analytics', href: '/admin/analytics', icon: <BarChart3 className="w-5 h-5" />, roles: ['admin', 'superadmin'] },
-  { label: 'Plans', href: '/admin/plans', icon: <DollarSign className="w-5 h-5" />, roles: ['admin', 'superadmin'] },
-  { label: 'Audit Log', href: '/admin/audit-log', icon: <Activity className="w-5 h-5" />, roles: ['admin', 'superadmin'] },
-  { label: 'SSO Config', href: '/admin/sso', icon: <Key className="w-5 h-5" />, roles: ['admin', 'superadmin', 'agency_owner'] },
+interface NavSection {
+  title: string;
+  roles: UserRole[];
+  items: NavItem[];
+}
+
+const navSections: NavSection[] = [
+  {
+    title: '',
+    roles: ['consumer', 'agent', 'agency_owner', 'carrier', 'admin', 'superadmin'],
+    items: [
+      { label: 'Dashboard', href: '/dashboard', icon: <LayoutDashboard className="w-5 h-5" />, roles: ['consumer', 'agent', 'agency_owner', 'carrier', 'admin', 'superadmin'] },
+    ],
+  },
+  {
+    title: 'Insurance',
+    roles: ['consumer'],
+    items: [
+      { label: 'Get Quotes', href: '/calculator', icon: <Calculator className="w-5 h-5" />, roles: ['consumer'] },
+      { label: 'My Quotes', href: '/portal/quotes', icon: <ClipboardList className="w-5 h-5" />, roles: ['consumer'] },
+      { label: 'My Applications', href: '/portal/applications', icon: <FileText className="w-5 h-5" />, roles: ['consumer'] },
+      { label: 'My Policies', href: '/portal/policies', icon: <ShieldCheck className="w-5 h-5" />, roles: ['consumer'] },
+      { label: 'Claims', href: '/claims', icon: <AlertTriangle className="w-5 h-5" />, roles: ['consumer'] },
+      { label: 'Find Agents', href: '/marketplace', icon: <Users className="w-5 h-5" />, roles: ['consumer'] },
+      { label: 'Partners', href: '/partners', icon: <Handshake className="w-5 h-5" />, roles: ['consumer'] },
+    ],
+  },
+  {
+    title: 'Pipeline',
+    roles: ['agent', 'agency_owner', 'carrier'],
+    items: [
+      { label: 'Leads', href: '/crm/leads', icon: <Target className="w-5 h-5" />, roles: ['agent', 'agency_owner'] },
+      { label: 'Applications', href: '/applications', icon: <FileText className="w-5 h-5" />, roles: ['agent', 'agency_owner', 'carrier'] },
+      { label: 'Policies', href: '/policies', icon: <ShieldCheck className="w-5 h-5" />, roles: ['agent', 'agency_owner'] },
+      { label: 'Claims', href: '/claims', icon: <AlertTriangle className="w-5 h-5" />, roles: ['agent', 'agency_owner', 'admin', 'superadmin'] },
+      { label: 'Renewals', href: '/renewals', icon: <RefreshCw className="w-5 h-5" />, roles: ['agent', 'agency_owner', 'admin', 'superadmin'] },
+    ],
+  },
+  {
+    title: 'Performance',
+    roles: ['agent', 'agency_owner'],
+    items: [
+      { label: 'Commissions', href: '/commissions', icon: <DollarSign className="w-5 h-5" />, roles: ['agent', 'agency_owner'] },
+      { label: 'Reviews', href: '/reviews', icon: <Star className="w-5 h-5" />, roles: ['agent', 'agency_owner'] },
+      { label: 'Analytics', href: '/analytics', icon: <TrendingUp className="w-5 h-5" />, roles: ['agent', 'agency_owner'] },
+      { label: 'Calendar', href: '/calendar', icon: <CalendarDays className="w-5 h-5" />, roles: ['agent', 'agency_owner'] },
+      { label: 'Compliance', href: '/compliance', icon: <Award className="w-5 h-5" />, roles: ['agent', 'agency_owner'] },
+    ],
+  },
+  {
+    title: 'Carrier',
+    roles: ['carrier'],
+    items: [
+      { label: 'Products', href: '/carrier/products', icon: <Briefcase className="w-5 h-5" />, roles: ['carrier'] },
+      { label: 'Production', href: '/carrier/production', icon: <BarChart3 className="w-5 h-5" />, roles: ['carrier'] },
+      { label: 'API Config', href: '/carrier/api-config', icon: <Plug className="w-5 h-5" />, roles: ['carrier', 'admin', 'superadmin'] },
+    ],
+  },
+  {
+    title: 'Team & Organization',
+    roles: ['agency_owner', 'admin', 'superadmin'],
+    items: [
+      { label: 'My Team', href: '/agency/team', icon: <Users className="w-5 h-5" />, roles: ['agency_owner'] },
+      { label: 'Organizations', href: '/organizations', icon: <Network className="w-5 h-5" />, roles: ['agency_owner', 'admin', 'superadmin'] },
+      { label: 'Recruitment', href: '/recruitment', icon: <Briefcase className="w-5 h-5" />, roles: ['agency_owner', 'admin', 'superadmin'] },
+      { label: 'SSO Config', href: '/admin/sso', icon: <Key className="w-5 h-5" />, roles: ['admin', 'superadmin', 'agency_owner'] },
+    ],
+  },
+  {
+    title: 'Growth & Marketing',
+    roles: ['agent', 'agency_owner', 'admin', 'superadmin'],
+    items: [
+      { label: 'Campaigns', href: '/campaigns', icon: <Mail className="w-5 h-5" />, roles: ['agent', 'agency_owner', 'admin', 'superadmin'] },
+      { label: 'Reports', href: '/reports', icon: <FileBarChart className="w-5 h-5" />, roles: ['agent', 'agency_owner', 'carrier', 'admin', 'superadmin'] },
+      { label: 'Market Intel', href: '/data/market-intel', icon: <Database className="w-5 h-5" />, roles: ['agency_owner', 'carrier', 'admin', 'superadmin'] },
+    ],
+  },
+  {
+    title: 'Learning & Community',
+    roles: ['agent', 'agency_owner', 'carrier', 'admin', 'superadmin'],
+    items: [
+      { label: 'Training', href: '/training', icon: <BookOpen className="w-5 h-5" />, roles: ['agent', 'agency_owner'] },
+      { label: 'Forum', href: '/forum', icon: <MessagesSquare className="w-5 h-5" />, roles: ['agent', 'agency_owner', 'carrier', 'admin', 'superadmin'] },
+      { label: 'Events', href: '/events', icon: <Calendar className="w-5 h-5" />, roles: ['agent', 'agency_owner', 'carrier', 'admin', 'superadmin'] },
+      { label: 'Partners', href: '/partners', icon: <Handshake className="w-5 h-5" />, roles: ['agent', 'agency_owner'] },
+    ],
+  },
+  {
+    title: 'Integrations',
+    roles: ['agent', 'agency_owner', 'carrier', 'admin', 'superadmin'],
+    items: [
+      { label: 'API Keys', href: '/api-keys', icon: <Key className="w-5 h-5" />, roles: ['agency_owner', 'carrier', 'admin', 'superadmin'] },
+      { label: 'Webhooks', href: '/webhooks', icon: <Plug className="w-5 h-5" />, roles: ['agent', 'agency_owner', 'carrier', 'admin', 'superadmin'] },
+      { label: 'White-Label', href: '/white-label', icon: <Palette className="w-5 h-5" />, roles: ['agency_owner', 'admin', 'superadmin'] },
+      { label: 'Embed Widgets', href: '/embed', icon: <Code className="w-5 h-5" />, roles: ['agency_owner', 'admin', 'superadmin'] },
+    ],
+  },
+  {
+    title: 'Admin',
+    roles: ['admin', 'superadmin'],
+    items: [
+      { label: 'Users', href: '/admin/users', icon: <Users className="w-5 h-5" />, roles: ['admin', 'superadmin'] },
+      { label: 'Agencies', href: '/admin/agencies', icon: <Building2 className="w-5 h-5" />, roles: ['admin', 'superadmin'] },
+      { label: 'Analytics', href: '/admin/analytics', icon: <BarChart3 className="w-5 h-5" />, roles: ['admin', 'superadmin'] },
+      { label: 'Plans', href: '/admin/plans', icon: <DollarSign className="w-5 h-5" />, roles: ['admin', 'superadmin'] },
+      { label: 'Audit Log', href: '/admin/audit-log', icon: <Activity className="w-5 h-5" />, roles: ['admin', 'superadmin'] },
+      { label: 'API Config', href: '/carrier/api-config', icon: <Plug className="w-5 h-5" />, roles: ['admin', 'superadmin'] },
+    ],
+  },
 ];
 
 export function DashboardLayout() {
@@ -69,7 +138,12 @@ export function DashboardLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
 
-  const filteredNav = navItems.filter(item => user && item.roles.includes(user.role));
+  const filteredSections = navSections
+    .map(section => ({
+      ...section,
+      items: section.items.filter(item => user && item.roles.includes(user.role)),
+    }))
+    .filter(section => section.items.length > 0);
 
   const handleLogout = async () => {
     await logout();
@@ -117,26 +191,37 @@ export function DashboardLayout() {
         </div>
 
         {/* Nav items */}
-        <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-1">
-          {filteredNav.map((item) => {
-            const isActive = location.pathname === item.href || location.pathname.startsWith(item.href + '/');
-            return (
-              <Link
-                key={item.href}
-                to={item.href}
-                onClick={() => setSidebarOpen(false)}
-                className={cn(
-                  'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200',
-                  isActive
-                    ? 'bg-shield-50 text-shield-700'
-                    : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
-                )}
-              >
-                {item.icon}
-                {item.label}
-              </Link>
-            );
-          })}
+        <nav className="flex-1 overflow-y-auto py-4 px-3">
+          {filteredSections.map((section, idx) => (
+            <div key={section.title || idx} className={idx > 0 ? 'mt-4' : ''}>
+              {section.title && (
+                <p className="px-3 mb-1 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+                  {section.title}
+                </p>
+              )}
+              <div className="space-y-0.5">
+                {section.items.map((item) => {
+                  const isActive = location.pathname === item.href || location.pathname.startsWith(item.href + '/');
+                  return (
+                    <Link
+                      key={item.href}
+                      to={item.href}
+                      onClick={() => setSidebarOpen(false)}
+                      className={cn(
+                        'flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200',
+                        isActive
+                          ? 'bg-shield-50 text-shield-700'
+                          : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                      )}
+                    >
+                      {item.icon}
+                      {item.label}
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
         </nav>
 
         {/* User menu (mobile only — desktop uses top bar) */}

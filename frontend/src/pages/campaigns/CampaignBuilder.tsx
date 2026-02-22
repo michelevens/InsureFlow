@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { toast } from 'sonner';
 import { Card, Badge, Button, Input, Modal } from '@/components/ui';
 import { emailCampaignService } from '@/services/api';
 import type { EmailCampaign, CampaignAnalytics } from '@/services/api/emailCampaigns';
@@ -27,7 +28,7 @@ export default function CampaignBuilder() {
       const result = await emailCampaignService.list();
       setCampaigns(result.data);
     } catch {
-      // handle error
+      toast.error('Failed to load campaigns');
     } finally {
       setLoading(false);
     }
@@ -52,19 +53,21 @@ export default function CampaignBuilder() {
   const sendCampaign = async (id: number) => {
     try {
       await emailCampaignService.send(id);
+      toast.success('Campaign sent successfully');
       fetchCampaigns();
     } catch {
-      // handle error
+      toast.error('Failed to send campaign');
     }
   };
 
   const deleteCampaign = async (id: number) => {
     try {
       await emailCampaignService.destroy(id);
+      toast.success('Campaign deleted');
       setCampaigns(prev => prev.filter(c => c.id !== id));
       if (selectedCampaign?.id === id) { setSelectedCampaign(null); setAnalytics(null); }
     } catch {
-      // handle error
+      toast.error('Failed to delete campaign');
     }
   };
 
@@ -208,9 +211,10 @@ function CreateCampaignModal({ onClose, onCreated }: { onClose: () => void; onCr
     setSaving(true);
     try {
       await emailCampaignService.create({ name, subject, body_html: bodyHtml });
+      toast.success('Campaign created successfully');
       onCreated();
     } catch {
-      // handle error
+      toast.error('Failed to create campaign');
     } finally {
       setSaving(false);
     }

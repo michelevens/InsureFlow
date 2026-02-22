@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { toast } from 'sonner';
 import { Card, Badge, Button, Input, Modal } from '@/components/ui';
 import { partnerMarketplaceService } from '@/services/api';
 import type { PartnerListing } from '@/services/api/partnerMarketplace';
@@ -25,7 +26,7 @@ export default function PartnerDirectory() {
         setListings(data.data);
         setCategories(cats);
       } catch {
-        // handle error
+        toast.error('Failed to load partner directory');
       } finally {
         setLoading(false);
       }
@@ -36,9 +37,9 @@ export default function PartnerDirectory() {
   const handleRefer = async (listingId: number) => {
     try {
       await partnerMarketplaceService.refer(listingId);
-      // Could show toast
+      toast.success('Client referral sent successfully');
     } catch {
-      // handle error
+      toast.error('Failed to send client referral');
     }
   };
 
@@ -186,9 +187,10 @@ function CreateListingModal({ onClose, onCreated }: { onClose: () => void; onCre
     setSaving(true);
     try {
       const listing = await partnerMarketplaceService.create({ business_name: businessName, category, description, website: website || null });
+      toast.success('Partner listing created successfully');
       onCreated(listing);
     } catch {
-      // handle error
+      toast.error('Failed to create partner listing');
     } finally {
       setSaving(false);
     }

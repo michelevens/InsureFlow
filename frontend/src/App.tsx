@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { Toaster } from 'sonner';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { PWAPrompt } from '@/components/pwa/PWAPrompt';
@@ -30,6 +31,8 @@ const SsoCallback = lazy(() => import('@/pages/auth/SsoCallback'));
 // Public
 const Landing = lazy(() => import('@/pages/public/Landing'));
 const Pricing = lazy(() => import('@/pages/public/Pricing'));
+const Privacy = lazy(() => import('@/pages/public/Privacy'));
+const Terms = lazy(() => import('@/pages/public/Terms'));
 
 // Calculator (public)
 const Calculator = lazy(() => import('@/pages/calculator/Calculator'));
@@ -133,6 +136,8 @@ export default function App() {
               {/* Public routes */}
               <Route path="/" element={<Landing />} />
               <Route path="/pricing" element={<Pricing />} />
+              <Route path="/privacy" element={<Privacy />} />
+              <Route path="/terms" element={<Terms />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/calculator" element={<Calculator />} />
@@ -238,6 +243,7 @@ export default function App() {
             </Routes>
           </Suspense>
           <PWAPrompt />
+          <Toaster position="top-right" richColors closeButton />
         </AuthProvider>
       </BrowserRouter>
     </QueryClientProvider>

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { toast } from 'sonner';
 import { Card, Badge, Button, Input, Modal } from '@/components/ui';
 import { forumService } from '@/services/api';
 import type { ForumCategory, ForumTopic, ForumPost } from '@/services/api/forum';
@@ -46,7 +47,7 @@ export default function ForumHome() {
       setPosts(result.posts);
       setView('topic');
     } catch {
-      // handle error
+      toast.error('Failed to load topic');
     } finally {
       setLoading(false);
     }
@@ -59,8 +60,9 @@ export default function ForumHome() {
       const newPost = await forumService.createPost(activeTopic.id, { content: replyContent });
       setPosts(prev => [...prev, newPost]);
       setReplyContent('');
+      toast.success('Reply posted successfully');
     } catch {
-      // handle error
+      toast.error('Failed to post reply');
     } finally {
       setSubmitting(false);
     }
@@ -70,8 +72,9 @@ export default function ForumHome() {
     try {
       const result = await forumService.vote(postId, 'upvote');
       setPosts(prev => prev.map(p => p.id === postId ? { ...p, upvote_count: result.upvote_count } : p));
+      toast.success('Vote recorded');
     } catch {
-      // handle error
+      toast.error('Failed to register vote');
     }
   };
 
@@ -79,8 +82,9 @@ export default function ForumHome() {
     try {
       await forumService.markSolution(postId);
       setPosts(prev => prev.map(p => ({ ...p, is_solution: p.id === postId })));
+      toast.success('Post marked as solution');
     } catch {
-      // handle error
+      toast.error('Failed to mark post as solution');
     }
   };
 
@@ -248,9 +252,10 @@ function NewTopicModal({ categoryId, onClose, onCreated }: { categoryId: number;
     setSaving(true);
     try {
       const topic = await forumService.createTopic({ category_id: categoryId, title, body });
+      toast.success('Topic created successfully');
       onCreated(topic);
     } catch {
-      // handle error
+      toast.error('Failed to create topic');
     } finally {
       setSaving(false);
     }
