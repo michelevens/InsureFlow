@@ -218,15 +218,23 @@ return new class extends Migration
         // Add product_type to policies + link applications to scenarios
         // ──────────────────────────────────────────────────────────────
         Schema::table('policies', function (Blueprint $table) {
-            $table->string('product_type')->nullable()->after('type');
-            $table->foreignId('agency_id')->nullable()->after('agent_id');
+            if (!Schema::hasColumn('policies', 'product_type')) {
+                $table->string('product_type')->nullable()->after('type');
+            }
+            if (!Schema::hasColumn('policies', 'agency_id')) {
+                $table->foreignId('agency_id')->nullable()->after('agent_id');
+            }
         });
 
         Schema::table('applications', function (Blueprint $table) {
-            $table->foreignId('lead_scenario_id')->nullable()->after('agency_id')
-                ->constrained('lead_scenarios')->nullOnDelete();
-            $table->foreignId('lead_id')->nullable()->after('lead_scenario_id')
-                ->constrained()->nullOnDelete();
+            if (!Schema::hasColumn('applications', 'lead_scenario_id')) {
+                $table->foreignId('lead_scenario_id')->nullable()->after('agency_id')
+                    ->constrained('lead_scenarios')->nullOnDelete();
+            }
+            if (!Schema::hasColumn('applications', 'lead_id')) {
+                $table->foreignId('lead_id')->nullable()->after('lead_scenario_id')
+                    ->constrained()->nullOnDelete();
+            }
         });
     }
 
