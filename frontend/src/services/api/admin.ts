@@ -1,9 +1,18 @@
 import { api } from './client';
 import type { User, SubscriptionPlan } from '@/types';
 
-interface UserListResponse {
+interface PaginatedResponse<T> {
+  data: T[];
+  current_page: number;
+  total: number;
+  per_page: number;
+  last_page: number;
+}
+
+export interface UserListResponse {
   items: User[];
-  counts: { total: number; consumers: number; agents: number; carriers: number };
+  total: number;
+  counts: Record<string, number>;
 }
 
 export const adminService = {
@@ -11,30 +20,38 @@ export const adminService = {
     const query = new URLSearchParams();
     if (params?.role) query.set('role', params.role);
     if (params?.search) query.set('search', params.search);
-    return api.get<UserListResponse>(`/admin/users?${query}`);
+    const qs = query.toString();
+    const raw = await api.get<{ users: PaginatedResponse<User>; counts: Record<string, number> }>(`/admin/users${qs ? `?${qs}` : ''}`);
+    const items = raw.users?.data || [];
+    return {
+      items,
+      total: raw.users?.total || items.length,
+      counts: raw.counts || {},
+    };
   },
 
-  async toggleUserStatus(id: number): Promise<{ message: string }> {
-    return api.put<{ message: string }>(`/admin/users/${id}/toggle-status`);
+  async toggleUserStatus(id: number, activate: boolean): Promise<{ message: string }> {
+    const endpoint = activate ? `/admin/users/${id}/approve` : `/admin/users/${id}/deactivate`;
+    return api.put<{ message: string }>(endpoint);
   },
 
-  async getPlans(): Promise<{ items: SubscriptionPlan[] }> {
-    return api.get<{ items: SubscriptionPlan[] }>('/admin/subscription-plans');
+  async getPlans(): Promise<SubscriptionPlan[]> {
+    return api.get<SubscriptionPlan[]>('/admin/plans');
   },
 
-  async createPlan(data: Partial<SubscriptionPlan>): Promise<{ message: string; item: SubscriptionPlan }> {
-    return api.post<{ message: string; item: SubscriptionPlan }>('/admin/subscription-plans', data);
+  async createPlan(data: Partial<SubscriptionPlan>): Promise<SubscriptionPlan> {
+    return api.post<SubscriptionPlan>('/admin/plans', data);
   },
 
-  async updatePlan(id: number, data: Partial<SubscriptionPlan>): Promise<{ message: string; item: SubscriptionPlan }> {
-    return api.put<{ message: string; item: SubscriptionPlan }>(`/admin/subscription-plans/${id}`, data);
+  async updatePlan(id: number, data: Partial<SubscriptionPlan>): Promise<SubscriptionPlan> {
+    return api.put<SubscriptionPlan>(`/admin/plans/${id}`, data);
   },
 
-  async getAgencies(): Promise<{ data: Array<{ id: number; name: string; agency_code: string; sso_enabled?: boolean; saml_entity_id?: string; saml_sso_url?: string; saml_certificate?: string; sso_default_role?: string }> }> {
+  async getAgencies(): Promise<{ data: Array<{ id: number; name: string; agency_code: string; is_verified?: boolean; is_active?: boolean; owner?: User }> }> {
     return api.get('/admin/agencies');
   },
 
-  async getAnalytics(): Promise<Record<string, number>> {
-    return api.get<Record<string, number>>('/admin/analytics');
+  async getAnalytics(): Promise<{ monthly_users: Array<{ month: string; count: number }>; total_users: number; active_users: number }> {
+    return api.get('/admin/analytics');
   },
 };

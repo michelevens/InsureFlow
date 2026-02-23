@@ -1,28 +1,57 @@
+import { useState, useEffect } from 'react';
 import { Card, Badge, Button } from '@/components/ui';
 import { EmptyState } from '@/components/dashboard/EmptyState';
-import { ShieldCheck, Download, Phone, Calendar, DollarSign, FileText } from 'lucide-react';
-
-interface MyPolicy {
-  id: string;
-  policy_number: string;
-  type: string;
-  carrier: string;
-  premium: string;
-  coverage: string;
-  effective_date: string;
-  expiration_date: string;
-  agent: string;
-  agent_phone: string;
-  status: 'active' | 'expiring_soon';
-}
-
-const mockPolicies: MyPolicy[] = [
-  { id: '1', policy_number: 'POL-2026-0412', type: 'Auto Insurance', carrier: 'StateFarm', premium: '$127/mo', coverage: '$300,000', effective_date: '2026-01-15', expiration_date: '2027-01-15', agent: 'Sarah Johnson', agent_phone: '(214) 555-0123', status: 'active' },
-  { id: '2', policy_number: 'POL-2025-0287', type: 'Home Insurance', carrier: 'Allstate', premium: '$195/mo', coverage: '$500,000', effective_date: '2025-06-01', expiration_date: '2026-06-01', agent: 'Sarah Johnson', agent_phone: '(214) 555-0123', status: 'active' },
-];
+import { ShieldCheck, Download, Phone, Calendar, DollarSign, FileText, Loader2 } from 'lucide-react';
+import { policyService } from '@/services/api/policies';
+import type { Policy } from '@/types';
 
 export default function MyPolicies() {
-  if (mockPolicies.length === 0) {
+  const [policies, setPolicies] = useState<Policy[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    loadPolicies();
+  }, []);
+
+  const loadPolicies = async () => {
+    try {
+      setLoading(true);
+      setError('');
+      const res = await policyService.list();
+      setPolicies(res.items);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load policies');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div>
+        <h1 className="text-2xl font-bold text-slate-900 mb-6">My Policies</h1>
+        <Card className="p-12 text-center">
+          <Loader2 className="w-8 h-8 animate-spin text-shield-500 mx-auto" />
+          <p className="text-slate-500 mt-2">Loading your policies...</p>
+        </Card>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div>
+        <h1 className="text-2xl font-bold text-slate-900 mb-6">My Policies</h1>
+        <Card className="p-6 text-center">
+          <p className="text-red-500">{error}</p>
+          <Button variant="outline" size="sm" className="mt-2" onClick={loadPolicies}>Retry</Button>
+        </Card>
+      </div>
+    );
+  }
+
+  if (policies.length === 0) {
     return (
       <div>
         <h1 className="text-2xl font-bold text-slate-900 mb-6">My Policies</h1>
@@ -47,7 +76,7 @@ export default function MyPolicies() {
       </div>
 
       <div className="space-y-4">
-        {mockPolicies.map(policy => (
+        {policies.map(policy => (
           <Card key={policy.id}>
             <div className="p-6">
               <div className="flex items-center justify-between mb-4">
@@ -56,12 +85,12 @@ export default function MyPolicies() {
                     <ShieldCheck className="w-6 h-6" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-slate-900">{policy.type}</h3>
-                    <p className="text-sm text-slate-500">{policy.carrier} · {policy.policy_number}</p>
+                    <h3 className="font-semibold text-slate-900 capitalize">{(policy.type || '').replace(/_/g, ' ')}</h3>
+                    <p className="text-sm text-slate-500">{policy.carrier_name} · {policy.policy_number}</p>
                   </div>
                 </div>
-                <Badge variant={policy.status === 'active' ? 'success' : 'warning'}>
-                  {policy.status === 'active' ? 'Active' : 'Expiring Soon'}
+                <Badge variant={policy.status === 'active' ? 'success' : policy.status === 'expiring_soon' ? 'warning' : 'danger'}>
+                  {policy.status === 'active' ? 'Active' : policy.status === 'expiring_soon' ? 'Expiring Soon' : 'Expired'}
                 </Badge>
               </div>
 
@@ -70,13 +99,13 @@ export default function MyPolicies() {
                   <div className="flex items-center gap-1 text-xs text-slate-500 mb-1">
                     <DollarSign className="w-3.5 h-3.5" /> Premium
                   </div>
-                  <p className="text-sm font-medium text-slate-900">{policy.premium}</p>
+                  <p className="text-sm font-medium text-slate-900">${policy.monthly_premium}/mo</p>
                 </div>
                 <div>
                   <div className="flex items-center gap-1 text-xs text-slate-500 mb-1">
                     <ShieldCheck className="w-3.5 h-3.5" /> Coverage
                   </div>
-                  <p className="text-sm font-medium text-slate-900">{policy.coverage}</p>
+                  <p className="text-sm font-medium text-slate-900">{policy.coverage_limit || '-'}</p>
                 </div>
                 <div>
                   <div className="flex items-center gap-1 text-xs text-slate-500 mb-1">
@@ -94,7 +123,7 @@ export default function MyPolicies() {
 
               <div className="flex items-center justify-between pt-4 border-t border-slate-100">
                 <div className="flex items-center gap-2 text-sm text-slate-600">
-                  <span>Agent: <span className="font-medium text-slate-900">{policy.agent}</span></span>
+                  {policy.agent && <span>Agent: <span className="font-medium text-slate-900">{policy.agent.first_name} {policy.agent.last_name}</span></span>}
                 </div>
                 <div className="flex gap-2">
                   <Button variant="outline" size="sm" leftIcon={<Phone className="w-4 h-4" />}>Call Agent</Button>

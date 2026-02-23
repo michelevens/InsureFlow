@@ -120,47 +120,57 @@ export interface Quote {
   expires_at: string;
 }
 
-export type ApplicationStatus = 'draft' | 'submitted' | 'underwriting' | 'approved' | 'declined' | 'bound' | 'withdrawn';
+export type ApplicationStatus = 'draft' | 'submitted' | 'under_review' | 'underwriting' | 'approved' | 'declined' | 'bound' | 'withdrawn';
 
 export interface Application {
   id: number;
-  quote_id: number;
-  consumer_id: number;
+  reference: string;
+  user_id: number;
   agent_id: number | null;
-  carrier_id: number;
+  agency_id: number | null;
   carrier_product_id: number;
-  application_number: string;
+  quote_id: number | null;
+  lead_id: number | null;
+  insurance_type: string;
+  carrier_name: string;
+  monthly_premium: number;
   status: ApplicationStatus;
-  personal_info: Record<string, string>;
-  coverage_details: Record<string, string>;
+  applicant_data: Record<string, string> | null;
   submitted_at: string | null;
   decision_at: string | null;
   bound_at: string | null;
   effective_date: string | null;
-  quote?: Quote;
+  carrierProduct?: CarrierProduct;
   carrier?: Carrier;
   agent?: AgentProfile;
+  user?: User;
   created_at: string;
 }
 
-export type PolicyStatus = 'active' | 'cancelled' | 'expired' | 'lapsed' | 'pending_renewal';
+export type PolicyStatus = 'active' | 'expiring_soon' | 'cancelled' | 'expired' | 'lapsed' | 'pending_renewal';
 
 export interface Policy {
   id: number;
-  application_id: number;
-  consumer_id: number;
-  agent_id: number;
-  carrier_id: number;
   policy_number: string;
-  type: InsuranceProductType;
+  application_id: number | null;
+  user_id: number;
+  agent_id: number | null;
+  agency_id: number | null;
+  carrier_product_id: number | null;
+  type: string;
+  carrier_name: string;
   status: PolicyStatus;
   effective_date: string;
   expiration_date: string;
-  premium_monthly: number;
-  premium_annual: number;
-  coverage_summary: Record<string, string>;
+  monthly_premium: number;
+  annual_premium: number;
+  deductible: number | null;
+  coverage_limit: string | null;
+  coverage_details: Record<string, string> | null;
+  carrierProduct?: CarrierProduct;
   carrier?: Carrier;
   agent?: AgentProfile;
+  user?: User;
 }
 
 export type LeadStatus = 'new' | 'contacted' | 'quoted' | 'applied' | 'won' | 'lost';
@@ -200,13 +210,13 @@ export interface Commission {
   id: number;
   agent_id: number;
   policy_id: number;
-  carrier_id: number;
-  type: 'new_business' | 'renewal';
+  carrier_name: string;
   premium_amount: number;
   commission_rate: number;
   commission_amount: number;
   status: 'pending' | 'earned' | 'paid';
-  earned_at: string | null;
+  paid_at: string | null;
+  created_at: string;
 }
 
 export interface SubscriptionPlan {

@@ -1,28 +1,57 @@
+import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui';
 import { StatsCard } from '@/components/dashboard/StatsCard';
-import {
-  Users, Target, ShieldCheck, DollarSign,
-} from 'lucide-react';
-
-const monthlyData = [
-  { month: 'Sep', leads: 320, policies: 85, revenue: 12400 },
-  { month: 'Oct', leads: 380, policies: 102, revenue: 15200 },
-  { month: 'Nov', leads: 410, policies: 115, revenue: 17800 },
-  { month: 'Dec', leads: 350, policies: 95, revenue: 14500 },
-  { month: 'Jan', leads: 450, policies: 128, revenue: 19200 },
-  { month: 'Feb', leads: 520, policies: 145, revenue: 22400 },
-];
-
-const topCarriers = [
-  { name: 'StateFarm', policies: 312, premium_volume: '$485K', share: 25 },
-  { name: 'Progressive', policies: 245, premium_volume: '$380K', share: 20 },
-  { name: 'Allstate', policies: 198, premium_volume: '$310K', share: 16 },
-  { name: 'Geico', policies: 176, premium_volume: '$265K', share: 14 },
-  { name: 'Liberty Mutual', policies: 145, premium_volume: '$225K', share: 12 },
-];
+import { Users, Target, ShieldCheck, DollarSign, Loader2, BarChart3 } from 'lucide-react';
+import { analyticsService, type RevenueTrend, type AgentPerformanceEntry, type ConversionFunnelResponse } from '@/services/api/analytics';
 
 export default function AdminAnalytics() {
-  const maxLeads = Math.max(...monthlyData.map(d => d.leads));
+  const [stats, setStats] = useState<Record<string, number | string>>({});
+  const [trends, setTrends] = useState<RevenueTrend[]>([]);
+  const [agents, setAgents] = useState<AgentPerformanceEntry[]>([]);
+  const [funnel, setFunnel] = useState<ConversionFunnelResponse | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadAnalytics();
+  }, []);
+
+  const loadAnalytics = async () => {
+    try {
+      setLoading(true);
+      const [dashRes, trendRes, agentRes, funnelRes] = await Promise.allSettled([
+        analyticsService.getDashboardStats(),
+        analyticsService.getRevenueTrends(6),
+        analyticsService.getAgentPerformance(3, 10),
+        analyticsService.getConversionFunnel(6),
+      ]);
+
+      if (dashRes.status === 'fulfilled') setStats(dashRes.value);
+      if (trendRes.status === 'fulfilled') setTrends(trendRes.value.trends || []);
+      if (agentRes.status === 'fulfilled') setAgents(agentRes.value.agents || []);
+      if (funnelRes.status === 'fulfilled') setFunnel(funnelRes.value);
+    } catch {
+      // Individual errors handled by allSettled
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900">Platform Analytics</h1>
+          <p className="text-slate-500 mt-1">Comprehensive platform performance metrics</p>
+        </div>
+        <Card className="p-12 text-center">
+          <Loader2 className="w-8 h-8 animate-spin text-shield-500 mx-auto" />
+          <p className="text-slate-500 mt-2">Loading analytics...</p>
+        </Card>
+      </div>
+    );
+  }
+
+  const maxLeads = trends.length > 0 ? Math.max(...trends.map(d => d.policies_count || 0), 1) : 1;
 
   return (
     <div className="space-y-6">
@@ -33,88 +62,139 @@ export default function AdminAnalytics() {
 
       {/* Key metrics */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatsCard icon={<Users className="w-5 h-5" />} label="Monthly Active Users" value="1,847" change="+12%" />
-        <StatsCard icon={<Target className="w-5 h-5" />} label="Lead Conversion Rate" value="28.4%" change="+2.1%" />
-        <StatsCard icon={<ShieldCheck className="w-5 h-5" />} label="Avg. Policy Value" value="$1,840" change="+$120" />
-        <StatsCard icon={<DollarSign className="w-5 h-5" />} label="Platform Revenue" value="$22.4K" variant="savings" change="+16.7%" />
+        <StatsCard icon={<Users className="w-5 h-5" />} label="Total Users" value={String(stats.total_users || 0)} />
+        <StatsCard icon={<Target className="w-5 h-5" />} label="Lead Conversion" value={funnel ? `${funnel.conversion_rate}%` : '-'} />
+        <StatsCard icon={<ShieldCheck className="w-5 h-5" />} label="Total Policies" value={String(stats.total_policies || 0)} />
+        <StatsCard icon={<DollarSign className="w-5 h-5" />} label="Platform Revenue" value={`$${Number(stats.platform_revenue || 0).toLocaleString()}`} variant="savings" />
       </div>
 
       <div className="grid lg:grid-cols-2 gap-6">
-        {/* Lead generation chart (simplified bar chart) */}
+        {/* Policy volume chart */}
         <Card>
           <div className="p-6">
-            <h2 className="text-lg font-semibold text-slate-900 mb-4">Lead Generation Trend</h2>
-            <div className="flex items-end gap-3 h-48">
-              {monthlyData.map(d => (
-                <div key={d.month} className="flex-1 flex flex-col items-center gap-2">
-                  <span className="text-xs font-medium text-slate-700">{d.leads}</span>
-                  <div
-                    className="w-full bg-shield-500 rounded-t-lg transition-all"
-                    style={{ height: `${(d.leads / maxLeads) * 100}%` }}
-                  />
-                  <span className="text-xs text-slate-500">{d.month}</span>
+            <h2 className="text-lg font-semibold text-slate-900 mb-4">Policy Volume by Month</h2>
+            {trends.length === 0 ? (
+              <div className="flex items-center justify-center h-48 text-slate-400">
+                <div className="text-center">
+                  <BarChart3 className="w-10 h-10 mx-auto mb-2" />
+                  <p className="text-sm">No data yet</p>
                 </div>
-              ))}
-            </div>
+              </div>
+            ) : (
+              <div className="flex items-end gap-3 h-48">
+                {trends.map(d => (
+                  <div key={d.month} className="flex-1 flex flex-col items-center gap-2">
+                    <span className="text-xs font-medium text-slate-700">{d.policies_count}</span>
+                    <div
+                      className="w-full bg-shield-500 rounded-t-lg transition-all"
+                      style={{ height: `${(d.policies_count / maxLeads) * 100}%`, minHeight: d.policies_count > 0 ? '8px' : '2px' }}
+                    />
+                    <span className="text-xs text-slate-500">{d.month.split('-')[1] || d.month}</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </Card>
 
-        {/* Top carriers */}
+        {/* Top agents */}
         <Card>
           <div className="p-6">
-            <h2 className="text-lg font-semibold text-slate-900 mb-4">Top Carriers by Volume</h2>
-            <div className="space-y-4">
-              {topCarriers.map(carrier => (
-                <div key={carrier.name} className="flex items-center gap-4">
-                  <div className="w-24 text-sm font-medium text-slate-700">{carrier.name}</div>
-                  <div className="flex-1">
-                    <div className="h-6 bg-slate-100 rounded-full overflow-hidden">
-                      <div className="h-full bg-shield-500 rounded-full flex items-center pl-3" style={{ width: `${carrier.share * 4}%` }}>
-                        <span className="text-xs font-medium text-white">{carrier.share}%</span>
+            <h2 className="text-lg font-semibold text-slate-900 mb-4">Top Agents by Commission</h2>
+            {agents.length === 0 ? (
+              <div className="flex items-center justify-center h-48 text-slate-400">
+                <div className="text-center">
+                  <Users className="w-10 h-10 mx-auto mb-2" />
+                  <p className="text-sm">No agent data yet</p>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {agents.map(agent => {
+                  const maxCommission = Math.max(...agents.map(a => Number(a.total_commission || 0)), 1);
+                  const share = Math.round((Number(agent.total_commission || 0) / maxCommission) * 100);
+                  return (
+                    <div key={agent.id} className="flex items-center gap-4">
+                      <div className="w-24 text-sm font-medium text-slate-700 truncate">{agent.name}</div>
+                      <div className="flex-1">
+                        <div className="h-6 bg-slate-100 rounded-full overflow-hidden">
+                          <div className="h-full bg-shield-500 rounded-full flex items-center pl-3" style={{ width: `${Math.max(share, 5)}%` }}>
+                            {share > 20 && <span className="text-xs font-medium text-white">{agent.policy_count} policies</span>}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="text-right w-20">
+                        <p className="text-sm font-medium text-slate-900">${Number(agent.total_commission || 0).toLocaleString()}</p>
+                        <p className="text-xs text-slate-500">{agent.lead_count} leads</p>
                       </div>
                     </div>
-                  </div>
-                  <div className="text-right w-20">
-                    <p className="text-sm font-medium text-slate-900">{carrier.policies}</p>
-                    <p className="text-xs text-slate-500">{carrier.premium_volume}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </Card>
       </div>
 
-      {/* Monthly breakdown */}
-      <Card>
-        <div className="p-6">
-          <h2 className="text-lg font-semibold text-slate-900 mb-4">Monthly Breakdown</h2>
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-slate-100">
-                  <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider pb-3">Month</th>
-                  <th className="text-right text-xs font-medium text-slate-500 uppercase tracking-wider pb-3">Leads</th>
-                  <th className="text-right text-xs font-medium text-slate-500 uppercase tracking-wider pb-3">Policies Bound</th>
-                  <th className="text-right text-xs font-medium text-slate-500 uppercase tracking-wider pb-3">Conv. Rate</th>
-                  <th className="text-right text-xs font-medium text-slate-500 uppercase tracking-wider pb-3">Revenue</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-50">
-                {monthlyData.map(d => (
-                  <tr key={d.month} className="hover:bg-slate-50">
-                    <td className="py-3 font-medium text-slate-900">{d.month} 2026</td>
-                    <td className="py-3 text-right text-sm text-slate-700">{d.leads.toLocaleString()}</td>
-                    <td className="py-3 text-right text-sm text-slate-700">{d.policies}</td>
-                    <td className="py-3 text-right text-sm text-slate-700">{((d.policies / d.leads) * 100).toFixed(1)}%</td>
-                    <td className="py-3 text-right text-sm font-medium text-savings-600">${d.revenue.toLocaleString()}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+      {/* Conversion funnel */}
+      {funnel && funnel.funnel.length > 0 && (
+        <Card>
+          <div className="p-6">
+            <h2 className="text-lg font-semibold text-slate-900 mb-4">Conversion Funnel (Last {funnel.period_months} Months)</h2>
+            <div className="space-y-3">
+              {funnel.funnel.map((stage, i) => {
+                const maxCount = Math.max(...funnel.funnel.map(s => s.count), 1);
+                const width = Math.max((stage.count / maxCount) * 100, 3);
+                return (
+                  <div key={stage.stage} className="flex items-center gap-4">
+                    <div className="w-32 text-sm font-medium text-slate-700">{stage.stage}</div>
+                    <div className="flex-1">
+                      <div className="h-8 bg-slate-100 rounded-lg overflow-hidden">
+                        <div
+                          className={`h-full rounded-lg flex items-center pl-3 ${i < 3 ? 'bg-shield-500' : 'bg-savings-500'}`}
+                          style={{ width: `${width}%` }}
+                        >
+                          <span className="text-xs font-medium text-white">{stage.count}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            <p className="text-sm text-slate-500 mt-4">Overall conversion rate: <span className="font-semibold text-shield-600">{funnel.conversion_rate}%</span></p>
           </div>
-        </div>
-      </Card>
+        </Card>
+      )}
+
+      {/* Revenue breakdown table */}
+      {trends.length > 0 && (
+        <Card>
+          <div className="p-6">
+            <h2 className="text-lg font-semibold text-slate-900 mb-4">Monthly Breakdown</h2>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-slate-100">
+                    <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider pb-3">Month</th>
+                    <th className="text-right text-xs font-medium text-slate-500 uppercase tracking-wider pb-3">Policies</th>
+                    <th className="text-right text-xs font-medium text-slate-500 uppercase tracking-wider pb-3">Premium Volume</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-50">
+                  {trends.map(d => (
+                    <tr key={d.month} className="hover:bg-slate-50">
+                      <td className="py-3 font-medium text-slate-900">{d.month}</td>
+                      <td className="py-3 text-right text-sm text-slate-700">{d.policies_count}</td>
+                      <td className="py-3 text-right text-sm font-medium text-savings-600">${Number(d.premium_volume || 0).toLocaleString()}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </Card>
+      )}
     </div>
   );
 }
