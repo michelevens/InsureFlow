@@ -9,8 +9,8 @@ use Illuminate\Support\Facades\Log;
 class ImportStateLicenses extends Command
 {
     protected $signature = 'import:state-licenses
-        {file : Path to the state DOI CSV/TSV file}
-        {state : 2-letter state abbreviation (e.g. FL, TX, CA)}
+        {file? : Path to the state DOI CSV/TSV file}
+        {state? : 2-letter state abbreviation (e.g. FL, TX, CA)}
         {--chunk=1000 : Number of records to process per batch}
         {--limit=0 : Limit total records (0 = unlimited)}
         {--delimiter=, : CSV delimiter (, or | or tab)}
@@ -109,7 +109,16 @@ class ImportStateLicenses extends Command
         }
 
         $filePath = $this->argument('file');
-        $stateCode = strtoupper($this->argument('state'));
+        $stateCode = $this->argument('state');
+
+        if (!$filePath || !$stateCode) {
+            $this->error("Both <file> and <state> arguments are required.");
+            $this->line("Usage: php artisan import:state-licenses <file> <STATE>");
+            $this->line("       php artisan import:state-licenses --list-states");
+            return 1;
+        }
+
+        $stateCode = strtoupper($stateCode);
         $chunkSize = (int) $this->option('chunk');
         $limit = (int) $this->option('limit');
         $delimiter = $this->option('delimiter');
