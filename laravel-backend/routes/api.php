@@ -630,6 +630,7 @@ Route::middleware(['auth:sanctum', 'agency.scope'])->group(function () {
         Route::get('/compliance/overview', [CompliancePackController::class, 'overview']);
 
         // Profile Import Stats & State Sources
+        Route::get('/profiles/list', [ProfileClaimController::class, 'adminList']);
         Route::get('/profiles/stats', [ProfileClaimController::class, 'stats']);
         Route::get('/profiles/sources', [ProfileClaimController::class, 'sources']);
     });

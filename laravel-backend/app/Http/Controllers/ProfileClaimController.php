@@ -106,6 +106,83 @@ class ProfileClaimController extends Controller
     }
 
     /**
+     * Admin: List all agent profiles (claimed & unclaimed) with filters.
+     */
+    public function adminList(Request $request)
+    {
+        $request->validate([
+            'search' => 'nullable|string|max:255',
+            'state' => 'nullable|string|max:2',
+            'source' => 'nullable|string|max:50',
+            'status' => 'nullable|in:claimed,unclaimed,all',
+            'per_page' => 'nullable|integer|min:10|max:100',
+        ]);
+
+        $query = AgentProfile::query();
+
+        // Filter by claimed status
+        $status = $request->input('status', 'all');
+        if ($status === 'claimed') {
+            $query->where('is_claimed', true);
+        } elseif ($status === 'unclaimed') {
+            $query->where('is_claimed', false);
+        }
+
+        // Filter by state
+        if ($state = $request->input('state')) {
+            $query->where('state', $state);
+        }
+
+        // Filter by source
+        if ($source = $request->input('source')) {
+            $query->where('source', $source);
+        }
+
+        // Search by name, NPN, or license number
+        if ($search = $request->input('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('full_name', 'ilike', "%{$search}%")
+                  ->orWhere('npn', $search)
+                  ->orWhere('license_number', 'ilike', "%{$search}%");
+            });
+        }
+
+        $perPage = $request->input('per_page', 25);
+        $profiles = $query->orderByDesc('created_at')->paginate($perPage);
+
+        // Get summary counts
+        $totalAll = AgentProfile::count();
+        $totalClaimed = AgentProfile::where('is_claimed', true)->count();
+        $totalUnclaimed = AgentProfile::where('is_claimed', false)->count();
+
+        // Get unique sources and states for filter dropdowns
+        $sources = AgentProfile::selectRaw('source, count(*) as count')
+            ->whereNotNull('source')
+            ->groupBy('source')
+            ->orderByDesc('count')
+            ->pluck('count', 'source');
+
+        $states = AgentProfile::selectRaw('state, count(*) as count')
+            ->whereNotNull('state')
+            ->groupBy('state')
+            ->orderByDesc('count')
+            ->pluck('count', 'state');
+
+        return response()->json([
+            'profiles' => $profiles,
+            'summary' => [
+                'total' => $totalAll,
+                'claimed' => $totalClaimed,
+                'unclaimed' => $totalUnclaimed,
+            ],
+            'filters' => [
+                'sources' => $sources,
+                'states' => $states,
+            ],
+        ]);
+    }
+
+    /**
      * Get unclaimed profile stats for admin dashboard.
      */
     public function stats()

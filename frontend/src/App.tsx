@@ -92,6 +92,7 @@ const AdminAnalytics = lazy(() => import('@/pages/admin/AdminAnalytics'));
 const AdminPlans = lazy(() => import('@/pages/admin/AdminPlans'));
 const AdminProducts = lazy(() => import('@/pages/admin/AdminProducts'));
 const AdminCarriers = lazy(() => import('@/pages/admin/AdminCarriers'));
+const AdminProfiles = lazy(() => import('@/pages/admin/AdminProfiles'));
 const AdminAuditLog = lazy(() => import('@/pages/admin/AdminAuditLog'));
 const SuperAdminDashboard = lazy(() => import('@/pages/admin/SuperAdminDashboard'));
 const SuperAdminSettings = lazy(() => import('@/pages/admin/SuperAdminSettings'));
@@ -270,6 +271,7 @@ export default function App() {
                 <Route path="/admin/plans" element={<AdminPlans />} />
                 <Route path="/admin/products" element={<AdminProducts />} />
                 <Route path="/admin/carriers" element={<AdminCarriers />} />
+                <Route path="/admin/profiles" element={<AdminProfiles />} />
                 <Route path="/admin/audit-log" element={<AdminAuditLog />} />
                 <Route path="/admin/sso" element={<SsoConfig />} />
                 <Route path="/admin/platform" element={<SuperAdminDashboard />} />

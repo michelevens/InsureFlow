@@ -61,7 +61,7 @@ export default function ComplianceDashboardPage() {
       const d = await complianceService.dashboard();
       setData(d);
     } catch {
-      // handle error
+      toast.error('Failed to load compliance data');
     } finally {
       setLoading(false);
     }
@@ -73,7 +73,7 @@ export default function ComplianceDashboardPage() {
       const p = await complianceService.getPack();
       setPack(p);
     } catch {
-      // pack not generated yet
+      // Pack not generated yet — this is expected for new users
     } finally {
       setPackLoading(false);
     }
@@ -593,7 +593,7 @@ function AddLicenseModal({ onClose, onAdded }: { onClose: () => void; onAdded: (
       });
       onAdded();
     } catch {
-      // handle
+      toast.error('Failed to add license');
     } finally {
       setSaving(false);
     }
@@ -653,7 +653,7 @@ function AddCeCreditModal({ onClose, onAdded }: { onClose: () => void; onAdded: 
       });
       onAdded();
     } catch {
-      // handle
+      toast.error('Failed to add CE credit');
     } finally {
       setSaving(false);
     }
@@ -716,7 +716,7 @@ function AddEoPolicyModal({ onClose, onAdded }: { onClose: () => void; onAdded: 
       });
       onAdded();
     } catch {
-      // handle
+      toast.error('Failed to add E&O policy');
     } finally {
       setSaving(false);
     }

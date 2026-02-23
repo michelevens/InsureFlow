@@ -56,6 +56,30 @@ export interface AgencyDetail {
   agents?: AgentWithProfile[];
 }
 
+export interface AgentProfileListItem {
+  id: number;
+  user_id: number | null;
+  full_name: string | null;
+  npn: string | null;
+  npn_verified: 'unverified' | 'pending' | 'verified' | 'rejected';
+  license_number: string | null;
+  license_type: string | null;
+  license_status: string | null;
+  license_states: string[] | null;
+  license_lookup_url: string | null;
+  license_issue_date: string | null;
+  license_expiration_date: string | null;
+  lines_of_authority: string[] | null;
+  city: string | null;
+  state: string | null;
+  county: string | null;
+  source: string | null;
+  source_id: string | null;
+  is_claimed: boolean;
+  claimed_at: string | null;
+  created_at: string;
+}
+
 export const adminService = {
   // --- Users ---
   async getUsers(params?: { role?: string; search?: string }): Promise<UserListResponse> {
@@ -153,6 +177,42 @@ export const adminService = {
 
   async updateCarrier(id: number, data: Partial<Carrier>): Promise<Carrier> {
     return api.put<Carrier>(`/admin/carriers/${id}`, data);
+  },
+
+  // --- Profiles (Agent Profiles — claimed & unclaimed) ---
+  async getProfiles(params?: { search?: string; state?: string; source?: string; status?: string; per_page?: number; page?: number }): Promise<{
+    profiles: { data: AgentProfileListItem[]; current_page: number; total: number; per_page: number; last_page: number };
+    summary: { total: number; claimed: number; unclaimed: number };
+    filters: { sources: Record<string, number>; states: Record<string, number> };
+  }> {
+    const query = new URLSearchParams();
+    if (params?.search) query.set('search', params.search);
+    if (params?.state) query.set('state', params.state);
+    if (params?.source) query.set('source', params.source);
+    if (params?.status) query.set('status', params.status);
+    if (params?.per_page) query.set('per_page', params.per_page.toString());
+    if (params?.page) query.set('page', params.page.toString());
+    const qs = query.toString();
+    return api.get(`/admin/profiles/list${qs ? `?${qs}` : ''}`);
+  },
+
+  async getProfileStats(): Promise<{
+    total_unclaimed: number;
+    total_claimed: number;
+    by_source: Record<string, number>;
+    by_state: Record<string, number>;
+  }> {
+    return api.get('/admin/profiles/stats');
+  },
+
+  async getProfileSources(): Promise<{
+    sources: Array<{
+      state: string; name: string; source_key: string;
+      bulk_url: string; lookup_url: string; format: string;
+      notes: string; imported_count: number;
+    }>;
+  }> {
+    return api.get('/admin/profiles/sources');
   },
 
   // --- Analytics ---

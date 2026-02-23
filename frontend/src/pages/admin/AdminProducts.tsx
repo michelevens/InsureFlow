@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Search, RefreshCw, ToggleLeft, ToggleRight, Package, ShieldCheck } from 'lucide-react';
 import { platformProductService } from '../../services/api/platformProducts';
 import type { PlatformProduct } from '../../types';
+import { toast } from 'sonner';
 
 export default function AdminProducts() {
   const [products, setProducts] = useState<PlatformProduct[]>([]);
@@ -23,7 +24,7 @@ export default function AdminProducts() {
       setGrouped(res.grouped);
       setActiveCount(res.active_count ?? 0);
     } catch {
-      // ignore
+      toast.error('Failed to load products');
     } finally {
       setLoading(false);
     }
@@ -44,7 +45,7 @@ export default function AdminProducts() {
       });
       setActiveCount(prev => res.product.is_active ? prev + 1 : prev - 1);
     } catch {
-      // ignore
+      toast.error('Failed to toggle product');
     }
   };
 
@@ -54,7 +55,7 @@ export default function AdminProducts() {
       await platformProductService.adminSyncProducts();
       await fetchProducts();
     } catch {
-      // ignore
+      toast.error('Failed to sync products');
     } finally {
       setSyncing(false);
     }
@@ -68,7 +69,7 @@ export default function AdminProducts() {
       await platformProductService.adminBulkToggle(ids, activate);
       await fetchProducts();
     } catch {
-      // ignore
+      toast.error('Failed to update products');
     }
   };
 
