@@ -32,28 +32,52 @@ InsureFlow/
 │       │   └── dashboard/ # StatsCard, EmptyState
 │       ├── contexts/      # AuthContext
 │       ├── hooks/         # useAuth
-│       ├── services/api/  # auth, quotes, agents, applications, policies, carriers, crm, analytics, admin
+│       ├── services/api/  # auth, quotes, agents, applications, policies, carriers, crm, analytics, admin, compliance
 │       ├── types/         # TypeScript types
 │       ├── lib/           # utils.ts
 │       └── pages/
-│           ├── auth/          # Login, Register
-│           ├── public/        # Landing, Pricing, Settings
+│           ├── auth/          # Login, Register, ForgotPassword, ResetPassword, VerifyEmail, AcceptInvite, SsoLogin, SsoCallback
+│           ├── public/        # Landing, Pricing, Settings, Privacy, Terms
 │           ├── calculator/    # Calculator, QuoteResults
 │           ├── marketplace/   # Marketplace, AgentProfile
-│           ├── dashboard/     # Dashboard, Consumer/Agent/Agency/Carrier/Admin dashboards
+│           ├── dashboard/     # Dashboard
 │           ├── portal/        # MyQuotes, MyApplications, MyPolicies
-│           ├── crm/           # Leads
+│           ├── crm/           # Leads (with Add Lead modal + RatingPanel)
 │           ├── applications/  # Applications
 │           ├── policies/      # Policies
-│           ├── analytics/     # Commissions, Reviews
-│           ├── carriers/      # Products, Production
-│           ├── admin/         # AdminUsers, AdminAgencies, AdminAnalytics, AdminPlans, AgencyTeam, SuperAdminDashboard, SuperAdminSettings
-│           ├── agency/        # AgencySettings (7-tab consolidated settings)
-│           └── reports/       # LtcComparisonReport (StrateCision-style)
+│           ├── analytics/     # Commissions, Reviews, AdvancedAnalytics
+│           ├── carriers/      # Products, Production, CarrierApiConfig
+│           ├── claims/        # Claims
+│           ├── renewals/      # Renewals
+│           ├── messages/      # Messages
+│           ├── notifications/ # Notifications
+│           ├── documents/     # Documents (e-sign)
+│           ├── compliance/    # ComplianceDashboard (with Compliance Pack tab)
+│           ├── meetings/      # Meetings, MeetingRoom
+│           ├── calendar/      # Calendar
+│           ├── intake/        # LeadIntake (public lead form)
+│           ├── admin/         # AdminUsers, AdminAgencies, AdminPlans, AdminProducts, AdminCarriers, AdminAnalytics, AdminAuditLog, AgencyTeam, SuperAdminDashboard, SuperAdminSettings (7 tabs incl. Compliance), SsoConfig
+│           ├── agency/        # AgencyProducts, AgencyAppointments, AgencySettings (7 tabs)
+│           ├── organizations/ # OrganizationTree
+│           ├── webhooks/      # WebhookSettings
+│           ├── whitelabel/    # WhiteLabelConfig
+│           ├── embed/         # EmbedPartnerDashboard
+│           ├── data/          # MarketIntelDashboard
+│           ├── apikeys/       # ApiKeyManagement
+│           ├── recruitment/   # RecruitmentDashboard
+│           ├── training/      # TrainingCatalog
+│           ├── help/          # HelpCenter
+│           ├── forum/         # ForumHome
+│           ├── events/        # EventCalendar
+│           ├── partners/      # PartnerDirectory
+│           ├── campaigns/     # CampaignBuilder
+│           ├── reports/       # ReportBuilder, LtcComparisonReport
+│           └── onboarding/    # Onboarding
 └── laravel-backend/       # Laravel API
     ├── app/
     │   ├── Http/Controllers/
-    │   └── Models/
+    │   ├── Models/
+    │   └── Services/
     ├── database/
     │   ├── migrations/
     │   └── seeders/
@@ -68,13 +92,18 @@ InsureFlow/
 - **Confidence Indigo (Secondary):** `#4f46e5` - Authority, expertise
 - **Savings Green (Success):** `#16a34a` - Money saved, growth
 
+### Component Variants
+- **Button:** `primary | secondary | outline | ghost | shield | danger`
+- **Badge:** `default | shield | success | warning | danger | info | outline`
+
 ## User Roles
 
 1. **Consumer** - Get quotes, compare carriers, find agents, track policies
-2. **Agent** - Lead pipeline, CRM, commission tracking, reviews
-3. **Agency Owner** - Team management, agency analytics, lead distribution
+2. **Agent** - Lead pipeline, CRM, commission tracking, reviews, compliance pack
+3. **Agency Owner** - Team management, agency analytics, lead distribution, compliance pack, agency codes
 4. **Carrier** - Product management, production reports, agent network
-5. **Admin / Superadmin** - Platform oversight, user management, analytics, plans
+5. **Admin** - User/agency/carrier management, plans, products, audit log
+6. **Superadmin** - Platform oversight, settings, compliance requirements management, SSO config
 
 ## API Endpoints
 
@@ -84,15 +113,40 @@ InsureFlow/
 - `POST /api/calculator/estimate` - Get quotes
 - `GET /api/marketplace/agents` - Search agents
 - `GET /api/carriers` - List carriers
+- `GET /api/intake/{agencyCode}` - Lead intake form data
+- `POST /api/intake/{agencyCode}` - Submit lead intake form
 
 ### Protected (auth:sanctum)
 - `GET /api/auth/me` - Current user
 - `GET /api/applications` - Applications list
 - `GET /api/policies` - Policies list
 - `GET /api/crm/leads` - Lead pipeline
+- `POST /api/crm/leads` - Create lead
 - `GET /api/commissions` - Commission tracking
 - `GET /api/stats/dashboard` - Dashboard stats
-- `GET /api/admin/*` - Admin endpoints
+- `GET /api/compliance/pack` - User's compliance pack
+- `POST /api/compliance/pack/generate` - Auto-generate compliance pack
+- `PUT /api/compliance/pack/{item}` - Update compliance item
+- `GET /api/agency/settings/lead-intake` - Lead intake URLs
+- `POST /api/agency/settings/regenerate-code` - Regenerate agency code
+- `POST /api/agency/settings/agents` - Create agent (agency owner)
+- `POST /api/agency/settings/agents/{agent}/reset-password` - Reset agent password
+
+### Admin
+- `GET/POST /api/admin/users` - List/create users
+- `PUT /api/admin/users/{user}` - Update user
+- `POST /api/admin/users/{user}/reset-password` - Reset user password
+- `GET /api/admin/agencies` - List agencies
+- `GET /api/admin/agencies/{id}` - Agency detail
+- `PUT /api/admin/agencies/{id}` - Update agency (verify/activate)
+- `GET/POST /api/admin/plans` - List/create subscription plans
+- `PUT /api/admin/plans/{id}` - Update plan
+- `DELETE /api/admin/plans/{id}` - Delete plan
+- `GET/POST /api/admin/carriers` - List/create carriers
+- `GET /api/admin/carriers/{id}` - Carrier detail
+- `PUT /api/admin/carriers/{id}` - Update carrier
+- `GET/POST/PUT/DELETE /api/admin/compliance/requirements` - Compliance requirements CRUD
+- `GET /api/admin/compliance/overview` - Platform compliance overview
 
 ## Development
 
@@ -116,6 +170,12 @@ php artisan serve
 ## Deployment
 - **Frontend:** GitHub Pages (ennhealth.github.io/InsureFlow)
 - **Backend:** Railway (PostgreSQL included)
+- **Railway Project:** ample-empathy / insurons-api
+- **API Domain:** api.insurons.com
+- **Deploy backend:** `cd laravel-backend && railway deployment up`
+- **Run migrations:** `railway ssh php artisan migrate --force`
+- **Run seeder:** `railway ssh "php artisan db:seed --class=SomeSeeder --force"`
+- **Clear caches:** `railway ssh "php artisan config:clear && php artisan route:clear && php artisan view:clear"`
 
 ## Demo Accounts (all password: 'password')
 - consumer@insureflow.com (Consumer)
@@ -126,89 +186,67 @@ php artisan serve
 - superadmin@insureflow.com (Superadmin)
 
 ## Current Status (as of 2026-02-23)
-- **Frontend:** 35+ pages built, TypeScript passes, Vite build succeeds, **GitHub Pages deployment working**
-- **Backend:** Laravel scaffold + rating engine — **fully deployed to Railway** (all migrations run, server online)
+- **Frontend:** 50+ pages built, TypeScript passes, Vite build succeeds, **GitHub Pages deployment working**
+- **Backend:** Laravel 12 on Railway — **fully deployed with Phase 4 code** (deployment `0eec7982`)
 - **API Domain:** api.insurons.com — WORKING, all endpoints tested
-- **Seed Data:** 5 subscription plans, 10 carriers with products, 6 demo users, 35+ platform products, 10 agencies (50 agents), 70 leads, 3 rate tables (DI LTD, Term Life, LTC) — 180 rate entries seeded + PipelineSeeder (25 applications, 15 policies, 15 commissions, 6 claims, 12 appointments, 20 routing rules)
+- **Database:** All migrations run (including compliance_pack_tables batch 16), 39 compliance requirements seeded
+- **Seed Data:** 5 subscription plans, 10 carriers with products, 6 demo users, 35+ platform products, 10 agencies (50 agents), 70 leads, 3 rate tables (DI LTD, Term Life, LTC) — 180 rate entries + PipelineSeeder (25 applications, 15 policies, 15 commissions, 6 claims, 12 appointments, 20 routing rules) + 39 compliance requirements
 - **Rating Engine:** Full plugin architecture with DI/Life/P&C/LTC support, audit trail, versioned rate tables — **tested end-to-end on production**
 - **Video Meetings:** Full lifecycle tested (create → start → end with duration tracking)
 - **LTC Rating Validated:** 52M FL $150/day → $1,485.68 annual (real-world Mutual of Omaha comparison: $1,543.39)
 - **LTC Carrier Rate Tables:** Mutual of Omaha, NGL, NYL seeded with rates calibrated to Michel StrateCision quote
-- **LTC Comparison Report:** StrateCision-style side-by-side carrier comparison with print/PDF layout, agency header, legal disclaimer, Insurons branding footer
+- **LTC Comparison Report:** StrateCision-style side-by-side carrier comparison with print/PDF layout
 - **Product Visibility System:** 3-layer platform→agency→carrier appointment model deployed
 - **Onboarding Wizard:** Multi-step flows for agency owners (8 steps) and agents (6 steps)
 - **Demo Agencies:** 10 agencies (A-J) with 5 agents each, 70 leads, carrier appointments — all seeded on Railway
-- **Admin Overhaul Complete:** SuperAdmin dashboard + 6-tab platform settings, Agency Owner 7-tab settings, role-differentiated navigation
+- **Admin Overhaul Complete:** SuperAdmin dashboard + 7-tab platform settings (incl. Compliance), Agency Owner 7-tab settings
 - **Pipeline Data Seeded:** Dashboards no longer show zeroes — applications, policies, commissions, claims, appointments all populated
 - **Auto-Commission:** Creating/binding a policy automatically generates a commission record (10% default)
+- **Phase 4 Complete:** Add Lead modal, compliance pack system, admin CRUD, agency codes, lead intake — all deployed to Railway
 
 ## Recent Work
-- Initial project scaffold created
-- Complete frontend with all 30 pages
-- Complete backend scaffold with models, migrations, controllers, routes, seeders
-- Fixed demo login on production — added demo-login endpoint
-- Created ForgotPassword and ResetPassword pages
-- Enhanced report export (email, PDF, downloadable link)
-- Video meeting feature (backend + frontend): system WebRTC, external provider support, waiting room, device check, MeetingRoom page
-- **Product Plugin Rating Engine (full-stack):**
-  - 7-table migration: rate_tables, rate_table_entries, rate_factors, rate_riders, rate_fees, rate_modal_factors, rating_runs
-  - 7 new models: RateTable, RateTableEntry, RateFactor, RateRider, RateFee, RateModalFactor, RatingRun
-  - Core RatingEngine service with plugin dependency injection
-  - 3 plugins: DisabilityPlugin (DI + LTC), LifePlugin (term/whole/universal), PropertyCasualtyPlugin (auto/home/commercial — 21 product types)
-  - 6-step canonical rating formula: eligibility → exposure → base rate → factors → riders → fees → modal conversion
-  - LTC-specific exposure model (daily benefit / 10) with shared factor/rider/fee pipeline
-  - RatingController with 5 API endpoints: rate scenario, get options, audit trail, history, product list
-  - RateTableSeeder with 3 demo rate tables: DI LTD (72 entries), Term Life (40 entries), LTC (44 entries)
-  - Frontend rating.ts API service with full TypeScript types
-  - RatingPanel modal in Leads.tsx: Configure tab (factor dropdowns, rider toggles, payment mode), Results tab (premium hero, breakdown), History tab (audit trail)
-  - Full audit trail: every rating run recorded with input/output snapshots, input hash, duration, versioning
-- **Railway Deployment Fixed (2026-02-23):**
-  - Fixed claim_documents FK type mismatch (bigint→uuid for documents table)
-  - Guarded duplicate agency_id column addition in lead_scenarios migration
-  - All 67 migrations run successfully on Railway
-  - Rate tables seeded (3 tables, 180 entries)
-  - Moved config:cache/route:cache to runtime start command (Railway env vars not available at build time)
-- **Rating Engine Bug Fixes:**
-  - RatingEngine.buildInput: fallback to metadata_json for age/sex/state when no insured objects
-  - DisabilityPlugin: normalize sex input (male→M, female→F) for rate key matching
-  - Pass scenario metadata to plugin input for product-specific fields (daily_benefit)
-  - VideoMeetingController.end: fix Carbon diffInSeconds type casting
-- **GitHub Pages Deployment Fixed:** Removed unused imports (Shield, Settings2, Clock) causing tsc errors in CI
-- **Multi-Layered Product Visibility System:**
-  - `platform_products` table (35+ canonical insurance types), `agency_products` pivot, `agency_carrier_appointments`
-  - Altered `carrier_products.insurance_type` from enum (7 types) to varchar (35+ slugs)
-  - AdminProductController (toggle/bulk-toggle/sync), AgencyProductController (product selection + carrier appointments), ProductVisibilityController (public)
-  - Frontend: AdminProducts, AgencyProducts, AgencyAppointments pages
-  - Calculator.tsx updated to fetch dynamic products from `/products/visible`
-- **Agency/Agent Onboarding Wizard:**
-  - Migration: `onboarding_completed`, `onboarding_completed_at`, `onboarding_data` on users table
-  - OnboardingController with 5 endpoints (status, formData, saveAgency, saveAgent, complete)
-  - Frontend Onboarding.tsx: agency owner 8-step flow, agent 6-step flow
-  - ProtectedRoute updated to redirect agents/agency_owners to `/onboarding` if not completed
-- **Demo Seeder (AgencyAgentSeeder):**
-  - 10 agencies (A–J): Apex, Beacon, Coastal, Dominion, Eagle Shield, Frontier, Guardian, Horizon, Integrity, Jade
-  - 50 agents (5 per agency) with unique names, bios, licenses, specialties
-  - 70 leads (7 per agency) with varied insurance types, statuses, sources
-  - All accounts: password `password`, email format `contact+agencyX@ennhealth.com` / `contact+AgencyX.agentN@ennhealth.com`
-  - Carrier appointments and product selections per agency
-  - AuthController demoLogin updated to accept @ennhealth.com emails
-- **Bug Fixes:**
-  - Fixed AgencyAppointments.tsx TypeScript error (carrier type cast needed `unknown` intermediate for `tsc -b`)
-  - Fixed carrier_products migration: drop PostgreSQL CHECK constraint before ALTER TYPE (enum→varchar)
-- **Phase 3 — Close the Loop + Admin Overhaul + LTC Comparison (2026-02-23):**
-  - **PipelineSeeder:** 25 applications, 15 policies, 15 commissions, 6 claims, 12 appointments, 20 routing rules — dashboards no longer show zeroes
-  - **Wired 5 mock pages to real APIs:** Policies, Applications, AdminUsers, AdminAnalytics — removed all hardcoded mock arrays
-  - **Auto-commission on policy binding:** PolicyController.store() and ApplicationController.updateStatus("bound") auto-create Commission records
-  - **LTC rating engine — added 9 missing parameters:** taxQualified, partnershipPlan, homeCareType, homeCareBenefitPeriod, assistedLiving, professionalHomeCare, inflationDuration, waiverOfPremium, jointApplicant + poolOfMoney/monthlyBenefitAtAge80 calculations
-  - **Seeded carrier rate tables:** Mutual of Omaha ($1,305.76), NGL ($3,632 joint), NYL ($4,091.49/$5,044.23) — calibrated to Michel StrateCision quote
-  - **LTC Comparison Report (StrateCision-style):** POST /api/reports/ltc-comparison endpoint + LtcComparisonReport.tsx — side-by-side carrier columns, all benefit parameters, premium totals
-  - **Enhanced LTC report for print/PDF:** Agency branding header, legal disclaimer footer, Insurons platform info, landscape print CSS, color-preserving @media print rules
-  - **SuperAdmin Dashboard:** Platform overview with stat cards (agencies, users, policies, MRR), 9 quick actions, recent agencies, system health panel
-  - **SuperAdmin Settings (6 tabs):** Platform, Billing (Stripe), Email, Security, Notifications, Integrations — with test buttons for Stripe/email
-  - **Agency Settings (7 tabs):** General, Billing, Team, Products & Carriers, Compliance, Integrations, Notifications — consolidated 7+ separate nav items into one page
-  - **PlatformSettingController + AgencySettingController:** New backend controllers for platform-wide and agency-scoped settings CRUD
-  - **platform_settings migration:** Key-value store (key, value JSON, group) for platform configuration
-  - **Navigation cleanup:** Agency Owner sidebar consolidated, SuperAdmin gets dedicated Platform section, Admin sees subset
+
+### Phase 4 (2026-02-23) — Add Lead + Compliance Pack + Admin CRUD + Agency Codes + Lead Intake
+- **Add New Lead modal:** CRM Leads page now has "Add Lead" button + full form modal (uses existing `POST /crm/leads` backend)
+- **Compliance Pack System (full stack):**
+  - Migration: `compliance_requirements` + `compliance_pack_items` tables
+  - Models: `ComplianceRequirement`, `CompliancePackItem`
+  - `CompliancePackController`: pack CRUD, auto-generation algorithm (state + product matching), admin requirement management
+  - `ComplianceRequirementSeeder`: 39 state-specific requirements across 8 states (FL, TX, CA, NY, GA, IL, VA, AZ) covering licensing, CE credits, E&O, background checks
+  - Frontend: Compliance Pack tab in ComplianceDashboard (progress bar, status filters, grouped by category)
+  - SuperAdmin: 7th "Compliance" tab in Platform Settings for managing the master requirements list
+  - Auto-generates compliance pack on onboarding completion
+- **Admin Detail Pages (all wired to real APIs, no mock data):**
+  - `AdminAgencies` — List + detail view, verify/unverify, activate/deactivate
+  - `AdminPlans` — Full CRUD: create, edit, delete, activate/deactivate subscription plans
+  - `AdminCarriers` — NEW page: list + detail + create/edit carriers
+  - `AdminUsers` — Enhanced: create user, edit user, reset password (shows temp password), detail view
+- **Agency Code System:**
+  - Agency codes displayed in AgencySettings General tab with copy button
+  - Regenerate code endpoint (`POST /agency/settings/regenerate-code`)
+  - Agents can see their agency code during onboarding
+- **Lead Intake Links:**
+  - Public lead intake form at `/intake/:agencyCode` (no auth required)
+  - Agency and agent-specific intake URLs displayed in AgencySettings
+  - Supports `?agent=` query param for direct agent routing
+  - `LeadIntakeController` validates agency code, creates lead with source='intake_link'
+- **Agency Team Management Enhanced:**
+  - "Add Agent" modal in AgencySettings Team tab (creates agent, shows temp password)
+  - "Reset Password" per agent row
+  - Backend: `AgencySettingController.createAgent()`, `resetAgentPassword()`
+- **Navigation:** Added Carriers to admin sidebar
+- **Competitive Analysis:** Created `COMPETITIVE_ANALYSIS.md` comparing InsureFlow vs Ethos, Policygenius, Applied Epic, EZLynx, Bold Penguin
+
+### Phase 3 (2026-02-23) — Close the Loop + Admin Overhaul + LTC Comparison
+- PipelineSeeder, wired 5 mock pages to real APIs, auto-commission, LTC rating params, carrier rate tables
+- LTC Comparison Report (StrateCision-style), SuperAdmin Dashboard/Settings, Agency Settings (7 tabs)
+- PlatformSettingController, AgencySettingController, navigation cleanup
+
+### Earlier Phases
+- Rating engine with plugin architecture (DI/Life/P&C/LTC)
+- Video meetings, onboarding wizard, product visibility system
+- Demo agencies/agents seeder, carrier appointments
+- GitHub Pages + Railway deployment
 
 ## Architecture: Product Plugin Rating Engine
 
@@ -252,12 +290,47 @@ All passwords: `password`
 
 Agent emails follow pattern: `contact+AgencyX.agent1@ennhealth.com` through `contact+AgencyX.agent5@ennhealth.com`
 
+## Known Issues
+- **InsuranceAiService:** `$apiKey` property is null on Railway — needs AI API key configured in env vars. Prevents `route:list` and `route:cache` from working. Does NOT affect normal API operation.
+- **Cache table missing:** `cache:clear` fails because there's no `cache` table in DB. Non-critical (using file/array cache driver instead).
+- **Stripe not configured:** Price IDs in seeded plans are null. Subscriptions return 422 until Stripe keys are added.
+
+## Session Management Rules
+
+### On Session Start
+1. Read this entire CLAUDE.md to understand project state
+2. Check `git log --oneline -10` to see what was last done
+3. Check `git status` for any uncommitted work
+4. If the user says "continue", check the **Next Tasks** section below
+
+### On Session End
+1. Update **Recent Work** with what was completed
+2. Update **Current Status** with latest state
+3. Update **Known Issues** if any new ones found
+4. Update **Next Tasks** with what should be done next
+5. Commit and push the updated CLAUDE.md
+
+### During Session
+- Commit after EACH completed feature — do not batch
+- Always run `npx tsc -b --noEmit` before committing frontend changes
+- Working directory: `c:\Users\BellaCare_MICROPC\OneDrive - EnnHealth\Documents\GitHub\InsureFlow`
+
 ## Next Tasks
-- **Deploy Phase 3 to Railway:** Run `php artisan migrate` for platform_settings table, run PipelineSeeder
-- **End-to-end test LTC comparison:** Create rating runs via API for Mutual of Omaha/NGL/NYL, then generate comparison report to validate PDF output
-- **Test SuperAdmin flow:** Login as superadmin → verify dashboard stats → platform settings tabs → system health
-- **Test Agency Settings flow:** Login as agency_owner → verify 7-tab settings page → team management → compliance
-- Test all API endpoints end-to-end with seeded pipeline data (policies, commissions, claims, appointments)
-- Test onboarding flow end-to-end (register new agency → complete wizard → verify data in DB)
-- Test agency product selection and carrier appointment flow
-- Add real carrier integrations
+- **Fix InsuranceAiService:** Add AI API key env var to Railway or make $apiKey nullable to prevent boot errors
+- **Create cache table:** Run `php artisan cache:table && php artisan migrate` to fix cache:clear
+- **Configure Stripe:** Add real Stripe API keys to Railway env vars, create products/prices, update seeded plans
+- **Test Phase 4 end-to-end:**
+  - Login as agent → Leads → "Add Lead" button → fill form → verify lead appears
+  - Login as agent → Compliance → "Compliance Pack" tab → "Generate My Pack" → verify requirements
+  - Login as agency_owner → Agency Settings → verify agency code display/copy/regenerate
+  - Login as agency_owner → Agency Settings → Team → "Add Agent" → verify agent created
+  - Test lead intake form at `/intake/{agencyCode}` → verify lead routed correctly
+  - Login as superadmin → Platform Settings → Compliance tab → manage requirements
+  - Login as admin → Agencies → click agency → verify detail view + verify/activate buttons
+  - Login as admin → Plans → create/edit/delete plans
+  - Login as admin → Carriers → list + detail + create/edit
+  - Login as admin → Users → create user, edit, reset password
+- **Deploy frontend to GitHub Pages:** Build and push latest frontend with all Phase 4 UI changes
+- Add real carrier integrations (API connections)
+- Consider email notifications for lead intake submissions
+- Consider agent notification when compliance pack items are overdue
