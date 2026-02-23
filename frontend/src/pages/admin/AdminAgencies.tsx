@@ -1,8 +1,37 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Card, Badge, Button, Input } from '@/components/ui';
-import { Building2, Search, ArrowLeft, ShieldCheck, ShieldOff, CheckCircle2, XCircle, Globe, Phone, Mail, MapPin, Loader2, Hash, UserCircle } from 'lucide-react';
-import { adminService, type AgencyDetail } from '@/services/api/admin';
+import { Building2, Search, ArrowLeft, ShieldCheck, ShieldOff, CheckCircle2, XCircle, Globe, Phone, Mail, MapPin, Loader2, Hash, UserCircle, ExternalLink, ClipboardCheck, AlertCircle } from 'lucide-react';
+import { adminService, type AgencyDetail, type AgentWithProfile } from '@/services/api/admin';
 import { toast } from 'sonner';
+
+const NPN_STATUS_MAP: Record<string, { label: string; variant: 'success' | 'warning' | 'danger' | 'default' }> = {
+  verified: { label: 'NPN Verified', variant: 'success' },
+  pending: { label: 'NPN Pending', variant: 'warning' },
+  rejected: { label: 'NPN Rejected', variant: 'danger' },
+  unverified: { label: 'No NPN', variant: 'default' },
+};
+
+// State-specific license lookup URLs
+const STATE_LICENSE_URLS: Record<string, string> = {
+  FL: 'https://licenseesearch.fldfs.com/',
+  TX: 'https://www.tdi.texas.gov/agent/agentsearch.html',
+  CA: 'https://interactive.web.insurance.ca.gov/webuser/licw_name_search$.startup',
+  NY: 'https://myportal.dfs.ny.gov/common-forms/license-lookup',
+  GA: 'https://oci.georgia.gov/consumers/license-verification',
+  IL: 'https://online-dfpr.micropact.com/lookup/licenselookup.aspx',
+  VA: 'https://scc.virginia.gov/pages/Bureau-of-Insurance-Licensee-Search',
+  AZ: 'https://insurance.az.gov/licensee-search',
+  PA: 'https://www.insurance.pa.gov/Consumers/LicenseSearch/Pages/default.aspx',
+  OH: 'https://gateway.insurance.ohio.gov/LicenseSearch',
+  NJ: 'https://www20.state.nj.us/DOBI_LicSearch/lsSearchPage.jsp',
+  NC: 'https://www.ncdoi.gov/consumers/consumer-services/company-and-agent-search',
+  MI: 'https://difs.state.mi.us/fis/lps',
+};
+
+function NpnBadge({ status }: { status: string }) {
+  const info = NPN_STATUS_MAP[status] || NPN_STATUS_MAP.unverified;
+  return <Badge variant={info.variant}>{info.label}</Badge>;
+}
 
 export default function AdminAgencies() {
   const [agencies, setAgencies] = useState<AgencyDetail[]>([]);
@@ -12,6 +41,7 @@ export default function AdminAgencies() {
   const [selectedAgency, setSelectedAgency] = useState<AgencyDetail | null>(null);
   const [detailLoading, setDetailLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState<number | null>(null);
+  const [npnActionLoading, setNpnActionLoading] = useState<number | null>(null);
 
   const activeCount = agencies.filter(a => a.is_active).length;
   const verifiedCount = agencies.filter(a => a.is_verified).length;
@@ -77,9 +107,46 @@ export default function AdminAgencies() {
     }
   };
 
+  const handleVerifyAgentNpn = async (agent: AgentWithProfile, status: 'verified' | 'rejected') => {
+    const profileId = agent.agent_profile?.id;
+    if (!profileId) return;
+    setNpnActionLoading(profileId);
+    try {
+      const lookupUrl = agent.agent_profile?.state ? STATE_LICENSE_URLS[agent.agent_profile.state] : undefined;
+      await adminService.verifyAgentNpn(profileId, { status, license_lookup_url: lookupUrl });
+      // Refresh agency detail
+      if (selectedAgency) {
+        const refreshed = await adminService.getAgency(selectedAgency.id);
+        setSelectedAgency(refreshed);
+      }
+      toast.success(`Agent NPN ${status}`);
+    } catch {
+      toast.error('Failed to update NPN status');
+    } finally {
+      setNpnActionLoading(null);
+    }
+  };
+
+  const handleVerifyAgencyNpn = async (agency: AgencyDetail, status: 'verified' | 'rejected') => {
+    setNpnActionLoading(agency.id);
+    try {
+      await adminService.verifyAgencyNpn(agency.id, { status });
+      const refreshed = await adminService.getAgency(agency.id);
+      setSelectedAgency(refreshed);
+      toast.success(`Agency NPN ${status}`);
+    } catch {
+      toast.error('Failed to update agency NPN status');
+    } finally {
+      setNpnActionLoading(null);
+    }
+  };
+
   // ========== Detail View ==========
   if (selectedAgency) {
     const agency = selectedAgency;
+    const agencyState = agency.state;
+    const lookupUrl = agencyState ? STATE_LICENSE_URLS[agencyState] : null;
+
     return (
       <div className="space-y-6">
         <Button variant="ghost" size="sm" onClick={() => setSelectedAgency(null)}>
@@ -121,6 +188,7 @@ export default function AdminAgencies() {
         </Card>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Contact Info */}
           <Card className="p-6">
             <h2 className="text-lg font-semibold text-slate-900 mb-4">Contact Information</h2>
             <div className="space-y-3 text-sm">
@@ -132,24 +200,67 @@ export default function AdminAgencies() {
             </div>
           </Card>
 
+          {/* NPN & Licensing */}
           <Card className="p-6">
-            <h2 className="text-lg font-semibold text-slate-900 mb-4">Agency Owner</h2>
-            {agency.owner ? (
-              <div className="flex items-center gap-4">
-                <div className="h-12 w-12 rounded-full bg-shield-100 flex items-center justify-center">
-                  <UserCircle className="h-6 w-6 text-shield-600" />
+            <h2 className="text-lg font-semibold text-slate-900 mb-4">NPN & Licensing</h2>
+            {agency.npn ? (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-slate-500">National Producer Number</p>
+                    <p className="text-lg font-mono font-semibold text-slate-900">{agency.npn}</p>
+                  </div>
+                  <NpnBadge status={agency.npn_verified} />
                 </div>
-                <div>
-                  <p className="font-medium text-slate-900">{agency.owner.name}</p>
-                  <p className="text-sm text-slate-500">{agency.owner.email}</p>
-                </div>
+                {agency.npn_verified_at && (
+                  <p className="text-xs text-slate-400">Verified on {new Date(agency.npn_verified_at).toLocaleDateString()}</p>
+                )}
+                {lookupUrl && (
+                  <a href={lookupUrl} target="_blank" rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 text-sm text-shield-600 hover:underline">
+                    <ExternalLink className="h-3.5 w-3.5" />
+                    Verify on {agency.state} Dept. of Insurance
+                  </a>
+                )}
+                {agency.npn_verified === 'pending' && (
+                  <div className="flex gap-2 pt-2">
+                    <Button variant="primary" size="sm" onClick={() => handleVerifyAgencyNpn(agency, 'verified')} disabled={npnActionLoading === agency.id}>
+                      <ClipboardCheck className="h-4 w-4 mr-1" /> Verify NPN
+                    </Button>
+                    <Button variant="danger" size="sm" onClick={() => handleVerifyAgencyNpn(agency, 'rejected')} disabled={npnActionLoading === agency.id}>
+                      <AlertCircle className="h-4 w-4 mr-1" /> Reject
+                    </Button>
+                  </div>
+                )}
               </div>
             ) : (
-              <p className="text-sm text-slate-500">No owner assigned</p>
+              <div className="text-center py-4">
+                <AlertCircle className="h-8 w-8 text-slate-300 mx-auto mb-2" />
+                <p className="text-sm text-slate-500">No NPN on file</p>
+              </div>
             )}
           </Card>
         </div>
 
+        {/* Agency Owner */}
+        <Card className="p-6">
+          <h2 className="text-lg font-semibold text-slate-900 mb-4">Agency Owner</h2>
+          {agency.owner ? (
+            <div className="flex items-center gap-4">
+              <div className="h-12 w-12 rounded-full bg-shield-100 flex items-center justify-center">
+                <UserCircle className="h-6 w-6 text-shield-600" />
+              </div>
+              <div>
+                <p className="font-medium text-slate-900">{agency.owner.name}</p>
+                <p className="text-sm text-slate-500">{agency.owner.email}</p>
+              </div>
+            </div>
+          ) : (
+            <p className="text-sm text-slate-500">No owner assigned</p>
+          )}
+        </Card>
+
+        {/* Agents Table with NPN */}
         <Card className="p-6">
           <h2 className="text-lg font-semibold text-slate-900 mb-4">Agents ({agency.agents?.length ?? 0})</h2>
           {agency.agents && agency.agents.length > 0 ? (
@@ -159,19 +270,76 @@ export default function AdminAgencies() {
                   <tr className="border-b text-left text-slate-500">
                     <th className="pb-3 pr-4 font-medium">Name</th>
                     <th className="pb-3 pr-4 font-medium">Email</th>
-                    <th className="pb-3 pr-4 font-medium">Role</th>
-                    <th className="pb-3 font-medium">Joined</th>
+                    <th className="pb-3 pr-4 font-medium">NPN</th>
+                    <th className="pb-3 pr-4 font-medium">License</th>
+                    <th className="pb-3 pr-4 font-medium">State</th>
+                    <th className="pb-3 pr-4 font-medium">Status</th>
+                    <th className="pb-3 font-medium text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y">
-                  {agency.agents.map(agent => (
-                    <tr key={agent.id} className="hover:bg-slate-50">
-                      <td className="py-3 pr-4 font-medium text-slate-900">{agent.name}</td>
-                      <td className="py-3 pr-4 text-slate-600">{agent.email}</td>
-                      <td className="py-3 pr-4"><Badge variant="default" className="capitalize">{agent.role ?? 'Agent'}</Badge></td>
-                      <td className="py-3 text-slate-500">{agent.created_at ? new Date(agent.created_at).toLocaleDateString() : '—'}</td>
-                    </tr>
-                  ))}
+                  {agency.agents.map((agent: AgentWithProfile) => {
+                    const profile = agent.agent_profile;
+                    const npn = profile?.npn;
+                    const npnStatus = profile?.npn_verified || 'unverified';
+                    const agentState = profile?.state;
+                    const agentLookupUrl = profile?.license_lookup_url || (agentState ? STATE_LICENSE_URLS[agentState] : null);
+
+                    return (
+                      <tr key={agent.id} className="hover:bg-slate-50">
+                        <td className="py-3 pr-4 font-medium text-slate-900">{agent.name}</td>
+                        <td className="py-3 pr-4 text-slate-600">{agent.email}</td>
+                        <td className="py-3 pr-4">
+                          {npn ? (
+                            <span className="font-mono text-slate-900">{npn}</span>
+                          ) : (
+                            <span className="text-slate-400">—</span>
+                          )}
+                        </td>
+                        <td className="py-3 pr-4">
+                          {profile?.license_number ? (
+                            <span className="font-mono text-xs text-slate-600">{profile.license_number}</span>
+                          ) : (
+                            <span className="text-slate-400">—</span>
+                          )}
+                        </td>
+                        <td className="py-3 pr-4">
+                          {agentState ? (
+                            <div className="flex items-center gap-1">
+                              <span className="text-slate-700">{agentState}</span>
+                              {agentLookupUrl && (
+                                <a href={agentLookupUrl} target="_blank" rel="noopener noreferrer" title={`Verify on ${agentState} DOI`}>
+                                  <ExternalLink className="h-3.5 w-3.5 text-shield-500 hover:text-shield-700" />
+                                </a>
+                              )}
+                            </div>
+                          ) : (
+                            <span className="text-slate-400">—</span>
+                          )}
+                        </td>
+                        <td className="py-3 pr-4">
+                          <NpnBadge status={npnStatus} />
+                        </td>
+                        <td className="py-3 text-right">
+                          {npn && npnStatus === 'pending' && profile && (
+                            <div className="flex items-center justify-end gap-1">
+                              <Button variant="primary" size="sm" onClick={() => handleVerifyAgentNpn(agent, 'verified')}
+                                disabled={npnActionLoading === profile.id}>
+                                {npnActionLoading === profile.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <CheckCircle2 className="h-3 w-3" />}
+                              </Button>
+                              <Button variant="danger" size="sm" onClick={() => handleVerifyAgentNpn(agent, 'rejected')}
+                                disabled={npnActionLoading === profile.id}>
+                                <XCircle className="h-3 w-3" />
+                              </Button>
+                            </div>
+                          )}
+                          {npnStatus === 'verified' && (
+                            <CheckCircle2 className="h-4 w-4 text-savings-500 inline" />
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
@@ -230,6 +398,7 @@ export default function AdminAgencies() {
                 <tr className="border-b border-slate-100">
                   <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider p-4">Agency</th>
                   <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider p-4">Owner</th>
+                  <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider p-4">NPN</th>
                   <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider p-4">Location</th>
                   <th className="text-right text-xs font-medium text-slate-500 uppercase tracking-wider p-4">Agents</th>
                   <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider p-4">Status</th>
@@ -251,6 +420,16 @@ export default function AdminAgencies() {
                       </div>
                     </td>
                     <td className="p-4 text-sm text-slate-600">{agency.owner ? agency.owner.name : '—'}</td>
+                    <td className="p-4 text-sm">
+                      {agency.npn ? (
+                        <div>
+                          <span className="font-mono text-slate-900">{agency.npn}</span>
+                          <div className="mt-0.5"><NpnBadge status={agency.npn_verified} /></div>
+                        </div>
+                      ) : (
+                        <span className="text-slate-400">—</span>
+                      )}
+                    </td>
                     <td className="p-4 text-sm text-slate-500">{agency.city && agency.state ? `${agency.city}, ${agency.state}` : '—'}</td>
                     <td className="p-4 text-right text-sm font-medium text-slate-900">{agency.agents?.length ?? 0}</td>
                     <td className="p-4">

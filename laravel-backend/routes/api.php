@@ -613,6 +613,10 @@ Route::middleware(['auth:sanctum', 'agency.scope'])->group(function () {
         Route::get('/carriers/{carrier}', [AdminController::class, 'showCarrier']);
         Route::put('/carriers/{carrier}', [AdminController::class, 'updateCarrier']);
 
+        // NPN Verification
+        Route::post('/agents/{profile}/verify-npn', [AdminController::class, 'verifyNpn']);
+        Route::post('/agencies/{agency}/verify-npn', [AdminController::class, 'verifyAgencyNpn']);
+
         // Compliance Requirements Management (superadmin)
         Route::get('/compliance/requirements', [CompliancePackController::class, 'requirements']);
         Route::post('/compliance/requirements', [CompliancePackController::class, 'storeRequirement']);

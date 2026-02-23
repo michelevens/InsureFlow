@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Mail\AccountApprovedMail;
 use App\Models\Agency;
+use App\Models\AgentProfile;
 use App\Models\Carrier;
 use App\Models\SubscriptionPlan;
 use App\Models\User;
@@ -248,6 +249,82 @@ class AdminController extends Controller
 
         $carrier->update($data);
         return response()->json($carrier);
+    }
+
+    // --- NPN Verification ---
+
+    /**
+     * Verify or reject an agent's NPN.
+     */
+    public function verifyNpn(Request $request, AgentProfile $profile)
+    {
+        $data = $request->validate([
+            'status' => 'required|in:verified,rejected',
+            'license_lookup_url' => 'nullable|string|max:500',
+        ]);
+
+        $profile->update([
+            'npn_verified' => $data['status'],
+            'npn_verified_at' => now(),
+            'npn_verified_by' => $request->user()->name,
+            'license_lookup_url' => $data['license_lookup_url'] ?? $profile->license_lookup_url,
+        ]);
+
+        return response()->json([
+            'message' => "NPN {$data['status']} successfully",
+            'profile' => $profile,
+        ]);
+    }
+
+    /**
+     * Verify or reject an agency's NPN.
+     */
+    public function verifyAgencyNpn(Request $request, Agency $agency)
+    {
+        $data = $request->validate([
+            'status' => 'required|in:verified,rejected',
+        ]);
+
+        $agency->update([
+            'npn_verified' => $data['status'],
+            'npn_verified_at' => now(),
+        ]);
+
+        return response()->json([
+            'message' => "Agency NPN {$data['status']} successfully",
+            'agency' => $agency,
+        ]);
+    }
+
+    /**
+     * Get state-specific license lookup URL for an agent.
+     */
+    public static function stateLicenseLookupUrl(string $state): ?string
+    {
+        $urls = [
+            'FL' => 'https://licenseesearch.fldfs.com/',
+            'TX' => 'https://www.tdi.texas.gov/agent/agentsearch.html',
+            'CA' => 'https://interactive.web.insurance.ca.gov/webuser/licw_name_search$.startup',
+            'NY' => 'https://myportal.dfs.ny.gov/common-forms/license-lookup',
+            'GA' => 'https://oci.georgia.gov/consumers/license-verification',
+            'IL' => 'https://online-dfpr.micropact.com/lookup/licenselookup.aspx',
+            'VA' => 'https://scc.virginia.gov/pages/Bureau-of-Insurance-Licensee-Search',
+            'AZ' => 'https://insurance.az.gov/licensee-search',
+            'PA' => 'https://www.insurance.pa.gov/Consumers/LicenseSearch/Pages/default.aspx',
+            'OH' => 'https://gateway.insurance.ohio.gov/LicenseSearch',
+            'NJ' => 'https://www20.state.nj.us/DOBI_LicSearch/lsSearchPage.jsp',
+            'NC' => 'https://www.ncdoi.gov/consumers/consumer-services/company-and-agent-search',
+            'MI' => 'https://difs.state.mi.us/fis/lps',
+            'MA' => 'https://www.mass.gov/how-to/search-for-a-licensed-insurance-professional-or-company',
+            'WA' => 'https://fortress.wa.gov/oic/consumertoolkit/Search.aspx',
+            'CO' => 'https://doi.colorado.gov/for-consumers/check-a-license',
+            'TN' => 'https://sbs-ci.tn.gov/online-services/Verify-a-License',
+            'MD' => 'https://sbs-md.naic.org/lion-web/jsp/sbsreports/AgentLookup.jsp',
+            'MN' => 'https://www.commerce.state.mn.us/licenselookup',
+            'IN' => 'https://www.in.gov/idoi/2674.htm',
+        ];
+
+        return $urls[$state] ?? 'https://nipr.com/licensing-center/look-up-a-national-producer-number';
     }
 
     // --- Analytics ---

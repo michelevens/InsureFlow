@@ -82,6 +82,8 @@ class OnboardingController extends Controller
                 'city' => $data['city'] ?? null,
                 'state' => $data['state'] ?? null,
                 'zip_code' => $data['zip_code'] ?? null,
+                'npn' => $data['npn_number'] ?? null,
+                'npn_verified' => !empty($data['npn_number']) ? 'pending' : 'unverified',
                 'is_active' => true,
             ]
         );
@@ -155,6 +157,8 @@ class OnboardingController extends Controller
             [
                 'bio' => $data['bio'] ?? null,
                 'license_number' => $data['license_number'] ?? null,
+                'npn' => $data['npn_number'] ?? null,
+                'npn_verified' => !empty($data['npn_number']) ? 'pending' : 'unverified',
                 'license_states' => $data['license_states'] ?? [],
                 'specialties' => $data['specialties'] ?? [],
                 'carriers' => $data['carriers'] ?? [],

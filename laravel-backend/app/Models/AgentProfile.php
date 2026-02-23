@@ -10,8 +10,9 @@ class AgentProfile extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id', 'bio', 'license_number', 'license_states',
-        'specialties', 'carriers', 'years_experience',
+        'user_id', 'bio', 'license_number', 'npn', 'npn_verified',
+        'npn_verified_at', 'npn_verified_by', 'license_lookup_url',
+        'license_states', 'specialties', 'carriers', 'years_experience',
         'avg_rating', 'review_count', 'clients_served',
         'response_time', 'city', 'state',
     ];
@@ -23,6 +24,7 @@ class AgentProfile extends Model
             'specialties' => 'array',
             'carriers' => 'array',
             'avg_rating' => 'decimal:2',
+            'npn_verified_at' => 'datetime',
         ];
     }
 

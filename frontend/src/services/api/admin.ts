@@ -15,11 +15,32 @@ export interface UserListResponse {
   counts: Record<string, number>;
 }
 
+export interface AgentProfileInfo {
+  id: number;
+  user_id: number;
+  npn: string | null;
+  npn_verified: 'unverified' | 'pending' | 'verified' | 'rejected';
+  npn_verified_at: string | null;
+  npn_verified_by: string | null;
+  license_lookup_url: string | null;
+  license_number: string | null;
+  license_states: string[] | null;
+  city: string | null;
+  state: string | null;
+}
+
+export interface AgentWithProfile extends User {
+  agent_profile?: AgentProfileInfo;
+}
+
 export interface AgencyDetail {
   id: number;
   name: string;
   slug: string;
   agency_code: string;
+  npn: string | null;
+  npn_verified: 'unverified' | 'pending' | 'verified' | 'rejected';
+  npn_verified_at: string | null;
   description: string | null;
   phone: string | null;
   email: string | null;
@@ -32,7 +53,7 @@ export interface AgencyDetail {
   is_active: boolean;
   created_at: string;
   owner?: User;
-  agents?: User[];
+  agents?: AgentWithProfile[];
 }
 
 export const adminService = {
@@ -86,6 +107,15 @@ export const adminService = {
 
   async updateAgency(id: number, data: { is_verified?: boolean; is_active?: boolean }): Promise<AgencyDetail> {
     return api.put<AgencyDetail>(`/admin/agencies/${id}`, data);
+  },
+
+  // --- NPN Verification ---
+  async verifyAgentNpn(profileId: number, data: { status: 'verified' | 'rejected'; license_lookup_url?: string }): Promise<{ message: string }> {
+    return api.post(`/admin/agents/${profileId}/verify-npn`, data);
+  },
+
+  async verifyAgencyNpn(agencyId: number, data: { status: 'verified' | 'rejected' }): Promise<{ message: string }> {
+    return api.post(`/admin/agencies/${agencyId}/verify-npn`, data);
   },
 
   // --- Plans ---

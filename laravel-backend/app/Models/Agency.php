@@ -10,7 +10,8 @@ class Agency extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name', 'slug', 'agency_code', 'owner_id', 'description', 'phone', 'email',
+        'name', 'slug', 'agency_code', 'npn', 'npn_verified', 'npn_verified_at',
+        'owner_id', 'description', 'phone', 'email',
         'website', 'address', 'city', 'state', 'zip_code',
         'is_verified', 'is_active',
         'saml_entity_id', 'saml_sso_url', 'saml_certificate',
@@ -23,6 +24,7 @@ class Agency extends Model
             'is_verified' => 'boolean',
             'is_active' => 'boolean',
             'sso_enabled' => 'boolean',
+            'npn_verified_at' => 'datetime',
         ];
     }
 
