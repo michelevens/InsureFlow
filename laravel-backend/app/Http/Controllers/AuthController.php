@@ -261,7 +261,16 @@ class AuthController extends Controller
         $resetUrl = rtrim(config('app.frontend_url', env('FRONTEND_URL', 'https://insurons.com')), '/')
             . '/reset-password?token=' . $token . '&email=' . urlencode($user->email);
 
-        Mail::to($user->email)->send(new \App\Mail\PasswordResetMail($user, $resetUrl));
+        try {
+            Mail::to($user->email)->send(new \App\Mail\PasswordResetMail($user, $resetUrl));
+        } catch (\Throwable $e) {
+            // Mail not configured — log but don't crash
+            \Log::warning('Password reset email failed: ' . $e->getMessage());
+            return response()->json([
+                'message' => 'Password reset token created but email delivery failed. Please contact support.',
+                'reset_url' => app()->isLocal() ? $resetUrl : null, // only expose URL in dev
+            ], 503);
+        }
 
         return response()->json(['message' => 'If that email exists, a reset link has been sent.']);
     }
@@ -306,8 +315,15 @@ class AuthController extends Controller
             'email' => 'required|email',
         ]);
 
-        // Only allow known demo accounts
+        // Only allow known demo accounts (support both domain variants)
         $demoEmails = [
+            'consumer@insureflow.com',
+            'agent@insureflow.com',
+            'agent2@insureflow.com',
+            'agency@insureflow.com',
+            'carrier@insureflow.com',
+            'admin@insureflow.com',
+            'superadmin@insureflow.com',
             'consumer@insurons.com',
             'agent@insurons.com',
             'agent2@insurons.com',
@@ -321,7 +337,15 @@ class AuthController extends Controller
             return response()->json(['message' => 'Not a demo account'], 403);
         }
 
+        // Try exact email first, then swap domain variant
         $user = User::where('email', $data['email'])->first();
+
+        if (!$user) {
+            $altEmail = str_contains($data['email'], '@insurons.com')
+                ? str_replace('@insurons.com', '@insureflow.com', $data['email'])
+                : str_replace('@insureflow.com', '@insurons.com', $data['email']);
+            $user = User::where('email', $altEmail)->first();
+        }
 
         if (!$user) {
             return response()->json(['message' => 'Demo account not found. Please run the seeder.'], 404);
