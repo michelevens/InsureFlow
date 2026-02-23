@@ -251,24 +251,22 @@ class AuthController extends Controller
             return response()->json(['message' => 'If that email exists, a reset link has been sent.']);
         }
 
-        $token = Str::random(64);
-
-        DB::table('password_reset_tokens')->updateOrInsert(
-            ['email' => $user->email],
-            ['token' => Hash::make($token), 'created_at' => now()]
-        );
-
-        $resetUrl = rtrim(config('app.frontend_url', env('FRONTEND_URL', 'https://insurons.com')), '/')
-            . '/reset-password?token=' . $token . '&email=' . urlencode($user->email);
-
         try {
+            $token = Str::random(64);
+
+            DB::table('password_reset_tokens')->updateOrInsert(
+                ['email' => $user->email],
+                ['token' => Hash::make($token), 'created_at' => now()]
+            );
+
+            $resetUrl = rtrim(config('app.frontend_url', env('FRONTEND_URL', 'https://insurons.com')), '/')
+                . '/reset-password?token=' . $token . '&email=' . urlencode($user->email);
+
             Mail::to($user->email)->send(new \App\Mail\PasswordResetMail($user, $resetUrl));
         } catch (\Throwable $e) {
-            // Mail not configured — log but don't crash
-            \Log::warning('Password reset email failed: ' . $e->getMessage());
+            \Log::warning('Password reset failed: ' . $e->getMessage());
             return response()->json([
-                'message' => 'Password reset token created but email delivery failed. Please contact support.',
-                'reset_url' => app()->isLocal() ? $resetUrl : null, // only expose URL in dev
+                'message' => 'Password reset is temporarily unavailable. Please try again later or contact support.',
             ], 503);
         }
 
