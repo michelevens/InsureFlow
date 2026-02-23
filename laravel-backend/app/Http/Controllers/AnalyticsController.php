@@ -184,11 +184,54 @@ class AnalyticsController extends Controller
 
         $agentIds = $agency->agents()->pluck('id');
 
+        // Products offered
+        $products = $agency->platformProducts()
+            ->wherePivot('is_active', true)
+            ->select('platform_products.id', 'platform_products.name', 'platform_products.slug', 'platform_products.category', 'platform_products.icon')
+            ->get();
+
+        // Carrier appointments
+        $appointments = $agency->carrierAppointments()
+            ->where('is_active', true)
+            ->with('carrier:id,name,slug,am_best_rating')
+            ->get()
+            ->groupBy(fn($a) => $a->carrier->name ?? 'Unknown')
+            ->map(fn($group) => [
+                'carrier_name' => $group->first()->carrier->name ?? 'Unknown',
+                'am_best_rating' => $group->first()->carrier->am_best_rating ?? null,
+                'product_count' => $group->count(),
+            ])
+            ->values();
+
+        // License states from all agents
+        $licenseStates = $agency->agents()
+            ->whereHas('agentProfile')
+            ->with('agentProfile:id,user_id,license_states')
+            ->get()
+            ->pluck('agentProfile.license_states')
+            ->flatten()
+            ->unique()
+            ->sort()
+            ->values();
+
         return response()->json([
             'team_members' => $agentIds->count(),
             'total_leads' => Lead::whereIn('agent_id', $agentIds)->count(),
             'total_policies' => Policy::whereIn('agent_id', $agentIds)->count(),
             'total_revenue' => Policy::whereIn('agent_id', $agentIds)->sum('annual_premium'),
+            'total_applications' => Application::whereIn('agent_id', $agentIds)->count(),
+            'total_commissions' => \App\Models\Commission::whereIn('agent_id', $agentIds)->sum('commission_amount'),
+            'products' => $products,
+            'carriers' => $appointments,
+            'license_states' => $licenseStates,
+            'agency' => [
+                'name' => $agency->name,
+                'state' => $agency->state,
+                'city' => $agency->city,
+                'npn' => $agency->npn,
+                'npn_verified' => $agency->npn_verified,
+                'is_verified' => $agency->is_verified,
+            ],
         ]);
     }
 

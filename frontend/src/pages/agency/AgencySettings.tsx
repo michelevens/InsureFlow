@@ -63,6 +63,7 @@ export default function AgencySettings() {
 
   // Billing
   const [billing, setBilling] = useState<BillingData | null>(null);
+  const [billingError, setBillingError] = useState(false);
 
   // Team
   const [showInviteModal, setShowInviteModal] = useState(false);
@@ -124,14 +125,19 @@ export default function AgencySettings() {
     try {
       const res = await api.get('/agency/settings/billing') as BillingData;
       setBilling(res);
-    } catch { /* billing may not be available */ }
+      setBillingError(false);
+    } catch {
+      setBillingError(true);
+      // Set a default billing so the UI doesn't spin forever
+      setBilling({ plan: { name: 'Free', status: 'active', current_period_end: null, price: 0 }, stripe_connected: false });
+    }
   };
 
   const loadCompliance = async () => {
     try {
       const res = await api.get('/agency/settings/compliance') as { agents: ComplianceAgent[] };
       setComplianceAgents(res.agents || []);
-    } catch { /* compliance may not be available */ }
+    } catch { toast.error('Failed to load compliance data'); }
   };
 
   useEffect(() => {
@@ -172,7 +178,7 @@ export default function AgencySettings() {
     try {
       const res = await api.get('/agency/settings/lead-intake') as { agency_code: string; agency_intake_url: string; agent_intake_url: string };
       setIntakeUrls(res);
-    } catch { /* may not be available */ }
+    } catch { /* intake links may not be configured yet */ }
   };
 
   useEffect(() => {
@@ -392,6 +398,12 @@ export default function AgencySettings() {
               </div>
             ) : (
               <>
+                {billingError && (
+                  <div className="flex items-center gap-2 p-3 rounded-lg text-sm bg-amber-50 text-amber-700 mb-4">
+                    <XCircle className="w-4 h-4" />
+                    Could not load billing details from server. Showing defaults.
+                  </div>
+                )}
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-slate-500">Current Plan</p>
