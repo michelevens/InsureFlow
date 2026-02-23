@@ -6,6 +6,7 @@ import {
   FileText, Upload, Download, Trash2, PenTool,
   XCircle, File, Image, FileSpreadsheet,
 } from 'lucide-react';
+import { toast } from 'sonner';
 
 const docTypeLabels: Record<string, string> = {
   application_form: 'Application Form',
@@ -66,7 +67,7 @@ export default function Documents({ entityType = 'application', entityId }: Prop
         setDocuments(docRes.documents);
         setPendingSignatures(sigRes.signatures);
       })
-      .catch(() => {})
+      .catch(() => { toast.error('Failed to load documents'); })
       .finally(() => setLoading(false));
   }, [entityType, entityId]);
 

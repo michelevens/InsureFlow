@@ -7,6 +7,7 @@ import {
   Briefcase, BarChart3, FileText, DollarSign, Users,
   ArrowRight, ShieldCheck, Package, Loader2,
 } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface CarrierStats {
   active_products: number;
@@ -22,7 +23,7 @@ export default function CarrierDashboard() {
   useEffect(() => {
     analyticsService.getDashboardStats()
       .then((data) => setStats(data as unknown as CarrierStats))
-      .catch(() => {})
+      .catch(() => { toast.error('Failed to load dashboard stats'); })
       .finally(() => setLoading(false));
   }, []);
 

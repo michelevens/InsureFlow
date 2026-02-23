@@ -59,7 +59,7 @@ export function NotificationBell() {
     setLoading(true);
     notificationService.getAll()
       .then((res) => setNotifications(res.notifications))
-      .catch(() => {})
+      .catch(() => { /* non-critical: bell dropdown */ })
       .finally(() => setLoading(false));
   }, [open]);
 

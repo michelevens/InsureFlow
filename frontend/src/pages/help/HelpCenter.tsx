@@ -20,7 +20,7 @@ export default function HelpCenter() {
   const [activeCategory, setActiveCategory] = useState<HelpCategory | null>(null);
 
   useEffect(() => {
-    helpCenterService.getCategories().then(setCategories).catch(() => {}).finally(() => setLoading(false));
+    helpCenterService.getCategories().then(setCategories).catch(() => { toast.error('Failed to load help categories'); }).finally(() => setLoading(false));
   }, []);
 
   const handleSearch = async () => {

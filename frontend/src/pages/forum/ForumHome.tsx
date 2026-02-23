@@ -22,7 +22,7 @@ export default function ForumHome() {
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    forumService.getCategories().then(setCategories).catch(() => {}).finally(() => setLoading(false));
+    forumService.getCategories().then(setCategories).catch(() => { toast.error('Failed to load forum categories'); }).finally(() => setLoading(false));
   }, []);
 
   const openCategory = async (cat: ForumCategory) => {

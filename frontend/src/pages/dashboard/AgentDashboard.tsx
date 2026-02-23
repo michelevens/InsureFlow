@@ -8,6 +8,7 @@ import {
   Target, FileText, DollarSign, Star, Users, ArrowRight, TrendingUp,
   Clock, CheckCircle2, AlertCircle, Loader2,
 } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface AgentStats {
   total_leads: number;
@@ -26,7 +27,7 @@ export default function AgentDashboard() {
   useEffect(() => {
     analyticsService.getDashboardStats()
       .then((data) => setStats(data as unknown as AgentStats))
-      .catch(() => {})
+      .catch(() => { toast.error('Failed to load dashboard stats'); })
       .finally(() => setLoading(false));
   }, []);
 

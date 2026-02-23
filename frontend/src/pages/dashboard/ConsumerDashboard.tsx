@@ -6,6 +6,7 @@ import { StatsCard } from '@/components/dashboard/StatsCard';
 import { EmptyState } from '@/components/dashboard/EmptyState';
 import { analyticsService } from '@/services/api/analytics';
 import { Calculator, FileText, ShieldCheck, ClipboardList, ArrowRight, Bell } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface ConsumerStats {
   quotes: number;
@@ -22,7 +23,7 @@ export default function ConsumerDashboard() {
   useEffect(() => {
     analyticsService.getDashboardStats()
       .then((data) => setStats(data as unknown as ConsumerStats))
-      .catch(() => {})
+      .catch(() => { toast.error('Failed to load dashboard stats'); })
       .finally(() => setLoading(false));
   }, []);
 

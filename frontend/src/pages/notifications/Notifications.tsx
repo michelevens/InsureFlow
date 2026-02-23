@@ -6,6 +6,7 @@ import {
   Bell, Target, FileText, ShieldCheck, MessageSquare, DollarSign,
   TrendingUp, UserPlus, CheckCheck, Filter,
 } from 'lucide-react';
+import { toast } from 'sonner';
 
 const iconMap: Record<string, typeof Bell> = {
   target: Target,
@@ -42,7 +43,7 @@ export default function Notifications() {
     setLoading(true);
     notificationService.getAll(filter === 'unread')
       .then((res) => setNotifications(res.notifications))
-      .catch(() => {})
+      .catch(() => { toast.error('Failed to load notifications'); })
       .finally(() => setLoading(false));
   }, [filter]);
 

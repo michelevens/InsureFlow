@@ -6,6 +6,7 @@ import {
   DollarSign, TrendingUp, Calendar, Download, CreditCard,
   CheckCircle, AlertCircle, ExternalLink, Banknote, Loader2,
 } from 'lucide-react';
+import { toast } from 'sonner';
 
 const statusConfig: Record<string, { label: string; variant: 'success' | 'warning' | 'info' | 'danger' }> = {
   paid: { label: 'Paid', variant: 'success' },
@@ -45,7 +46,7 @@ export default function Commissions() {
         setTotalPending(commRes.summary?.total_pending || '0.00');
         setPayouts(payoutRes.data || []);
       } catch {
-        // silent
+        toast.error('Failed to load commissions');
       } finally {
         setLoading(false);
       }
@@ -58,7 +59,7 @@ export default function Commissions() {
     if (!isAgent) return;
     payoutService.getConnectStatus()
       .then(setConnectStatus)
-      .catch(() => {});
+      .catch(() => { /* non-critical: Stripe status check */ });
   }, [isAgent]);
 
   const handleConnectStripe = async () => {

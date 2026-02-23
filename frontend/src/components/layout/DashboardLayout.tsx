@@ -65,8 +65,6 @@ const navSections: NavSection[] = [
       { label: 'Commissions', href: '/commissions', icon: <DollarSign className="w-5 h-5" />, roles: ['agent', 'agency_owner'] },
       { label: 'Reviews', href: '/reviews', icon: <Star className="w-5 h-5" />, roles: ['agent', 'agency_owner'] },
       { label: 'Analytics', href: '/analytics', icon: <TrendingUp className="w-5 h-5" />, roles: ['agent', 'agency_owner'] },
-      { label: 'Calendar', href: '/calendar', icon: <CalendarDays className="w-5 h-5" />, roles: ['agent', 'agency_owner'] },
-      { label: 'Meetings', href: '/meetings', icon: <Video className="w-5 h-5" />, roles: ['agent', 'agency_owner'] },
       { label: 'Compliance', href: '/compliance', icon: <Award className="w-5 h-5" />, roles: ['agent', 'agency_owner'] },
     ],
   },
@@ -95,16 +93,6 @@ const navSections: NavSection[] = [
       { label: 'Campaigns', href: '/campaigns', icon: <Mail className="w-5 h-5" />, roles: ['agent', 'agency_owner', 'admin', 'superadmin'] },
       { label: 'Reports', href: '/reports', icon: <FileBarChart className="w-5 h-5" />, roles: ['agent', 'agency_owner', 'carrier', 'admin', 'superadmin'] },
       { label: 'Market Intel', href: '/data/market-intel', icon: <Database className="w-5 h-5" />, roles: ['agency_owner', 'carrier', 'admin', 'superadmin'] },
-    ],
-  },
-  {
-    title: 'Learning & Community',
-    roles: ['agent', 'agency_owner', 'carrier', 'admin', 'superadmin'],
-    items: [
-      { label: 'Training', href: '/training', icon: <BookOpen className="w-5 h-5" />, roles: ['agent', 'agency_owner'] },
-      { label: 'Forum', href: '/forum', icon: <MessagesSquare className="w-5 h-5" />, roles: ['agent', 'agency_owner', 'carrier', 'admin', 'superadmin'] },
-      { label: 'Events', href: '/events', icon: <Calendar className="w-5 h-5" />, roles: ['agent', 'agency_owner', 'carrier', 'admin', 'superadmin'] },
-      { label: 'Partners', href: '/partners', icon: <Handshake className="w-5 h-5" />, roles: ['agent', 'agency_owner'] },
     ],
   },
   {
@@ -149,6 +137,7 @@ export function DashboardLayout() {
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [learningOpen, setLearningOpen] = useState(false);
 
   const filteredSections = navSections
     .map(section => ({
@@ -265,6 +254,71 @@ export function DashboardLayout() {
             <MessageSquare className="w-5 h-5" />
           </Link>
           <NotificationBell />
+          {user && ['agent', 'agency_owner'].includes(user.role) && (
+            <>
+              <Link
+                to="/calendar"
+                className={cn(
+                  'p-2 rounded-lg transition-colors',
+                  location.pathname === '/calendar' ? 'bg-shield-50 text-shield-700' : 'text-slate-500 hover:bg-slate-100 hover:text-slate-700'
+                )}
+                title="Calendar"
+              >
+                <CalendarDays className="w-5 h-5" />
+              </Link>
+              <Link
+                to="/meetings"
+                className={cn(
+                  'p-2 rounded-lg transition-colors',
+                  location.pathname === '/meetings' ? 'bg-shield-50 text-shield-700' : 'text-slate-500 hover:bg-slate-100 hover:text-slate-700'
+                )}
+                title="Meetings"
+              >
+                <Video className="w-5 h-5" />
+              </Link>
+            </>
+          )}
+          {/* Learning & Community dropdown */}
+          <div className="relative">
+            <button
+              onClick={() => setLearningOpen(!learningOpen)}
+              className={cn(
+                'p-2 rounded-lg transition-colors',
+                learningOpen || ['/training', '/forum', '/events', '/partners'].some(p => location.pathname.startsWith(p))
+                  ? 'bg-shield-50 text-shield-700'
+                  : 'text-slate-500 hover:bg-slate-100 hover:text-slate-700'
+              )}
+              title="Learning & Community"
+            >
+              <BookOpen className="w-5 h-5" />
+            </button>
+            {learningOpen && (
+              <>
+                <div className="fixed inset-0 z-40" onClick={() => setLearningOpen(false)} />
+                <div className="absolute right-0 top-full mt-1 w-52 bg-white border border-slate-200 rounded-xl shadow-lg overflow-hidden z-50">
+                  <div className="px-3 py-2 border-b border-slate-100">
+                    <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Learning & Community</p>
+                  </div>
+                  {user && ['agent', 'agency_owner'].includes(user.role) && (
+                    <Link to="/training" onClick={() => setLearningOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm text-slate-600 hover:bg-slate-50">
+                      <BookOpen className="w-4 h-4" /> Training
+                    </Link>
+                  )}
+                  <Link to="/forum" onClick={() => setLearningOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm text-slate-600 hover:bg-slate-50">
+                    <MessagesSquare className="w-4 h-4" /> Forum
+                  </Link>
+                  <Link to="/events" onClick={() => setLearningOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm text-slate-600 hover:bg-slate-50">
+                    <Calendar className="w-4 h-4" /> Events
+                  </Link>
+                  {user && ['agent', 'agency_owner'].includes(user.role) && (
+                    <Link to="/partners" onClick={() => setLearningOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm text-slate-600 hover:bg-slate-50">
+                      <Handshake className="w-4 h-4" /> Partners
+                    </Link>
+                  )}
+                </div>
+              </>
+            )}
+          </div>
           <Link
             to="/help"
             className={cn(
