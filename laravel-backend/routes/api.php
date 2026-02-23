@@ -47,6 +47,8 @@ use App\Http\Controllers\EmailCampaignController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\VideoMeetingController;
 use App\Http\Controllers\RatingController;
+use App\Http\Controllers\PlatformSettingController;
+use App\Http\Controllers\AgencySettingController;
 use App\Http\Controllers\AdminProductController;
 use App\Http\Controllers\AgencyProductController;
 use App\Http\Controllers\ProductVisibilityController;
@@ -582,5 +584,21 @@ Route::middleware(['auth:sanctum', 'agency.scope'])->group(function () {
         Route::post('/help/categories', [HelpCenterController::class, 'storeCategory']);
         Route::put('/help/categories/{category}', [HelpCenterController::class, 'updateCategory']);
         Route::delete('/help/categories/{category}', [HelpCenterController::class, 'destroyCategory']);
+
+        // Platform Settings (superadmin)
+        Route::get('/settings', [PlatformSettingController::class, 'index']);
+        Route::put('/settings', [PlatformSettingController::class, 'update']);
+        Route::post('/settings/test-email', [PlatformSettingController::class, 'testEmail']);
+        Route::post('/settings/test-stripe', [PlatformSettingController::class, 'testStripe']);
+        Route::get('/settings/system-health', [PlatformSettingController::class, 'systemHealth']);
+    });
+
+    // Agency Settings (agency_owner)
+    Route::prefix('agency/settings')->group(function () {
+        Route::get('/', [AgencySettingController::class, 'index']);
+        Route::put('/', [AgencySettingController::class, 'update']);
+        Route::get('/billing', [AgencySettingController::class, 'billing']);
+        Route::get('/compliance', [AgencySettingController::class, 'compliance']);
+        Route::get('/team-permissions', [AgencySettingController::class, 'teamPermissions']);
     });
 });

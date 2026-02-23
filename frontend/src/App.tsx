@@ -92,11 +92,14 @@ const AdminAnalytics = lazy(() => import('@/pages/admin/AdminAnalytics'));
 const AdminPlans = lazy(() => import('@/pages/admin/AdminPlans'));
 const AdminProducts = lazy(() => import('@/pages/admin/AdminProducts'));
 const AdminAuditLog = lazy(() => import('@/pages/admin/AdminAuditLog'));
+const SuperAdminDashboard = lazy(() => import('@/pages/admin/SuperAdminDashboard'));
+const SuperAdminSettings = lazy(() => import('@/pages/admin/SuperAdminSettings'));
 const SsoConfig = lazy(() => import('@/pages/admin/SsoConfig'));
 
 // Agency
 const AgencyProducts = lazy(() => import('@/pages/agency/AgencyProducts'));
 const AgencyAppointments = lazy(() => import('@/pages/agency/AgencyAppointments'));
+const AgencySettings = lazy(() => import('@/pages/agency/AgencySettings'));
 
 // Organizations
 const OrganizationTree = lazy(() => import('@/pages/organizations/OrganizationTree'));
@@ -263,10 +266,13 @@ export default function App() {
                 <Route path="/admin/products" element={<AdminProducts />} />
                 <Route path="/admin/audit-log" element={<AdminAuditLog />} />
                 <Route path="/admin/sso" element={<SsoConfig />} />
+                <Route path="/admin/platform" element={<SuperAdminDashboard />} />
+                <Route path="/admin/platform-settings" element={<SuperAdminSettings />} />
 
                 {/* Agency */}
                 <Route path="/agency/products" element={<AgencyProducts />} />
                 <Route path="/agency/appointments" element={<AgencyAppointments />} />
+                <Route path="/agency/settings" element={<AgencySettings />} />
 
                 {/* Settings */}
                 <Route path="/settings" element={<Settings />} />

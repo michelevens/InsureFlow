@@ -80,15 +80,12 @@ const navSections: NavSection[] = [
     ],
   },
   {
-    title: 'Team & Organization',
-    roles: ['agency_owner', 'admin', 'superadmin'],
+    title: 'Agency',
+    roles: ['agency_owner'],
     items: [
-      { label: 'My Team', href: '/agency/team', icon: <Users className="w-5 h-5" />, roles: ['agency_owner'] },
-      { label: 'Products', href: '/agency/products', icon: <Briefcase className="w-5 h-5" />, roles: ['agency_owner'] },
-      { label: 'Appointments', href: '/agency/appointments', icon: <ClipboardList className="w-5 h-5" />, roles: ['agency_owner'] },
-      { label: 'Organizations', href: '/organizations', icon: <Network className="w-5 h-5" />, roles: ['agency_owner', 'admin', 'superadmin'] },
-      { label: 'Recruitment', href: '/recruitment', icon: <Briefcase className="w-5 h-5" />, roles: ['agency_owner', 'admin', 'superadmin'] },
-      { label: 'SSO Config', href: '/admin/sso', icon: <Key className="w-5 h-5" />, roles: ['admin', 'superadmin', 'agency_owner'] },
+      { label: 'Agency Settings', href: '/agency/settings', icon: <Settings className="w-5 h-5" />, roles: ['agency_owner'] },
+      { label: 'Organizations', href: '/organizations', icon: <Network className="w-5 h-5" />, roles: ['agency_owner'] },
+      { label: 'Recruitment', href: '/recruitment', icon: <Briefcase className="w-5 h-5" />, roles: ['agency_owner'] },
     ],
   },
   {
@@ -112,12 +109,20 @@ const navSections: NavSection[] = [
   },
   {
     title: 'Integrations',
-    roles: ['agent', 'agency_owner', 'carrier', 'admin', 'superadmin'],
+    roles: ['carrier', 'admin', 'superadmin'],
     items: [
-      { label: 'API Keys', href: '/api-keys', icon: <Key className="w-5 h-5" />, roles: ['agency_owner', 'carrier', 'admin', 'superadmin'] },
-      { label: 'Webhooks', href: '/webhooks', icon: <Plug className="w-5 h-5" />, roles: ['agent', 'agency_owner', 'carrier', 'admin', 'superadmin'] },
-      { label: 'White-Label', href: '/white-label', icon: <Palette className="w-5 h-5" />, roles: ['agency_owner', 'admin', 'superadmin'] },
-      { label: 'Embed Widgets', href: '/embed', icon: <Code className="w-5 h-5" />, roles: ['agency_owner', 'admin', 'superadmin'] },
+      { label: 'API Keys', href: '/api-keys', icon: <Key className="w-5 h-5" />, roles: ['carrier', 'admin', 'superadmin'] },
+      { label: 'Webhooks', href: '/webhooks', icon: <Plug className="w-5 h-5" />, roles: ['carrier', 'admin', 'superadmin'] },
+      { label: 'White-Label', href: '/white-label', icon: <Palette className="w-5 h-5" />, roles: ['admin', 'superadmin'] },
+      { label: 'Embed Widgets', href: '/embed', icon: <Code className="w-5 h-5" />, roles: ['admin', 'superadmin'] },
+    ],
+  },
+  {
+    title: 'Platform',
+    roles: ['superadmin'],
+    items: [
+      { label: 'Platform Overview', href: '/admin/platform', icon: <LayoutDashboard className="w-5 h-5" />, roles: ['superadmin'] },
+      { label: 'Platform Settings', href: '/admin/platform-settings', icon: <Settings className="w-5 h-5" />, roles: ['superadmin'] },
     ],
   },
   {
@@ -130,6 +135,7 @@ const navSections: NavSection[] = [
       { label: 'Analytics', href: '/admin/analytics', icon: <BarChart3 className="w-5 h-5" />, roles: ['admin', 'superadmin'] },
       { label: 'Plans', href: '/admin/plans', icon: <DollarSign className="w-5 h-5" />, roles: ['admin', 'superadmin'] },
       { label: 'Audit Log', href: '/admin/audit-log', icon: <Activity className="w-5 h-5" />, roles: ['admin', 'superadmin'] },
+      { label: 'SSO Config', href: '/admin/sso', icon: <Key className="w-5 h-5" />, roles: ['admin', 'superadmin'] },
       { label: 'API Config', href: '/carrier/api-config', icon: <Plug className="w-5 h-5" />, roles: ['admin', 'superadmin'] },
     ],
   },
