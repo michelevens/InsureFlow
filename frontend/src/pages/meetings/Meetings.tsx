@@ -415,7 +415,7 @@ function MeetingDetailModal({ meeting, userId, onClose, onJoin, onStart, onEnd, 
 /* ---------- Meeting Settings ---------- */
 
 function MeetingSettings() {
-  const [settings, setSettings] = useState<VideoMeetingSetting | null>(null);
+  const [, setSettings] = useState<VideoMeetingSetting | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [provider, setProvider] = useState<PreferredProvider>('system');

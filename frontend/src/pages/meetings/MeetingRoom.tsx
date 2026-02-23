@@ -7,7 +7,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 import {
   Video, VideoOff, Mic, MicOff, Phone, Monitor, MessageSquare,
-  Users, Settings2, Maximize, Minimize, Copy, ArrowLeft,
+  Users, Maximize, Minimize, Copy, ArrowLeft, Clock,
 } from 'lucide-react';
 
 type RoomPhase = 'loading' | 'waiting' | 'session' | 'external' | 'ended';

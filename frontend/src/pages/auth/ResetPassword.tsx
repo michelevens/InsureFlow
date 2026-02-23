@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { authService } from '@/services/api';
 import { Button, Input } from '@/components/ui';
-import { Shield, Lock, ArrowLeft, CheckCircle } from 'lucide-react';
+import { Lock, ArrowLeft, CheckCircle } from 'lucide-react';
 
 export default function ResetPassword() {
   const [searchParams] = useSearchParams();
