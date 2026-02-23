@@ -9,6 +9,7 @@ import type {
 import {
   TrendingUp, DollarSign, Users, BarChart3, Loader2, AlertTriangle,
 } from 'lucide-react';
+import { toast } from 'sonner';
 
 function StatCard({ label, value, sub, icon: Icon, color }: {
   label: string; value: string | number; sub?: string; icon: typeof TrendingUp; color: string;
@@ -95,7 +96,7 @@ export default function AdvancedAnalytics() {
       setRevenue(r);
       setAgents(a);
       setClaims(c);
-    }).catch(() => {}).finally(() => setLoading(false));
+    }).catch(() => { toast.error('Failed to load analytics'); }).finally(() => setLoading(false));
   }, [period]);
 
   if (loading) {

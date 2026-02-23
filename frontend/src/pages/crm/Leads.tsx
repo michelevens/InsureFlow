@@ -110,7 +110,7 @@ export default function Leads() {
       setLeads(res.items);
       setCounts(res.counts);
     } catch {
-      // silently fail
+      toast.error('Failed to load leads');
     } finally {
       setLoading(false);
     }
@@ -119,7 +119,7 @@ export default function Leads() {
   useEffect(() => { fetchLeads(); }, [fetchLeads]);
 
   useEffect(() => {
-    scenarioService.productTypes().then(setProductTypes).catch(() => {});
+    scenarioService.productTypes().then(setProductTypes).catch(() => { toast.error('Failed to load product types'); });
   }, []);
 
   // ── Open lead detail ─────────────────────────
@@ -771,7 +771,7 @@ function NewScenarioModal({ leadId, productOptions, onClose, onCreated }: {
       await onCreated();
       onClose();
     } catch {
-      // handle error
+      toast.error('Failed to create scenario');
     } finally {
       setSaving(false);
     }
@@ -873,7 +873,7 @@ function AddObjectModal({ leadId, scenarioId, onClose, onCreated }: {
       await onCreated();
       onClose();
     } catch {
-      // handle error
+      toast.error('Failed to add insured object');
     } finally {
       setSaving(false);
     }
@@ -995,7 +995,7 @@ function AddCoverageModal({ leadId, scenarioId, scenario, onClose, onCreated }: 
   const [suggested, setSuggested] = useState<SuggestedCoverageInfo | null>(null);
   useEffect(() => {
     if (scenario?.product_type) {
-      scenarioService.suggestedCoverages(scenario.product_type).then(setSuggested).catch(() => {});
+      scenarioService.suggestedCoverages(scenario.product_type).then(setSuggested).catch(() => { /* non-critical */ });
     }
   }, [scenario?.product_type]);
 
@@ -1025,7 +1025,7 @@ function AddCoverageModal({ leadId, scenarioId, scenario, onClose, onCreated }: 
       await onCreated();
       onClose();
     } catch {
-      // handle error
+      toast.error('Failed to add coverage');
     } finally {
       setSaving(false);
     }
@@ -1117,7 +1117,7 @@ function ConvertModal({ leadId, scenarioId, onClose, onConverted }: {
       onConverted();
       onClose();
     } catch {
-      // handle error
+      toast.error('Failed to convert to application');
     } finally {
       setSaving(false);
     }

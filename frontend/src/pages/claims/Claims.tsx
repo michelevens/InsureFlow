@@ -7,6 +7,7 @@ import {
   AlertTriangle, Plus, ChevronRight, FileText, Calendar, DollarSign,
   Search, Filter, X, Clock, CheckCircle, XCircle, Loader2,
 } from 'lucide-react';
+import { toast } from 'sonner';
 
 const claimStatuses = [
   { value: '', label: 'All Statuses' },
@@ -184,7 +185,7 @@ function ClaimDetail({ claim, onClose, onUpdated }: { claim: Claim; onClose: () 
   const [addingNote, setAddingNote] = useState(false);
 
   useEffect(() => {
-    claimService.getClaim(claim.id).then(c => { setDetail(c); setLoading(false); }).catch(() => setLoading(false));
+    claimService.getClaim(claim.id).then(c => { setDetail(c); setLoading(false); }).catch(() => { toast.error('Failed to load claim details'); setLoading(false); });
   }, [claim.id]);
 
   const handleAddNote = async () => {
@@ -195,7 +196,7 @@ function ClaimDetail({ claim, onClose, onUpdated }: { claim: Claim; onClose: () 
       setNote('');
       const updated = await claimService.getClaim(claim.id);
       setDetail(updated);
-    } catch { /* ignore */ }
+    } catch { toast.error('Failed to add note'); }
     setAddingNote(false);
   };
 
@@ -205,7 +206,7 @@ function ClaimDetail({ claim, onClose, onUpdated }: { claim: Claim; onClose: () 
       const updated = await claimService.getClaim(claim.id);
       setDetail(updated);
       onUpdated();
-    } catch { /* ignore */ }
+    } catch { toast.error('Failed to update claim status'); }
   };
 
   const isAgent = user && ['agent', 'agency_owner', 'admin', 'superadmin'].includes(user.role);
@@ -345,7 +346,7 @@ export default function Claims() {
         type: typeFilter || undefined,
       });
       setClaims(res.data);
-    } catch { /* ignore */ }
+    } catch { toast.error('Failed to load claims'); }
     setLoading(false);
   };
 

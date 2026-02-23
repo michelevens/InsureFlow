@@ -8,6 +8,7 @@ import {
   Users, Target, DollarSign, FileText, ArrowRight,
   BarChart3, Award, Loader2,
 } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface AgencyStats {
   team_members: number;
@@ -30,7 +31,7 @@ export default function AgencyDashboard() {
         setStats(s as unknown as AgencyStats);
         setTeam(t.agents);
       })
-      .catch(() => {})
+      .catch(() => { toast.error('Failed to load agency dashboard'); })
       .finally(() => setLoading(false));
   }, []);
 

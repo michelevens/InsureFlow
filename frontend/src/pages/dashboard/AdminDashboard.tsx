@@ -7,6 +7,7 @@ import {
   Users, Building2, BarChart3, DollarSign,
   ShieldCheck, Target, Loader2,
 } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface AdminStats {
   total_users: number;
@@ -25,7 +26,7 @@ export default function AdminDashboard() {
   useEffect(() => {
     analyticsService.getDashboardStats()
       .then((data) => setStats(data as unknown as AdminStats))
-      .catch(() => {})
+      .catch(() => { toast.error('Failed to load dashboard stats'); })
       .finally(() => setLoading(false));
   }, []);
 

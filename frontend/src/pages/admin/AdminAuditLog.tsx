@@ -5,6 +5,7 @@ import {
   Shield, Search, ChevronLeft, ChevronRight,
   User, FileText, ClipboardList, Activity, Loader2,
 } from 'lucide-react';
+import { toast } from 'sonner';
 
 const eventTypeColors: Record<string, 'success' | 'warning' | 'danger' | 'info' | 'default'> = {
   created: 'success',
@@ -55,7 +56,7 @@ export default function AdminAuditLog() {
         setLastPage(res.last_page);
         setTotal(res.total);
       })
-      .catch(() => {})
+      .catch(() => { toast.error('Failed to load audit logs'); })
       .finally(() => setLoading(false));
   }, [page, eventTypeFilter, entityTypeFilter, dateFrom, dateTo]);
 
