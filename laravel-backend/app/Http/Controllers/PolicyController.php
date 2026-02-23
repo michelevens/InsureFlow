@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Commission;
 use App\Models\InsuranceProfile;
 use App\Models\Policy;
 use Illuminate\Http\Request;
@@ -79,6 +80,19 @@ class PolicyController extends Controller
             'policy_number' => 'POL-' . strtoupper(uniqid()),
             'status' => 'active',
         ]);
+
+        // Auto-create commission for the agent
+        if ($policy->agent_id) {
+            Commission::create([
+                'agent_id' => $policy->agent_id,
+                'policy_id' => $policy->id,
+                'carrier_name' => $policy->carrier_name,
+                'premium_amount' => $policy->annual_premium,
+                'commission_rate' => 0.10,
+                'commission_amount' => round($policy->annual_premium * 0.10, 2),
+                'status' => 'pending',
+            ]);
+        }
 
         // Advance UIP to policy stage + mark converted
         $profile = null;

@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Mail\ApplicationStatusMail;
 use App\Models\Application;
+use App\Models\Commission;
 use App\Models\InsuranceProfile;
+use App\Models\Policy;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 
@@ -129,12 +131,45 @@ class ApplicationController extends Controller
             }
         }
 
+        // When bound, auto-create policy + commission if none exists
+        if ($data['status'] === 'bound' && !$application->policy) {
+            $annualPremium = round(($application->monthly_premium ?? 0) * 12, 2);
+
+            $policy = Policy::create([
+                'application_id' => $application->id,
+                'user_id' => $application->user_id,
+                'agent_id' => $application->agent_id,
+                'agency_id' => $application->agency_id,
+                'carrier_product_id' => $application->carrier_product_id,
+                'type' => $application->insurance_type,
+                'carrier_name' => $application->carrier_name,
+                'monthly_premium' => $application->monthly_premium,
+                'annual_premium' => $annualPremium,
+                'effective_date' => now()->format('Y-m-d'),
+                'expiration_date' => now()->addYear()->format('Y-m-d'),
+                'policy_number' => 'POL-' . strtoupper(uniqid()),
+                'status' => 'active',
+            ]);
+
+            if ($application->agent_id) {
+                Commission::create([
+                    'agent_id' => $application->agent_id,
+                    'policy_id' => $policy->id,
+                    'carrier_name' => $application->carrier_name,
+                    'premium_amount' => $annualPremium,
+                    'commission_rate' => 0.10,
+                    'commission_amount' => round($annualPremium * 0.10, 2),
+                    'status' => 'pending',
+                ]);
+            }
+        }
+
         // If declined, mark UIP as lost
         if ($data['status'] === 'declined') {
             InsuranceProfile::where('application_id', $application->id)
                 ->update(['status' => 'lost']);
         }
 
-        return response()->json($application);
+        return response()->json($application->load('policy'));
     }
 }
