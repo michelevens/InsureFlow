@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import type { ReactNode } from 'react';
 import { authService } from '@/services/api';
 import type { User } from '@/types';
@@ -34,16 +34,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isLoading: true,
   });
 
-  const refreshUser = async () => {
-    try {
-      const { user } = await authService.me();
-      setState({ user, isAuthenticated: true, isLoading: false });
-    } catch {
-      localStorage.removeItem('auth_token');
-      setState({ user: null, isAuthenticated: false, isLoading: false });
-    }
-  };
+  const clearAuth = useCallback(() => {
+    localStorage.removeItem('auth_token');
+    setState({ user: null, isAuthenticated: false, isLoading: false });
+  }, []);
 
+  const refreshUser = useCallback(async () => {
+    try {
+      const response = await authService.me();
+      const user = response.user ?? response as unknown as User;
+      if (user?.id) {
+        setState({ user, isAuthenticated: true, isLoading: false });
+      } else {
+        clearAuth();
+      }
+    } catch {
+      clearAuth();
+    }
+  }, [clearAuth]);
+
+  // Bootstrap: check for existing token on mount
   useEffect(() => {
     const token = localStorage.getItem('auth_token');
     if (token) {
@@ -51,7 +61,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } else {
       setState(prev => ({ ...prev, isLoading: false }));
     }
-  }, []);
+  }, [refreshUser]);
+
+  // Listen for 401 events from the API client
+  useEffect(() => {
+    const handleUnauthorized = () => clearAuth();
+    window.addEventListener('auth:unauthorized', handleUnauthorized);
+    return () => window.removeEventListener('auth:unauthorized', handleUnauthorized);
+  }, [clearAuth]);
 
   const login = async (email: string, password: string) => {
     const response = await authService.login(email, password);
@@ -87,8 +104,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       await authService.logout();
     } finally {
-      localStorage.removeItem('auth_token');
-      setState({ user: null, isAuthenticated: false, isLoading: false });
+      clearAuth();
     }
   };
 

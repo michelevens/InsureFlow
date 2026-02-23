@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'sonner';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
+import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { PWAPrompt } from '@/components/pwa/PWAPrompt';
 
 const queryClient = new QueryClient({
@@ -157,7 +158,8 @@ export default function App() {
               <Route path="/sso/login/:agencySlug" element={<SsoLogin />} />
               <Route path="/sso/callback" element={<SsoCallback />} />
 
-              {/* Protected routes (inside DashboardLayout) */}
+              {/* Protected routes (auth guard + DashboardLayout) */}
+              <Route element={<ProtectedRoute />}>
               <Route element={<DashboardLayout />}>
                 {/* Dashboard */}
                 <Route path="/dashboard" element={<Dashboard />} />
@@ -248,6 +250,7 @@ export default function App() {
 
                 {/* Settings */}
                 <Route path="/settings" element={<Settings />} />
+              </Route>
               </Route>
 
               {/* Catch-all */}

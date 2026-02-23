@@ -120,7 +120,7 @@ class AuthController extends Controller
     {
         $user = $request->user();
         $user->load(['agentProfile', 'agency', 'ownedAgency']);
-        return response()->json($user);
+        return response()->json(['user' => $user]);
     }
 
     public function logout(Request $request)
@@ -350,7 +350,10 @@ class AuthController extends Controller
         }
 
         // Reset password to known value (fixes any corruption from double-hashing)
+        // Also ensure demo account is active and email-verified
         $user->password = 'password'; // 'hashed' cast auto-hashes
+        $user->is_active = true;
+        $user->email_verified_at = $user->email_verified_at ?? now();
         $user->save();
 
         $token = $user->createToken('auth-token')->plainTextToken;
