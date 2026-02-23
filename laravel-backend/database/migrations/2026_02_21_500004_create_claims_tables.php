@@ -37,7 +37,7 @@ return new class extends Migration
         Schema::create('claim_documents', function (Blueprint $table) {
             $table->id();
             $table->foreignId('claim_id')->constrained()->onDelete('cascade');
-            $table->foreignId('document_id')->constrained()->onDelete('cascade');
+            $table->foreignUuid('document_id')->constrained()->onDelete('cascade');
             $table->string('type')->default('supporting'); // supporting, photo, estimate, police_report, medical_record
             $table->timestamps();
         });
