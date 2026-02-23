@@ -14,6 +14,7 @@ class DatabaseSeeder extends Seeder
             DemoUserSeeder::class,
             PlatformProductSeeder::class,
             AgencyAgentSeeder::class,
+            PipelineSeeder::class,
             ForumSeeder::class,
             EventSeeder::class,
             PartnerSeeder::class,
