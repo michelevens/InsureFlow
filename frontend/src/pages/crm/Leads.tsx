@@ -91,6 +91,7 @@ export default function Leads() {
   const [scenariosLoading, setScenariosLoading] = useState(false);
 
   // Modals
+  const [showAddLead, setShowAddLead] = useState(false);
   const [showNewScenario, setShowNewScenario] = useState(false);
   const [showAddObject, setShowAddObject] = useState<number | null>(null);
   const [showAddCoverage, setShowAddCoverage] = useState<number | null>(null);
@@ -498,6 +499,9 @@ export default function Leads() {
           <h1 className="text-2xl font-bold text-slate-900">Lead Pipeline</h1>
           <p className="text-slate-500 mt-1">Manage leads, scenarios, and applications</p>
         </div>
+        <Button variant="shield" leftIcon={<Plus className="w-4 h-4" />} onClick={() => setShowAddLead(true)}>
+          Add Lead
+        </Button>
       </div>
 
       {/* Stats */}
@@ -586,7 +590,160 @@ export default function Leads() {
           </div>
         )}
       </Card>
+
+      {showAddLead && (
+        <AddLeadModal
+          onClose={() => setShowAddLead(false)}
+          onCreated={fetchLeads}
+        />
+      )}
     </div>
+  );
+}
+
+// ── Add Lead Modal ─────────────────────────────────
+
+const INSURANCE_TYPES = [
+  { value: '', label: 'Select type...' },
+  { value: 'auto', label: 'Auto' },
+  { value: 'homeowners', label: 'Homeowners' },
+  { value: 'life_term', label: 'Term Life' },
+  { value: 'life_whole', label: 'Whole Life' },
+  { value: 'health_individual', label: 'Health (Individual)' },
+  { value: 'health_group', label: 'Health (Group)' },
+  { value: 'long_term_care', label: 'Long Term Care' },
+  { value: 'disability_ltd', label: 'Disability (LTD)' },
+  { value: 'disability_std', label: 'Disability (STD)' },
+  { value: 'medicare_supplement', label: 'Medicare Supplement' },
+  { value: 'commercial_gl', label: 'Commercial GL' },
+  { value: 'workers_comp', label: 'Workers Comp' },
+  { value: 'umbrella', label: 'Umbrella' },
+  { value: 'renters', label: 'Renters' },
+  { value: 'flood', label: 'Flood' },
+];
+
+const LEAD_SOURCES = [
+  { value: '', label: 'Select source...' },
+  { value: 'website', label: 'Website' },
+  { value: 'referral', label: 'Referral' },
+  { value: 'phone', label: 'Phone' },
+  { value: 'walk-in', label: 'Walk-in' },
+  { value: 'partner', label: 'Partner' },
+  { value: 'other', label: 'Other' },
+];
+
+function AddLeadModal({ onClose, onCreated }: {
+  onClose: () => void;
+  onCreated: () => Promise<void>;
+}) {
+  const [form, setForm] = useState({
+    first_name: '',
+    last_name: '',
+    email: '',
+    phone: '',
+    insurance_type: '',
+    source: '',
+    estimated_value: '',
+    notes: '',
+  });
+  const [saving, setSaving] = useState(false);
+
+  const handleSubmit = async () => {
+    if (!form.first_name || !form.last_name || !form.email || !form.insurance_type) return;
+    setSaving(true);
+    try {
+      await crmService.createLead({
+        first_name: form.first_name,
+        last_name: form.last_name,
+        email: form.email,
+        phone: form.phone || undefined,
+        insurance_type: form.insurance_type,
+        source: form.source || undefined,
+        estimated_value: form.estimated_value ? Number(form.estimated_value) : undefined,
+        notes: form.notes || undefined,
+      });
+      toast.success('Lead created successfully');
+      await onCreated();
+      onClose();
+    } catch {
+      toast.error('Failed to create lead');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <Modal isOpen onClose={onClose} title="Add New Lead">
+      <div className="space-y-4">
+        <div className="grid grid-cols-2 gap-4">
+          <Input
+            label="First Name *"
+            placeholder="John"
+            value={form.first_name}
+            onChange={e => setForm({ ...form, first_name: e.target.value })}
+          />
+          <Input
+            label="Last Name *"
+            placeholder="Doe"
+            value={form.last_name}
+            onChange={e => setForm({ ...form, last_name: e.target.value })}
+          />
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          <Input
+            label="Email *"
+            type="email"
+            placeholder="john@example.com"
+            value={form.email}
+            onChange={e => setForm({ ...form, email: e.target.value })}
+          />
+          <Input
+            label="Phone"
+            placeholder="(555) 123-4567"
+            value={form.phone}
+            onChange={e => setForm({ ...form, phone: e.target.value })}
+          />
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          <Select
+            label="Insurance Type *"
+            options={INSURANCE_TYPES}
+            value={form.insurance_type}
+            onChange={e => setForm({ ...form, insurance_type: e.target.value })}
+          />
+          <Select
+            label="Source"
+            options={LEAD_SOURCES}
+            value={form.source}
+            onChange={e => setForm({ ...form, source: e.target.value })}
+          />
+        </div>
+        <Input
+          label="Estimated Value ($)"
+          type="number"
+          placeholder="0.00"
+          value={form.estimated_value}
+          onChange={e => setForm({ ...form, estimated_value: e.target.value })}
+        />
+        <Textarea
+          label="Notes"
+          placeholder="Any notes about this lead..."
+          value={form.notes}
+          onChange={e => setForm({ ...form, notes: e.target.value })}
+          rows={3}
+        />
+        <div className="flex justify-end gap-2 pt-2">
+          <Button variant="ghost" onClick={onClose}>Cancel</Button>
+          <Button
+            variant="shield"
+            onClick={handleSubmit}
+            disabled={saving || !form.first_name || !form.last_name || !form.email || !form.insurance_type}
+          >
+            {saving ? 'Creating...' : 'Create Lead'}
+          </Button>
+        </div>
+      </div>
+    </Modal>
   );
 }
 

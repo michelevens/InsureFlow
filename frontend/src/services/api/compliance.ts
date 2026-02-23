@@ -70,6 +70,57 @@ export interface ComplianceDashboard {
   expiring: ExpiringItem[];
 }
 
+export interface ComplianceRequirement {
+  id: number;
+  state: string;
+  insurance_type: string;
+  requirement_type: string;
+  title: string;
+  description: string | null;
+  details: Record<string, unknown> | null;
+  category: string;
+  is_required: boolean;
+  frequency: string;
+  authority: string | null;
+  reference_url: string | null;
+}
+
+export interface CompliancePackItem {
+  id: number;
+  user_id: number;
+  agency_id: number | null;
+  compliance_requirement_id: number;
+  status: 'pending' | 'in_progress' | 'completed' | 'waived' | 'expired';
+  due_date: string | null;
+  completed_date: string | null;
+  evidence_url: string | null;
+  notes: string | null;
+  reviewed_by: number | null;
+  reviewed_at: string | null;
+  requirement?: ComplianceRequirement;
+}
+
+export interface CompliancePack {
+  items: CompliancePackItem[];
+  summary: {
+    total: number;
+    completed: number;
+    pending: number;
+    in_progress: number;
+    waived: number;
+    overdue: number;
+  };
+}
+
+export interface ComplianceOverview {
+  total_items: number;
+  completed: number;
+  overdue: number;
+  compliance_rate: number;
+  users_with_packs: number;
+  by_category: Array<{ category: string; total: number; completed_count: number }>;
+}
+
 export const complianceService = {
   async dashboard(userId?: number): Promise<ComplianceDashboard> {
     const query = userId ? `?user_id=${userId}` : '';
@@ -157,5 +208,44 @@ export const complianceService = {
   async expiring(days?: number): Promise<ExpiringItem[]> {
     const query = days ? `?days=${days}` : '';
     return api.get<ExpiringItem[]>(`/compliance/expiring${query}`);
+  },
+
+  // Compliance Pack
+  async getPack(): Promise<CompliancePack> {
+    return api.get<CompliancePack>('/compliance/pack');
+  },
+
+  async generatePack(): Promise<CompliancePack> {
+    return api.post<CompliancePack>('/compliance/pack/generate');
+  },
+
+  async updatePackItem(id: number, data: { status?: string; evidence_url?: string; notes?: string }): Promise<CompliancePackItem> {
+    return api.put<CompliancePackItem>(`/compliance/pack/${id}`, data);
+  },
+
+  // Admin: Compliance Requirements
+  async getRequirements(params?: { state?: string; insurance_type?: string; category?: string }): Promise<ComplianceRequirement[]> {
+    const query = new URLSearchParams();
+    if (params?.state) query.set('state', params.state);
+    if (params?.insurance_type) query.set('insurance_type', params.insurance_type);
+    if (params?.category) query.set('category', params.category);
+    const qs = query.toString();
+    return api.get<ComplianceRequirement[]>(`/admin/compliance/requirements${qs ? `?${qs}` : ''}`);
+  },
+
+  async createRequirement(data: Partial<ComplianceRequirement>): Promise<ComplianceRequirement> {
+    return api.post<ComplianceRequirement>('/admin/compliance/requirements', data);
+  },
+
+  async updateRequirement(id: number, data: Partial<ComplianceRequirement>): Promise<ComplianceRequirement> {
+    return api.put<ComplianceRequirement>(`/admin/compliance/requirements/${id}`, data);
+  },
+
+  async deleteRequirement(id: number): Promise<void> {
+    return api.delete(`/admin/compliance/requirements/${id}`);
+  },
+
+  async getComplianceOverview(): Promise<ComplianceOverview> {
+    return api.get<ComplianceOverview>('/admin/compliance/overview');
   },
 };

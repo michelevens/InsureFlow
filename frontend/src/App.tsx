@@ -91,6 +91,7 @@ const AdminAgencies = lazy(() => import('@/pages/admin/AdminAgencies'));
 const AdminAnalytics = lazy(() => import('@/pages/admin/AdminAnalytics'));
 const AdminPlans = lazy(() => import('@/pages/admin/AdminPlans'));
 const AdminProducts = lazy(() => import('@/pages/admin/AdminProducts'));
+const AdminCarriers = lazy(() => import('@/pages/admin/AdminCarriers'));
 const AdminAuditLog = lazy(() => import('@/pages/admin/AdminAuditLog'));
 const SuperAdminDashboard = lazy(() => import('@/pages/admin/SuperAdminDashboard'));
 const SuperAdminSettings = lazy(() => import('@/pages/admin/SuperAdminSettings'));
@@ -142,6 +143,9 @@ const LtcComparisonReport = lazy(() => import('@/pages/reports/LtcComparisonRepo
 const MeetingsPage = lazy(() => import('@/pages/meetings/Meetings'));
 const MeetingRoom = lazy(() => import('@/pages/meetings/MeetingRoom'));
 
+// Lead Intake (public)
+const LeadIntake = lazy(() => import('@/pages/intake/LeadIntake'));
+
 // Settings
 const Settings = lazy(() => import('@/pages/public/Settings'));
 
@@ -167,6 +171,7 @@ export default function App() {
               <Route path="/invite/:token" element={<AcceptInvite />} />
               <Route path="/marketplace" element={<Marketplace />} />
               <Route path="/marketplace/:id" element={<AgentProfile />} />
+              <Route path="/intake/:agencyCode" element={<LeadIntake />} />
               <Route path="/sso/login/:agencySlug" element={<SsoLogin />} />
               <Route path="/sso/callback" element={<SsoCallback />} />
 
@@ -264,6 +269,7 @@ export default function App() {
                 <Route path="/admin/analytics" element={<AdminAnalytics />} />
                 <Route path="/admin/plans" element={<AdminPlans />} />
                 <Route path="/admin/products" element={<AdminProducts />} />
+                <Route path="/admin/carriers" element={<AdminCarriers />} />
                 <Route path="/admin/audit-log" element={<AdminAuditLog />} />
                 <Route path="/admin/sso" element={<SsoConfig />} />
                 <Route path="/admin/platform" element={<SuperAdminDashboard />} />

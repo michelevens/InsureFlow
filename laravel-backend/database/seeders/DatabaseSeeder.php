@@ -23,6 +23,7 @@ class DatabaseSeeder extends Seeder
             EmailTemplateSeeder::class,
             RecruitmentSeeder::class,
             ReportSeeder::class,
+            ComplianceRequirementSeeder::class,
         ]);
     }
 }

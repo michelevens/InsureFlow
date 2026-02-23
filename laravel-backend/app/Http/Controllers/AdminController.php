@@ -4,11 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Mail\AccountApprovedMail;
 use App\Models\Agency;
+use App\Models\Carrier;
 use App\Models\SubscriptionPlan;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 
 class AdminController extends Controller
 {
@@ -158,6 +160,94 @@ class AdminController extends Controller
     {
         $plan->delete();
         return response()->json(['message' => 'Plan deleted']);
+    }
+
+    // --- User Management ---
+
+    public function createUser(Request $request)
+    {
+        $data = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'role' => 'required|in:consumer,agent,agency_owner,carrier,admin',
+            'password' => 'required|string|min:8',
+            'agency_id' => 'nullable|exists:agencies,id',
+        ]);
+
+        $user = User::create([
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'role' => $data['role'],
+            'password' => Hash::make($data['password']),
+            'agency_id' => $data['agency_id'] ?? null,
+            'is_active' => true,
+        ]);
+
+        return response()->json($user, 201);
+    }
+
+    public function resetPassword(User $user)
+    {
+        $tempPassword = Str::random(12);
+        $user->update(['password' => Hash::make($tempPassword)]);
+
+        return response()->json([
+            'message' => 'Password reset successfully',
+            'temporary_password' => $tempPassword,
+        ]);
+    }
+
+    // --- Carriers ---
+
+    public function carriers(Request $request)
+    {
+        $query = Carrier::withCount(['products', 'agencyAppointments']);
+
+        if ($search = $request->query('search')) {
+            $query->where('name', 'ilike', "%{$search}%");
+        }
+
+        return response()->json($query->orderBy('name')->get());
+    }
+
+    public function showCarrier(Carrier $carrier)
+    {
+        $carrier->load('products');
+        $carrier->loadCount('agencyAppointments');
+        return response()->json($carrier);
+    }
+
+    public function storeCarrier(Request $request)
+    {
+        $data = $request->validate([
+            'name' => 'required|string|max:255',
+            'slug' => 'required|string|unique:carriers',
+            'description' => 'nullable|string',
+            'logo_url' => 'nullable|string',
+            'website' => 'nullable|string',
+            'am_best_rating' => 'nullable|string|max:10',
+            'states_available' => 'nullable|array',
+            'is_active' => 'sometimes|boolean',
+        ]);
+
+        $carrier = Carrier::create($data);
+        return response()->json($carrier, 201);
+    }
+
+    public function updateCarrier(Request $request, Carrier $carrier)
+    {
+        $data = $request->validate([
+            'name' => 'sometimes|string|max:255',
+            'description' => 'nullable|string',
+            'logo_url' => 'nullable|string',
+            'website' => 'nullable|string',
+            'am_best_rating' => 'nullable|string|max:10',
+            'states_available' => 'nullable|array',
+            'is_active' => 'sometimes|boolean',
+        ]);
+
+        $carrier->update($data);
+        return response()->json($carrier);
     }
 
     // --- Analytics ---

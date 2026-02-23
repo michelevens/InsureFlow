@@ -132,6 +132,7 @@ const navSections: NavSection[] = [
       { label: 'Users', href: '/admin/users', icon: <Users className="w-5 h-5" />, roles: ['admin', 'superadmin'] },
       { label: 'Agencies', href: '/admin/agencies', icon: <Building2 className="w-5 h-5" />, roles: ['admin', 'superadmin'] },
       { label: 'Products', href: '/admin/products', icon: <ShieldCheck className="w-5 h-5" />, roles: ['admin', 'superadmin'] },
+      { label: 'Carriers', href: '/admin/carriers', icon: <Building2 className="w-5 h-5" />, roles: ['admin', 'superadmin'] },
       { label: 'Analytics', href: '/admin/analytics', icon: <BarChart3 className="w-5 h-5" />, roles: ['admin', 'superadmin'] },
       { label: 'Plans', href: '/admin/plans', icon: <DollarSign className="w-5 h-5" />, roles: ['admin', 'superadmin'] },
       { label: 'Audit Log', href: '/admin/audit-log', icon: <Activity className="w-5 h-5" />, roles: ['admin', 'superadmin'] },

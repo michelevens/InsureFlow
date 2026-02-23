@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Card, Badge, Button, Input, Modal, Select } from '@/components/ui';
 import { complianceService } from '@/services/api';
-import type { ComplianceDashboard as DashboardData } from '@/services/api/compliance';
+import type { ComplianceDashboard as DashboardData, CompliancePack, CompliancePackItem } from '@/services/api/compliance';
 import {
   ShieldCheck, Award, FileText, AlertTriangle, Plus, Trash2, Clock,
+  ClipboardList, CheckCircle2, RefreshCw, ExternalLink, ChevronDown, ChevronRight,
 } from 'lucide-react';
+import { toast } from 'sonner';
 
 const US_STATES = [
   'AL','AK','AZ','AR','CA','CO','CT','DE','FL','GA','HI','ID','IL','IN','IA','KS','KY','LA','ME','MD',
@@ -20,15 +22,38 @@ const licenseStatusConfig: Record<string, { label: string; variant: 'success' | 
   pending: { label: 'Pending', variant: 'info' },
 };
 
-type Tab = 'overview' | 'licenses' | 'ce' | 'eo';
+const packStatusConfig: Record<string, { label: string; variant: 'success' | 'warning' | 'danger' | 'info' | 'default' }> = {
+  pending: { label: 'Pending', variant: 'warning' },
+  in_progress: { label: 'In Progress', variant: 'info' },
+  completed: { label: 'Completed', variant: 'success' },
+  waived: { label: 'Waived', variant: 'default' },
+  expired: { label: 'Expired', variant: 'danger' },
+};
+
+const categoryLabels: Record<string, string> = {
+  licensing: 'Licensing',
+  education: 'Education & CE',
+  insurance: 'Insurance',
+  regulatory: 'Regulatory',
+  documentation: 'Documentation',
+};
+
+type Tab = 'pack' | 'overview' | 'licenses' | 'ce' | 'eo';
 
 export default function ComplianceDashboardPage() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<Tab>('overview');
+  const [activeTab, setActiveTab] = useState<Tab>('pack');
   const [showAddLicense, setShowAddLicense] = useState(false);
   const [showAddCe, setShowAddCe] = useState(false);
   const [showAddEo, setShowAddEo] = useState(false);
+
+  // Compliance Pack state
+  const [pack, setPack] = useState<CompliancePack | null>(null);
+  const [packLoading, setPackLoading] = useState(false);
+  const [packFilter, setPackFilter] = useState<string>('all');
+  const [expandedItem, setExpandedItem] = useState<number | null>(null);
+  const [generatingPack, setGeneratingPack] = useState(false);
 
   const fetchData = async () => {
     setLoading(true);
@@ -42,7 +67,42 @@ export default function ComplianceDashboardPage() {
     }
   };
 
-  useEffect(() => { fetchData(); }, []);
+  const fetchPack = async () => {
+    setPackLoading(true);
+    try {
+      const p = await complianceService.getPack();
+      setPack(p);
+    } catch {
+      // pack not generated yet
+    } finally {
+      setPackLoading(false);
+    }
+  };
+
+  const handleGeneratePack = async () => {
+    setGeneratingPack(true);
+    try {
+      const p = await complianceService.generatePack();
+      setPack(p);
+      toast.success('Compliance pack generated based on your states and products');
+    } catch {
+      toast.error('Failed to generate compliance pack');
+    } finally {
+      setGeneratingPack(false);
+    }
+  };
+
+  const handleUpdateItem = async (item: CompliancePackItem, status: string) => {
+    try {
+      await complianceService.updatePackItem(item.id, { status });
+      fetchPack();
+      toast.success(`Item marked as ${status}`);
+    } catch {
+      toast.error('Failed to update item');
+    }
+  };
+
+  useEffect(() => { fetchData(); fetchPack(); }, []);
 
   const deleteLicense = async (id: number) => {
     await complianceService.removeLicense(id);
@@ -60,6 +120,7 @@ export default function ComplianceDashboardPage() {
   };
 
   const tabs: { key: Tab; label: string }[] = [
+    { key: 'pack', label: 'Compliance Pack' },
     { key: 'overview', label: 'Overview' },
     { key: 'licenses', label: 'Licenses' },
     { key: 'ce', label: 'CE Credits' },
@@ -98,6 +159,177 @@ export default function ComplianceDashboardPage() {
           </button>
         ))}
       </div>
+
+      {activeTab === 'pack' && (
+        <div className="space-y-4">
+          {/* Pack Summary */}
+          {pack && pack.summary.total > 0 ? (
+            <>
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                <Card className="p-4 text-center">
+                  <p className="text-2xl font-bold text-slate-900">{pack.summary.total}</p>
+                  <p className="text-xs text-slate-500">Total</p>
+                </Card>
+                <Card className="p-4 text-center">
+                  <p className="text-2xl font-bold text-savings-600">{pack.summary.completed}</p>
+                  <p className="text-xs text-slate-500">Completed</p>
+                </Card>
+                <Card className="p-4 text-center">
+                  <p className="text-2xl font-bold text-amber-600">{pack.summary.pending}</p>
+                  <p className="text-xs text-slate-500">Pending</p>
+                </Card>
+                <Card className="p-4 text-center">
+                  <p className="text-2xl font-bold text-shield-600">{pack.summary.in_progress}</p>
+                  <p className="text-xs text-slate-500">In Progress</p>
+                </Card>
+                <Card className="p-4 text-center">
+                  <p className="text-2xl font-bold text-red-600">{pack.summary.overdue}</p>
+                  <p className="text-xs text-slate-500">Overdue</p>
+                </Card>
+              </div>
+
+              {/* Progress bar */}
+              <Card className="p-5">
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="text-sm font-semibold text-slate-700">Overall Compliance Progress</h3>
+                  <span className="text-sm font-bold text-shield-600">
+                    {pack.summary.total > 0 ? Math.round((pack.summary.completed / pack.summary.total) * 100) : 0}%
+                  </span>
+                </div>
+                <div className="w-full bg-slate-200 rounded-full h-3">
+                  <div
+                    className="bg-shield-600 h-3 rounded-full transition-all"
+                    style={{ width: `${pack.summary.total > 0 ? (pack.summary.completed / pack.summary.total) * 100 : 0}%` }}
+                  />
+                </div>
+                <div className="flex justify-between mt-2">
+                  <p className="text-xs text-slate-400">{pack.summary.completed} of {pack.summary.total} requirements completed</p>
+                  <Button variant="ghost" size="sm" onClick={handleGeneratePack} disabled={generatingPack}>
+                    <RefreshCw className={`w-3 h-3 mr-1 ${generatingPack ? 'animate-spin' : ''}`} /> Refresh
+                  </Button>
+                </div>
+              </Card>
+
+              {/* Filter */}
+              <div className="flex gap-2">
+                {['all', 'pending', 'in_progress', 'completed', 'overdue'].map(f => (
+                  <button
+                    key={f}
+                    onClick={() => setPackFilter(f)}
+                    className={`px-3 py-1.5 text-xs rounded-full capitalize transition-colors ${
+                      packFilter === f ? 'bg-shield-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                    }`}
+                  >
+                    {f === 'all' ? 'All' : f.replace('_', ' ')}
+                  </button>
+                ))}
+              </div>
+
+              {/* Items grouped by category */}
+              {Object.entries(
+                pack.items
+                  .filter(item => {
+                    if (packFilter === 'all') return true;
+                    if (packFilter === 'overdue') return item.due_date && new Date(item.due_date) < new Date() && !['completed', 'waived'].includes(item.status);
+                    return item.status === packFilter;
+                  })
+                  .reduce<Record<string, CompliancePackItem[]>>((acc, item) => {
+                    const cat = item.requirement?.category || 'other';
+                    if (!acc[cat]) acc[cat] = [];
+                    acc[cat].push(item);
+                    return acc;
+                  }, {})
+              ).map(([category, items]) => (
+                <Card key={category} className="overflow-hidden">
+                  <div className="px-5 py-3 bg-slate-50 border-b border-slate-100">
+                    <h3 className="text-sm font-semibold text-slate-700">{categoryLabels[category] || category}</h3>
+                  </div>
+                  <div className="divide-y divide-slate-50">
+                    {items.map(item => {
+                      const req = item.requirement;
+                      const sc = packStatusConfig[item.status] || packStatusConfig.pending;
+                      const isOverdue = item.due_date && new Date(item.due_date) < new Date() && !['completed', 'waived'].includes(item.status);
+                      const isExpanded = expandedItem === item.id;
+
+                      return (
+                        <div key={item.id} className={`${isOverdue ? 'bg-red-50/50' : ''}`}>
+                          <div
+                            className="flex items-center justify-between px-5 py-3 cursor-pointer hover:bg-slate-50"
+                            onClick={() => setExpandedItem(isExpanded ? null : item.id)}
+                          >
+                            <div className="flex items-center gap-3 min-w-0">
+                              {isExpanded ? <ChevronDown className="w-4 h-4 text-slate-400 flex-shrink-0" /> : <ChevronRight className="w-4 h-4 text-slate-400 flex-shrink-0" />}
+                              <div className="min-w-0">
+                                <p className="font-medium text-slate-900 text-sm truncate">{req?.title || 'Requirement'}</p>
+                                <div className="flex items-center gap-2 mt-0.5">
+                                  <span className="text-xs text-slate-400 capitalize">{req?.frequency?.replace('_', ' ')}</span>
+                                  {req?.authority && <span className="text-xs text-slate-400">• {req.authority}</span>}
+                                  {item.due_date && <span className={`text-xs ${isOverdue ? 'text-red-600 font-medium' : 'text-slate-400'}`}>Due: {new Date(item.due_date).toLocaleDateString()}</span>}
+                                </div>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2 flex-shrink-0">
+                              <Badge variant={isOverdue ? 'danger' : sc.variant}>{isOverdue ? 'Overdue' : sc.label}</Badge>
+                            </div>
+                          </div>
+
+                          {isExpanded && (
+                            <div className="px-5 pb-4 pl-12 space-y-3">
+                              {req?.description && <p className="text-sm text-slate-600">{req.description}</p>}
+                              {req?.reference_url && (
+                                <a href={req.reference_url} target="_blank" rel="noopener noreferrer" className="text-xs text-shield-600 hover:underline flex items-center gap-1">
+                                  <ExternalLink className="w-3 h-3" /> Reference
+                                </a>
+                              )}
+                              <div className="flex gap-2">
+                                {item.status !== 'completed' && (
+                                  <Button variant="shield" size="sm" onClick={() => handleUpdateItem(item, 'completed')}>
+                                    <CheckCircle2 className="w-3 h-3 mr-1" /> Mark Complete
+                                  </Button>
+                                )}
+                                {item.status === 'pending' && (
+                                  <Button variant="outline" size="sm" onClick={() => handleUpdateItem(item, 'in_progress')}>
+                                    In Progress
+                                  </Button>
+                                )}
+                                {item.status === 'completed' && (
+                                  <Button variant="ghost" size="sm" onClick={() => handleUpdateItem(item, 'pending')}>
+                                    Reopen
+                                  </Button>
+                                )}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </Card>
+              ))}
+            </>
+          ) : packLoading ? (
+            <Card className="p-8 text-center">
+              <div className="w-8 h-8 border-4 border-shield-200 border-t-shield-600 rounded-full animate-spin mx-auto" />
+              <p className="text-sm text-slate-400 mt-2">Loading compliance pack...</p>
+            </Card>
+          ) : (
+            <Card className="p-12 text-center">
+              <ClipboardList className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+              <h3 className="text-lg font-semibold text-slate-900 mb-1">No Compliance Pack Yet</h3>
+              <p className="text-sm text-slate-500 mb-4">
+                Generate your personalized compliance pack based on your licensed states and insurance products.
+              </p>
+              <Button variant="shield" onClick={handleGeneratePack} disabled={generatingPack}>
+                {generatingPack ? (
+                  <><RefreshCw className="w-4 h-4 mr-2 animate-spin" /> Generating...</>
+                ) : (
+                  <><ClipboardList className="w-4 h-4 mr-2" /> Generate My Compliance Pack</>
+                )}
+              </Button>
+            </Card>
+          )}
+        </div>
+      )}
 
       {activeTab === 'overview' && (
         <>

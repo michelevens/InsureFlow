@@ -50,9 +50,11 @@ use App\Http\Controllers\RatingController;
 use App\Http\Controllers\PlatformSettingController;
 use App\Http\Controllers\AgencySettingController;
 use App\Http\Controllers\AdminProductController;
+use App\Http\Controllers\CompliancePackController;
 use App\Http\Controllers\AgencyProductController;
 use App\Http\Controllers\ProductVisibilityController;
 use App\Http\Controllers\OnboardingController;
+use App\Http\Controllers\LeadIntakeController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -104,6 +106,10 @@ Route::get('/sso/metadata', [SamlController::class, 'metadata']);
 
 // Product visibility (public)
 Route::get('/products/visible', [ProductVisibilityController::class, 'visible']);
+
+// Lead intake (public — agencies share these links with potential leads)
+Route::get('/intake/{agencyCode}', [LeadIntakeController::class, 'formData']);
+Route::post('/intake/{agencyCode}', [LeadIntakeController::class, 'submit']);
 
 /*
 |--------------------------------------------------------------------------
@@ -417,6 +423,11 @@ Route::middleware(['auth:sanctum', 'agency.scope'])->group(function () {
     Route::delete('/compliance/eo-policies/{eoPolicy}', [ComplianceController::class, 'destroyEoPolicy']);
     Route::get('/compliance/expiring', [ComplianceController::class, 'expiring']);
 
+    // Compliance Pack
+    Route::get('/compliance/pack', [CompliancePackController::class, 'index']);
+    Route::post('/compliance/pack/generate', [CompliancePackController::class, 'generate']);
+    Route::put('/compliance/pack/{item}', [CompliancePackController::class, 'update']);
+
     // Data Products & Market Intelligence
     Route::get('/data/subscriptions', [DataProductController::class, 'subscriptions']);
     Route::post('/data/subscriptions', [DataProductController::class, 'subscribe']);
@@ -591,6 +602,23 @@ Route::middleware(['auth:sanctum', 'agency.scope'])->group(function () {
         Route::post('/settings/test-email', [PlatformSettingController::class, 'testEmail']);
         Route::post('/settings/test-stripe', [PlatformSettingController::class, 'testStripe']);
         Route::get('/settings/system-health', [PlatformSettingController::class, 'systemHealth']);
+
+        // Admin User Management
+        Route::post('/users', [AdminController::class, 'createUser']);
+        Route::post('/users/{user}/reset-password', [AdminController::class, 'resetPassword']);
+
+        // Admin Carrier Management
+        Route::get('/carriers', [AdminController::class, 'carriers']);
+        Route::post('/carriers', [AdminController::class, 'storeCarrier']);
+        Route::get('/carriers/{carrier}', [AdminController::class, 'showCarrier']);
+        Route::put('/carriers/{carrier}', [AdminController::class, 'updateCarrier']);
+
+        // Compliance Requirements Management (superadmin)
+        Route::get('/compliance/requirements', [CompliancePackController::class, 'requirements']);
+        Route::post('/compliance/requirements', [CompliancePackController::class, 'storeRequirement']);
+        Route::put('/compliance/requirements/{requirement}', [CompliancePackController::class, 'updateRequirement']);
+        Route::delete('/compliance/requirements/{requirement}', [CompliancePackController::class, 'deleteRequirement']);
+        Route::get('/compliance/overview', [CompliancePackController::class, 'overview']);
     });
 
     // Agency Settings (agency_owner)
@@ -600,5 +628,9 @@ Route::middleware(['auth:sanctum', 'agency.scope'])->group(function () {
         Route::get('/billing', [AgencySettingController::class, 'billing']);
         Route::get('/compliance', [AgencySettingController::class, 'compliance']);
         Route::get('/team-permissions', [AgencySettingController::class, 'teamPermissions']);
+        Route::post('/agents', [AgencySettingController::class, 'createAgent']);
+        Route::post('/agents/{agent}/reset-password', [AgencySettingController::class, 'resetAgentPassword']);
+        Route::post('/regenerate-code', [AgencySettingController::class, 'regenerateCode']);
+        Route::get('/lead-intake', [AgencySettingController::class, 'leadIntakeInfo']);
     });
 });

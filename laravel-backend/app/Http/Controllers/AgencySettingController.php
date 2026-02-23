@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class AgencySettingController extends Controller
 {
@@ -150,5 +153,103 @@ class AgencySettingController extends Controller
         });
 
         return response()->json(['agents' => $agents]);
+    }
+
+    /**
+     * Create a new agent under this agency.
+     */
+    public function createAgent(Request $request)
+    {
+        $user = Auth::user();
+        $agency = $user->ownedAgency;
+
+        if (!$agency) {
+            return response()->json(['message' => 'Only agency owners can create agents'], 403);
+        }
+
+        $data = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'sometimes|string|min:8',
+        ]);
+
+        $password = $data['password'] ?? Str::random(10);
+
+        $agent = User::create([
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'password' => Hash::make($password),
+            'role' => 'agent',
+            'agency_id' => $agency->id,
+            'is_active' => true,
+        ]);
+
+        return response()->json([
+            'agent' => $agent,
+            'temporary_password' => $password,
+        ], 201);
+    }
+
+    /**
+     * Regenerate agency code.
+     */
+    public function regenerateCode()
+    {
+        $user = Auth::user();
+        $agency = $user->ownedAgency;
+
+        if (!$agency) {
+            return response()->json(['message' => 'Only agency owners can regenerate codes'], 403);
+        }
+
+        $newCode = strtoupper(Str::random(8));
+        $agency->update(['agency_code' => $newCode]);
+
+        return response()->json([
+            'message' => 'Agency code regenerated',
+            'agency_code' => $newCode,
+        ]);
+    }
+
+    /**
+     * Get the agency's lead intake URL info.
+     */
+    public function leadIntakeInfo()
+    {
+        $user = Auth::user();
+        $agency = $user->ownedAgency ?? $user->agency;
+
+        if (!$agency) {
+            return response()->json(['message' => 'No agency found'], 404);
+        }
+
+        $baseUrl = config('app.frontend_url', 'https://ennhealth.github.io/InsureFlow');
+
+        return response()->json([
+            'agency_code' => $agency->agency_code,
+            'agency_intake_url' => $baseUrl . '/intake/' . $agency->agency_code,
+            'agent_intake_url' => $baseUrl . '/intake/' . $agency->agency_code . '?agent=' . $user->id,
+        ]);
+    }
+
+    /**
+     * Reset an agent's password (must belong to agency).
+     */
+    public function resetAgentPassword(User $agent)
+    {
+        $user = Auth::user();
+        $agency = $user->ownedAgency;
+
+        if (!$agency || $agent->agency_id !== $agency->id) {
+            return response()->json(['message' => 'Agent does not belong to your agency'], 403);
+        }
+
+        $tempPassword = Str::random(12);
+        $agent->update(['password' => Hash::make($tempPassword)]);
+
+        return response()->json([
+            'message' => 'Password reset successfully',
+            'temporary_password' => $tempPassword,
+        ]);
     }
 }

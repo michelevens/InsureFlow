@@ -2,8 +2,9 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, Button, Input, Badge } from '@/components/ui';
 import { cn } from '@/lib/utils';
-import { Loader2, CheckCircle, XCircle, Plus, Key, Plug, Palette, Shield } from 'lucide-react';
+import { Loader2, CheckCircle, XCircle, Plus, Key, Plug, Palette, Shield, UserPlus, Copy, RefreshCw, Link2 } from 'lucide-react';
 import { api } from '@/services/api/client';
+import { toast } from 'sonner';
 
 const tabs = [
   { id: 'general', label: 'General' },
@@ -67,6 +68,20 @@ export default function AgencySettings() {
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [inviteEmail, setInviteEmail] = useState('');
   const [inviting, setInviting] = useState(false);
+
+  // Add Agent
+  const [showAddAgentModal, setShowAddAgentModal] = useState(false);
+  const [agentForm, setAgentForm] = useState({ name: '', email: '', password: '' });
+  const [addingAgent, setAddingAgent] = useState(false);
+  const [newAgentPassword, setNewAgentPassword] = useState('');
+
+  // Reset Password
+  const [resetTempPassword, setResetTempPassword] = useState('');
+  const [resetAgentId, setResetAgentId] = useState<number | null>(null);
+
+  // Agency Code & Lead Intake
+  const [regeneratingCode, setRegeneratingCode] = useState(false);
+  const [intakeUrls, setIntakeUrls] = useState<{ agency_code: string; agency_intake_url: string; agent_intake_url: string } | null>(null);
 
   // Compliance
   const [complianceAgents, setComplianceAgents] = useState<ComplianceAgent[]>([]);
@@ -150,6 +165,65 @@ export default function AgencySettings() {
       setMessage({ type: 'error', text: 'Failed to send invite' });
     } finally {
       setInviting(false);
+    }
+  };
+
+  const loadIntakeUrls = async () => {
+    try {
+      const res = await api.get('/agency/settings/lead-intake') as { agency_code: string; agency_intake_url: string; agent_intake_url: string };
+      setIntakeUrls(res);
+    } catch { /* may not be available */ }
+  };
+
+  useEffect(() => {
+    if (activeTab === 'general' && !intakeUrls) loadIntakeUrls();
+  }, [activeTab]);
+
+  const handleRegenerateCode = async () => {
+    if (!confirm('Regenerate agency code? Existing shared codes will stop working.')) return;
+    setRegeneratingCode(true);
+    try {
+      const res = await api.post('/agency/settings/regenerate-code') as { agency_code: string };
+      toast.success('Agency code regenerated: ' + res.agency_code);
+      loadData();
+      loadIntakeUrls();
+    } catch {
+      toast.error('Failed to regenerate code');
+    } finally {
+      setRegeneratingCode(false);
+    }
+  };
+
+  const copyToClipboard = (text: string, label: string) => {
+    navigator.clipboard.writeText(text).then(() => {
+      toast.success(`${label} copied to clipboard`);
+    });
+  };
+
+  const handleAddAgent = async () => {
+    if (!agentForm.name || !agentForm.email) { toast.error('Name and email are required'); return; }
+    setAddingAgent(true);
+    try {
+      const res = await api.post('/agency/settings/agents', agentForm) as { agent: TeamMember; temporary_password: string };
+      setNewAgentPassword(res.temporary_password);
+      toast.success('Agent created successfully');
+      setAgentForm({ name: '', email: '', password: '' });
+      loadData();
+    } catch {
+      toast.error('Failed to create agent');
+    } finally {
+      setAddingAgent(false);
+    }
+  };
+
+  const handleResetAgentPassword = async (agentId: number) => {
+    try {
+      const res = await api.post(`/agency/settings/agents/${agentId}/reset-password`) as { temporary_password: string };
+      setResetTempPassword(res.temporary_password);
+      setResetAgentId(agentId);
+      toast.success('Password reset successfully');
+    } catch {
+      toast.error('Failed to reset password');
     }
   };
 
@@ -249,6 +323,64 @@ export default function AgencySettings() {
         </Card>
       )}
 
+      {/* Agency Code & Lead Intake Links (shown under General tab) */}
+      {activeTab === 'general' && agency && (
+        <>
+          <Card>
+            <div className="p-6">
+              <h3 className="text-lg font-semibold text-slate-900 mb-4">Agency Code</h3>
+              <p className="text-sm text-slate-500 mb-3">Share this code with agents so they can join your agency during registration.</p>
+              <div className="flex items-center gap-3">
+                <div className="flex-1 px-4 py-3 bg-slate-50 rounded-lg border border-slate-200 font-mono text-lg font-bold text-shield-700 tracking-widest">
+                  {(agency as AgencyData & { agency_code?: string }).agency_code || 'Not generated'}
+                </div>
+                <Button variant="outline" size="sm" onClick={() => copyToClipboard((agency as AgencyData & { agency_code?: string }).agency_code || '', 'Agency code')}>
+                  <Copy className="w-4 h-4" />
+                </Button>
+                <Button variant="outline" size="sm" onClick={handleRegenerateCode} disabled={regeneratingCode}>
+                  {regeneratingCode ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+                </Button>
+              </div>
+            </div>
+          </Card>
+
+          <Card>
+            <div className="p-6">
+              <h3 className="text-lg font-semibold text-slate-900 mb-2">
+                <Link2 className="w-5 h-5 inline mr-2" />Lead Intake Links
+              </h3>
+              <p className="text-sm text-slate-500 mb-4">Share these links with potential clients. When they fill out the form, the lead is automatically routed to your agency.</p>
+              {intakeUrls ? (
+                <div className="space-y-3">
+                  <div>
+                    <label className="text-xs font-medium text-slate-500 uppercase tracking-wider">Agency Link</label>
+                    <div className="flex items-center gap-2 mt-1">
+                      <Input value={intakeUrls.agency_intake_url} readOnly className="bg-slate-50 text-sm font-mono" />
+                      <Button variant="outline" size="sm" onClick={() => copyToClipboard(intakeUrls.agency_intake_url, 'Agency intake link')}>
+                        <Copy className="w-4 h-4" />
+                      </Button>
+                    </div>
+                    <p className="text-xs text-slate-400 mt-1">Leads go to your agency queue for distribution</p>
+                  </div>
+                  <div>
+                    <label className="text-xs font-medium text-slate-500 uppercase tracking-wider">Your Personal Link</label>
+                    <div className="flex items-center gap-2 mt-1">
+                      <Input value={intakeUrls.agent_intake_url} readOnly className="bg-slate-50 text-sm font-mono" />
+                      <Button variant="outline" size="sm" onClick={() => copyToClipboard(intakeUrls.agent_intake_url, 'Personal intake link')}>
+                        <Copy className="w-4 h-4" />
+                      </Button>
+                    </div>
+                    <p className="text-xs text-slate-400 mt-1">Leads go directly to you</p>
+                  </div>
+                </div>
+              ) : (
+                <p className="text-sm text-slate-400">Loading intake links...</p>
+              )}
+            </div>
+          </Card>
+        </>
+      )}
+
       {/* ========== BILLING ========== */}
       {activeTab === 'billing' && (
         <Card>
@@ -294,10 +426,27 @@ export default function AgencySettings() {
           <div className="p-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-slate-900">Team Members</h3>
-              <Button size="sm" leftIcon={<Plus className="w-4 h-4" />} onClick={() => setShowInviteModal(true)}>
-                Invite Agent
-              </Button>
+              <div className="flex gap-2">
+                <Button size="sm" variant="outline" leftIcon={<Plus className="w-4 h-4" />} onClick={() => setShowInviteModal(true)}>
+                  Invite Agent
+                </Button>
+                <Button size="sm" leftIcon={<UserPlus className="w-4 h-4" />} onClick={() => { setShowAddAgentModal(true); setNewAgentPassword(''); }}>
+                  Add Agent
+                </Button>
+              </div>
             </div>
+
+            {resetTempPassword && resetAgentId && (
+              <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                <p className="text-sm font-medium text-amber-800">Temporary Password for Agent #{resetAgentId}:</p>
+                <p className="text-lg font-mono font-bold text-amber-900 mt-1">{resetTempPassword}</p>
+                <div className="flex justify-between items-center mt-1">
+                  <p className="text-xs text-amber-600">Share this with the agent. They should change it after logging in.</p>
+                  <button onClick={() => { setResetTempPassword(''); setResetAgentId(null); }} className="text-xs text-amber-700 underline">Dismiss</button>
+                </div>
+              </div>
+            )}
+
             {!agency?.agents || agency.agents.length === 0 ? (
               <p className="text-sm text-slate-400 text-center py-8">No team members yet</p>
             ) : (
@@ -309,6 +458,7 @@ export default function AgencySettings() {
                       <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider pb-3">Email</th>
                       <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider pb-3">Role</th>
                       <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider pb-3">Status</th>
+                      <th className="text-right text-xs font-medium text-slate-500 uppercase tracking-wider pb-3">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-50">
@@ -321,6 +471,11 @@ export default function AgencySettings() {
                           <Badge variant={a.is_active ? 'success' : 'danger'}>
                             {a.is_active ? 'Active' : 'Inactive'}
                           </Badge>
+                        </td>
+                        <td className="py-3 text-right">
+                          <Button variant="ghost" size="sm" onClick={() => handleResetAgentPassword(a.id)} title="Reset Password">
+                            <Key className="w-4 h-4" />
+                          </Button>
                         </td>
                       </tr>
                     ))}
@@ -463,6 +618,54 @@ export default function AgencySettings() {
                 {inviting ? 'Sending...' : 'Send Invite'}
               </Button>
             </div>
+          </Card>
+        </div>
+      )}
+
+      {/* ========== ADD AGENT MODAL ========== */}
+      {showAddAgentModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setShowAddAgentModal(false)}>
+          <Card className="w-full max-w-md p-6" onClick={e => e.stopPropagation()}>
+            <h3 className="text-lg font-semibold text-slate-900 mb-4">
+              <UserPlus className="w-5 h-5 inline mr-2" />Add Agent
+            </h3>
+            {newAgentPassword ? (
+              <div>
+                <div className="p-3 bg-green-50 border border-green-200 rounded-lg mb-4">
+                  <p className="text-sm font-medium text-green-800">Agent created successfully!</p>
+                  <p className="text-sm text-green-700 mt-1">Temporary password:</p>
+                  <p className="text-lg font-mono font-bold text-green-900 mt-1">{newAgentPassword}</p>
+                  <p className="text-xs text-green-600 mt-1">Share this with the agent. They should change it after logging in.</p>
+                </div>
+                <div className="flex justify-end">
+                  <Button onClick={() => { setShowAddAgentModal(false); setNewAgentPassword(''); }}>Done</Button>
+                </div>
+              </div>
+            ) : (
+              <>
+                <div className="space-y-4 mb-4">
+                  <div className="space-y-1">
+                    <label className="text-sm font-medium text-slate-700">Full Name</label>
+                    <Input value={agentForm.name} onChange={e => setAgentForm({ ...agentForm, name: e.target.value })} placeholder="John Doe" />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-sm font-medium text-slate-700">Email</label>
+                    <Input type="email" value={agentForm.email} onChange={e => setAgentForm({ ...agentForm, email: e.target.value })} placeholder="agent@example.com" />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-sm font-medium text-slate-700">Password (optional)</label>
+                    <Input type="password" value={agentForm.password} onChange={e => setAgentForm({ ...agentForm, password: e.target.value })} placeholder="Leave blank for auto-generated" />
+                    <p className="text-xs text-slate-400">If left blank, a temporary password will be generated.</p>
+                  </div>
+                </div>
+                <div className="flex justify-end gap-2">
+                  <Button variant="outline" onClick={() => setShowAddAgentModal(false)}>Cancel</Button>
+                  <Button onClick={handleAddAgent} disabled={addingAgent || !agentForm.name || !agentForm.email}>
+                    {addingAgent ? 'Creating...' : 'Create Agent'}
+                  </Button>
+                </div>
+              </>
+            )}
           </Card>
         </div>
       )}

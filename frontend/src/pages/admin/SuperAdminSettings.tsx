@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Card, Button, Input } from '@/components/ui';
+import { Card, Button, Input, Badge } from '@/components/ui';
 import { cn } from '@/lib/utils';
-import { Loader2, CheckCircle, XCircle } from 'lucide-react';
+import { Loader2, CheckCircle, XCircle, Plus, Edit, Trash2, Search, ShieldCheck } from 'lucide-react';
 import { api } from '@/services/api/client';
+import { complianceService, type ComplianceRequirement, type ComplianceOverview } from '@/services/api/compliance';
+import { toast } from 'sonner';
 
 const tabs = [
   { id: 'platform', label: 'Platform' },
@@ -12,6 +14,7 @@ const tabs = [
   { id: 'security', label: 'Security' },
   { id: 'notifications', label: 'Notifications' },
   { id: 'integrations', label: 'Integrations' },
+  { id: 'compliance', label: 'Compliance' },
 ];
 
 export default function SuperAdminSettings() {
@@ -49,6 +52,17 @@ export default function SuperAdminSettings() {
   const [notifyPaymentFailure, setNotifyPaymentFailure] = useState(true);
   const [notifySystemPerf, setNotifySystemPerf] = useState(true);
   const [notifyNewUser, setNotifyNewUser] = useState(false);
+
+  // Compliance
+  const [requirements, setRequirements] = useState<ComplianceRequirement[]>([]);
+  const [complianceOverview, setComplianceOverview] = useState<ComplianceOverview | null>(null);
+  const [compLoading, setCompLoading] = useState(false);
+  const [compSearch, setCompSearch] = useState('');
+  const [compStateFilter, setCompStateFilter] = useState('');
+  const [showReqModal, setShowReqModal] = useState(false);
+  const [editingReq, setEditingReq] = useState<ComplianceRequirement | null>(null);
+  const [reqForm, setReqForm] = useState({ state: 'ALL', insurance_type: 'ALL', requirement_type: 'license', title: '', description: '', category: 'licensing', is_required: true, frequency: 'one_time', authority: '', reference_url: '' });
+  const [reqSaving, setReqSaving] = useState(false);
 
   useEffect(() => {
     loadSettings();
@@ -106,6 +120,84 @@ export default function SuperAdminSettings() {
       setSaving(false);
     }
   };
+
+  // Load compliance data when tab activates
+  useEffect(() => {
+    if (activeTab === 'compliance' && requirements.length === 0) {
+      loadComplianceData();
+    }
+  }, [activeTab]);
+
+  const loadComplianceData = async () => {
+    setCompLoading(true);
+    try {
+      const [reqs, overview] = await Promise.all([
+        complianceService.getRequirements(),
+        complianceService.getComplianceOverview(),
+      ]);
+      setRequirements(reqs);
+      setComplianceOverview(overview);
+    } catch {
+      toast.error('Failed to load compliance data');
+    } finally {
+      setCompLoading(false);
+    }
+  };
+
+  const openReqModal = (req?: ComplianceRequirement) => {
+    if (req) {
+      setEditingReq(req);
+      setReqForm({
+        state: req.state, insurance_type: req.insurance_type, requirement_type: req.requirement_type,
+        title: req.title, description: req.description || '', category: req.category,
+        is_required: req.is_required, frequency: req.frequency,
+        authority: req.authority || '', reference_url: req.reference_url || '',
+      });
+    } else {
+      setEditingReq(null);
+      setReqForm({ state: 'ALL', insurance_type: 'ALL', requirement_type: 'license', title: '', description: '', category: 'licensing', is_required: true, frequency: 'one_time', authority: '', reference_url: '' });
+    }
+    setShowReqModal(true);
+  };
+
+  const handleSaveReq = async () => {
+    if (!reqForm.title.trim()) { toast.error('Title is required'); return; }
+    setReqSaving(true);
+    try {
+      if (editingReq) {
+        await complianceService.updateRequirement(editingReq.id, reqForm);
+        toast.success('Requirement updated');
+      } else {
+        await complianceService.createRequirement(reqForm);
+        toast.success('Requirement created');
+      }
+      setShowReqModal(false);
+      loadComplianceData();
+    } catch {
+      toast.error('Failed to save requirement');
+    } finally {
+      setReqSaving(false);
+    }
+  };
+
+  const handleDeleteReq = async (id: number) => {
+    if (!confirm('Delete this compliance requirement?')) return;
+    try {
+      await complianceService.deleteRequirement(id);
+      toast.success('Requirement deleted');
+      setRequirements(prev => prev.filter(r => r.id !== id));
+    } catch {
+      toast.error('Failed to delete requirement');
+    }
+  };
+
+  const filteredReqs = requirements.filter(r => {
+    if (compStateFilter && r.state !== compStateFilter) return false;
+    if (compSearch && !r.title.toLowerCase().includes(compSearch.toLowerCase())) return false;
+    return true;
+  });
+
+  const compStates = [...new Set(requirements.map(r => r.state))].sort();
 
   const handleTestStripe = async () => {
     setStripeTestResult('Testing...');
@@ -373,6 +465,196 @@ export default function SuperAdminSettings() {
               </div>
             </Card>
           ))}
+        </div>
+      )}
+
+      {/* ========== COMPLIANCE ========== */}
+      {activeTab === 'compliance' && (
+        <div className="space-y-6">
+          {/* Overview Stats */}
+          {complianceOverview && (
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              <Card className="p-4 text-center">
+                <p className="text-xl font-bold text-slate-900">{complianceOverview.total_items}</p>
+                <p className="text-sm text-slate-500">Requirements</p>
+              </Card>
+              <Card className="p-4 text-center">
+                <p className="text-xl font-bold text-savings-600">{complianceOverview.completed}</p>
+                <p className="text-sm text-slate-500">Completed</p>
+              </Card>
+              <Card className="p-4 text-center">
+                <p className="text-xl font-bold text-amber-600">{complianceOverview.overdue}</p>
+                <p className="text-sm text-slate-500">Overdue Items</p>
+              </Card>
+              <Card className="p-4 text-center">
+                <p className="text-xl font-bold text-slate-900">{complianceOverview.users_with_packs}</p>
+                <p className="text-sm text-slate-500">Users with Packs</p>
+              </Card>
+            </div>
+          )}
+
+          {/* Requirements Management */}
+          <Card>
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-slate-900">Compliance Requirements</h3>
+                <Button size="sm" leftIcon={<Plus className="w-4 h-4" />} onClick={() => openReqModal()}>
+                  Add Requirement
+                </Button>
+              </div>
+
+              {/* Filters */}
+              <div className="flex gap-3 mb-4">
+                <div className="flex-1 relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <input value={compSearch} onChange={e => setCompSearch(e.target.value)} placeholder="Search requirements..."
+                    className="w-full pl-9 pr-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-shield-500" />
+                </div>
+                <select value={compStateFilter} onChange={e => setCompStateFilter(e.target.value)}
+                  className="px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-shield-500">
+                  <option value="">All States</option>
+                  {compStates.map(s => <option key={s} value={s}>{s}</option>)}
+                </select>
+              </div>
+
+              {compLoading ? (
+                <div className="text-center py-8">
+                  <Loader2 className="w-6 h-6 animate-spin text-shield-500 mx-auto" />
+                </div>
+              ) : filteredReqs.length === 0 ? (
+                <div className="text-center py-8">
+                  <ShieldCheck className="w-10 h-10 text-slate-300 mx-auto mb-2" />
+                  <p className="text-sm text-slate-500">No requirements found</p>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-slate-100">
+                        <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider pb-3">State</th>
+                        <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider pb-3">Insurance Type</th>
+                        <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider pb-3">Title</th>
+                        <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider pb-3">Category</th>
+                        <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider pb-3">Frequency</th>
+                        <th className="text-center text-xs font-medium text-slate-500 uppercase tracking-wider pb-3">Required</th>
+                        <th className="text-right text-xs font-medium text-slate-500 uppercase tracking-wider pb-3">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-50">
+                      {filteredReqs.map(req => (
+                        <tr key={req.id} className="hover:bg-slate-50">
+                          <td className="py-3 pr-3"><Badge variant="outline">{req.state}</Badge></td>
+                          <td className="py-3 pr-3 text-slate-600">{req.insurance_type}</td>
+                          <td className="py-3 pr-3">
+                            <p className="font-medium text-slate-900">{req.title}</p>
+                            {req.authority && <p className="text-xs text-slate-400">{req.authority}</p>}
+                          </td>
+                          <td className="py-3 pr-3"><Badge variant="default" className="capitalize">{req.category}</Badge></td>
+                          <td className="py-3 pr-3 text-slate-600 capitalize">{req.frequency.replace('_', ' ')}</td>
+                          <td className="py-3 text-center">
+                            {req.is_required ? <CheckCircle className="w-4 h-4 text-savings-500 mx-auto" /> : <XCircle className="w-4 h-4 text-slate-300 mx-auto" />}
+                          </td>
+                          <td className="py-3 text-right">
+                            <div className="flex items-center justify-end gap-1">
+                              <Button variant="ghost" size="sm" onClick={() => openReqModal(req)}><Edit className="w-4 h-4" /></Button>
+                              <Button variant="ghost" size="sm" onClick={() => handleDeleteReq(req.id)}><Trash2 className="w-4 h-4 text-red-500" /></Button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          </Card>
+        </div>
+      )}
+
+      {/* ========== REQUIREMENT MODAL ========== */}
+      {showReqModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setShowReqModal(false)}>
+          <Card className="w-full max-w-lg max-h-[90vh] overflow-y-auto p-6" onClick={e => e.stopPropagation()}>
+            <h3 className="text-lg font-semibold text-slate-900 mb-4">{editingReq ? 'Edit Requirement' : 'Add Requirement'}</h3>
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-sm font-medium text-slate-700">State</label>
+                  <Input value={reqForm.state} onChange={e => setReqForm({ ...reqForm, state: e.target.value })} placeholder="ALL or 2-letter code" maxLength={5} />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-sm font-medium text-slate-700">Insurance Type</label>
+                  <Input value={reqForm.insurance_type} onChange={e => setReqForm({ ...reqForm, insurance_type: e.target.value })} placeholder="ALL or product slug" />
+                </div>
+              </div>
+              <div className="space-y-1">
+                <label className="text-sm font-medium text-slate-700">Title</label>
+                <Input value={reqForm.title} onChange={e => setReqForm({ ...reqForm, title: e.target.value })} placeholder="Requirement title" />
+              </div>
+              <div className="space-y-1">
+                <label className="text-sm font-medium text-slate-700">Description</label>
+                <textarea value={reqForm.description} onChange={e => setReqForm({ ...reqForm, description: e.target.value })}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-shield-500 min-h-[60px]" />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-sm font-medium text-slate-700">Requirement Type</label>
+                  <select value={reqForm.requirement_type} onChange={e => setReqForm({ ...reqForm, requirement_type: e.target.value })}
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-shield-500">
+                    <option value="license">License</option>
+                    <option value="ce_credit">CE Credit</option>
+                    <option value="eo_insurance">E&O Insurance</option>
+                    <option value="background_check">Background Check</option>
+                    <option value="appointment">Appointment</option>
+                    <option value="bonding">Bonding</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-sm font-medium text-slate-700">Category</label>
+                  <select value={reqForm.category} onChange={e => setReqForm({ ...reqForm, category: e.target.value })}
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-shield-500">
+                    <option value="licensing">Licensing</option>
+                    <option value="education">Education</option>
+                    <option value="insurance">Insurance</option>
+                    <option value="regulatory">Regulatory</option>
+                    <option value="documentation">Documentation</option>
+                  </select>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-sm font-medium text-slate-700">Frequency</label>
+                  <select value={reqForm.frequency} onChange={e => setReqForm({ ...reqForm, frequency: e.target.value })}
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-shield-500">
+                    <option value="one_time">One Time</option>
+                    <option value="annual">Annual</option>
+                    <option value="biennial">Biennial</option>
+                    <option value="triennial">Triennial</option>
+                  </select>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-sm font-medium text-slate-700">Authority</label>
+                  <Input value={reqForm.authority} onChange={e => setReqForm({ ...reqForm, authority: e.target.value })} placeholder="Regulatory body" />
+                </div>
+              </div>
+              <div className="space-y-1">
+                <label className="text-sm font-medium text-slate-700">Reference URL</label>
+                <Input value={reqForm.reference_url} onChange={e => setReqForm({ ...reqForm, reference_url: e.target.value })} placeholder="https://" />
+              </div>
+              <label className="flex items-center gap-3">
+                <input type="checkbox" checked={reqForm.is_required} onChange={e => setReqForm({ ...reqForm, is_required: e.target.checked })}
+                  className="w-4 h-4 rounded border-slate-300 text-shield-600 focus:ring-shield-500" />
+                <span className="text-sm text-slate-700">Required</span>
+              </label>
+            </div>
+            <div className="flex justify-end gap-2 mt-6">
+              <Button variant="outline" onClick={() => setShowReqModal(false)}>Cancel</Button>
+              <Button onClick={handleSaveReq} disabled={reqSaving}>
+                {reqSaving ? 'Saving...' : editingReq ? 'Update' : 'Create'}
+              </Button>
+            </div>
+          </Card>
         </div>
       )}
     </div>

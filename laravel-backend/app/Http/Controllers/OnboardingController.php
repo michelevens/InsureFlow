@@ -190,6 +190,13 @@ class OnboardingController extends Controller
             'onboarding_completed_at' => now(),
         ]);
 
+        // Auto-generate compliance pack based on states and products
+        try {
+            app(CompliancePackController::class)->generateForUser($user);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Compliance pack generation failed for user ' . $user->id . ': ' . $e->getMessage());
+        }
+
         return response()->json([
             'message' => 'Onboarding completed',
             'user' => $user->fresh(['agentProfile', 'agency', 'ownedAgency']),
