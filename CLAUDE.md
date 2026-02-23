@@ -47,7 +47,9 @@ InsureFlow/
 │           ├── policies/      # Policies
 │           ├── analytics/     # Commissions, Reviews
 │           ├── carriers/      # Products, Production
-│           └── admin/         # AdminUsers, AdminAgencies, AdminAnalytics, AdminPlans, AgencyTeam
+│           ├── admin/         # AdminUsers, AdminAgencies, AdminAnalytics, AdminPlans, AgencyTeam, SuperAdminDashboard, SuperAdminSettings
+│           ├── agency/        # AgencySettings (7-tab consolidated settings)
+│           └── reports/       # LtcComparisonReport (StrateCision-style)
 └── laravel-backend/       # Laravel API
     ├── app/
     │   ├── Http/Controllers/
@@ -123,11 +125,22 @@ php artisan serve
 - admin@insureflow.com (Admin)
 - superadmin@insureflow.com (Superadmin)
 
-## Current Status (as of 2026-02-22)
-- **Frontend:** 30+ pages built, TypeScript passes, Vite build succeeds
-- **Backend:** Laravel scaffold + rating engine (22 migrations, 21 models, 11+ controllers, routes, 5 seeders)
-- **Seed Data:** 5 subscription plans, 10 carriers with products, 6 demo users, 3 rate tables (DI LTD, Term Life, LTC)
-- **Rating Engine:** Full plugin architecture with DI/Life/P&C/LTC support, audit trail, versioned rate tables
+## Current Status (as of 2026-02-23)
+- **Frontend:** 35+ pages built, TypeScript passes, Vite build succeeds, **GitHub Pages deployment working**
+- **Backend:** Laravel scaffold + rating engine — **fully deployed to Railway** (all migrations run, server online)
+- **API Domain:** api.insurons.com — WORKING, all endpoints tested
+- **Seed Data:** 5 subscription plans, 10 carriers with products, 6 demo users, 35+ platform products, 10 agencies (50 agents), 70 leads, 3 rate tables (DI LTD, Term Life, LTC) — 180 rate entries seeded + PipelineSeeder (25 applications, 15 policies, 15 commissions, 6 claims, 12 appointments, 20 routing rules)
+- **Rating Engine:** Full plugin architecture with DI/Life/P&C/LTC support, audit trail, versioned rate tables — **tested end-to-end on production**
+- **Video Meetings:** Full lifecycle tested (create → start → end with duration tracking)
+- **LTC Rating Validated:** 52M FL $150/day → $1,485.68 annual (real-world Mutual of Omaha comparison: $1,543.39)
+- **LTC Carrier Rate Tables:** Mutual of Omaha, NGL, NYL seeded with rates calibrated to Michel StrateCision quote
+- **LTC Comparison Report:** StrateCision-style side-by-side carrier comparison with print/PDF layout, agency header, legal disclaimer, Insurons branding footer
+- **Product Visibility System:** 3-layer platform→agency→carrier appointment model deployed
+- **Onboarding Wizard:** Multi-step flows for agency owners (8 steps) and agents (6 steps)
+- **Demo Agencies:** 10 agencies (A-J) with 5 agents each, 70 leads, carrier appointments — all seeded on Railway
+- **Admin Overhaul Complete:** SuperAdmin dashboard + 6-tab platform settings, Agency Owner 7-tab settings, role-differentiated navigation
+- **Pipeline Data Seeded:** Dashboards no longer show zeroes — applications, policies, commissions, claims, appointments all populated
+- **Auto-Commission:** Creating/binding a policy automatically generates a commission record (10% default)
 
 ## Recent Work
 - Initial project scaffold created
@@ -149,6 +162,53 @@ php artisan serve
   - Frontend rating.ts API service with full TypeScript types
   - RatingPanel modal in Leads.tsx: Configure tab (factor dropdowns, rider toggles, payment mode), Results tab (premium hero, breakdown), History tab (audit trail)
   - Full audit trail: every rating run recorded with input/output snapshots, input hash, duration, versioning
+- **Railway Deployment Fixed (2026-02-23):**
+  - Fixed claim_documents FK type mismatch (bigint→uuid for documents table)
+  - Guarded duplicate agency_id column addition in lead_scenarios migration
+  - All 67 migrations run successfully on Railway
+  - Rate tables seeded (3 tables, 180 entries)
+  - Moved config:cache/route:cache to runtime start command (Railway env vars not available at build time)
+- **Rating Engine Bug Fixes:**
+  - RatingEngine.buildInput: fallback to metadata_json for age/sex/state when no insured objects
+  - DisabilityPlugin: normalize sex input (male→M, female→F) for rate key matching
+  - Pass scenario metadata to plugin input for product-specific fields (daily_benefit)
+  - VideoMeetingController.end: fix Carbon diffInSeconds type casting
+- **GitHub Pages Deployment Fixed:** Removed unused imports (Shield, Settings2, Clock) causing tsc errors in CI
+- **Multi-Layered Product Visibility System:**
+  - `platform_products` table (35+ canonical insurance types), `agency_products` pivot, `agency_carrier_appointments`
+  - Altered `carrier_products.insurance_type` from enum (7 types) to varchar (35+ slugs)
+  - AdminProductController (toggle/bulk-toggle/sync), AgencyProductController (product selection + carrier appointments), ProductVisibilityController (public)
+  - Frontend: AdminProducts, AgencyProducts, AgencyAppointments pages
+  - Calculator.tsx updated to fetch dynamic products from `/products/visible`
+- **Agency/Agent Onboarding Wizard:**
+  - Migration: `onboarding_completed`, `onboarding_completed_at`, `onboarding_data` on users table
+  - OnboardingController with 5 endpoints (status, formData, saveAgency, saveAgent, complete)
+  - Frontend Onboarding.tsx: agency owner 8-step flow, agent 6-step flow
+  - ProtectedRoute updated to redirect agents/agency_owners to `/onboarding` if not completed
+- **Demo Seeder (AgencyAgentSeeder):**
+  - 10 agencies (A–J): Apex, Beacon, Coastal, Dominion, Eagle Shield, Frontier, Guardian, Horizon, Integrity, Jade
+  - 50 agents (5 per agency) with unique names, bios, licenses, specialties
+  - 70 leads (7 per agency) with varied insurance types, statuses, sources
+  - All accounts: password `password`, email format `contact+agencyX@ennhealth.com` / `contact+AgencyX.agentN@ennhealth.com`
+  - Carrier appointments and product selections per agency
+  - AuthController demoLogin updated to accept @ennhealth.com emails
+- **Bug Fixes:**
+  - Fixed AgencyAppointments.tsx TypeScript error (carrier type cast needed `unknown` intermediate for `tsc -b`)
+  - Fixed carrier_products migration: drop PostgreSQL CHECK constraint before ALTER TYPE (enum→varchar)
+- **Phase 3 — Close the Loop + Admin Overhaul + LTC Comparison (2026-02-23):**
+  - **PipelineSeeder:** 25 applications, 15 policies, 15 commissions, 6 claims, 12 appointments, 20 routing rules — dashboards no longer show zeroes
+  - **Wired 5 mock pages to real APIs:** Policies, Applications, AdminUsers, AdminAnalytics — removed all hardcoded mock arrays
+  - **Auto-commission on policy binding:** PolicyController.store() and ApplicationController.updateStatus("bound") auto-create Commission records
+  - **LTC rating engine — added 9 missing parameters:** taxQualified, partnershipPlan, homeCareType, homeCareBenefitPeriod, assistedLiving, professionalHomeCare, inflationDuration, waiverOfPremium, jointApplicant + poolOfMoney/monthlyBenefitAtAge80 calculations
+  - **Seeded carrier rate tables:** Mutual of Omaha ($1,305.76), NGL ($3,632 joint), NYL ($4,091.49/$5,044.23) — calibrated to Michel StrateCision quote
+  - **LTC Comparison Report (StrateCision-style):** POST /api/reports/ltc-comparison endpoint + LtcComparisonReport.tsx — side-by-side carrier columns, all benefit parameters, premium totals
+  - **Enhanced LTC report for print/PDF:** Agency branding header, legal disclaimer footer, Insurons platform info, landscape print CSS, color-preserving @media print rules
+  - **SuperAdmin Dashboard:** Platform overview with stat cards (agencies, users, policies, MRR), 9 quick actions, recent agencies, system health panel
+  - **SuperAdmin Settings (6 tabs):** Platform, Billing (Stripe), Email, Security, Notifications, Integrations — with test buttons for Stripe/email
+  - **Agency Settings (7 tabs):** General, Billing, Team, Products & Carriers, Compliance, Integrations, Notifications — consolidated 7+ separate nav items into one page
+  - **PlatformSettingController + AgencySettingController:** New backend controllers for platform-wide and agency-scoped settings CRUD
+  - **platform_settings migration:** Key-value store (key, value JSON, group) for platform configuration
+  - **Navigation cleanup:** Agency Owner sidebar consolidated, SuperAdmin gets dedicated Platform section, Admin sees subset
 
 ## Architecture: Product Plugin Rating Engine
 
@@ -173,10 +233,31 @@ php artisan serve
 - `GET /api/rate/history/{scenarioId}` — Rating history for a scenario
 - `GET /api/rate/products` — List all registered rateable product types
 
+## Demo Agency Accounts
+See `demo_credentials.csv` in project root for full list (60 accounts: 10 agency owners + 50 agents).
+All passwords: `password`
+
+| Agency | Owner Email | City | Specialties |
+|--------|------------|------|-------------|
+| Apex Insurance Group | contact+agencyA@ennhealth.com | Dallas, TX | Auto, Home, Commercial GL, Umbrella |
+| Beacon Risk Advisors | contact+agencyB@ennhealth.com | Austin, TX | Life, Health, Dental, Vision |
+| Coastal Coverage Partners | contact+agencyC@ennhealth.com | Miami, FL | Home, Flood, Renters, Condo |
+| Dominion Commercial Insurance | contact+agencyD@ennhealth.com | San Francisco, CA | BOP, Cyber, Professional, D&O |
+| Eagle Shield Agency | contact+agencyE@ennhealth.com | Norfolk, VA | Auto, Home, Life, Renters |
+| Frontier Benefits Group | contact+agencyF@ennhealth.com | Chicago, IL | Health Group, Dental, Vision, Disability |
+| Guardian Insurance Associates | contact+agencyG@ennhealth.com | Atlanta, GA | Auto, Home, Life, Health, BOP, Workers Comp |
+| Horizon Surety & Bonds | contact+agencyH@ennhealth.com | Phoenix, AZ | Surety, Commercial GL, Workers Comp |
+| Integrity Senior Solutions | contact+agencyI@ennhealth.com | Tampa, FL | Medicare, LTC, Final Expense, Annuity |
+| Jade Risk Management | contact+agencyJ@ennhealth.com | New York, NY | Home, Auto, Umbrella, Jewelry, Boat |
+
+Agent emails follow pattern: `contact+AgencyX.agent1@ennhealth.com` through `contact+AgencyX.agent5@ennhealth.com`
+
 ## Next Tasks
-- **Deploy to Railway:** Run `php artisan migrate` for 7 new rate tables, then `php artisan db:seed --class=RateTableSeeder`
-- **Fix Railway deploy:** Previous deploy failed — investigate and fix
-- **Scenario report export:** Build stunning comparison report (Excel/PDF) inspired by StrateCision LTC format — side-by-side carrier comparison, benefit details, premium breakdown
-- **Test with Michel LTC quote data:** Validate LTC rating against real-world quote (Mutual of Omaha $3,086.78, NGL $3,632, NYL $9,135.72)
-- Test all API endpoints end-to-end with seeded data
+- **Deploy Phase 3 to Railway:** Run `php artisan migrate` for platform_settings table, run PipelineSeeder
+- **End-to-end test LTC comparison:** Create rating runs via API for Mutual of Omaha/NGL/NYL, then generate comparison report to validate PDF output
+- **Test SuperAdmin flow:** Login as superadmin → verify dashboard stats → platform settings tabs → system health
+- **Test Agency Settings flow:** Login as agency_owner → verify 7-tab settings page → team management → compliance
+- Test all API endpoints end-to-end with seeded pipeline data (policies, commissions, claims, appointments)
+- Test onboarding flow end-to-end (register new agency → complete wizard → verify data in DB)
+- Test agency product selection and carrier appointment flow
 - Add real carrier integrations
