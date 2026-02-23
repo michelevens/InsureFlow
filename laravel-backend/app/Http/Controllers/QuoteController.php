@@ -4,8 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Mail\QuoteReceivedMail;
 use App\Models\CarrierProduct;
+use App\Models\Coverage;
 use App\Models\InsuranceProfile;
+use App\Models\InsuredObject;
 use App\Models\Lead;
+use App\Models\LeadScenario;
 use App\Models\Quote;
 use App\Models\QuoteRequest;
 use App\Services\RoutingEngine;
@@ -127,6 +130,9 @@ class QuoteController extends Controller
             'estimated_value' => $lowestQuote?->annual_premium,
         ]);
 
+        // Auto-create LeadScenario from calculator data → canonical model
+        $this->createScenarioFromQuote($lead, $quoteRequest, $lowestQuote);
+
         // Advance UIP to lead stage + route to agent
         $profile = InsuranceProfile::where('quote_request_id', $quoteRequest->id)->first();
         if ($profile) {
@@ -190,5 +196,187 @@ class QuoteController extends Controller
     {
         $quoteRequest->load(['quotes.carrierProduct.carrier']);
         return response()->json($quoteRequest);
+    }
+
+    /**
+     * Map calculator insurance_type to canonical product_type.
+     */
+    private function mapProductType(string $insuranceType): string
+    {
+        return match ($insuranceType) {
+            'auto' => 'auto',
+            'home' => 'homeowners',
+            'renters' => 'renters',
+            'life' => 'life_term',
+            'health' => 'health_individual',
+            'business' => 'bop',
+            'umbrella' => 'umbrella',
+            'disability' => 'disability_long_term',
+            'ltc' => 'ltc_traditional',
+            default => $insuranceType,
+        };
+    }
+
+    /**
+     * Auto-create a LeadScenario with InsuredObjects and Coverages
+     * from the calculator's QuoteRequest data.
+     */
+    private function createScenarioFromQuote(Lead $lead, QuoteRequest $quoteRequest, ?Quote $bestQuote): void
+    {
+        $productType = $this->mapProductType($quoteRequest->insurance_type);
+        $details = $quoteRequest->details ?? [];
+
+        $scenario = LeadScenario::create([
+            'lead_id' => $lead->id,
+            'scenario_name' => ucfirst(str_replace('_', ' ', $productType)) . ' Coverage',
+            'product_type' => $productType,
+            'priority' => 1,
+            'status' => 'draft',
+            'target_premium_monthly' => $bestQuote?->monthly_premium,
+            'best_quoted_premium' => $bestQuote?->monthly_premium,
+            'total_quotes_received' => $quoteRequest->quotes()->count(),
+            'metadata_json' => [
+                'source' => 'calculator',
+                'zip_code' => $quoteRequest->zip_code,
+                'coverage_level' => $quoteRequest->coverage_level,
+            ],
+        ]);
+
+        // Create InsuredObject based on insurance type
+        match ($quoteRequest->insurance_type) {
+            'auto' => $this->createVehicleObject($scenario, $details, $lead),
+            'home', 'renters' => $this->createPropertyObject($scenario, $details, $quoteRequest),
+            'life', 'health', 'disability', 'ltc' => $this->createPersonObject($scenario, $lead, $quoteRequest),
+            'business' => $this->createBusinessObject($scenario, $lead),
+            default => $this->createPersonObject($scenario, $lead, $quoteRequest),
+        };
+
+        // Create default coverages based on insurance type
+        $this->createDefaultCoverages($scenario, $quoteRequest, $bestQuote);
+    }
+
+    private function createVehicleObject(LeadScenario $scenario, array $details, Lead $lead): void
+    {
+        // Also create the primary driver as a person
+        InsuredObject::create([
+            'insurable_type' => LeadScenario::class,
+            'insurable_id' => $scenario->id,
+            'object_type' => 'person',
+            'name' => "{$lead->first_name} {$lead->last_name}",
+            'relationship' => 'primary',
+            'sort_order' => 0,
+        ]);
+
+        if (!empty($details['vehicle_year']) || !empty($details['vehicle_make'])) {
+            $vehicleName = trim(($details['vehicle_year'] ?? '') . ' ' . ($details['vehicle_make'] ?? '') . ' ' . ($details['vehicle_model'] ?? ''));
+            InsuredObject::create([
+                'insurable_type' => LeadScenario::class,
+                'insurable_id' => $scenario->id,
+                'object_type' => 'vehicle',
+                'name' => $vehicleName ?: 'Primary Vehicle',
+                'vehicle_year' => $details['vehicle_year'] ?? null,
+                'vehicle_make' => $details['vehicle_make'] ?? null,
+                'vehicle_model' => $details['vehicle_model'] ?? null,
+                'sort_order' => 1,
+            ]);
+        }
+    }
+
+    private function createPropertyObject(LeadScenario $scenario, array $details, QuoteRequest $quoteRequest): void
+    {
+        InsuredObject::create([
+            'insurable_type' => LeadScenario::class,
+            'insurable_id' => $scenario->id,
+            'object_type' => 'property',
+            'name' => 'Primary Residence',
+            'zip' => $quoteRequest->zip_code,
+            'year_built' => $details['year_built'] ?? null,
+            'square_footage' => $details['square_footage'] ?? null,
+            'details_json' => !empty($details['home_value']) ? ['home_value' => $details['home_value']] : null,
+            'sort_order' => 0,
+        ]);
+    }
+
+    private function createPersonObject(LeadScenario $scenario, Lead $lead, QuoteRequest $quoteRequest): void
+    {
+        InsuredObject::create([
+            'insurable_type' => LeadScenario::class,
+            'insurable_id' => $scenario->id,
+            'object_type' => 'person',
+            'name' => "{$lead->first_name} {$lead->last_name}",
+            'relationship' => 'primary',
+            'date_of_birth' => $quoteRequest->date_of_birth,
+            'zip' => $quoteRequest->zip_code,
+            'sort_order' => 0,
+        ]);
+    }
+
+    private function createBusinessObject(LeadScenario $scenario, Lead $lead): void
+    {
+        InsuredObject::create([
+            'insurable_type' => LeadScenario::class,
+            'insurable_id' => $scenario->id,
+            'object_type' => 'business',
+            'name' => "{$lead->first_name} {$lead->last_name} Business",
+            'sort_order' => 0,
+        ]);
+    }
+
+    private function createDefaultCoverages(LeadScenario $scenario, QuoteRequest $quoteRequest, ?Quote $bestQuote): void
+    {
+        $coverageMap = [
+            'auto' => [
+                ['coverage_type' => 'bodily_injury', 'coverage_category' => 'liability', 'limit_amount' => 100000],
+                ['coverage_type' => 'property_damage', 'coverage_category' => 'liability', 'limit_amount' => 50000],
+                ['coverage_type' => 'collision', 'coverage_category' => 'property', 'deductible_amount' => $bestQuote?->deductible ?? 500],
+                ['coverage_type' => 'comprehensive', 'coverage_category' => 'property', 'deductible_amount' => $bestQuote?->deductible ?? 500],
+            ],
+            'home' => [
+                ['coverage_type' => 'dwelling', 'coverage_category' => 'property', 'limit_amount' => 300000],
+                ['coverage_type' => 'personal_property', 'coverage_category' => 'property', 'limit_amount' => 100000],
+                ['coverage_type' => 'liability', 'coverage_category' => 'liability', 'limit_amount' => 100000],
+            ],
+            'renters' => [
+                ['coverage_type' => 'personal_property', 'coverage_category' => 'property', 'limit_amount' => 30000],
+                ['coverage_type' => 'liability', 'coverage_category' => 'liability', 'limit_amount' => 100000],
+            ],
+            'life' => [
+                ['coverage_type' => 'death_benefit', 'coverage_category' => 'life', 'benefit_amount' => 500000],
+            ],
+            'health' => [
+                ['coverage_type' => 'medical', 'coverage_category' => 'medical', 'deductible_amount' => 1500],
+            ],
+            'disability' => [
+                ['coverage_type' => 'monthly_disability_benefit', 'coverage_category' => 'disability', 'benefit_amount' => 5000, 'benefit_period' => 'to_age_65', 'elimination_period_days' => 90],
+            ],
+            'ltc' => [
+                ['coverage_type' => 'daily_ltc_benefit', 'coverage_category' => 'specialty', 'benefit_amount' => 150, 'benefit_period' => '3_years', 'elimination_period_days' => 90],
+            ],
+            'business' => [
+                ['coverage_type' => 'general_liability', 'coverage_category' => 'liability', 'limit_amount' => 1000000],
+                ['coverage_type' => 'business_property', 'coverage_category' => 'property', 'limit_amount' => 500000],
+            ],
+            'umbrella' => [
+                ['coverage_type' => 'umbrella_liability', 'coverage_category' => 'liability', 'limit_amount' => 1000000],
+            ],
+        ];
+
+        $coverages = $coverageMap[$quoteRequest->insurance_type] ?? [];
+
+        foreach ($coverages as $i => $cov) {
+            Coverage::create([
+                'coverable_type' => LeadScenario::class,
+                'coverable_id' => $scenario->id,
+                'coverage_type' => $cov['coverage_type'],
+                'coverage_category' => $cov['coverage_category'],
+                'limit_amount' => $cov['limit_amount'] ?? null,
+                'deductible_amount' => $cov['deductible_amount'] ?? null,
+                'benefit_amount' => $cov['benefit_amount'] ?? null,
+                'benefit_period' => $cov['benefit_period'] ?? null,
+                'elimination_period_days' => $cov['elimination_period_days'] ?? null,
+                'is_included' => true,
+                'sort_order' => $i,
+            ]);
+        }
     }
 }

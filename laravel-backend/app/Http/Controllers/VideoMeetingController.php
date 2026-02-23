@@ -25,7 +25,8 @@ class VideoMeetingController extends Controller
         }
 
         $meetings = $query->orderByDesc('scheduled_at')
-            ->paginate($request->query('per_page', 20));
+            ->limit(50)
+            ->get();
 
         return response()->json($meetings);
     }
