@@ -32,6 +32,24 @@ class RateInput
     public ?string $uwClass = null;
     public ?string $definitionOfDisability = null;
 
+    // LTC-specific
+    public ?float $dailyBenefit = null;
+    public ?string $inflationProtection = null;    // none, 1pct_compound, 3pct_compound, 5pct_compound
+    public ?string $homeCareBenefit = null;         // 50pct, 80pct, 100pct
+    public ?string $homeCareType = null;            // monthly, daily
+    public ?string $homeCareBenefitPeriod = null;   // pooled, separate
+    public ?string $maritalDiscount = null;         // none, both_insured, one_insured
+    public ?string $nonforfeiture = null;           // none, contingent, reduced_paidup
+    public ?string $paymentDuration = null;         // lifetime, 10pay, paid_up65
+    public ?bool $taxQualified = null;
+    public ?bool $partnershipPlan = null;
+    public ?string $assistedLiving = null;          // 100pct, 50pct, na
+    public ?bool $professionalHomeCare = null;
+    public ?string $inflationDuration = null;       // lifetime, limited, buy_up
+    public ?string $waiverOfPremium = null;         // included, optional, na
+    public ?bool $jointApplicant = null;
+    public ?float $premiumOnSpouseDeath = null;
+
     // Factor selections (factor_code => option_value)
     public array $factorSelections = [];
 

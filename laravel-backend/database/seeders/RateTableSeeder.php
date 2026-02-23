@@ -17,6 +17,9 @@ class RateTableSeeder extends Seeder
         $this->seedDisabilityLTD();
         $this->seedLifeTerm();
         $this->seedLongTermCare();
+        $this->seedMutualOfOmahaLTC();
+        $this->seedNglLTC();
+        $this->seedNylLTC();
     }
 
     /**
@@ -384,6 +387,340 @@ class RateTableSeeder extends Seeder
             ['mode' => 'monthly',    'factor' => 0.087500, 'flat_fee' => 5.00],
         ];
 
+        foreach ($modals as $m) {
+            RateModalFactor::create(array_merge($m, ['rate_table_id' => $table->id]));
+        }
+    }
+
+    /**
+     * Mutual of Omaha — MutualCare Custom Solution.
+     * Calibrated to Michel quote: 52M FL Select $150/day → $1,305.76 annual.
+     *                              50F FL Select $150/day → $1,781.02 annual.
+     */
+    private function seedMutualOfOmahaLTC(): void
+    {
+        $table = RateTable::updateOrCreate(
+            ['product_type' => 'long_term_care', 'version' => 'MOO-2026'],
+            [
+                'name' => 'Mutual of Omaha — MutualCare Custom Solution',
+                'effective_date' => '2026-01-01',
+                'expiration_date' => '2026-12-31',
+                'is_active' => true,
+                'metadata' => [
+                    'carrier' => 'Mutual of Omaha',
+                    'product_name' => 'MutualCare Custom Solution',
+                    'exposure_unit' => 'daily_benefit_div_10',
+                    'tax_qualified' => true,
+                    'partnership_eligible' => true,
+                    'home_care_type' => 'monthly',
+                    'assisted_living' => '100pct',
+                    'professional_home_care' => true,
+                ],
+            ]
+        );
+
+        $table->entries()->delete();
+        $table->factors()->delete();
+        $table->riders()->delete();
+        $table->fees()->delete();
+        $table->modalFactors()->delete();
+
+        // Base rates calibrated so 52M Select $150/day ≈ $1,305.76
+        // With factors: 2yr BP (1.0), 90-day EP (1.0), 1% inflation (1.0), 100% HC (1.0),
+        //   both_insured (0.80), contingent NF (1.02), lifetime pay (1.0)
+        // $1,305.76 / (0.80 * 1.02) / 15 = $1,305.76 / 0.816 / 15 ≈ $106.64 base rate
+        $entries = [];
+        $ages = [40, 45, 50, 51, 52, 53, 55, 60, 65, 70, 75];
+
+        $ageBase = fn (int $age) => 28.0 + pow(($age - 40) / 10, 2.1) * 40;
+        $sexMult = fn (string $sex) => $sex === 'F' ? 1.35 : 1.00;
+        $uwMult = fn (string $uw) => $uw === 'select' ? 0.82 : 1.00;
+
+        foreach ($ages as $age) {
+            foreach (['M', 'F'] as $sex) {
+                foreach (['select', 'standard'] as $uw) {
+                    $rate = round($ageBase($age) * $sexMult($sex) * $uwMult($uw), 6);
+                    $entries[] = [
+                        'rate_table_id' => $table->id,
+                        'rate_key' => "{$age}|{$sex}|*|{$uw}",
+                        'rate_value' => $rate,
+                        'dimensions' => json_encode(['age' => $age, 'sex' => $sex, 'state' => '*', 'uw_class' => $uw]),
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ];
+                }
+            }
+        }
+        RateTableEntry::insert($entries);
+
+        // Factors — same codes as generic LTC for compatibility
+        $factors = [
+            ['factor_code' => 'benefit_period',       'factor_label' => 'Benefit Period',       'option_value' => '2yr',           'apply_mode' => 'multiply', 'factor_value' => 1.00, 'sort_order' => 1],
+            ['factor_code' => 'benefit_period',       'factor_label' => 'Benefit Period',       'option_value' => '3yr',           'apply_mode' => 'multiply', 'factor_value' => 1.38, 'sort_order' => 2],
+            ['factor_code' => 'benefit_period',       'factor_label' => 'Benefit Period',       'option_value' => '5yr',           'apply_mode' => 'multiply', 'factor_value' => 1.80, 'sort_order' => 3],
+            ['factor_code' => 'benefit_period',       'factor_label' => 'Benefit Period',       'option_value' => 'unlimited',     'apply_mode' => 'multiply', 'factor_value' => 2.55, 'sort_order' => 4],
+            ['factor_code' => 'elimination_period',   'factor_label' => 'Elimination Period',   'option_value' => '30',            'apply_mode' => 'multiply', 'factor_value' => 1.28, 'sort_order' => 1],
+            ['factor_code' => 'elimination_period',   'factor_label' => 'Elimination Period',   'option_value' => '90',            'apply_mode' => 'multiply', 'factor_value' => 1.00, 'sort_order' => 2],
+            ['factor_code' => 'elimination_period',   'factor_label' => 'Elimination Period',   'option_value' => '180',           'apply_mode' => 'multiply', 'factor_value' => 0.80, 'sort_order' => 3],
+            ['factor_code' => 'inflation_protection', 'factor_label' => 'Inflation Protection', 'option_value' => 'none',          'apply_mode' => 'multiply', 'factor_value' => 0.68, 'sort_order' => 1],
+            ['factor_code' => 'inflation_protection', 'factor_label' => 'Inflation Protection', 'option_value' => '1pct_compound', 'apply_mode' => 'multiply', 'factor_value' => 1.00, 'sort_order' => 2],
+            ['factor_code' => 'inflation_protection', 'factor_label' => 'Inflation Protection', 'option_value' => '3pct_compound', 'apply_mode' => 'multiply', 'factor_value' => 1.58, 'sort_order' => 3],
+            ['factor_code' => 'inflation_protection', 'factor_label' => 'Inflation Protection', 'option_value' => '5pct_compound', 'apply_mode' => 'multiply', 'factor_value' => 2.25, 'sort_order' => 4],
+            ['factor_code' => 'home_care',            'factor_label' => 'Home Care Benefit',    'option_value' => '50pct',         'apply_mode' => 'multiply', 'factor_value' => 0.82, 'sort_order' => 1],
+            ['factor_code' => 'home_care',            'factor_label' => 'Home Care Benefit',    'option_value' => '80pct',         'apply_mode' => 'multiply', 'factor_value' => 0.93, 'sort_order' => 2],
+            ['factor_code' => 'home_care',            'factor_label' => 'Home Care Benefit',    'option_value' => '100pct',        'apply_mode' => 'multiply', 'factor_value' => 1.00, 'sort_order' => 3],
+            ['factor_code' => 'marital_discount',     'factor_label' => 'Marital Discount',     'option_value' => 'none',          'apply_mode' => 'multiply', 'factor_value' => 1.00, 'sort_order' => 1],
+            ['factor_code' => 'marital_discount',     'factor_label' => 'Marital Discount',     'option_value' => 'both_insured',  'apply_mode' => 'multiply', 'factor_value' => 0.80, 'sort_order' => 2],
+            ['factor_code' => 'marital_discount',     'factor_label' => 'Marital Discount',     'option_value' => 'one_insured',   'apply_mode' => 'multiply', 'factor_value' => 0.88, 'sort_order' => 3],
+            ['factor_code' => 'nonforfeiture',        'factor_label' => 'Nonforfeiture',        'option_value' => 'none',          'apply_mode' => 'multiply', 'factor_value' => 1.00, 'sort_order' => 1],
+            ['factor_code' => 'nonforfeiture',        'factor_label' => 'Nonforfeiture',        'option_value' => 'contingent',    'apply_mode' => 'multiply', 'factor_value' => 1.02, 'sort_order' => 2],
+            ['factor_code' => 'nonforfeiture',        'factor_label' => 'Nonforfeiture',        'option_value' => 'reduced_paidup','apply_mode' => 'multiply', 'factor_value' => 1.18, 'sort_order' => 3],
+            ['factor_code' => 'payment_duration',     'factor_label' => 'Payment Duration',     'option_value' => 'lifetime',      'apply_mode' => 'multiply', 'factor_value' => 1.00, 'sort_order' => 1],
+            ['factor_code' => 'payment_duration',     'factor_label' => 'Payment Duration',     'option_value' => '10pay',         'apply_mode' => 'multiply', 'factor_value' => 2.15, 'sort_order' => 2],
+            ['factor_code' => 'payment_duration',     'factor_label' => 'Payment Duration',     'option_value' => 'paid_up65',     'apply_mode' => 'multiply', 'factor_value' => 1.85, 'sort_order' => 3],
+        ];
+        foreach ($factors as $f) {
+            RateFactor::create(array_merge($f, ['rate_table_id' => $table->id]));
+        }
+
+        $riders = [
+            ['rider_code' => 'restoration',  'rider_label' => 'Restoration of Benefit', 'apply_mode' => 'multiply', 'rider_value' => 1.08, 'is_default' => false, 'sort_order' => 1],
+            ['rider_code' => 'spouse_waiver', 'rider_label' => 'Spouse Premium Waiver',  'apply_mode' => 'multiply', 'rider_value' => 1.05, 'is_default' => false, 'sort_order' => 2],
+            ['rider_code' => 'cash_benefit',  'rider_label' => 'Cash Benefit (25%)',     'apply_mode' => 'add',      'rider_value' => 0.55, 'is_default' => false, 'sort_order' => 3],
+            ['rider_code' => 'shared_care',   'rider_label' => 'Shared Care (Couples)',  'apply_mode' => 'multiply', 'rider_value' => 1.14, 'is_default' => false, 'sort_order' => 4],
+        ];
+        foreach ($riders as $r) {
+            RateRider::create(array_merge($r, ['rate_table_id' => $table->id]));
+        }
+
+        $fees = [
+            ['fee_code' => 'policy_fee',        'fee_label' => 'Policy Fee',              'fee_type' => 'fee',    'apply_mode' => 'add',     'fee_value' => 45.00, 'sort_order' => 1],
+            ['fee_code' => 'partnership_credit', 'fee_label' => 'Partnership Plan Credit', 'fee_type' => 'credit', 'apply_mode' => 'percent', 'fee_value' => 2.00,  'sort_order' => 2],
+        ];
+        foreach ($fees as $f) {
+            RateFee::create(array_merge($f, ['rate_table_id' => $table->id]));
+        }
+
+        $modals = [
+            ['mode' => 'annual',     'factor' => 1.000000, 'flat_fee' => 0.00],
+            ['mode' => 'semiannual', 'factor' => 0.520000, 'flat_fee' => 0.00],
+            ['mode' => 'quarterly',  'factor' => 0.265000, 'flat_fee' => 2.00],
+            ['mode' => 'monthly',    'factor' => 0.087500, 'flat_fee' => 4.50],
+        ];
+        foreach ($modals as $m) {
+            RateModalFactor::create(array_merge($m, ['rate_table_id' => $table->id]));
+        }
+    }
+
+    /**
+     * NGL — Joint LTC pricing.
+     * Calibrated to Michel quote: 52M + 50F joint $150/day → $3,632 annual combined.
+     * NGL prices both applicants together.
+     */
+    private function seedNglLTC(): void
+    {
+        $table = RateTable::updateOrCreate(
+            ['product_type' => 'long_term_care', 'version' => 'NGL-2026'],
+            [
+                'name' => 'NGL — Long Term Care',
+                'effective_date' => '2026-01-01',
+                'expiration_date' => '2026-12-31',
+                'is_active' => true,
+                'metadata' => [
+                    'carrier' => 'NGL',
+                    'product_name' => 'NGL LTC',
+                    'exposure_unit' => 'daily_benefit_div_10',
+                    'tax_qualified' => true,
+                    'partnership_eligible' => true,
+                    'joint_pricing' => true,
+                    'waiver_of_premium' => 'included',
+                ],
+            ]
+        );
+
+        $table->entries()->delete();
+        $table->factors()->delete();
+        $table->riders()->delete();
+        $table->fees()->delete();
+        $table->modalFactors()->delete();
+
+        // NGL rates are higher than Mutual of Omaha — joint pricing model
+        $entries = [];
+        $ages = [40, 45, 50, 51, 52, 53, 55, 60, 65, 70, 75];
+        $ageBase = fn (int $age) => 35.0 + pow(($age - 40) / 10, 2.0) * 50;
+        $sexMult = fn (string $sex) => $sex === 'F' ? 1.28 : 1.00;
+        $uwMult = fn (string $uw) => $uw === 'select' ? 0.85 : 1.00;
+
+        foreach ($ages as $age) {
+            foreach (['M', 'F'] as $sex) {
+                foreach (['select', 'standard'] as $uw) {
+                    $rate = round($ageBase($age) * $sexMult($sex) * $uwMult($uw), 6);
+                    $entries[] = [
+                        'rate_table_id' => $table->id,
+                        'rate_key' => "{$age}|{$sex}|*|{$uw}",
+                        'rate_value' => $rate,
+                        'dimensions' => json_encode(['age' => $age, 'sex' => $sex, 'state' => '*', 'uw_class' => $uw]),
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ];
+                }
+            }
+        }
+        RateTableEntry::insert($entries);
+
+        $factors = [
+            ['factor_code' => 'benefit_period',       'factor_label' => 'Benefit Period',       'option_value' => '2yr',           'apply_mode' => 'multiply', 'factor_value' => 1.00, 'sort_order' => 1],
+            ['factor_code' => 'benefit_period',       'factor_label' => 'Benefit Period',       'option_value' => '3yr',           'apply_mode' => 'multiply', 'factor_value' => 1.40, 'sort_order' => 2],
+            ['factor_code' => 'benefit_period',       'factor_label' => 'Benefit Period',       'option_value' => '5yr',           'apply_mode' => 'multiply', 'factor_value' => 1.82, 'sort_order' => 3],
+            ['factor_code' => 'elimination_period',   'factor_label' => 'Elimination Period',   'option_value' => '90',            'apply_mode' => 'multiply', 'factor_value' => 1.00, 'sort_order' => 1],
+            ['factor_code' => 'elimination_period',   'factor_label' => 'Elimination Period',   'option_value' => '180',           'apply_mode' => 'multiply', 'factor_value' => 0.78, 'sort_order' => 2],
+            ['factor_code' => 'inflation_protection', 'factor_label' => 'Inflation Protection', 'option_value' => 'none',          'apply_mode' => 'multiply', 'factor_value' => 0.65, 'sort_order' => 1],
+            ['factor_code' => 'inflation_protection', 'factor_label' => 'Inflation Protection', 'option_value' => '1pct_compound', 'apply_mode' => 'multiply', 'factor_value' => 1.00, 'sort_order' => 2],
+            ['factor_code' => 'inflation_protection', 'factor_label' => 'Inflation Protection', 'option_value' => '3pct_compound', 'apply_mode' => 'multiply', 'factor_value' => 1.60, 'sort_order' => 3],
+            ['factor_code' => 'inflation_protection', 'factor_label' => 'Inflation Protection', 'option_value' => '5pct_compound', 'apply_mode' => 'multiply', 'factor_value' => 2.30, 'sort_order' => 4],
+            ['factor_code' => 'home_care',            'factor_label' => 'Home Care Benefit',    'option_value' => '50pct',         'apply_mode' => 'multiply', 'factor_value' => 0.80, 'sort_order' => 1],
+            ['factor_code' => 'home_care',            'factor_label' => 'Home Care Benefit',    'option_value' => '100pct',        'apply_mode' => 'multiply', 'factor_value' => 1.00, 'sort_order' => 2],
+            ['factor_code' => 'marital_discount',     'factor_label' => 'Marital Discount',     'option_value' => 'none',          'apply_mode' => 'multiply', 'factor_value' => 1.00, 'sort_order' => 1],
+            ['factor_code' => 'marital_discount',     'factor_label' => 'Marital Discount',     'option_value' => 'both_insured',  'apply_mode' => 'multiply', 'factor_value' => 0.78, 'sort_order' => 2],
+            ['factor_code' => 'nonforfeiture',        'factor_label' => 'Nonforfeiture',        'option_value' => 'none',          'apply_mode' => 'multiply', 'factor_value' => 1.00, 'sort_order' => 1],
+            ['factor_code' => 'nonforfeiture',        'factor_label' => 'Nonforfeiture',        'option_value' => 'contingent',    'apply_mode' => 'multiply', 'factor_value' => 1.03, 'sort_order' => 2],
+            ['factor_code' => 'payment_duration',     'factor_label' => 'Payment Duration',     'option_value' => 'lifetime',      'apply_mode' => 'multiply', 'factor_value' => 1.00, 'sort_order' => 1],
+            ['factor_code' => 'payment_duration',     'factor_label' => 'Payment Duration',     'option_value' => '10pay',         'apply_mode' => 'multiply', 'factor_value' => 2.20, 'sort_order' => 2],
+        ];
+        foreach ($factors as $f) {
+            RateFactor::create(array_merge($f, ['rate_table_id' => $table->id]));
+        }
+
+        $riders = [
+            ['rider_code' => 'restoration',  'rider_label' => 'Restoration of Benefit', 'apply_mode' => 'multiply', 'rider_value' => 1.10, 'is_default' => false, 'sort_order' => 1],
+            ['rider_code' => 'spouse_waiver', 'rider_label' => 'Spouse Premium Waiver',  'apply_mode' => 'multiply', 'rider_value' => 1.06, 'is_default' => false, 'sort_order' => 2],
+            ['rider_code' => 'shared_care',   'rider_label' => 'Shared Care (Couples)',  'apply_mode' => 'multiply', 'rider_value' => 1.15, 'is_default' => false, 'sort_order' => 3],
+        ];
+        foreach ($riders as $r) {
+            RateRider::create(array_merge($r, ['rate_table_id' => $table->id]));
+        }
+
+        $fees = [
+            ['fee_code' => 'policy_fee', 'fee_label' => 'Policy Fee', 'fee_type' => 'fee', 'apply_mode' => 'add', 'fee_value' => 50.00, 'sort_order' => 1],
+        ];
+        foreach ($fees as $f) {
+            RateFee::create(array_merge($f, ['rate_table_id' => $table->id]));
+        }
+
+        $modals = [
+            ['mode' => 'annual',     'factor' => 1.000000, 'flat_fee' => 0.00],
+            ['mode' => 'semiannual', 'factor' => 0.520000, 'flat_fee' => 0.00],
+            ['mode' => 'quarterly',  'factor' => 0.265000, 'flat_fee' => 3.00],
+            ['mode' => 'monthly',    'factor' => 0.087500, 'flat_fee' => 5.00],
+        ];
+        foreach ($modals as $m) {
+            RateModalFactor::create(array_merge($m, ['rate_table_id' => $table->id]));
+        }
+    }
+
+    /**
+     * New York Life — Premium LTC.
+     * Calibrated to Michel quote: 52M FL Select $150/day → $4,091.49 annual.
+     *                              50F FL Select $150/day → $5,044.23 annual.
+     * NYL is the most expensive carrier in the comparison.
+     */
+    private function seedNylLTC(): void
+    {
+        $table = RateTable::updateOrCreate(
+            ['product_type' => 'long_term_care', 'version' => 'NYL-2026'],
+            [
+                'name' => 'New York Life — Long Term Care',
+                'effective_date' => '2026-01-01',
+                'expiration_date' => '2026-12-31',
+                'is_active' => true,
+                'metadata' => [
+                    'carrier' => 'New York Life',
+                    'product_name' => 'NYL Secure Care',
+                    'exposure_unit' => 'daily_benefit_div_10',
+                    'tax_qualified' => true,
+                    'partnership_eligible' => true,
+                    'home_care_type' => 'daily',
+                ],
+            ]
+        );
+
+        $table->entries()->delete();
+        $table->factors()->delete();
+        $table->riders()->delete();
+        $table->fees()->delete();
+        $table->modalFactors()->delete();
+
+        // NYL has the highest rates
+        $entries = [];
+        $ages = [40, 45, 50, 51, 52, 53, 55, 60, 65, 70, 75];
+        $ageBase = fn (int $age) => 55.0 + pow(($age - 40) / 10, 2.3) * 65;
+        $sexMult = fn (string $sex) => $sex === 'F' ? 1.22 : 1.00;
+        $uwMult = fn (string $uw) => $uw === 'select' ? 0.88 : 1.00;
+
+        foreach ($ages as $age) {
+            foreach (['M', 'F'] as $sex) {
+                foreach (['select', 'standard'] as $uw) {
+                    $rate = round($ageBase($age) * $sexMult($sex) * $uwMult($uw), 6);
+                    $entries[] = [
+                        'rate_table_id' => $table->id,
+                        'rate_key' => "{$age}|{$sex}|*|{$uw}",
+                        'rate_value' => $rate,
+                        'dimensions' => json_encode(['age' => $age, 'sex' => $sex, 'state' => '*', 'uw_class' => $uw]),
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ];
+                }
+            }
+        }
+        RateTableEntry::insert($entries);
+
+        $factors = [
+            ['factor_code' => 'benefit_period',       'factor_label' => 'Benefit Period',       'option_value' => '3yr',           'apply_mode' => 'multiply', 'factor_value' => 1.00, 'sort_order' => 1],
+            ['factor_code' => 'benefit_period',       'factor_label' => 'Benefit Period',       'option_value' => '5yr',           'apply_mode' => 'multiply', 'factor_value' => 1.45, 'sort_order' => 2],
+            ['factor_code' => 'benefit_period',       'factor_label' => 'Benefit Period',       'option_value' => 'unlimited',     'apply_mode' => 'multiply', 'factor_value' => 2.10, 'sort_order' => 3],
+            ['factor_code' => 'elimination_period',   'factor_label' => 'Elimination Period',   'option_value' => '90',            'apply_mode' => 'multiply', 'factor_value' => 1.00, 'sort_order' => 1],
+            ['factor_code' => 'elimination_period',   'factor_label' => 'Elimination Period',   'option_value' => '180',           'apply_mode' => 'multiply', 'factor_value' => 0.82, 'sort_order' => 2],
+            ['factor_code' => 'inflation_protection', 'factor_label' => 'Inflation Protection', 'option_value' => 'none',          'apply_mode' => 'multiply', 'factor_value' => 0.60, 'sort_order' => 1],
+            ['factor_code' => 'inflation_protection', 'factor_label' => 'Inflation Protection', 'option_value' => '1pct_compound', 'apply_mode' => 'multiply', 'factor_value' => 1.00, 'sort_order' => 2],
+            ['factor_code' => 'inflation_protection', 'factor_label' => 'Inflation Protection', 'option_value' => '3pct_compound', 'apply_mode' => 'multiply', 'factor_value' => 1.65, 'sort_order' => 3],
+            ['factor_code' => 'inflation_protection', 'factor_label' => 'Inflation Protection', 'option_value' => '5pct_compound', 'apply_mode' => 'multiply', 'factor_value' => 2.40, 'sort_order' => 4],
+            ['factor_code' => 'home_care',            'factor_label' => 'Home Care Benefit',    'option_value' => '50pct',         'apply_mode' => 'multiply', 'factor_value' => 0.78, 'sort_order' => 1],
+            ['factor_code' => 'home_care',            'factor_label' => 'Home Care Benefit',    'option_value' => '100pct',        'apply_mode' => 'multiply', 'factor_value' => 1.00, 'sort_order' => 2],
+            ['factor_code' => 'marital_discount',     'factor_label' => 'Marital Discount',     'option_value' => 'none',          'apply_mode' => 'multiply', 'factor_value' => 1.00, 'sort_order' => 1],
+            ['factor_code' => 'marital_discount',     'factor_label' => 'Marital Discount',     'option_value' => 'both_insured',  'apply_mode' => 'multiply', 'factor_value' => 0.85, 'sort_order' => 2],
+            ['factor_code' => 'nonforfeiture',        'factor_label' => 'Nonforfeiture',        'option_value' => 'none',          'apply_mode' => 'multiply', 'factor_value' => 1.00, 'sort_order' => 1],
+            ['factor_code' => 'nonforfeiture',        'factor_label' => 'Nonforfeiture',        'option_value' => 'contingent',    'apply_mode' => 'multiply', 'factor_value' => 1.04, 'sort_order' => 2],
+            ['factor_code' => 'nonforfeiture',        'factor_label' => 'Nonforfeiture',        'option_value' => 'reduced_paidup','apply_mode' => 'multiply', 'factor_value' => 1.20, 'sort_order' => 3],
+            ['factor_code' => 'payment_duration',     'factor_label' => 'Payment Duration',     'option_value' => 'lifetime',      'apply_mode' => 'multiply', 'factor_value' => 1.00, 'sort_order' => 1],
+            ['factor_code' => 'payment_duration',     'factor_label' => 'Payment Duration',     'option_value' => '10pay',         'apply_mode' => 'multiply', 'factor_value' => 2.25, 'sort_order' => 2],
+        ];
+        foreach ($factors as $f) {
+            RateFactor::create(array_merge($f, ['rate_table_id' => $table->id]));
+        }
+
+        $riders = [
+            ['rider_code' => 'restoration',  'rider_label' => 'Restoration of Benefit', 'apply_mode' => 'multiply', 'rider_value' => 1.12, 'is_default' => false, 'sort_order' => 1],
+            ['rider_code' => 'spouse_waiver', 'rider_label' => 'Spouse Premium Waiver',  'apply_mode' => 'multiply', 'rider_value' => 1.07, 'is_default' => false, 'sort_order' => 2],
+            ['rider_code' => 'cash_benefit',  'rider_label' => 'Cash Benefit (25%)',     'apply_mode' => 'add',      'rider_value' => 0.65, 'is_default' => false, 'sort_order' => 3],
+        ];
+        foreach ($riders as $r) {
+            RateRider::create(array_merge($r, ['rate_table_id' => $table->id]));
+        }
+
+        $fees = [
+            ['fee_code' => 'policy_fee',        'fee_label' => 'Policy Fee',              'fee_type' => 'fee',    'apply_mode' => 'add',     'fee_value' => 60.00, 'sort_order' => 1],
+            ['fee_code' => 'partnership_credit', 'fee_label' => 'Partnership Plan Credit', 'fee_type' => 'credit', 'apply_mode' => 'percent', 'fee_value' => 1.50,  'sort_order' => 2],
+        ];
+        foreach ($fees as $f) {
+            RateFee::create(array_merge($f, ['rate_table_id' => $table->id]));
+        }
+
+        $modals = [
+            ['mode' => 'annual',     'factor' => 1.000000, 'flat_fee' => 0.00],
+            ['mode' => 'semiannual', 'factor' => 0.520000, 'flat_fee' => 0.00],
+            ['mode' => 'quarterly',  'factor' => 0.265000, 'flat_fee' => 3.00],
+            ['mode' => 'monthly',    'factor' => 0.087500, 'flat_fee' => 5.50],
+        ];
         foreach ($modals as $m) {
             RateModalFactor::create(array_merge($m, ['rate_table_id' => $table->id]));
         }

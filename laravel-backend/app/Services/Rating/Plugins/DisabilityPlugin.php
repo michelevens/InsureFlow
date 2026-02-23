@@ -171,12 +171,14 @@ class DisabilityPlugin implements ProductPlugin
             return $output;
         }
 
-        // Determine daily benefit from coverages or metadata
-        $dailyBenefit = 0;
-        foreach ($input->coverages as $cov) {
-            if (in_array($cov['coverage_type'] ?? '', ['ltc_facility', 'ltc_daily', 'long_term_care'])) {
-                $dailyBenefit = (float) ($cov['benefit_amount'] ?? $cov['limit_amount'] ?? 0);
-                if ($dailyBenefit > 0) break;
+        // Determine daily benefit from explicit property, coverages, or metadata
+        $dailyBenefit = $input->dailyBenefit ?? 0;
+        if ($dailyBenefit <= 0) {
+            foreach ($input->coverages as $cov) {
+                if (in_array($cov['coverage_type'] ?? '', ['ltc_facility', 'ltc_daily', 'long_term_care'])) {
+                    $dailyBenefit = (float) ($cov['benefit_amount'] ?? $cov['limit_amount'] ?? 0);
+                    if ($dailyBenefit > 0) break;
+                }
             }
         }
         if ($dailyBenefit <= 0) {
@@ -217,7 +219,38 @@ class DisabilityPlugin implements ProductPlugin
         $output->basePremium = $basePremium;
 
         // Steps 3-6 are identical to DI — reuse the shared pipeline
-        return $this->applyFactorsRidersFees($rateTable, $input, $output, $basePremium, $exposure);
+        $output = $this->applyFactorsRidersFees($rateTable, $input, $output, $basePremium, $exposure);
+
+        // ─── LTC-Specific Metadata ──────────────────────────────
+        // Pool of Money = daily benefit × benefit period in days
+        $benefitPeriodDays = $this->benefitPeriodToDays($input->benefitPeriod ?? '2yr');
+        $poolOfMoney = round($dailyBenefit * $benefitPeriodDays, 2);
+
+        // Monthly Benefit at Age 80 (compound daily benefit with inflation)
+        $inflationRate = $this->inflationRate($input->inflationProtection ?? $input->factorSelections['inflation_protection'] ?? 'none');
+        $yearsToAge80 = max(0, 80 - ($input->age ?? 52));
+        $dailyBenefitAge80 = round($dailyBenefit * pow(1 + $inflationRate, $yearsToAge80), 2);
+        $monthlyBenefitAge80 = round($dailyBenefitAge80 * 30.44, 2); // avg days/month
+        $totalBenefitAge80 = round($dailyBenefitAge80 * $benefitPeriodDays, 2);
+
+        $output->metadata = array_merge($output->metadata ?? [], [
+            'daily_benefit' => $dailyBenefit,
+            'pool_of_money' => $poolOfMoney,
+            'benefit_period_days' => $benefitPeriodDays,
+            'monthly_benefit_age_80' => $monthlyBenefitAge80,
+            'daily_benefit_age_80' => $dailyBenefitAge80,
+            'total_benefit_age_80' => $totalBenefitAge80,
+            'inflation_rate_used' => $inflationRate,
+            'tax_qualified' => $input->taxQualified ?? true,
+            'partnership_plan' => $input->partnershipPlan ?? true,
+            'home_care_type' => $input->homeCareType ?? 'daily',
+            'home_care_benefit_period' => $input->homeCareBenefitPeriod ?? 'pooled',
+            'assisted_living' => $input->assistedLiving ?? '100pct',
+            'waiver_of_premium' => $input->waiverOfPremium ?? 'na',
+            'joint_applicant' => $input->jointApplicant ?? false,
+        ]);
+
+        return $output;
     }
 
     /**
@@ -301,6 +334,12 @@ class DisabilityPlugin implements ProductPlugin
             'occupation_class' => $input->occupationClass,
             'uw_class', 'health_class' => $input->uwClass,
             'bmi_build' => $this->calculateBmiCategory($input),
+            // LTC-specific auto-selects
+            'inflation_protection' => $input->inflationProtection,
+            'home_care' => $input->homeCareBenefit,
+            'marital_discount' => $input->maritalDiscount,
+            'nonforfeiture' => $input->nonforfeiture,
+            'payment_duration' => $input->paymentDuration,
             default => null,
         };
     }
@@ -327,6 +366,27 @@ class DisabilityPlugin implements ProductPlugin
         if (in_array($s, ['m', 'male'])) return 'M';
         if (in_array($s, ['f', 'female'])) return 'F';
         return strtoupper($s[0] ?? '');
+    }
+
+    private function benefitPeriodToDays(string $period): int
+    {
+        return match ($period) {
+            '2yr' => 730,
+            '3yr' => 1095,
+            '5yr' => 1825,
+            'unlimited', 'lifetime' => 3650, // 10yr proxy for unlimited
+            default => 730,
+        };
+    }
+
+    private function inflationRate(?string $protection): float
+    {
+        return match ($protection) {
+            '1pct_compound' => 0.01,
+            '3pct_compound' => 0.03,
+            '5pct_compound' => 0.05,
+            default => 0.0,
+        };
     }
 
     private function defaultModalFactor(string $mode): float
