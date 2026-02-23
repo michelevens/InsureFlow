@@ -427,6 +427,19 @@ class ReportController extends Controller
             $combinedPremiums[$key] = ($combinedPremiums[$key] ?? 0) + $c['premium'];
         }
 
+        // Agency info for report header
+        $agency = $user->agency ?? $user->ownedAgency;
+        $agencyInfo = $agency ? [
+            'name' => $agency->name,
+            'phone' => $agency->phone,
+            'email' => $agency->email,
+            'website' => $agency->website,
+            'address' => trim(implode(', ', array_filter([
+                $agency->address, $agency->city,
+                $agency->state ? ($agency->state . ' ' . ($agency->zip_code ?? '')) : null,
+            ]))),
+        ] : null;
+
         return response()->json([
             'client' => [
                 'name' => $data['client_name'] ?? $user->name,
@@ -437,6 +450,7 @@ class ReportController extends Controller
                 'name' => $data['prepared_by'] ?? $user->name,
                 'email' => $user->email,
             ],
+            'agency' => $agencyInfo,
             'date' => now()->format('Y-m-d'),
             'carriers' => $carriers,
             'combined_premiums' => $combinedPremiums,

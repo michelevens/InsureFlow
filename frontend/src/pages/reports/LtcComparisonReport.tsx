@@ -41,9 +41,18 @@ interface CarrierColumn {
   premium_modal: number;
 }
 
+interface AgencyInfo {
+  name: string;
+  phone: string | null;
+  email: string | null;
+  website: string | null;
+  address: string | null;
+}
+
 interface ComparisonData {
   client: { name: string; state: string | null; dob: string | null };
   prepared_by: { name: string; email: string };
+  agency: AgencyInfo | null;
   date: string;
   carriers: CarrierColumn[];
   combined_premiums: Record<string, number>;
@@ -124,7 +133,7 @@ export default function LtcComparisonReport() {
     );
   }
 
-  const { carriers } = data;
+  const { carriers, agency } = data;
 
   const rows: { label: string; key: string; format: (c: CarrierColumn) => string }[] = [
     { label: 'Carrier', key: 'carrier_name', format: c => c.carrier_name },
@@ -161,121 +170,209 @@ export default function LtcComparisonReport() {
   ];
 
   return (
-    <div className="space-y-6 print:space-y-4">
-      {/* Header */}
-      <div className="flex items-center justify-between print:hidden">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900">Long Term Care — Carrier Comparison</h1>
-          <p className="text-slate-500 mt-1">StrateCision-style side-by-side analysis</p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm" leftIcon={<Printer className="w-4 h-4" />} onClick={() => window.print()}>
-            Print
-          </Button>
-          <Button variant="outline" size="sm" leftIcon={<Download className="w-4 h-4" />} onClick={() => window.print()}>
-            Export PDF
-          </Button>
-        </div>
-      </div>
+    <>
+      {/* Print-only styles */}
+      <style>{`
+        @media print {
+          /* Hide sidebar, top bar, and nav */
+          aside, header, nav, .lg\\:ml-64 > div:first-child { display: none !important; }
+          .lg\\:ml-64 { margin-left: 0 !important; }
+          main { padding: 0 !important; }
+          main > div { padding: 0 !important; }
 
-      {/* Client info */}
-      <Card className="print:shadow-none print:border">
-        <div className="p-6 grid grid-cols-2 gap-4 print:p-4">
+          /* Page setup */
+          @page {
+            size: landscape;
+            margin: 0.5in 0.4in 0.75in 0.4in;
+          }
+
+          /* Ensure colors print */
+          * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+
+          /* Table fits page */
+          table { font-size: 9pt !important; }
+          td, th { padding: 4px 6px !important; }
+        }
+      `}</style>
+
+      <div className="space-y-6 print:space-y-3">
+        {/* ===== SCREEN-ONLY: Action bar ===== */}
+        <div className="flex items-center justify-between print:hidden">
           <div>
-            <p className="text-xs text-slate-500 uppercase tracking-wider">Client</p>
-            <p className="font-semibold text-slate-900">{data.client.name}</p>
-            {data.client.state && <p className="text-sm text-slate-600">State: {data.client.state}</p>}
+            <h1 className="text-2xl font-bold text-slate-900">Long Term Care — Carrier Comparison</h1>
+            <p className="text-slate-500 mt-1">Side-by-side carrier analysis</p>
           </div>
-          <div className="text-right">
-            <p className="text-xs text-slate-500 uppercase tracking-wider">Prepared By</p>
-            <p className="font-semibold text-slate-900">{data.prepared_by.name}</p>
-            <p className="text-sm text-slate-600">{data.date}</p>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" leftIcon={<Printer className="w-4 h-4" />} onClick={() => window.print()}>
+              Print
+            </Button>
+            <Button variant="outline" size="sm" leftIcon={<Download className="w-4 h-4" />} onClick={() => window.print()}>
+              Export PDF
+            </Button>
           </div>
         </div>
-      </Card>
 
-      {/* Comparison Table */}
-      <Card className="print:shadow-none print:border">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b-2 border-shield-200 bg-shield-50">
-                <th className="text-left p-3 font-semibold text-shield-700 w-56">Parameter</th>
-                {carriers.map((c, i) => (
-                  <th key={i} className="text-center p-3 font-semibold text-shield-700 min-w-[180px]">
-                    <div className="flex items-center justify-center gap-2">
-                      <ShieldCheck className="w-4 h-4" />
-                      {c.carrier_name}
-                    </div>
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((row, ri) => (
-                <tr key={row.key} className={ri % 2 === 0 ? 'bg-white' : 'bg-slate-50'}>
-                  <td className="p-3 font-medium text-slate-700">{row.label}</td>
-                  {carriers.map((c, ci) => (
-                    <td key={ci} className="p-3 text-center text-slate-900">{row.format(c)}</td>
-                  ))}
-                </tr>
-              ))}
-
-              {/* Projections section */}
-              <tr className="border-t-2 border-shield-200 bg-shield-50">
-                <td colSpan={carriers.length + 1} className="p-3 font-semibold text-shield-700">
-                  Benefit Projections
-                </td>
-              </tr>
-              {projectionRows.map((row, ri) => (
-                <tr key={`proj-${ri}`} className={ri % 2 === 0 ? 'bg-white' : 'bg-slate-50'}>
-                  <td className="p-3 font-medium text-slate-700">{row.label}</td>
-                  {carriers.map((c, ci) => (
-                    <td key={ci} className="p-3 text-center text-slate-900">{row.format(c)}</td>
-                  ))}
-                </tr>
-              ))}
-
-              {/* Premium section */}
-              <tr className="border-t-2 border-savings-200 bg-savings-50">
-                <td colSpan={carriers.length + 1} className="p-3 font-semibold text-savings-700">
-                  Premium
-                </td>
-              </tr>
-              <tr className="bg-white">
-                <td className="p-3 font-semibold text-slate-900">Annual Premium</td>
-                {carriers.map((c, ci) => (
-                  <td key={ci} className="p-3 text-center font-bold text-lg text-savings-700">
-                    {formatCurrency(c.premium)}
-                  </td>
-                ))}
-              </tr>
-            </tbody>
-          </table>
+        {/* ===== PRINT HEADER: Agency branding ===== */}
+        <div className="hidden print:block">
+          <div className="flex items-start justify-between border-b-2 border-slate-800 pb-3 mb-4">
+            <div>
+              {agency ? (
+                <>
+                  <h1 className="text-xl font-bold text-slate-900">{agency.name}</h1>
+                  {agency.address && <p className="text-xs text-slate-600">{agency.address}</p>}
+                  <div className="flex gap-4 mt-1">
+                    {agency.phone && <p className="text-xs text-slate-600">{agency.phone}</p>}
+                    {agency.email && <p className="text-xs text-slate-600">{agency.email}</p>}
+                    {agency.website && <p className="text-xs text-slate-600">{agency.website}</p>}
+                  </div>
+                </>
+              ) : (
+                <h1 className="text-xl font-bold text-slate-900">Long Term Care Comparison</h1>
+              )}
+            </div>
+            <div className="text-right">
+              <h2 className="text-lg font-bold text-slate-800">LTC Carrier Comparison</h2>
+              <p className="text-xs text-slate-500">Report Date: {data.date}</p>
+            </div>
+          </div>
         </div>
-      </Card>
 
-      {/* Combined premiums summary */}
-      {Object.keys(data.combined_premiums).length > 0 && (
-        <Card className="print:shadow-none print:border">
-          <div className="p-6 print:p-4">
-            <h3 className="font-semibold text-slate-900 mb-3">Combined Annual Premiums</h3>
-            <div className="grid grid-cols-3 gap-4">
-              {Object.entries(data.combined_premiums).map(([key, total]) => (
-                <div key={key} className="text-center p-4 rounded-xl bg-slate-50">
-                  <p className="text-sm text-slate-500 capitalize">{key.replace(/_/g, ' ')}</p>
-                  <p className="text-2xl font-bold text-savings-600">{formatCurrency(total)}</p>
-                </div>
-              ))}
+        {/* ===== Client & Prepared By info ===== */}
+        <Card className="print:shadow-none print:border print:rounded-none">
+          <div className="p-6 print:p-3 grid grid-cols-2 gap-4">
+            <div>
+              <p className="text-xs text-slate-500 uppercase tracking-wider">Client</p>
+              <p className="font-semibold text-slate-900">{data.client.name}</p>
+              {data.client.state && <p className="text-sm text-slate-600">State: {data.client.state}</p>}
+              {data.client.dob && <p className="text-sm text-slate-600">DOB: {data.client.dob}</p>}
+            </div>
+            <div className="text-right">
+              <p className="text-xs text-slate-500 uppercase tracking-wider">Prepared By</p>
+              <p className="font-semibold text-slate-900">{data.prepared_by.name}</p>
+              <p className="text-sm text-slate-600">{data.prepared_by.email}</p>
+              <p className="text-sm text-slate-600 print:hidden">{data.date}</p>
             </div>
           </div>
         </Card>
-      )}
 
-      {/* Print footer */}
-      <div className="hidden print:block text-center text-xs text-slate-400 mt-8">
-        Generated by Insurons — {data.date}
+        {/* ===== Comparison Table ===== */}
+        <Card className="print:shadow-none print:border print:rounded-none">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b-2 border-shield-200 bg-shield-50">
+                  <th className="text-left p-3 font-semibold text-shield-700 w-56 print:w-44">Parameter</th>
+                  {carriers.map((c, i) => (
+                    <th key={i} className="text-center p-3 font-semibold text-shield-700 min-w-[180px] print:min-w-0">
+                      <div className="flex items-center justify-center gap-2">
+                        <ShieldCheck className="w-4 h-4 print:hidden" />
+                        {c.carrier_name}
+                      </div>
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {rows.map((row, ri) => (
+                  <tr key={row.key} className={ri % 2 === 0 ? 'bg-white' : 'bg-slate-50'}>
+                    <td className="p-3 font-medium text-slate-700">{row.label}</td>
+                    {carriers.map((c, ci) => (
+                      <td key={ci} className="p-3 text-center text-slate-900">{row.format(c)}</td>
+                    ))}
+                  </tr>
+                ))}
+
+                {/* Projections section */}
+                <tr className="border-t-2 border-shield-200 bg-shield-50">
+                  <td colSpan={carriers.length + 1} className="p-3 font-semibold text-shield-700">
+                    Benefit Projections
+                  </td>
+                </tr>
+                {projectionRows.map((row, ri) => (
+                  <tr key={`proj-${ri}`} className={ri % 2 === 0 ? 'bg-white' : 'bg-slate-50'}>
+                    <td className="p-3 font-medium text-slate-700">{row.label}</td>
+                    {carriers.map((c, ci) => (
+                      <td key={ci} className="p-3 text-center text-slate-900">{row.format(c)}</td>
+                    ))}
+                  </tr>
+                ))}
+
+                {/* Premium section */}
+                <tr className="border-t-2 border-savings-200 bg-savings-50">
+                  <td colSpan={carriers.length + 1} className="p-3 font-semibold text-savings-700">
+                    Premium
+                  </td>
+                </tr>
+                <tr className="bg-white">
+                  <td className="p-3 font-semibold text-slate-900">Annual Premium</td>
+                  {carriers.map((c, ci) => (
+                    <td key={ci} className="p-3 text-center font-bold text-lg text-savings-700">
+                      {formatCurrency(c.premium)}
+                    </td>
+                  ))}
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </Card>
+
+        {/* ===== Combined premiums summary ===== */}
+        {Object.keys(data.combined_premiums).length > 0 && (
+          <Card className="print:shadow-none print:border print:rounded-none">
+            <div className="p-6 print:p-3">
+              <h3 className="font-semibold text-slate-900 mb-3">Combined Annual Premiums</h3>
+              <div className="grid grid-cols-3 gap-4 print:gap-2">
+                {Object.entries(data.combined_premiums).map(([key, total]) => (
+                  <div key={key} className="text-center p-4 print:p-2 rounded-xl bg-slate-50">
+                    <p className="text-sm text-slate-500 capitalize">{key.replace(/_/g, ' ')}</p>
+                    <p className="text-2xl print:text-lg font-bold text-savings-600">{formatCurrency(total)}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </Card>
+        )}
+
+        {/* ===== PRINT FOOTER: Platform info + Disclaimer ===== */}
+        <div className="hidden print:block mt-6 pt-4 border-t border-slate-300">
+          {/* Disclaimer */}
+          <div className="mb-4">
+            <p className="text-[8pt] leading-tight text-slate-500">
+              <span className="font-semibold text-slate-600">Disclaimer:</span> This comparison report is provided for informational and illustrative purposes only.
+              Premium rates shown are estimates based on the information provided and may differ from final carrier quotes.
+              Actual premiums are subject to underwriting approval and may vary based on health status, medical history,
+              and other factors determined by the issuing carrier. Benefits, features, and availability may vary by state.
+              This report does not constitute an offer of insurance, a guarantee of coverage, or financial advice.
+              Please consult with a licensed insurance professional and review the actual policy contract for complete
+              terms, conditions, limitations, and exclusions before making any purchase decision.
+            </p>
+          </div>
+
+          {/* Platform info */}
+          <div className="flex items-center justify-between text-[8pt] text-slate-400">
+            <div>
+              <p>Powered by <span className="font-semibold">Insurons</span> — Insurance Technology Platform</p>
+              <p>www.insurons.com</p>
+            </div>
+            <div className="text-right">
+              <p>Report generated: {data.date}</p>
+              <p>Confidential — Prepared for {data.client.name}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* ===== SCREEN-ONLY: Disclaimer notice ===== */}
+        <div className="print:hidden">
+          <div className="p-4 rounded-lg bg-slate-50 border border-slate-200">
+            <p className="text-xs text-slate-500 leading-relaxed">
+              <span className="font-semibold text-slate-600">Disclaimer:</span> This comparison is for informational purposes only.
+              Premium rates are estimates and may differ from final carrier quotes. Actual premiums are subject to underwriting
+              approval. Benefits and availability may vary by state. This does not constitute an offer of insurance or financial advice.
+              Please review actual policy contracts for complete terms and conditions.
+            </p>
+          </div>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
