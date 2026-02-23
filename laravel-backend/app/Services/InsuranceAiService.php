@@ -8,13 +8,13 @@ use Illuminate\Support\Facades\Log;
 
 class InsuranceAiService
 {
-    private string $apiKey;
+    private ?string $apiKey;
     private string $model;
 
     public function __construct()
     {
-        $this->apiKey = config('services.anthropic.api_key', '');
-        $this->model = config('services.anthropic.model', 'claude-sonnet-4-20250514');
+        $this->apiKey = config('services.anthropic.api_key') ?? '';
+        $this->model = config('services.anthropic.model') ?? 'claude-sonnet-4-20250514';
     }
 
     public function chat(User $user, array $messageHistory, string $contextPage = null): array
