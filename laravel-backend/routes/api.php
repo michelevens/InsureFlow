@@ -629,8 +629,9 @@ Route::middleware(['auth:sanctum', 'agency.scope'])->group(function () {
         Route::delete('/compliance/requirements/{requirement}', [CompliancePackController::class, 'deleteRequirement']);
         Route::get('/compliance/overview', [CompliancePackController::class, 'overview']);
 
-        // Profile Import Stats
+        // Profile Import Stats & State Sources
         Route::get('/profiles/stats', [ProfileClaimController::class, 'stats']);
+        Route::get('/profiles/sources', [ProfileClaimController::class, 'sources']);
     });
 
     // Agency Settings (agency_owner)

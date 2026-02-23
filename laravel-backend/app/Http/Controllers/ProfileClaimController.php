@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Console\Commands\StateLicenseSources;
 use App\Models\AgentProfile;
 use Illuminate\Http\Request;
 
@@ -110,22 +111,58 @@ class ProfileClaimController extends Controller
     public function stats()
     {
         $total = AgentProfile::unclaimed()->count();
+        $totalClaimed = AgentProfile::where('is_claimed', true)->count();
+
         $bySource = AgentProfile::unclaimed()
             ->selectRaw("source, count(*) as count")
             ->groupBy('source')
+            ->orderByDesc('count')
             ->pluck('count', 'source');
+
         $byState = AgentProfile::unclaimed()
             ->selectRaw("state, count(*) as count")
             ->groupBy('state')
             ->orderByDesc('count')
-            ->limit(10)
             ->pluck('count', 'state');
 
         return response()->json([
             'total_unclaimed' => $total,
+            'total_claimed' => $totalClaimed,
             'by_source' => $bySource,
             'by_state' => $byState,
         ]);
+    }
+
+    /**
+     * List all supported state DOI data sources for admin reference.
+     */
+    public function sources()
+    {
+        $states = StateLicenseSources::all();
+
+        // Enrich with import counts from DB
+        $importCounts = AgentProfile::where('is_claimed', false)
+            ->selectRaw("source, state, count(*) as count")
+            ->groupBy('source', 'state')
+            ->get()
+            ->groupBy('state')
+            ->map(fn($group) => $group->sum('count'));
+
+        $result = [];
+        foreach ($states as $abbr => $config) {
+            $result[] = [
+                'state' => $abbr,
+                'name' => $config['name'],
+                'source_key' => $config['source_key'],
+                'bulk_url' => $config['bulk_url'],
+                'lookup_url' => $config['lookup_url'],
+                'format' => $config['format'],
+                'notes' => $config['notes'],
+                'imported_count' => $importCounts[$abbr] ?? 0,
+            ];
+        }
+
+        return response()->json(['sources' => $result]);
     }
 
     /**
@@ -151,7 +188,7 @@ class ProfileClaimController extends Controller
         if ($unclaimed->npn_verified === 'verified' && $existing->npn_verified !== 'verified') {
             $updates['npn_verified'] = 'verified';
             $updates['npn_verified_at'] = $unclaimed->npn_verified_at ?? now();
-            $updates['npn_verified_by'] = 'FL DFS Import';
+            $updates['npn_verified_by'] = 'State DOI Import (' . ($unclaimed->source ?? 'unknown') . ')';
         }
 
         // Merge license states
