@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\RatingRun;
 use App\Models\ReportDefinition;
 use App\Models\ReportRun;
 use Illuminate\Http\JsonResponse;
@@ -347,5 +348,98 @@ class ReportController extends Controller
         } else {
             Storage::disk('local')->put($filePath, $html);
         }
+    }
+
+    /**
+     * Generate a StrateCision-style LTC carrier comparison report.
+     * Input: rating_run_ids (array of RatingRun IDs from different carriers).
+     */
+    public function generateLtcComparison(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'rating_run_ids' => 'required|array|min:1',
+            'rating_run_ids.*' => 'integer|exists:rating_runs,id',
+            'client_name' => 'nullable|string',
+            'client_state' => 'nullable|string',
+            'client_dob' => 'nullable|date',
+            'prepared_by' => 'nullable|string',
+        ]);
+
+        $runs = RatingRun::whereIn('id', $data['rating_run_ids'])->get();
+
+        if ($runs->isEmpty()) {
+            return response()->json(['message' => 'No rating runs found'], 404);
+        }
+
+        $user = $request->user();
+        $carriers = [];
+
+        foreach ($runs as $run) {
+            $input = is_array($run->input_snapshot) ? $run->input_snapshot : json_decode($run->input_snapshot, true);
+            $output = is_array($run->output_snapshot) ? $run->output_snapshot : json_decode($run->output_snapshot, true);
+            $meta = $output['metadata'] ?? [];
+
+            $carriers[] = [
+                'rating_run_id' => $run->id,
+                'carrier_name' => $input['metadata']['carrier'] ?? $run->rateTable?->metadata['carrier'] ?? 'Unknown',
+                'product_name' => $run->rateTable?->name ?? 'LTC',
+                'rate_table_version' => $output['rateTableVersion'] ?? $run->rateTable?->version,
+                'issue_age' => $input['age'] ?? null,
+                'sex' => $input['sex'] ?? null,
+                'uw_class' => $input['uwClass'] ?? $input['uw_class'] ?? 'standard',
+                'tax_qualified' => $meta['tax_qualified'] ?? true,
+                'facility_daily_benefit' => $meta['daily_benefit'] ?? $input['dailyBenefit'] ?? $input['metadata']['daily_benefit'] ?? 150,
+                'benefit_period' => $input['benefitPeriod'] ?? $input['factorSelections']['benefit_period'] ?? '2yr',
+                'benefit_period_days' => $meta['benefit_period_days'] ?? null,
+                'pool_of_money' => $meta['pool_of_money'] ?? null,
+                'home_care_daily_benefit' => $input['homeCareBenefit'] ?? $input['factorSelections']['home_care'] ?? '100pct',
+                'home_care_type' => $meta['home_care_type'] ?? 'daily',
+                'home_care_benefit_period' => $meta['home_care_benefit_period'] ?? 'pooled',
+                'cash_benefit' => in_array('cash_benefit', array_column($output['ridersApplied'] ?? [], 'code')),
+                'inflation_protection' => $input['inflationProtection'] ?? $input['factorSelections']['inflation_protection'] ?? 'none',
+                'inflation_duration' => $meta['inflation_duration'] ?? 'lifetime',
+                'elimination_period' => $input['eliminationPeriodDays'] ?? $input['factorSelections']['elimination_period'] ?? '90',
+                'nonforfeiture' => $input['nonforfeiture'] ?? $input['factorSelections']['nonforfeiture'] ?? 'none',
+                'restoration' => in_array('restoration', array_column($output['ridersApplied'] ?? [], 'code')),
+                'spouse_waiver' => in_array('spouse_waiver', array_column($output['ridersApplied'] ?? [], 'code')),
+                'marital_discount' => $input['maritalDiscount'] ?? $input['factorSelections']['marital_discount'] ?? 'none',
+                'payment_option' => $input['paymentDuration'] ?? $input['factorSelections']['payment_duration'] ?? 'lifetime',
+                'modal_factor' => $output['modalMode'] ?? 'annual',
+                'partnership_plan' => $meta['partnership_plan'] ?? true,
+                'assisted_living' => $meta['assisted_living'] ?? '100pct',
+                'waiver_of_premium' => $meta['waiver_of_premium'] ?? 'na',
+                'joint_applicant' => $meta['joint_applicant'] ?? false,
+                'monthly_benefit_age_80' => $meta['monthly_benefit_age_80'] ?? null,
+                'daily_benefit_age_80' => $meta['daily_benefit_age_80'] ?? null,
+                'total_benefit_age_80' => $meta['total_benefit_age_80'] ?? null,
+                'premium' => $output['premiumAnnual'] ?? 0,
+                'premium_modal' => $output['premiumModal'] ?? 0,
+                'base_premium' => $output['basePremium'] ?? 0,
+                'factors_applied' => $output['factorsApplied'] ?? [],
+                'riders_applied' => $output['ridersApplied'] ?? [],
+                'fees_applied' => $output['feesApplied'] ?? [],
+            ];
+        }
+
+        $combinedPremiums = [];
+        foreach ($carriers as $c) {
+            $key = strtolower(str_replace(' ', '_', $c['carrier_name']));
+            $combinedPremiums[$key] = ($combinedPremiums[$key] ?? 0) + $c['premium'];
+        }
+
+        return response()->json([
+            'client' => [
+                'name' => $data['client_name'] ?? $user->name,
+                'state' => $data['client_state'] ?? null,
+                'dob' => $data['client_dob'] ?? null,
+            ],
+            'prepared_by' => [
+                'name' => $data['prepared_by'] ?? $user->name,
+                'email' => $user->email,
+            ],
+            'date' => now()->format('Y-m-d'),
+            'carriers' => $carriers,
+            'combined_premiums' => $combinedPremiums,
+        ]);
     }
 }

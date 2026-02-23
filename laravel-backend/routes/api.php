@@ -530,6 +530,7 @@ Route::middleware(['auth:sanctum', 'agency.scope'])->group(function () {
     Route::post('/report-runs/{runId}/email', [ReportController::class, 'emailRun']);
     Route::post('/export/csv', [ReportController::class, 'exportCsv']);
     Route::post('/export/json', [ReportController::class, 'exportJson']);
+    Route::post('/reports/ltc-comparison', [ReportController::class, 'generateLtcComparison']);
 
     /*
     |----------------------------------------------------------------------

@@ -133,6 +133,7 @@ const EventCalendar = lazy(() => import('@/pages/events/EventCalendar'));
 const PartnerDirectory = lazy(() => import('@/pages/partners/PartnerDirectory'));
 const CampaignBuilder = lazy(() => import('@/pages/campaigns/CampaignBuilder'));
 const ReportBuilder = lazy(() => import('@/pages/reports/ReportBuilder'));
+const LtcComparisonReport = lazy(() => import('@/pages/reports/LtcComparisonReport'));
 
 // Video Meetings
 const MeetingsPage = lazy(() => import('@/pages/meetings/Meetings'));
@@ -244,6 +245,7 @@ export default function App() {
                 <Route path="/partners" element={<PartnerDirectory />} />
                 <Route path="/campaigns" element={<CampaignBuilder />} />
                 <Route path="/reports" element={<ReportBuilder />} />
+                <Route path="/reports/ltc-comparison" element={<LtcComparisonReport />} />
 
                 {/* Agency */}
                 <Route path="/agency/team" element={<AgencyTeam />} />
