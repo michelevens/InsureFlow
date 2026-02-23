@@ -31,6 +31,9 @@ const ResetPassword = lazy(() => import('@/pages/auth/ResetPassword'));
 const SsoLogin = lazy(() => import('@/pages/auth/SsoLogin'));
 const SsoCallback = lazy(() => import('@/pages/auth/SsoCallback'));
 
+// Onboarding
+const Onboarding = lazy(() => import('@/pages/onboarding/Onboarding'));
+
 // Public
 const Landing = lazy(() => import('@/pages/public/Landing'));
 const Pricing = lazy(() => import('@/pages/public/Pricing'));
@@ -162,6 +165,11 @@ export default function App() {
               <Route path="/marketplace/:id" element={<AgentProfile />} />
               <Route path="/sso/login/:agencySlug" element={<SsoLogin />} />
               <Route path="/sso/callback" element={<SsoCallback />} />
+
+              {/* Protected: Onboarding (no DashboardLayout) */}
+              <Route element={<ProtectedRoute skipOnboardingCheck />}>
+                <Route path="/onboarding" element={<Onboarding />} />
+              </Route>
 
               {/* Protected routes (auth guard + DashboardLayout) */}
               <Route element={<ProtectedRoute />}>

@@ -1,8 +1,12 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 
-export function ProtectedRoute() {
-  const { isAuthenticated, isLoading } = useAuth();
+interface ProtectedRouteProps {
+  skipOnboardingCheck?: boolean;
+}
+
+export function ProtectedRoute({ skipOnboardingCheck }: ProtectedRouteProps) {
+  const { user, isAuthenticated, isLoading } = useAuth();
   const location = useLocation();
 
   if (isLoading) {
@@ -15,6 +19,17 @@ export function ProtectedRoute() {
 
   if (!isAuthenticated) {
     return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  // Redirect to onboarding if not completed (only for agent/agency_owner roles)
+  if (
+    !skipOnboardingCheck &&
+    user &&
+    !user.onboarding_completed &&
+    ['agent', 'agency_owner'].includes(user.role) &&
+    location.pathname !== '/onboarding'
+  ) {
+    return <Navigate to="/onboarding" replace />;
   }
 
   return <Outlet />;

@@ -17,6 +17,7 @@ class User extends Authenticatable
         'mfa_secret', 'mfa_enabled', 'mfa_backup_codes',
         'stripe_account_id', 'stripe_onboarded',
         'sso_provider', 'sso_id', 'email_verified_at',
+        'onboarding_completed', 'onboarding_completed_at', 'onboarding_data',
     ];
 
     protected $hidden = ['password', 'remember_token', 'mfa_secret', 'mfa_backup_codes'];
@@ -30,6 +31,9 @@ class User extends Authenticatable
             'is_active' => 'boolean',
             'mfa_enabled' => 'boolean',
             'stripe_onboarded' => 'boolean',
+            'onboarding_completed' => 'boolean',
+            'onboarding_completed_at' => 'datetime',
+            'onboarding_data' => 'array',
         ];
     }
 

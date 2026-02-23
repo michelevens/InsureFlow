@@ -50,6 +50,7 @@ use App\Http\Controllers\RatingController;
 use App\Http\Controllers\AdminProductController;
 use App\Http\Controllers\AgencyProductController;
 use App\Http\Controllers\ProductVisibilityController;
+use App\Http\Controllers\OnboardingController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -116,6 +117,13 @@ Route::middleware(['auth:sanctum', 'agency.scope'])->group(function () {
     Route::put('/auth/profile', [AuthController::class, 'updateProfile']);
     Route::put('/auth/password', [AuthController::class, 'changePassword']);
     Route::post('/auth/resend-verification', [AuthController::class, 'resendVerification']);
+
+    // Onboarding
+    Route::get('/onboarding/status', [OnboardingController::class, 'status']);
+    Route::get('/onboarding/form-data', [OnboardingController::class, 'formData']);
+    Route::post('/onboarding/agency', [OnboardingController::class, 'saveAgency']);
+    Route::post('/onboarding/agent', [OnboardingController::class, 'saveAgent']);
+    Route::post('/onboarding/complete', [OnboardingController::class, 'complete']);
 
     // Dashboard stats
     Route::get('/stats/dashboard', [AnalyticsController::class, 'dashboard']);

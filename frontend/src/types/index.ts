@@ -9,6 +9,8 @@ export interface User {
   avatar: string | null;
   agency_id: number | null;
   email_verified_at: string | null;
+  onboarding_completed: boolean;
+  onboarding_completed_at: string | null;
   created_at: string;
 }
 

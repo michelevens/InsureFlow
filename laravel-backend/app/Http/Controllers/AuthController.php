@@ -120,7 +120,10 @@ class AuthController extends Controller
     {
         $user = $request->user();
         $user->load(['agentProfile', 'agency', 'ownedAgency']);
-        return response()->json(['user' => $user]);
+        return response()->json([
+            'user' => $user,
+            'onboarding_completed' => (bool) $user->onboarding_completed,
+        ]);
     }
 
     public function logout(Request $request)
@@ -313,7 +316,7 @@ class AuthController extends Controller
             'email' => 'required|email',
         ]);
 
-        // Only allow known demo accounts (support both domain variants)
+        // Allow known demo accounts (both domain variants) + ennhealth.com agency/agent accounts
         $demoEmails = [
             'consumer@insureflow.com',
             'agent@insureflow.com',
@@ -331,7 +334,10 @@ class AuthController extends Controller
             'superadmin@insurons.com',
         ];
 
-        if (!in_array($data['email'], $demoEmails)) {
+        $isDemoEmail = in_array($data['email'], $demoEmails)
+            || str_contains($data['email'], '@ennhealth.com');
+
+        if (!$isDemoEmail) {
             return response()->json(['message' => 'Not a demo account'], 403);
         }
 
