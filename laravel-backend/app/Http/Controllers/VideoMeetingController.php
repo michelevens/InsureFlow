@@ -107,7 +107,7 @@ class VideoMeetingController extends Controller
         $meeting = VideoMeeting::findOrFail($meetingId);
 
         $duration = $meeting->started_at
-            ? now()->diffInSeconds($meeting->started_at)
+            ? (int) abs(now()->diffInSeconds($meeting->started_at))
             : 0;
 
         $meeting->update([

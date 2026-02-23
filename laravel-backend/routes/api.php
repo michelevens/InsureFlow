@@ -65,19 +65,6 @@ Route::post('/auth/reset-password', [AuthController::class, 'resetPassword']);
 Route::post('/auth/check-email', [AuthController::class, 'checkEmail']);
 Route::post('/auth/demo-login', [AuthController::class, 'demoLogin']);
 
-// Temporary seed endpoint (remove after seeding)
-Route::post('/admin/seed-rate-tables', function () {
-    \Artisan::call('db:seed', ['--class' => 'Database\\Seeders\\RateTableSeeder', '--force' => true]);
-    $count = \App\Models\RateTable::count();
-    $entries = \App\Models\RateTableEntry::count();
-    return response()->json([
-        'message' => 'RateTableSeeder completed',
-        'rate_tables' => $count,
-        'rate_entries' => $entries,
-        'output' => \Artisan::output(),
-    ]);
-});
-
 // Calculator / Quote
 Route::post('/calculator/estimate', [QuoteController::class, 'estimate']);
 Route::put('/calculator/{quoteRequest}/contact', [QuoteController::class, 'saveContact']);

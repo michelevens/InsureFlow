@@ -110,17 +110,18 @@ class DisabilityPlugin implements ProductPlugin
         // ─── Step 2: Base Premium Lookup ───────────────────────
         $occClass = $input->occupationClass ?? '4A';
         $uwClass = $input->uwClass ?? 'standard';
-        $rateKey = implode('|', [$input->age, $input->sex, $input->state, $occClass, $uwClass]);
+        $sex = $this->normalizeSex($input->sex);
+        $rateKey = implode('|', [$input->age, $sex, $input->state, $occClass, $uwClass]);
 
         $entry = $rateTable->entries()->where('rate_key', $rateKey)->first();
 
         // Fallback: try without state, then without uwClass
         if (!$entry) {
-            $rateKey = implode('|', [$input->age, $input->sex, '*', $occClass, $uwClass]);
+            $rateKey = implode('|', [$input->age, $sex, '*', $occClass, $uwClass]);
             $entry = $rateTable->entries()->where('rate_key', $rateKey)->first();
         }
         if (!$entry) {
-            $rateKey = implode('|', [$input->age, $input->sex, '*', $occClass, '*']);
+            $rateKey = implode('|', [$input->age, $sex, '*', $occClass, '*']);
             $entry = $rateTable->entries()->where('rate_key', $rateKey)->first();
         }
 
@@ -188,17 +189,18 @@ class DisabilityPlugin implements ProductPlugin
 
         // Base rate lookup: age|sex|state|uwClass
         $uwClass = $input->uwClass ?? 'standard';
-        $rateKey = implode('|', [$input->age, $input->sex, $input->state ?? '*', $uwClass]);
+        $sex = $this->normalizeSex($input->sex);
+        $rateKey = implode('|', [$input->age, $sex, $input->state ?? '*', $uwClass]);
         $entry = $rateTable->entries()->where('rate_key', $rateKey)->first();
 
         // Fallback: wildcard state
         if (!$entry) {
-            $rateKey = implode('|', [$input->age, $input->sex, '*', $uwClass]);
+            $rateKey = implode('|', [$input->age, $sex, '*', $uwClass]);
             $entry = $rateTable->entries()->where('rate_key', $rateKey)->first();
         }
         // Fallback: wildcard uwClass
         if (!$entry) {
-            $rateKey = implode('|', [$input->age, $input->sex, '*', '*']);
+            $rateKey = implode('|', [$input->age, $sex, '*', '*']);
             $entry = $rateTable->entries()->where('rate_key', $rateKey)->first();
         }
 
@@ -312,6 +314,19 @@ class DisabilityPlugin implements ProductPlugin
         if ($bmi < 30) return 'overweight';
         if ($bmi < 35) return 'obese_1';
         return 'obese_2';
+    }
+
+    /**
+     * Normalize sex input to single-letter code for rate key matching.
+     * Accepts: male/female/m/f/M/F → M/F
+     */
+    private function normalizeSex(?string $sex): ?string
+    {
+        if (!$sex) return null;
+        $s = strtolower(trim($sex));
+        if (in_array($s, ['m', 'male'])) return 'M';
+        if (in_array($s, ['f', 'female'])) return 'F';
+        return strtoupper($s[0] ?? '');
     }
 
     private function defaultModalFactor(string $mode): float

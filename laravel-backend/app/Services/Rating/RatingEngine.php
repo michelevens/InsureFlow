@@ -225,13 +225,29 @@ class RatingEngine
             $input->benefitPeriod = $diCoverage->benefit_period;
         }
 
-        // Target premium from scenario metadata
+        // Scenario metadata — fallback for demographics when no insured objects
         $metadata = $scenario->metadata_json ?? [];
+
+        // If no primary insured person, use metadata for demographics
+        if (!$primary) {
+            $input->age = isset($metadata['age']) ? (int) $metadata['age'] : null;
+            $input->sex = $metadata['sex'] ?? $metadata['gender'] ?? null;
+            $input->state = $metadata['state'] ?? null;
+            $input->tobaccoUse = $metadata['tobacco_use'] ?? null;
+            $input->occupation = $metadata['occupation'] ?? null;
+            $input->annualIncome = isset($metadata['annual_income']) ? (float) $metadata['annual_income'] : null;
+            $input->heightInches = isset($metadata['height_inches']) ? (float) $metadata['height_inches'] : null;
+            $input->weightLbs = isset($metadata['weight_lbs']) ? (float) $metadata['weight_lbs'] : null;
+        }
+
         $input->occupationClass = $metadata['occupation_class'] ?? null;
         $input->uwClass = $metadata['uw_class'] ?? 'standard';
         $input->definitionOfDisability = $metadata['definition_of_disability'] ?? null;
         $input->existingCoverageMonthly = isset($metadata['existing_coverage_monthly'])
             ? (float) $metadata['existing_coverage_monthly'] : null;
+
+        // Pass full metadata to plugin (for product-specific fields like daily_benefit)
+        $input->metadata = array_merge($input->metadata, $metadata);
 
         // Apply overrides (UI selections)
         foreach ($overrides as $key => $value) {
