@@ -26,4 +26,9 @@ class Carrier extends Model
     {
         return $this->hasMany(CarrierProduct::class);
     }
+
+    public function agencyAppointments()
+    {
+        return $this->hasMany(AgencyCarrierAppointment::class);
+    }
 }

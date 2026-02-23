@@ -3,16 +3,19 @@
 namespace App\Http\Controllers;
 
 use App\Mail\QuoteReceivedMail;
+use App\Models\AgencyCarrierAppointment;
 use App\Models\CarrierProduct;
 use App\Models\Coverage;
 use App\Models\InsuranceProfile;
 use App\Models\InsuredObject;
 use App\Models\Lead;
 use App\Models\LeadScenario;
+use App\Models\PlatformProduct;
 use App\Models\Quote;
 use App\Models\QuoteRequest;
 use App\Services\RoutingEngine;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 
 class QuoteController extends Controller
@@ -38,6 +41,28 @@ class QuoteController extends Controller
 
         $agencyId = $data['agency_id'] ?? $request->attributes->get('agency_id');
 
+        // Validate product is platform-active (if platform_products table exists)
+        $platformProduct = PlatformProduct::where('slug', $data['insurance_type'])
+            ->where('is_active', true)
+            ->first();
+
+        if (PlatformProduct::count() > 0 && !$platformProduct) {
+            return response()->json(['error' => 'This product type is not available'], 422);
+        }
+
+        // If agency context, validate agency supports this product
+        if ($agencyId && $platformProduct) {
+            $agencySupports = DB::table('agency_products')
+                ->where('agency_id', $agencyId)
+                ->where('platform_product_id', $platformProduct->id)
+                ->where('is_active', true)
+                ->exists();
+
+            if ($agencySupports === false && DB::table('agency_products')->where('agency_id', $agencyId)->exists()) {
+                return response()->json(['error' => 'This product is not available through this agency'], 422);
+            }
+        }
+
         $quoteRequest = QuoteRequest::create([
             'user_id' => $request->user()?->id,
             'agency_id' => $agencyId,
@@ -52,11 +77,25 @@ class QuoteController extends Controller
             'date_of_birth' => $data['date_of_birth'] ?? null,
         ]);
 
-        // Get matching carrier products
-        $products = CarrierProduct::where('insurance_type', $data['insurance_type'])
+        // Get matching carrier products, filtered by agency appointments if applicable
+        $query = CarrierProduct::where('insurance_type', $data['insurance_type'])
             ->where('is_active', true)
-            ->with('carrier')
-            ->get();
+            ->whereHas('carrier', fn($q) => $q->where('is_active', true))
+            ->with('carrier');
+
+        if ($agencyId && $platformProduct) {
+            $appointedCarrierIds = AgencyCarrierAppointment::where('agency_id', $agencyId)
+                ->where('is_active', true)
+                ->where('platform_product_id', $platformProduct->id)
+                ->pluck('carrier_id')
+                ->toArray();
+
+            if (!empty($appointedCarrierIds)) {
+                $query->whereIn('carrier_id', $appointedCarrierIds);
+            }
+        }
+
+        $products = $query->get();
 
         $quotes = [];
         $coverageMultiplier = match ($data['coverage_level'] ?? 'standard') {

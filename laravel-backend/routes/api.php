@@ -47,6 +47,9 @@ use App\Http\Controllers\EmailCampaignController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\VideoMeetingController;
 use App\Http\Controllers\RatingController;
+use App\Http\Controllers\AdminProductController;
+use App\Http\Controllers\AgencyProductController;
+use App\Http\Controllers\ProductVisibilityController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -95,6 +98,9 @@ Route::post('/invites/{token}/accept', [InviteController::class, 'accept']);
 Route::get('/sso/login/{agencySlug}', [SamlController::class, 'login']);
 Route::post('/sso/acs/{agencySlug}', [SamlController::class, 'acs']);
 Route::get('/sso/metadata', [SamlController::class, 'metadata']);
+
+// Product visibility (public)
+Route::get('/products/visible', [ProductVisibilityController::class, 'visible']);
 
 /*
 |--------------------------------------------------------------------------
@@ -284,6 +290,17 @@ Route::middleware(['auth:sanctum', 'agency.scope'])->group(function () {
     // Agency invites (agency owners invite agents)
     Route::get('/agency/invites', [InviteController::class, 'agencyInvites']);
     Route::post('/agency/invites', [InviteController::class, 'agencyInvite']);
+
+    // Agency product configuration (agency owners)
+    Route::get('/agency/products', [AgencyProductController::class, 'index']);
+    Route::put('/agency/products', [AgencyProductController::class, 'update']);
+    Route::put('/agency/products/{product}/toggle', [AgencyProductController::class, 'toggleProduct']);
+
+    // Agency carrier appointments
+    Route::get('/agency/appointments', [AgencyProductController::class, 'appointments']);
+    Route::post('/agency/appointments', [AgencyProductController::class, 'storeAppointment']);
+    Route::put('/agency/appointments/carrier/{carrier}', [AgencyProductController::class, 'syncCarrierAppointments']);
+    Route::delete('/agency/appointments/{appointment}', [AgencyProductController::class, 'destroyAppointment']);
 
     // SSO Configuration (admin/agency_owner)
     Route::post('/sso/configure', [SamlController::class, 'configure']);
@@ -540,6 +557,13 @@ Route::middleware(['auth:sanctum', 'agency.scope'])->group(function () {
         // Invites (admin invites agents/agency_owners/carriers)
         Route::get('/invites', [InviteController::class, 'adminListInvites']);
         Route::post('/invites', [InviteController::class, 'adminInvite']);
+
+        // Platform Products
+        Route::get('/products', [AdminProductController::class, 'index']);
+        Route::put('/products/{product}', [AdminProductController::class, 'update']);
+        Route::put('/products/{product}/toggle', [AdminProductController::class, 'toggle']);
+        Route::post('/products/bulk-toggle', [AdminProductController::class, 'bulkToggle']);
+        Route::post('/products/sync', [AdminProductController::class, 'sync']);
 
         // Help Center Admin
         Route::get('/help/articles', [HelpCenterController::class, 'adminListArticles']);

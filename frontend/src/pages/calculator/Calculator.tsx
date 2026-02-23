@@ -1,17 +1,19 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect, useMemo } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button, Input, Select, Card } from '@/components/ui';
 import { Calculator as CalcIcon, ArrowRight, ShieldCheck, Clock, CheckCircle2 } from 'lucide-react';
 import { quoteService } from '@/services/api';
+import { platformProductService } from '@/services/api/platformProducts';
+import type { PlatformProduct } from '@/types';
 
-const insuranceTypes = [
+const fallbackTypes = [
   { value: 'auto', label: 'Auto Insurance' },
-  { value: 'home', label: 'Home Insurance' },
-  { value: 'life', label: 'Life Insurance' },
-  { value: 'health', label: 'Health Insurance' },
+  { value: 'homeowners', label: 'Homeowners Insurance' },
+  { value: 'life_term', label: 'Term Life' },
+  { value: 'health_individual', label: 'Individual Health' },
   { value: 'renters', label: 'Renters Insurance' },
-  { value: 'business', label: 'Business Insurance' },
-  { value: 'umbrella', label: 'Umbrella Insurance' },
+  { value: 'bop', label: 'Business Owners Policy (BOP)' },
+  { value: 'umbrella_personal', label: 'Personal Umbrella' },
 ];
 
 const coverageLevels = [
@@ -22,8 +24,12 @@ const coverageLevels = [
 
 export default function Calculator() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const agencyId = searchParams.get('agency_id') ? parseInt(searchParams.get('agency_id')!) : undefined;
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [loadingProducts, setLoadingProducts] = useState(true);
+  const [platformProducts, setPlatformProducts] = useState<PlatformProduct[]>([]);
   const [error, setError] = useState('');
   const [form, setForm] = useState({
     insurance_type: '',
@@ -39,18 +45,37 @@ export default function Calculator() {
     square_footage: '',
   });
 
+  // Fetch available products from platform
+  useEffect(() => {
+    setLoadingProducts(true);
+    platformProductService.getVisibleProducts(agencyId)
+      .then(res => setPlatformProducts(res.products))
+      .catch(() => { /* use fallback */ })
+      .finally(() => setLoadingProducts(false));
+  }, [agencyId]);
+
+  const insuranceTypes = useMemo(() => {
+    if (platformProducts.length > 0) {
+      return platformProducts.map(p => ({ value: p.slug, label: p.name }));
+    }
+    return fallbackTypes;
+  }, [platformProducts]);
+
   const update = (field: string, value: string) => setForm(f => ({ ...f, [field]: value }));
+
+  const isVehicleType = ['auto', 'motorcycle', 'boat_watercraft', 'rv_motorhome', 'commercial_auto'].includes(form.insurance_type);
+  const isPropertyType = ['homeowners', 'renters', 'condo', 'flood'].includes(form.insurance_type);
 
   const handleGetQuotes = async () => {
     setLoading(true);
     setError('');
 
     const details: Record<string, string> = {};
-    if (form.insurance_type === 'auto') {
+    if (isVehicleType) {
       if (form.vehicle_year) details.vehicle_year = form.vehicle_year;
       if (form.vehicle_make) details.vehicle_make = form.vehicle_make;
       if (form.vehicle_model) details.vehicle_model = form.vehicle_model;
-    } else if (form.insurance_type === 'home') {
+    } else if (isPropertyType) {
       if (form.home_value) details.home_value = form.home_value;
       if (form.year_built) details.year_built = form.year_built;
       if (form.square_footage) details.square_footage = form.square_footage;
@@ -62,6 +87,7 @@ export default function Calculator() {
         zip_code: form.zip_code,
         coverage_level: form.coverage_level,
         details: Object.keys(details).length > 0 ? details : undefined,
+        agency_id: agencyId,
       });
 
       navigate('/calculator/results', {
@@ -80,7 +106,7 @@ export default function Calculator() {
     }
   };
 
-  const isAutoOrHome = form.insurance_type === 'auto' || form.insurance_type === 'home';
+  const selectedProductName = insuranceTypes.find(t => t.value === form.insurance_type)?.label || form.insurance_type;
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -127,13 +153,17 @@ export default function Calculator() {
           <div className="p-8">
             {step === 1 && (
               <div className="space-y-5">
-                <Select
-                  label="Insurance Type"
-                  options={insuranceTypes}
-                  placeholder="Select insurance type"
-                  value={form.insurance_type}
-                  onChange={e => update('insurance_type', e.target.value)}
-                />
+                {loadingProducts ? (
+                  <div className="text-center py-4 text-slate-500 text-sm">Loading available products...</div>
+                ) : (
+                  <Select
+                    label="Insurance Type"
+                    options={insuranceTypes}
+                    placeholder="Select insurance type"
+                    value={form.insurance_type}
+                    onChange={e => update('insurance_type', e.target.value)}
+                  />
+                )}
                 <Input
                   label="ZIP Code"
                   placeholder="Enter your ZIP code"
@@ -162,24 +192,24 @@ export default function Calculator() {
 
             {step === 2 && (
               <div className="space-y-5">
-                {form.insurance_type === 'auto' && (
+                {isVehicleType && (
                   <>
                     <Input label="Vehicle Year" placeholder="2024" value={form.vehicle_year} onChange={e => update('vehicle_year', e.target.value)} />
                     <Input label="Vehicle Make" placeholder="Toyota" value={form.vehicle_make} onChange={e => update('vehicle_make', e.target.value)} />
                     <Input label="Vehicle Model" placeholder="Camry" value={form.vehicle_model} onChange={e => update('vehicle_model', e.target.value)} />
                   </>
                 )}
-                {form.insurance_type === 'home' && (
+                {isPropertyType && (
                   <>
                     <Input label="Home Value" placeholder="$350,000" value={form.home_value} onChange={e => update('home_value', e.target.value)} />
                     <Input label="Year Built" placeholder="1995" value={form.year_built} onChange={e => update('year_built', e.target.value)} />
                     <Input label="Square Footage" placeholder="2,000" value={form.square_footage} onChange={e => update('square_footage', e.target.value)} />
                   </>
                 )}
-                {!isAutoOrHome && (
+                {!isVehicleType && !isPropertyType && (
                   <div className="text-center py-8">
                     <CalcIcon className="w-12 h-12 text-shield-400 mx-auto mb-3" />
-                    <p className="text-slate-600">Great choice! We'll match you with the best {form.insurance_type} insurance rates in your area.</p>
+                    <p className="text-slate-600">Great choice! We'll match you with the best {selectedProductName} rates in your area.</p>
                   </div>
                 )}
 

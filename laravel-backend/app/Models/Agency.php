@@ -45,4 +45,16 @@ class Agency extends Model
     {
         return $this->hasMany(RoutingRule::class);
     }
+
+    public function platformProducts()
+    {
+        return $this->belongsToMany(PlatformProduct::class, 'agency_products')
+            ->withPivot('is_active')
+            ->withTimestamps();
+    }
+
+    public function carrierAppointments()
+    {
+        return $this->hasMany(AgencyCarrierAppointment::class);
+    }
 }

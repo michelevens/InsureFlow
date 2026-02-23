@@ -10,6 +10,7 @@ export interface EstimatePayload {
   email?: string;
   phone?: string;
   date_of_birth?: string;
+  agency_id?: number;
 }
 
 export interface EstimateQuote {

@@ -84,6 +84,8 @@ const navSections: NavSection[] = [
     roles: ['agency_owner', 'admin', 'superadmin'],
     items: [
       { label: 'My Team', href: '/agency/team', icon: <Users className="w-5 h-5" />, roles: ['agency_owner'] },
+      { label: 'Products', href: '/agency/products', icon: <Briefcase className="w-5 h-5" />, roles: ['agency_owner'] },
+      { label: 'Appointments', href: '/agency/appointments', icon: <ClipboardList className="w-5 h-5" />, roles: ['agency_owner'] },
       { label: 'Organizations', href: '/organizations', icon: <Network className="w-5 h-5" />, roles: ['agency_owner', 'admin', 'superadmin'] },
       { label: 'Recruitment', href: '/recruitment', icon: <Briefcase className="w-5 h-5" />, roles: ['agency_owner', 'admin', 'superadmin'] },
       { label: 'SSO Config', href: '/admin/sso', icon: <Key className="w-5 h-5" />, roles: ['admin', 'superadmin', 'agency_owner'] },
@@ -124,6 +126,7 @@ const navSections: NavSection[] = [
     items: [
       { label: 'Users', href: '/admin/users', icon: <Users className="w-5 h-5" />, roles: ['admin', 'superadmin'] },
       { label: 'Agencies', href: '/admin/agencies', icon: <Building2 className="w-5 h-5" />, roles: ['admin', 'superadmin'] },
+      { label: 'Products', href: '/admin/products', icon: <ShieldCheck className="w-5 h-5" />, roles: ['admin', 'superadmin'] },
       { label: 'Analytics', href: '/admin/analytics', icon: <BarChart3 className="w-5 h-5" />, roles: ['admin', 'superadmin'] },
       { label: 'Plans', href: '/admin/plans', icon: <DollarSign className="w-5 h-5" />, roles: ['admin', 'superadmin'] },
       { label: 'Audit Log', href: '/admin/audit-log', icon: <Activity className="w-5 h-5" />, roles: ['admin', 'superadmin'] },

@@ -51,7 +51,7 @@ class CarrierController extends Controller
         $data = $request->validate([
             'carrier_id' => 'required|exists:carriers,id',
             'name' => 'required|string|max:255',
-            'insurance_type' => 'required|in:auto,home,life,health,renters,business,umbrella',
+            'insurance_type' => 'required|string|max:100|exists:platform_products,slug',
             'description' => 'nullable|string',
             'min_premium' => 'required|numeric|min:0',
             'max_premium' => 'required|numeric|min:0',

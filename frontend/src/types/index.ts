@@ -224,3 +224,36 @@ export interface SubscriptionPlan {
 export interface DashboardStats {
   [key: string]: number | string;
 }
+
+export interface PlatformProduct {
+  id: number;
+  slug: string;
+  name: string;
+  category: string;
+  icon: string | null;
+  description: string | null;
+  is_active: boolean;
+  sort_order: number;
+  agency_enabled?: boolean;
+}
+
+export interface PlatformProductResponse {
+  products: PlatformProduct[];
+  grouped: Record<string, PlatformProduct[]>;
+  categories?: string[];
+  active_count?: number;
+  total_count?: number;
+}
+
+export interface AgencyCarrierAppointment {
+  id: number;
+  agency_id: number;
+  carrier_id: number;
+  platform_product_id: number;
+  appointment_number: string | null;
+  effective_date: string | null;
+  termination_date: string | null;
+  is_active: boolean;
+  carrier?: Carrier;
+  platform_product?: PlatformProduct;
+}
