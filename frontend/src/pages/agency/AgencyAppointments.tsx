@@ -26,7 +26,7 @@ export default function AgencyAppointments() {
         platformProductService.getAgencyProducts(),
       ]);
       setAppointments(appts);
-      setCarriers((carriersRes as { items?: Carrier[] }).items || (carriersRes as Carrier[]));
+      setCarriers((carriersRes as { items?: Carrier[] }).items || (carriersRes as unknown as Carrier[]));
       setProducts(productsRes.products.filter((p: PlatformProduct & { agency_enabled?: boolean }) => p.agency_enabled));
     } catch {
       // ignore
