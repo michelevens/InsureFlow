@@ -55,6 +55,7 @@ use App\Http\Controllers\AgencyProductController;
 use App\Http\Controllers\ProductVisibilityController;
 use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\LeadIntakeController;
+use App\Http\Controllers\ProfileClaimController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -132,6 +133,10 @@ Route::middleware(['auth:sanctum', 'agency.scope'])->group(function () {
     Route::post('/onboarding/agency', [OnboardingController::class, 'saveAgency']);
     Route::post('/onboarding/agent', [OnboardingController::class, 'saveAgent']);
     Route::post('/onboarding/complete', [OnboardingController::class, 'complete']);
+
+    // Profile Claim (agents claim pre-imported profiles)
+    Route::get('/profiles/search', [ProfileClaimController::class, 'search']);
+    Route::post('/profiles/{profile}/claim', [ProfileClaimController::class, 'claim']);
 
     // Dashboard stats
     Route::get('/stats/dashboard', [AnalyticsController::class, 'dashboard']);
@@ -623,6 +628,9 @@ Route::middleware(['auth:sanctum', 'agency.scope'])->group(function () {
         Route::put('/compliance/requirements/{requirement}', [CompliancePackController::class, 'updateRequirement']);
         Route::delete('/compliance/requirements/{requirement}', [CompliancePackController::class, 'deleteRequirement']);
         Route::get('/compliance/overview', [CompliancePackController::class, 'overview']);
+
+        // Profile Import Stats
+        Route::get('/profiles/stats', [ProfileClaimController::class, 'stats']);
     });
 
     // Agency Settings (agency_owner)

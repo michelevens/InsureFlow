@@ -75,3 +75,5 @@ export { ratingService } from './rating';
 export type { RatingResult, RatingOptions, RatingRunAudit, RatingFactorOption, RatingRiderOption, RatingFee, RateScenarioPayload, FactorApplied, RiderApplied, FeeApplied, RegisteredProduct } from './rating';
 export { onboardingService } from './onboarding';
 export type { OnboardingFormData, AgencyOnboardingPayload, AgentOnboardingPayload } from './onboarding';
+export { profileClaimService } from './profileClaim';
+export type { UnclaimedProfile } from './profileClaim';
