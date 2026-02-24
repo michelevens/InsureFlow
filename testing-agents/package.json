@@ -1,0 +1,21 @@
+{
+  "name": "insureflow-testing-agents",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "npx tsx runner.ts",
+    "test:consumer": "npx tsx runner.ts --agent consumer",
+    "test:agent": "npx tsx runner.ts --agent agent",
+    "test:agency": "npx tsx runner.ts --agent agency_owner",
+    "test:carrier": "npx tsx runner.ts --agent carrier",
+    "test:admin": "npx tsx runner.ts --agent admin",
+    "test:superadmin": "npx tsx runner.ts --agent superadmin",
+    "test:all": "npx tsx runner.ts --all"
+  },
+  "devDependencies": {
+    "@types/node": "^25.3.0",
+    "tsx": "^4.19.0",
+    "typescript": "~5.9.3"
+  }
+}
