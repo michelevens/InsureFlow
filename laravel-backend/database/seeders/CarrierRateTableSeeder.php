@@ -115,8 +115,6 @@ class CarrierRateTableSeeder extends Seeder
             [
                 'name'             => $def['name'],
                 'description'      => "{$def['name']} — " . strtoupper($line) . ' insurance carrier',
-                'logo_url'         => null,
-                'website'          => null,
                 'am_best_rating'   => $def['am_best'],
                 'states_available' => $this->defaultStates(),
                 'is_active'        => true,
