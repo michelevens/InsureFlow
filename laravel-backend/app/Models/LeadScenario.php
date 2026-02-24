@@ -16,6 +16,8 @@ class LeadScenario extends Model
         'total_quotes_received', 'effective_date_desired', 'current_policy_expiration',
         'current_carrier', 'current_premium_monthly', 'current_policy_number',
         'metadata_json', 'notes',
+        'consumer_visible', 'sent_to_consumer_at', 'consumer_viewed_at',
+        'consumer_token', 'consumer_status',
     ];
 
     protected function casts(): array
@@ -28,6 +30,9 @@ class LeadScenario extends Model
             'current_premium_monthly' => 'decimal:2',
             'effective_date_desired' => 'date',
             'current_policy_expiration' => 'date',
+            'consumer_visible' => 'boolean',
+            'sent_to_consumer_at' => 'datetime',
+            'consumer_viewed_at' => 'datetime',
         ];
     }
 

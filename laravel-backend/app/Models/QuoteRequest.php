@@ -10,9 +10,9 @@ class QuoteRequest extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id', 'agency_id', 'insurance_type', 'zip_code', 'coverage_level',
-        'details', 'first_name', 'last_name', 'email', 'phone',
-        'date_of_birth',
+        'user_id', 'agency_id', 'insurance_type', 'zip_code', 'state',
+        'coverage_level', 'details', 'description', 'first_name', 'last_name',
+        'email', 'phone', 'date_of_birth', 'is_marketplace', 'expires_at',
     ];
 
     protected function casts(): array
@@ -20,6 +20,8 @@ class QuoteRequest extends Model
         return [
             'details' => 'array',
             'date_of_birth' => 'date',
+            'is_marketplace' => 'boolean',
+            'expires_at' => 'datetime',
         ];
     }
 
@@ -41,5 +43,10 @@ class QuoteRequest extends Model
     public function insuranceProfile()
     {
         return $this->hasOne(InsuranceProfile::class);
+    }
+
+    public function leads()
+    {
+        return $this->hasMany(Lead::class, 'quote_request_id');
     }
 }

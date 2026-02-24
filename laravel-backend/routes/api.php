@@ -56,6 +56,9 @@ use App\Http\Controllers\ProductVisibilityController;
 use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\LeadIntakeController;
 use App\Http\Controllers\ProfileClaimController;
+use App\Http\Controllers\ConsumerMarketplaceController;
+use App\Http\Controllers\PublicSigningController;
+use App\Http\Controllers\CreditController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -112,6 +115,15 @@ Route::get('/products/visible', [ProductVisibilityController::class, 'visible'])
 Route::get('/intake/{agencyCode}', [LeadIntakeController::class, 'formData']);
 Route::post('/intake/{agencyCode}', [LeadIntakeController::class, 'submit']);
 
+// Consumer Marketplace (public)
+Route::post('/marketplace/insurance/request', [ConsumerMarketplaceController::class, 'submitRequest']);
+Route::get('/scenarios/{token}/view', [ConsumerMarketplaceController::class, 'viewScenario']);
+Route::post('/scenarios/{token}/respond', [ConsumerMarketplaceController::class, 'respondToScenario']);
+
+// Public Application Signing (no auth)
+Route::get('/applications/{token}/view', [PublicSigningController::class, 'view']);
+Route::post('/applications/{token}/sign', [PublicSigningController::class, 'sign']);
+
 /*
 |--------------------------------------------------------------------------
 | Protected Routes (auth:sanctum + agency scope)
@@ -146,6 +158,17 @@ Route::middleware(['auth:sanctum', 'agency.scope'])->group(function () {
     Route::get('/analytics/revenue-trends', [AnalyticsController::class, 'revenueTrends']);
     Route::get('/analytics/agent-performance', [AnalyticsController::class, 'agentPerformance']);
     Route::get('/analytics/claims', [AnalyticsController::class, 'claimsAnalytics']);
+
+    // Consumer Marketplace (protected)
+    Route::get('/consumer/dashboard', [ConsumerMarketplaceController::class, 'consumerDashboard']);
+    Route::get('/marketplace/insurance/requests', [ConsumerMarketplaceController::class, 'listOpenRequests']);
+    Route::post('/marketplace/insurance/requests/{quoteRequest}/unlock', [ConsumerMarketplaceController::class, 'unlockRequest']);
+    Route::post('/crm/leads/{lead}/scenarios/{scenario}/send-to-consumer', [ConsumerMarketplaceController::class, 'sendToConsumer']);
+    Route::post('/applications/create-from-scenario/{scenario}', [PublicSigningController::class, 'createFromScenario']);
+
+    // Credits
+    Route::get('/credits/balance', [CreditController::class, 'balance']);
+    Route::get('/credits/history', [CreditController::class, 'history']);
 
     // Quotes
     Route::get('/quotes', [QuoteController::class, 'myQuotes']);
