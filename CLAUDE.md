@@ -187,24 +187,34 @@ php artisan serve
 
 ## Current Status (as of 2026-02-24)
 - **Frontend:** 50+ pages built, TypeScript passes, Vite build succeeds, **GitHub Pages deployment working** (auto-deploys on push)
-- **Backend:** Laravel 12 on Railway — **fully deployed with Phase 4 code** (deployment `0eec7982`), needs redeploy for Phase 5 backend changes
+- **Backend:** Laravel 12 on Railway — needs redeploy for Phase 5+6 backend changes
 - **API Domain:** api.insurons.com — WORKING, all endpoints tested
 - **Database:** All migrations run (including compliance_pack_tables batch 16), 39 compliance requirements seeded
 - **Seed Data:** 5 subscription plans, 10 carriers with products, 6 demo users, 35+ platform products, 10 agencies (50 agents), 70 leads, 3 rate tables (DI LTD, Term Life, LTC) — 180 rate entries + PipelineSeeder (25 applications, 15 policies, 15 commissions, 6 claims, 12 appointments, 20 routing rules) + 39 compliance requirements
+- **Lead Pipeline:** Full InsuranceProfile → Lead → RoutingEngine → LeadScoring pipeline wired for intake submissions
+- **Lead Aging Alerts:** Hourly `leads:check-aging` command — 24h → remind agent, 48h → escalate to agency owner (email + in-app notification)
+- **UTM Attribution:** Frontend reads utm_source/utm_medium/utm_campaign from URL, backend stores in InsuranceProfile details
 - **Rating Engine:** Full plugin architecture with DI/Life/P&C/LTC support, audit trail, versioned rate tables — **tested end-to-end on production**
-- **Video Meetings:** Full lifecycle tested (create → start → end with duration tracking)
-- **LTC Rating Validated:** 52M FL $150/day → $1,485.68 annual (real-world Mutual of Omaha comparison: $1,543.39)
-- **LTC Carrier Rate Tables:** Mutual of Omaha, NGL, NYL seeded with rates calibrated to Michel StrateCision quote
-- **LTC Comparison Report:** StrateCision-style side-by-side carrier comparison with print/PDF layout
 - **Product Visibility System:** 3-layer platform→agency→carrier appointment model deployed
-- **Onboarding Wizard:** Multi-step flows for agency owners (8 steps) and agents (6 steps)
 - **Demo Agencies:** 10 agencies (A-J) with 5 agents each, 70 leads, carrier appointments — all seeded on Railway
 - **Admin Overhaul Complete:** SuperAdmin dashboard + 7-tab platform settings (incl. Compliance), Agency Owner 7-tab settings
-- **Pipeline Data Seeded:** Dashboards no longer show zeroes — applications, policies, commissions, claims, appointments all populated
 - **Auto-Commission:** Creating/binding a policy automatically generates a commission record (10% default)
-- **Phase 4 Complete:** Add Lead modal, compliance pack system, admin CRUD, agency codes, lead intake — all deployed to Railway
 
 ## Recent Work
+
+### Phase 6 (2026-02-24) — Lead Pipeline Rewire + Aging Alerts + UTM Attribution
+- **LeadIntakeController rewrite:** Complete pipeline integration — intake now flows through InsuranceProfile → Lead → RoutingEngine → LeadScoring → engagement tracking (was bypassing all of these)
+- **Lead deduplication:** Same email + insurance_type + agency = update existing profile instead of creating duplicates
+- **LeadScoringService fixes:** Corrected `$profile->stage` → `$profile->current_stage`, added `intake_link` source score (9 pts)
+- **UTM attribution tracking:** Frontend reads `utm_source`, `utm_medium`, `utm_campaign` from URL params and sends to API; backend stores in InsuranceProfile details JSON
+- **Lead aging alert system:**
+  - `CheckLeadAging` Artisan command runs hourly via scheduler
+  - 24h without `agent_contacted` event → `LeadAgingReminderMail` to assigned agent + in-app notification
+  - 48h without contact → `LeadAgingEscalationMail` to agency owner + in-app notification
+  - Both use `LeadEngagementEvent` markers (`aging_reminded`, `aging_escalated`) to prevent duplicate alerts
+  - Email templates follow Insurons design system (amber for reminder, red for escalation)
+- **InsuranceProfile model:** Added `engagementEvents()` HasMany relationship
+- **Schedule registered:** `leads:check-aging` runs hourly in `bootstrap/app.php`
 
 ### Phase 5 (2026-02-24) — UX Competitive Analysis + Quick Wins + Email Notifications
 - **InsuranceAiService fix:** Added `isConfigured()` guard + early return when ANTHROPIC_API_KEY missing (prevents failed HTTP calls)
@@ -315,7 +325,8 @@ Agent emails follow pattern: `contact+AgencyX.agent1@ennhealth.com` through `con
 - **InsuranceAiService:** `$apiKey` gracefully handled (returns "not configured" message) but still needs `ANTHROPIC_API_KEY` env var on Railway for AI chat to work. `route:list`/`route:cache` issue may persist until key is set.
 - **Cache table missing:** `cache:clear` fails because there's no `cache` table in DB. Non-critical (using file/array cache driver instead).
 - **Stripe not configured:** Price IDs in seeded plans are null. Subscriptions return 422 until Stripe keys are added.
-- **Backend redeploy needed:** Phase 5 backend changes (LeadIntakeController emails, InsuranceAiService fix) need Railway deployment.
+- **Backend redeploy needed:** Phase 5+6 backend changes (pipeline rewire, aging alerts, emails) need Railway deployment.
+- **Scheduler not running:** `leads:check-aging` is registered but Railway needs `php artisan schedule:work` or a cron entry to actually run the scheduler.
 
 ## Session Management Rules
 
@@ -338,21 +349,22 @@ Agent emails follow pattern: `contact+AgencyX.agent1@ennhealth.com` through `con
 - Working directory: `c:\Users\BellaCare_MICROPC\OneDrive - EnnHealth\Documents\GitHub\InsureFlow`
 
 ## Next Tasks
-- **Deploy backend to Railway:** `cd laravel-backend && railway up` to deploy Phase 5 backend changes (email notifications, AI service fix)
+- **Deploy backend to Railway:** `cd laravel-backend && railway up` to deploy Phase 5+6 backend changes
+- **Configure scheduler on Railway:** Add `php artisan schedule:work` as a worker process or cron job so `leads:check-aging` actually runs
 - **Create cache table:** Run `php artisan cache:table && php artisan migrate` on Railway to fix cache:clear
 - **Configure Stripe:** Add real Stripe API keys to Railway env vars, create products/prices, update seeded plans
+- **Tier 3 — Lead Marketplace:** Build lead exchange where agencies can buy/sell leads across the platform (competitive moat feature)
 - **Implement more INTAKE_COMPARISON.md quick wins:**
   - One-at-a-time question mode for Calculator Step 2 (Lemonade-style progressive disclosure)
   - Address auto-complete on ZIP code field (Google Places or Mapbox)
   - Save & resume for abandoned quotes (localStorage + "Welcome back" banner)
   - Premium breakdown on quote results (base rate, fees, discounts, total)
   - Coverage comparison matrix (side-by-side table view)
-- **Test Phase 4+5 end-to-end:**
-  - Test lead intake form at `/intake/{agencyCode}` → verify lead routed + emails sent
-  - Login as agent → Leads → "Add Lead" → verify lead appears
-  - Login as agent → Compliance → "Compliance Pack" tab → "Generate My Pack"
-  - Login as agency_owner → Agency Settings → verify all tabs
-  - Login as admin → all admin pages (Users, Plans, Carriers, Agencies)
+- **Test Phase 4+5+6 end-to-end:**
+  - Test lead intake form at `/intake/{agencyCode}?utm_source=test` → verify profile created, lead routed, score calculated, emails sent
+  - Test `php artisan leads:check-aging` with stale test leads
+  - Login as agent → Leads → verify aging reminder appears
+  - Login as agency_owner → verify escalation notification
 - Add real carrier API integrations
 - Agent notification when compliance pack items are overdue
 - Embeddable quote widget (iframe/web component for agency websites)
