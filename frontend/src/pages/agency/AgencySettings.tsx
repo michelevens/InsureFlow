@@ -210,13 +210,21 @@ export default function AgencySettings() {
     if (!agentForm.name || !agentForm.email) { toast.error('Name and email are required'); return; }
     setAddingAgent(true);
     try {
-      const res = await api.post('/agency/settings/agents', agentForm) as { agent: TeamMember; temporary_password: string };
+      // Only send password if user provided one — empty string fails min:8 validation
+      const payload: Record<string, string> = { name: agentForm.name, email: agentForm.email };
+      if (agentForm.password) payload.password = agentForm.password;
+      const res = await api.post('/agency/settings/agents', payload) as { agent: TeamMember; temporary_password: string };
       setNewAgentPassword(res.temporary_password);
       toast.success('Agent created successfully');
       setAgentForm({ name: '', email: '', password: '' });
       loadData();
-    } catch {
-      toast.error('Failed to create agent');
+    } catch (err: unknown) {
+      const msg = (err as { message?: string })?.message;
+      if (msg?.toLowerCase().includes('email')) {
+        toast.error('This email address is already in use');
+      } else {
+        toast.error(msg || 'Failed to create agent');
+      }
     } finally {
       setAddingAgent(false);
     }

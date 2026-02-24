@@ -170,10 +170,10 @@ class AgencySettingController extends Controller
         $data = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
-            'password' => 'sometimes|string|min:8',
+            'password' => 'nullable|string|min:8',
         ]);
 
-        $password = $data['password'] ?? Str::random(10);
+        $password = !empty($data['password']) ? $data['password'] : Str::random(10);
 
         $agent = User::create([
             'name' => $data['name'],
