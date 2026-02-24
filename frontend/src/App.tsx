@@ -47,6 +47,12 @@ const QuoteResults = lazy(() => import('@/pages/calculator/QuoteResults'));
 // Marketplace (public)
 const Marketplace = lazy(() => import('@/pages/marketplace/Marketplace'));
 const AgentProfile = lazy(() => import('@/pages/marketplace/AgentProfile'));
+const InsuranceRequestForm = lazy(() => import('@/pages/marketplace/InsuranceRequestForm'));
+const ScenarioPublicView = lazy(() => import('@/pages/marketplace/ScenarioPublicView'));
+const ApplicationSigningPage = lazy(() => import('@/pages/marketplace/ApplicationSigningPage'));
+
+// Agent Marketplace (protected)
+const AgentMarketplace = lazy(() => import('@/pages/marketplace/AgentMarketplace'));
 
 // Dashboard
 const Dashboard = lazy(() => import('@/pages/dashboard/Dashboard'));
@@ -173,6 +179,9 @@ export default function App() {
               <Route path="/marketplace" element={<Marketplace />} />
               <Route path="/marketplace/:id" element={<AgentProfile />} />
               <Route path="/intake/:agencyCode" element={<LeadIntake />} />
+              <Route path="/insurance/request" element={<InsuranceRequestForm />} />
+              <Route path="/scenarios/:token/view" element={<ScenarioPublicView />} />
+              <Route path="/applications/:token/sign" element={<ApplicationSigningPage />} />
               <Route path="/sso/login/:agencySlug" element={<SsoLogin />} />
               <Route path="/sso/callback" element={<SsoCallback />} />
 
@@ -191,6 +200,9 @@ export default function App() {
                 <Route path="/portal/quotes" element={<MyQuotes />} />
                 <Route path="/portal/applications" element={<MyApplications />} />
                 <Route path="/portal/policies" element={<MyPolicies />} />
+
+                {/* Agent Marketplace */}
+                <Route path="/marketplace/requests" element={<AgentMarketplace />} />
 
                 {/* Agent / Agency CRM */}
                 <Route path="/crm/leads" element={<Leads />} />

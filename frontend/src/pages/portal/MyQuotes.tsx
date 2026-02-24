@@ -1,36 +1,55 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, Badge, Button } from '@/components/ui';
 import { EmptyState } from '@/components/dashboard/EmptyState';
-import { ClipboardList, ArrowRight, Clock, Trash2, Calculator } from 'lucide-react';
+import { ClipboardList, Clock, Calculator, Loader2, User, Building2, Eye } from 'lucide-react';
+import { marketplaceService, type ConsumerScenario, type MarketplaceQuoteRequest } from '@/services/api';
+import { toast } from 'sonner';
 
-interface SavedQuote {
-  id: string;
-  insurance_type: string;
-  carrier: string;
-  monthly_premium: number;
-  coverage: string;
-  saved_at: string;
-  expires_at: string;
-}
+const typeLabel = (t: string) => t.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+const fmtCurrency = (val: string | null) => val ? `$${Number(val).toLocaleString()}` : '—';
 
-const mockQuotes: SavedQuote[] = [
-  { id: '1', insurance_type: 'Auto', carrier: 'StateFarm', monthly_premium: 127, coverage: '$300,000', saved_at: '2026-02-18', expires_at: '2026-03-18' },
-  { id: '2', insurance_type: 'Home', carrier: 'Allstate', monthly_premium: 195, coverage: '$500,000', saved_at: '2026-02-15', expires_at: '2026-03-15' },
-  { id: '3', insurance_type: 'Auto', carrier: 'Progressive', monthly_premium: 142, coverage: '$300,000', saved_at: '2026-02-10', expires_at: '2026-03-10' },
-];
+const statusVariant: Record<string, 'shield' | 'warning' | 'success' | 'danger' | 'info' | 'default'> = {
+  pending: 'warning',
+  viewed: 'info',
+  accepted: 'success',
+  declined: 'danger',
+};
 
 export default function MyQuotes() {
-  if (mockQuotes.length === 0) {
+  const [requests, setRequests] = useState<MarketplaceQuoteRequest[]>([]);
+  const [scenarios, setScenarios] = useState<ConsumerScenario[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    marketplaceService.consumerDashboard()
+      .then(data => {
+        setRequests(data.quote_requests);
+        setScenarios(data.scenarios_received);
+      })
+      .catch(() => { toast.error('Failed to load your quotes'); })
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="w-8 h-8 animate-spin text-shield-400" />
+      </div>
+    );
+  }
+
+  if (requests.length === 0 && scenarios.length === 0) {
     return (
       <div>
         <h1 className="text-2xl font-bold text-slate-900 mb-6">My Quotes</h1>
         <Card>
           <EmptyState
             icon={<ClipboardList className="w-8 h-8" />}
-            title="No saved quotes"
-            description="Get instant quotes from top carriers and save them here for comparison"
-            actionLabel="Get a Quote"
-            onAction={() => window.location.href = '/calculator'}
+            title="No quotes yet"
+            description="Submit an insurance request and agents will send you personalized quotes to compare"
+            actionLabel="Get Quotes"
+            onAction={() => window.location.href = '/insurance/request'}
           />
         </Card>
       </div>
@@ -38,44 +57,105 @@ export default function MyQuotes() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
+      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">My Quotes</h1>
-          <p className="text-slate-500 mt-1">{mockQuotes.length} saved quotes</p>
+          <p className="text-slate-500 mt-1">
+            {scenarios.length} quote{scenarios.length !== 1 ? 's' : ''} received from {new Set(scenarios.map(s => s.agent?.id)).size} agent{new Set(scenarios.map(s => s.agent?.id)).size !== 1 ? 's' : ''}
+          </p>
         </div>
-        <Link to="/calculator">
-          <Button variant="shield" size="sm" leftIcon={<Calculator className="w-4 h-4" />}>Get New Quote</Button>
+        <Link to="/insurance/request">
+          <Button variant="shield" size="sm" leftIcon={<Calculator className="w-4 h-4" />}>New Request</Button>
         </Link>
       </div>
 
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {mockQuotes.map(quote => (
-          <Card key={quote.id} className="hover:shadow-lg transition-shadow">
-            <div className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <Badge variant="shield">{quote.insurance_type}</Badge>
-                <div className="flex items-center gap-1 text-xs text-slate-400">
-                  <Clock className="w-3.5 h-3.5" />
-                  Expires {quote.expires_at}
+      {/* Received Scenarios (Quotes) */}
+      {scenarios.length > 0 && (
+        <div>
+          <h2 className="text-lg font-semibold text-slate-900 mb-3">Quotes Received</h2>
+          <div className="grid md:grid-cols-2 gap-4">
+            {scenarios.map(scenario => (
+              <Card key={scenario.id} className="hover:shadow-lg transition-shadow">
+                <div className="p-5">
+                  <div className="flex items-center justify-between mb-3">
+                    <Badge variant="info">{typeLabel(scenario.product_type)}</Badge>
+                    <Badge variant={statusVariant[scenario.consumer_status] ?? 'default'} size="sm">
+                      {scenario.consumer_status?.charAt(0).toUpperCase()}{scenario.consumer_status?.slice(1)}
+                    </Badge>
+                  </div>
+
+                  <h3 className="text-lg font-semibold text-slate-900 mb-1">{scenario.scenario_name}</h3>
+
+                  {(scenario.best_quoted_premium || scenario.target_premium_monthly) && (
+                    <div className="flex items-baseline gap-1 mb-3">
+                      <span className="text-2xl font-bold text-shield-600">
+                        {fmtCurrency(scenario.best_quoted_premium || scenario.target_premium_monthly)}
+                      </span>
+                      <span className="text-slate-500">/mo</span>
+                    </div>
+                  )}
+
+                  <div className="space-y-1 mb-4">
+                    {scenario.agent && (
+                      <div className="flex items-center gap-2 text-sm text-slate-600">
+                        <User className="w-3.5 h-3.5 text-slate-400" />
+                        {scenario.agent.name}
+                      </div>
+                    )}
+                    {scenario.lead?.agency && (
+                      <div className="flex items-center gap-2 text-sm text-slate-600">
+                        <Building2 className="w-3.5 h-3.5 text-slate-400" />
+                        {scenario.lead.agency.name}
+                      </div>
+                    )}
+                    {scenario.sent_to_consumer_at && (
+                      <div className="flex items-center gap-2 text-xs text-slate-400">
+                        <Clock className="w-3.5 h-3.5" />
+                        Received {new Date(scenario.sent_to_consumer_at).toLocaleDateString()}
+                      </div>
+                    )}
+                  </div>
+
+                  {scenario.consumer_token && (
+                    <div className="flex gap-2">
+                      <Link to={`/scenarios/${scenario.consumer_token}/view`} className="flex-1">
+                        <Button variant="shield" size="sm" className="w-full" rightIcon={<Eye className="w-4 h-4" />}>
+                          View Details
+                        </Button>
+                      </Link>
+                    </div>
+                  )}
                 </div>
-              </div>
-              <h3 className="text-lg font-semibold text-slate-900 mb-1">{quote.carrier}</h3>
-              <div className="flex items-baseline gap-1 mb-3">
-                <span className="text-2xl font-bold text-shield-600">${quote.monthly_premium}</span>
-                <span className="text-slate-500">/mo</span>
-              </div>
-              <p className="text-sm text-slate-500 mb-4">Coverage: {quote.coverage}</p>
-              <div className="flex gap-2">
-                <Button variant="shield" size="sm" className="flex-1" rightIcon={<ArrowRight className="w-4 h-4" />}>
-                  Apply Now
-                </Button>
-                <Button variant="ghost" size="sm"><Trash2 className="w-4 h-4 text-slate-400" /></Button>
-              </div>
-            </div>
-          </Card>
-        ))}
-      </div>
+              </Card>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Submitted Requests */}
+      {requests.length > 0 && (
+        <div>
+          <h2 className="text-lg font-semibold text-slate-900 mb-3">Your Requests</h2>
+          <div className="space-y-3">
+            {requests.map(req => (
+              <Card key={req.id} className="p-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <Badge variant={req.status === 'pending' ? 'warning' : 'success'}>{req.status}</Badge>
+                    <span className="font-medium text-slate-900">{typeLabel(req.insurance_type)}</span>
+                    <span className="text-sm text-slate-500">{req.state} — {req.zip_code}</span>
+                  </div>
+                  <span className="text-xs text-slate-400">
+                    {new Date(req.created_at).toLocaleDateString()}
+                  </span>
+                </div>
+              </Card>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

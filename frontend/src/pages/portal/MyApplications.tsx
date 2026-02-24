@@ -1,31 +1,57 @@
+import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { Card, Badge, Button } from '@/components/ui';
 import { EmptyState } from '@/components/dashboard/EmptyState';
-import { FileText, Eye, Clock, CheckCircle2, AlertCircle } from 'lucide-react';
+import { FileText, Eye, Clock, CheckCircle2, AlertCircle, Loader2, PenTool } from 'lucide-react';
+import { marketplaceService } from '@/services/api';
+import { toast } from 'sonner';
 
-interface MyApplication {
-  id: string;
+interface ConsumerApplication {
+  id: number;
   reference: string;
   insurance_type: string;
-  carrier: string;
-  premium: string;
-  status: 'submitted' | 'under_review' | 'approved' | 'declined';
-  submitted_at: string;
-  agent: string;
+  carrier_name: string;
+  monthly_premium: string;
+  status: string;
+  signing_token: string | null;
+  signed_at: string | null;
+  created_at: string;
+  agent: { id: number; name: string } | null;
 }
 
-const mockApplications: MyApplication[] = [
-  { id: '1', reference: 'APP-2026-001', insurance_type: 'Auto', carrier: 'StateFarm', premium: '$127/mo', status: 'under_review', submitted_at: '2026-02-18', agent: 'Sarah Johnson' },
-];
-
-const statusConfig: Record<string, { label: string; variant: 'shield' | 'warning' | 'success' | 'danger'; icon: React.ReactNode }> = {
+const statusConfig: Record<string, { label: string; variant: 'shield' | 'warning' | 'success' | 'danger' | 'info'; icon: React.ReactNode }> = {
+  draft: { label: 'Pending Signature', variant: 'warning', icon: <PenTool className="w-4 h-4" /> },
   submitted: { label: 'Submitted', variant: 'shield', icon: <Clock className="w-4 h-4" /> },
-  under_review: { label: 'Under Review', variant: 'warning', icon: <AlertCircle className="w-4 h-4" /> },
+  under_review: { label: 'Under Review', variant: 'info', icon: <AlertCircle className="w-4 h-4" /> },
   approved: { label: 'Approved', variant: 'success', icon: <CheckCircle2 className="w-4 h-4" /> },
   declined: { label: 'Declined', variant: 'danger', icon: <AlertCircle className="w-4 h-4" /> },
+  bound: { label: 'Policy Bound', variant: 'success', icon: <CheckCircle2 className="w-4 h-4" /> },
 };
 
+const typeLabel = (t: string) => t.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+
 export default function MyApplications() {
-  if (mockApplications.length === 0) {
+  const [applications, setApplications] = useState<ConsumerApplication[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    marketplaceService.consumerDashboard()
+      .then(data => {
+        setApplications(data.applications as ConsumerApplication[]);
+      })
+      .catch(() => { toast.error('Failed to load applications'); })
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="w-8 h-8 animate-spin text-shield-400" />
+      </div>
+    );
+  }
+
+  if (applications.length === 0) {
     return (
       <div>
         <h1 className="text-2xl font-bold text-slate-900 mb-6">My Applications</h1>
@@ -33,9 +59,9 @@ export default function MyApplications() {
           <EmptyState
             icon={<FileText className="w-8 h-8" />}
             title="No applications yet"
-            description="Once you apply for a policy, you can track its progress here"
-            actionLabel="Get a Quote"
-            onAction={() => window.location.href = '/calculator'}
+            description="Once you accept a quote and sign an application, you can track its progress here"
+            actionLabel="View My Quotes"
+            onAction={() => window.location.href = '/portal/quotes'}
           />
         </Card>
       </div>
@@ -50,8 +76,10 @@ export default function MyApplications() {
       </div>
 
       <div className="space-y-4">
-        {mockApplications.map(app => {
-          const config = statusConfig[app.status];
+        {applications.map(app => {
+          const config = statusConfig[app.status] || statusConfig.submitted;
+          const needsSignature = app.status === 'draft' && app.signing_token && !app.signed_at;
+
           return (
             <Card key={app.id}>
               <div className="p-6">
@@ -60,45 +88,56 @@ export default function MyApplications() {
                     <span className="font-mono text-sm text-shield-600">{app.reference}</span>
                     <Badge variant={config.variant}>{config.label}</Badge>
                   </div>
-                  <Button variant="outline" size="sm" leftIcon={<Eye className="w-4 h-4" />}>View Details</Button>
+                  {needsSignature ? (
+                    <Link to={`/applications/${app.signing_token}/sign`}>
+                      <Button variant="shield" size="sm" leftIcon={<PenTool className="w-4 h-4" />}>Sign Now</Button>
+                    </Link>
+                  ) : (
+                    <Button variant="outline" size="sm" leftIcon={<Eye className="w-4 h-4" />}>View</Button>
+                  )}
                 </div>
+
                 <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                   <div>
                     <p className="text-xs text-slate-500">Type</p>
-                    <p className="text-sm font-medium text-slate-900">{app.insurance_type}</p>
+                    <p className="text-sm font-medium text-slate-900">{typeLabel(app.insurance_type)}</p>
                   </div>
                   <div>
                     <p className="text-xs text-slate-500">Carrier</p>
-                    <p className="text-sm font-medium text-slate-900">{app.carrier}</p>
+                    <p className="text-sm font-medium text-slate-900">{app.carrier_name}</p>
                   </div>
                   <div>
                     <p className="text-xs text-slate-500">Premium</p>
-                    <p className="text-sm font-medium text-slate-900">{app.premium}</p>
+                    <p className="text-sm font-medium text-slate-900">
+                      {Number(app.monthly_premium) > 0 ? `$${Number(app.monthly_premium).toLocaleString()}/mo` : '—'}
+                    </p>
                   </div>
                   <div>
                     <p className="text-xs text-slate-500">Agent</p>
-                    <p className="text-sm font-medium text-slate-900">{app.agent}</p>
+                    <p className="text-sm font-medium text-slate-900">{app.agent?.name || '—'}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-slate-500">Submitted</p>
-                    <p className="text-sm font-medium text-slate-900">{app.submitted_at}</p>
+                    <p className="text-xs text-slate-500">Date</p>
+                    <p className="text-sm font-medium text-slate-900">{new Date(app.created_at).toLocaleDateString()}</p>
                   </div>
                 </div>
 
                 {/* Progress tracker */}
                 <div className="mt-6 flex items-center gap-2">
-                  {['Submitted', 'Under Review', 'Decision', 'Policy Bound'].map((step, i) => {
-                    const stepIndex = ['submitted', 'under_review', 'approved', 'bound'].indexOf(app.status);
-                    const isCompleted = i <= stepIndex;
-                    const isCurrent = i === stepIndex;
+                  {['Signed', 'Submitted', 'Under Review', 'Decision'].map((step, i) => {
+                    const statusOrder = ['draft', 'submitted', 'under_review', 'approved'];
+                    const stepIndex = statusOrder.indexOf(app.status);
+                    const adjusted = app.status === 'draft' && app.signed_at ? 1 : stepIndex;
+                    const isCompleted = i <= adjusted;
+                    const isCurrent = i === adjusted;
                     return (
                       <div key={step} className="flex items-center gap-2 flex-1">
-                        <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs ${
+                        <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs flex-shrink-0 ${
                           isCompleted ? 'gradient-shield text-white' : 'bg-slate-200 text-slate-500'
                         }`}>
                           {isCompleted ? <CheckCircle2 className="w-4 h-4" /> : i + 1}
                         </div>
-                        <span className={`text-xs ${isCurrent ? 'font-medium text-shield-700' : 'text-slate-500'}`}>{step}</span>
+                        <span className={`text-xs whitespace-nowrap ${isCurrent ? 'font-medium text-shield-700' : 'text-slate-500'}`}>{step}</span>
                         {i < 3 && <div className={`flex-1 h-0.5 ${isCompleted ? 'bg-shield-500' : 'bg-slate-200'}`} />}
                       </div>
                     );

@@ -77,3 +77,5 @@ export { onboardingService } from './onboarding';
 export type { OnboardingFormData, AgencyOnboardingPayload, AgentOnboardingPayload } from './onboarding';
 export { profileClaimService } from './profileClaim';
 export type { UnclaimedProfile } from './profileClaim';
+export { marketplaceService } from './marketplace';
+export type { MarketplaceRequest, MarketplaceQuoteRequest, ConsumerScenario, ConsumerDashboardResponse, PublicScenarioView, PublicApplicationView, CreditBalance } from './marketplace';
