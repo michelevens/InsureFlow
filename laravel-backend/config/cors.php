@@ -10,6 +10,7 @@ return [
         env('FRONTEND_URL', 'http://localhost:5173'),
         'https://insurons.com',
         'https://www.insurons.com',
+        'https://ennhealth.github.io',
         'https://michelevens.github.io',
     ],
 
