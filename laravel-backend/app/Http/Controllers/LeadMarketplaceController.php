@@ -309,6 +309,12 @@ class LeadMarketplaceController extends Controller
             return response()->json(['message' => 'Profile not found or not eligible'], 404);
         }
 
+        // Only allow selling leads the agency acquired through own effort
+        // (intake_link, calculator, crm, referral, etc.) — NOT marketplace-purchased leads
+        if ($profile->source === 'marketplace') {
+            return response()->json(['message' => 'Marketplace-purchased leads cannot be re-listed for sale'], 422);
+        }
+
         // Check if already listed
         $existing = LeadMarketplaceListing::where('insurance_profile_id', $profile->id)
             ->where('status', 'active')

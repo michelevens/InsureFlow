@@ -201,9 +201,11 @@ export default function Leads() {
               </div>
             </div>
           </div>
-          <Button variant="ghost" size="sm" onClick={() => setShowSellLead(true)}>
-            <ShoppingCart className="w-4 h-4 mr-1" /> Sell on Marketplace
-          </Button>
+          {selectedLead.source !== 'marketplace' && (
+            <Button variant="ghost" size="sm" onClick={() => setShowSellLead(true)}>
+              <ShoppingCart className="w-4 h-4 mr-1" /> Sell on Marketplace
+            </Button>
+          )}
         </div>
 
         {/* Info cards */}
