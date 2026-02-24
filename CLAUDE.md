@@ -187,14 +187,14 @@ php artisan serve
 
 ## Current Status (as of 2026-02-24)
 - **Frontend:** 50+ pages built, TypeScript passes, Vite build succeeds, **GitHub Pages deployment working** (auto-deploys on push)
-- **Backend:** Laravel 12 on Railway — needs redeploy for Phase 5+6 backend changes
+- **Backend:** Laravel 12 on Railway — needs redeploy for Phase 5+6+7 backend changes
 - **API Domain:** api.insurons.com — WORKING, all endpoints tested
 - **Database:** All migrations run (including compliance_pack_tables batch 16), 39 compliance requirements seeded
 - **Seed Data:** 5 subscription plans, 10 carriers with products, 6 demo users, 35+ platform products, 10 agencies (50 agents), 70 leads, 3 rate tables (DI LTD, Term Life, LTC) — 180 rate entries + PipelineSeeder (25 applications, 15 policies, 15 commissions, 6 claims, 12 appointments, 20 routing rules) + 39 compliance requirements
 - **Lead Pipeline:** Full InsuranceProfile → Lead → RoutingEngine → LeadScoring pipeline wired for intake submissions
 - **Lead Aging Alerts:** Hourly `leads:check-aging` command — 24h → remind agent, 48h → escalate to agency owner (email + in-app notification)
 - **UTM Attribution:** Frontend reads utm_source/utm_medium/utm_campaign from URL, backend stores in InsuranceProfile details
-- **Lead Marketplace:** Full lead exchange — agencies list excess leads for sale, other agencies browse/purchase, platform takes 15% fee, auto-routes purchased leads through buyer's RoutingEngine
+- **Lead Marketplace:** Full lead exchange — agencies list excess leads for sale, other agencies browse/purchase, platform takes 15% fee, auto-routes purchased leads through buyer's RoutingEngine. Sidebar nav link + "Sell on Marketplace" button in CRM lead detail.
 - **Rating Engine:** Full plugin architecture with DI/Life/P&C/LTC support, audit trail, versioned rate tables — **tested end-to-end on production**
 - **Product Visibility System:** 3-layer platform→agency→carrier appointment model deployed
 - **Demo Agencies:** 10 agencies (A-J) with 5 agents each, 70 leads, carrier appointments — all seeded on Railway
@@ -202,6 +202,13 @@ php artisan serve
 - **Auto-Commission:** Creating/binding a policy automatically generates a commission record (10% default)
 
 ## Recent Work
+
+### Phase 7 (2026-02-24) — Marketplace Navigation + Sell Lead from CRM
+- **Lead Marketplace in sidebar:** Added "Lead Marketplace" nav item with ShoppingCart icon to Pipeline section (visible to agent + agency_owner roles) in `DashboardLayout.tsx`
+- **"Sell on Marketplace" button:** Added to lead detail view header in `Leads.tsx` — opens `SellLeadModal` with asking price, seller notes, and listing duration (7/14/30/60/90 days)
+- **Backend `createListing` flexibility:** Now accepts `lead_id` as alternative to `insurance_profile_id`. If no InsuranceProfile exists for the lead, auto-creates one from the lead's data (first_name, last_name, email, phone, insurance_type, etc.)
+- **Type fix:** Fixed pre-existing TypeScript error in `LeadMarketplace.tsx` TransactionsTab — replaced inline type with proper `LeadMarketplaceTransaction` import
+- **Files changed:** `DashboardLayout.tsx`, `Leads.tsx`, `LeadMarketplace.tsx`, `marketplace.ts`, `LeadMarketplaceController.php`
 
 ### Phase 6 (2026-02-24) — Lead Pipeline Rewire + Aging Alerts + UTM Attribution
 - **LeadIntakeController rewrite:** Complete pipeline integration — intake now flows through InsuranceProfile → Lead → RoutingEngine → LeadScoring → engagement tracking (was bypassing all of these)
@@ -363,11 +370,9 @@ Agent emails follow pattern: `contact+AgencyX.agent1@ennhealth.com` through `con
 - Working directory: `c:\Users\BellaCare_MICROPC\OneDrive - EnnHealth\Documents\GitHub\InsureFlow`
 
 ## Next Tasks
-- **Deploy backend to Railway:** `cd laravel-backend && railway up` to deploy Phase 5+6 backend changes (pipeline rewire, aging alerts, lead marketplace)
+- **Deploy backend to Railway:** `cd laravel-backend && railway up` to deploy Phase 5+6+7 backend changes (pipeline rewire, aging alerts, lead marketplace, sell-lead endpoint)
 - **Run new migration:** `php artisan migrate` on Railway to create `lead_marketplace_listings` + `lead_marketplace_transactions` tables
 - **Configure scheduler on Railway:** Add `php artisan schedule:work` as a worker process or cron job so `leads:check-aging` actually runs
-- **Add "Sell Lead" button to CRM:** Leads page should have a button to list a lead on the marketplace (calls `POST /lead-marketplace/listings`)
-- **Add Lead Marketplace to sidebar navigation:** Link the `/lead-marketplace` route from the main nav
 - **Create cache table:** Run `php artisan cache:table && php artisan migrate` on Railway to fix cache:clear
 - **Configure Stripe:** Add real Stripe API keys to Railway env vars, create products/prices, update seeded plans
 - **Implement more INTAKE_COMPARISON.md quick wins:**
@@ -376,10 +381,11 @@ Agent emails follow pattern: `contact+AgencyX.agent1@ennhealth.com` through `con
   - Save & resume for abandoned quotes (localStorage + "Welcome back" banner)
   - Premium breakdown on quote results (base rate, fees, discounts, total)
   - Coverage comparison matrix (side-by-side table view)
-- **Test Phase 4+5+6 end-to-end:**
+- **Test Phase 4+5+6+7 end-to-end:**
   - Test lead intake form at `/intake/{agencyCode}?utm_source=test` → verify profile created, lead routed, score calculated, emails sent
   - Test `php artisan leads:check-aging` with stale test leads
-  - Test lead marketplace: list a lead → browse as another agency → purchase → verify new lead created in buyer CRM
+  - Test lead marketplace: list a lead from CRM → browse as another agency → purchase → verify new lead created in buyer CRM
+  - Test "Sell on Marketplace" button: open lead detail → sell → verify listing appears in Lead Marketplace
   - Login as agent → Leads → verify aging reminder appears
   - Login as agency_owner → verify escalation notification
 - Add real carrier API integrations
