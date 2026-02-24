@@ -1228,8 +1228,8 @@ function RatingPanel({ scenario, onClose, onRated }: {
   const factorGroups = options ? Object.entries(options.factors) : [];
 
   return (
-    <Modal isOpen onClose={onClose} title={`Rate: ${scenario.scenario_name}`}>
-      <div className="min-w-[600px]">
+    <Modal isOpen onClose={onClose} title={`Rate: ${scenario.scenario_name}`} size="lg">
+      <div>
         {/* Tabs */}
         <div className="flex border-b border-slate-200 mb-4">
           {[
