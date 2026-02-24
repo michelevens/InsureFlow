@@ -127,9 +127,10 @@ class CarrierRateTableSeeder extends Seeder
         $rateTable = RateTable::updateOrCreate(
             ['product_type' => 'ltc', 'version' => $version],
             [
-                'carrier_id'  => $carrier->id,
-                'name'        => "{$carrier->name} LTC {$version}",
-                'is_active'   => true,
+                'carrier_id'     => $carrier->id,
+                'name'           => "{$carrier->name} LTC {$version}",
+                'effective_date' => '2026-01-01',
+                'is_active'      => true,
             ]
         );
 
@@ -172,9 +173,10 @@ class CarrierRateTableSeeder extends Seeder
         $rateTable = RateTable::updateOrCreate(
             ['product_type' => 'ltd', 'version' => $version],
             [
-                'carrier_id'  => $carrier->id,
-                'name'        => "{$carrier->name} LTD {$version}",
-                'is_active'   => true,
+                'carrier_id'     => $carrier->id,
+                'name'           => "{$carrier->name} LTD {$version}",
+                'effective_date' => '2026-01-01',
+                'is_active'      => true,
             ]
         );
 
