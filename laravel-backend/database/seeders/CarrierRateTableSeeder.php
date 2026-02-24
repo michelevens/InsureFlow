@@ -129,7 +129,6 @@ class CarrierRateTableSeeder extends Seeder
             [
                 'carrier_id'  => $carrier->id,
                 'name'        => "{$carrier->name} LTC {$version}",
-                'description' => "Long-term care rates for {$carrier->name} ({$version})",
                 'is_active'   => true,
             ]
         );
@@ -175,7 +174,6 @@ class CarrierRateTableSeeder extends Seeder
             [
                 'carrier_id'  => $carrier->id,
                 'name'        => "{$carrier->name} LTD {$version}",
-                'description' => "Long-term disability rates for {$carrier->name} ({$version})",
                 'is_active'   => true,
             ]
         );
