@@ -1,12 +1,47 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui';
 import {
   Calculator, Users, FileText, ShieldCheck, ArrowRight, Star,
   CheckCircle2, Building2, BarChart3, Route, Lock, Zap, Globe,
-  UserCheck, PieChart, Network,
+  UserCheck, PieChart, Network, Car, Home, Heart, Activity,
+  Accessibility, Briefcase, Sparkles,
 } from 'lucide-react';
+import { api } from '@/services/api';
+
+interface VisibleProduct {
+  id: number;
+  slug: string;
+  name: string;
+  category: string;
+  icon: string | null;
+  is_active: boolean;
+}
+
+const categoryIcons: Record<string, React.ReactNode> = {
+  'Personal Lines': <Car className="w-6 h-6" />,
+  'Life Insurance': <Heart className="w-6 h-6" />,
+  'Health Insurance': <Activity className="w-6 h-6" />,
+  'Disability & Long-Term Care': <Accessibility className="w-6 h-6" />,
+  'Commercial Lines': <Briefcase className="w-6 h-6" />,
+  'Specialty': <Sparkles className="w-6 h-6" />,
+};
 
 export default function Landing() {
+  const [grouped, setGrouped] = useState<Record<string, VisibleProduct[]>>({});
+  const [productCount, setProductCount] = useState(40);
+  const [categoryCount, setCategoryCount] = useState(6);
+
+  useEffect(() => {
+    api.get<{ products: VisibleProduct[]; grouped: Record<string, VisibleProduct[]> }>('/products/visible')
+      .then(res => {
+        setGrouped(res.grouped || {});
+        setProductCount(res.products?.length || 40);
+        setCategoryCount(Object.keys(res.grouped || {}).length || 6);
+      })
+      .catch(() => { /* keep defaults */ });
+  }, []);
+
   return (
     <div className="min-h-screen bg-white">
       {/* Navbar */}
@@ -57,8 +92,8 @@ export default function Landing() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-16 max-w-3xl mx-auto">
             {[
               { value: '50+', label: 'Carriers' },
-              { value: '6', label: 'Insurance Types' },
-              { value: '50', label: 'States Covered' },
+              { value: String(categoryCount), label: 'Product Categories' },
+              { value: String(productCount), label: 'Insurance Products' },
               { value: '<60s', label: 'Quote Time' },
             ].map((stat, i) => (
               <div key={i} className="text-center">
@@ -96,6 +131,47 @@ export default function Landing() {
           </div>
         </div>
       </section>
+
+      {/* Insurance Products — dynamic from admin-managed catalog */}
+      {Object.keys(grouped).length > 0 && (
+        <section className="py-20">
+          <div className="max-w-7xl mx-auto px-6">
+            <h2 className="text-3xl font-bold text-slate-900 text-center mb-4">Insurance Products We Cover</h2>
+            <p className="text-lg text-slate-500 text-center max-w-2xl mx-auto mb-12">
+              {productCount} products across {categoryCount} categories — all managed by our platform
+            </p>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {Object.entries(grouped).map(([category, products]) => (
+                <div key={category} className="p-6 rounded-2xl border border-slate-200 hover:border-shield-200 hover:shadow-lg transition-all">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 rounded-xl bg-shield-50 text-shield-600 flex items-center justify-center">
+                      {categoryIcons[category] || <ShieldCheck className="w-5 h-5" />}
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-slate-900">{category}</h3>
+                      <span className="text-xs text-slate-400">{products.length} product{products.length !== 1 ? 's' : ''}</span>
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {products.map(p => (
+                      <span key={p.id} className="inline-block px-2.5 py-1 rounded-full bg-slate-50 text-xs text-slate-600 border border-slate-100">
+                        {p.name}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="text-center mt-10">
+              <Link to="/calculator">
+                <Button variant="shield" rightIcon={<ArrowRight className="w-4 h-4" />}>
+                  Get a Quote for Any Product
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* For Consumers */}
       <section id="consumers" className="py-20">
