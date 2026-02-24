@@ -194,6 +194,7 @@ php artisan serve
 - **Lead Pipeline:** Full InsuranceProfile → Lead → RoutingEngine → LeadScoring pipeline wired for intake submissions
 - **Lead Aging Alerts:** Hourly `leads:check-aging` command — 24h → remind agent, 48h → escalate to agency owner (email + in-app notification)
 - **UTM Attribution:** Frontend reads utm_source/utm_medium/utm_campaign from URL, backend stores in InsuranceProfile details
+- **Lead Marketplace:** Full lead exchange — agencies list excess leads for sale, other agencies browse/purchase, platform takes 15% fee, auto-routes purchased leads through buyer's RoutingEngine
 - **Rating Engine:** Full plugin architecture with DI/Life/P&C/LTC support, audit trail, versioned rate tables — **tested end-to-end on production**
 - **Product Visibility System:** 3-layer platform→agency→carrier appointment model deployed
 - **Demo Agencies:** 10 agencies (A-J) with 5 agents each, 70 leads, carrier appointments — all seeded on Railway
@@ -213,8 +214,21 @@ php artisan serve
   - 48h without contact → `LeadAgingEscalationMail` to agency owner + in-app notification
   - Both use `LeadEngagementEvent` markers (`aging_reminded`, `aging_escalated`) to prevent duplicate alerts
   - Email templates follow Insurons design system (amber for reminder, red for escalation)
-- **InsuranceProfile model:** Added `engagementEvents()` HasMany relationship
+- **InsuranceProfile model:** Added `engagementEvents()` and `leadScore()` relationships
 - **Schedule registered:** `leads:check-aging` runs hourly in `bootstrap/app.php`
+- **Lead Marketplace (Tier 3 — competitive moat):**
+  - Migration: `lead_marketplace_listings` + `lead_marketplace_transactions` tables
+  - Models: `LeadMarketplaceListing` (scopes, grade calc, ZIP→state mapping), `LeadMarketplaceTransaction`
+  - `LeadMarketplaceController`: browse (with filters/sort), show (anonymized), purchase (DB transaction + row lock), create listing, withdraw, stats, transaction history
+  - Purchase flow: copies InsuranceProfile + Lead to buyer agency, routes via RoutingEngine, scores via LeadScoringService, notifies seller (in-app), tracks engagement
+  - 15% platform fee on transactions, ZIP prefix geo filtering, lead grade (A-F) from score
+  - 8 API routes under `/lead-marketplace/*`
+  - Frontend `LeadMarketplace` page at `/lead-marketplace` with 3 tabs:
+    - Browse: grid of anonymized cards (grade, score, state, price, contact signals), filters (type, state, sort)
+    - My Listings: status tracking + withdraw action
+    - Transactions: bought/sold history with financial details
+  - Stats dashboard: active listings, purchased, sold, revenue
+  - Full TypeScript types + API service methods
 
 ### Phase 5 (2026-02-24) — UX Competitive Analysis + Quick Wins + Email Notifications
 - **InsuranceAiService fix:** Added `isConfigured()` guard + early return when ANTHROPIC_API_KEY missing (prevents failed HTTP calls)
@@ -349,11 +363,13 @@ Agent emails follow pattern: `contact+AgencyX.agent1@ennhealth.com` through `con
 - Working directory: `c:\Users\BellaCare_MICROPC\OneDrive - EnnHealth\Documents\GitHub\InsureFlow`
 
 ## Next Tasks
-- **Deploy backend to Railway:** `cd laravel-backend && railway up` to deploy Phase 5+6 backend changes
+- **Deploy backend to Railway:** `cd laravel-backend && railway up` to deploy Phase 5+6 backend changes (pipeline rewire, aging alerts, lead marketplace)
+- **Run new migration:** `php artisan migrate` on Railway to create `lead_marketplace_listings` + `lead_marketplace_transactions` tables
 - **Configure scheduler on Railway:** Add `php artisan schedule:work` as a worker process or cron job so `leads:check-aging` actually runs
+- **Add "Sell Lead" button to CRM:** Leads page should have a button to list a lead on the marketplace (calls `POST /lead-marketplace/listings`)
+- **Add Lead Marketplace to sidebar navigation:** Link the `/lead-marketplace` route from the main nav
 - **Create cache table:** Run `php artisan cache:table && php artisan migrate` on Railway to fix cache:clear
 - **Configure Stripe:** Add real Stripe API keys to Railway env vars, create products/prices, update seeded plans
-- **Tier 3 — Lead Marketplace:** Build lead exchange where agencies can buy/sell leads across the platform (competitive moat feature)
 - **Implement more INTAKE_COMPARISON.md quick wins:**
   - One-at-a-time question mode for Calculator Step 2 (Lemonade-style progressive disclosure)
   - Address auto-complete on ZIP code field (Google Places or Mapbox)
@@ -363,6 +379,7 @@ Agent emails follow pattern: `contact+AgencyX.agent1@ennhealth.com` through `con
 - **Test Phase 4+5+6 end-to-end:**
   - Test lead intake form at `/intake/{agencyCode}?utm_source=test` → verify profile created, lead routed, score calculated, emails sent
   - Test `php artisan leads:check-aging` with stale test leads
+  - Test lead marketplace: list a lead → browse as another agency → purchase → verify new lead created in buyer CRM
   - Login as agent → Leads → verify aging reminder appears
   - Login as agency_owner → verify escalation notification
 - Add real carrier API integrations
