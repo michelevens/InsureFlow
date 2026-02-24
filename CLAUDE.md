@@ -185,9 +185,9 @@ php artisan serve
 - admin@insureflow.com (Admin)
 - superadmin@insureflow.com (Superadmin)
 
-## Current Status (as of 2026-02-23)
-- **Frontend:** 50+ pages built, TypeScript passes, Vite build succeeds, **GitHub Pages deployment working**
-- **Backend:** Laravel 12 on Railway — **fully deployed with Phase 4 code** (deployment `0eec7982`)
+## Current Status (as of 2026-02-24)
+- **Frontend:** 50+ pages built, TypeScript passes, Vite build succeeds, **GitHub Pages deployment working** (auto-deploys on push)
+- **Backend:** Laravel 12 on Railway — **fully deployed with Phase 4 code** (deployment `0eec7982`), needs redeploy for Phase 5 backend changes
 - **API Domain:** api.insurons.com — WORKING, all endpoints tested
 - **Database:** All migrations run (including compliance_pack_tables batch 16), 39 compliance requirements seeded
 - **Seed Data:** 5 subscription plans, 10 carriers with products, 6 demo users, 35+ platform products, 10 agencies (50 agents), 70 leads, 3 rate tables (DI LTD, Term Life, LTC) — 180 rate entries + PipelineSeeder (25 applications, 15 policies, 15 commissions, 6 claims, 12 appointments, 20 routing rules) + 39 compliance requirements
@@ -205,6 +205,27 @@ php artisan serve
 - **Phase 4 Complete:** Add Lead modal, compliance pack system, admin CRUD, agency codes, lead intake — all deployed to Railway
 
 ## Recent Work
+
+### Phase 5 (2026-02-24) — UX Competitive Analysis + Quick Wins + Email Notifications
+- **InsuranceAiService fix:** Added `isConfigured()` guard + early return when ANTHROPIC_API_KEY missing (prevents failed HTTP calls)
+- **Competitive Analysis:** Created `INTAKE_COMPARISON.md` — detailed comparison of Insurons intake/quote forms vs Lemonade, Ethos, Policygenius, SelectQuote, Bold Penguin, EZLynx, Quotit. Includes gap analysis, 15 prioritized recommendations, and quick-win checklist.
+- **Calculator UX improvements:**
+  - Added "Takes about 60 seconds" time estimate (trust signal)
+  - Coverage level descriptions: "Basic — Minimum required coverage", "Standard — Balanced (most popular)", "Premium — Maximum protection"
+- **Quote Results UX improvements:**
+  - Sort dropdown: Best Match, Price (Low→High), Price (High→Low), Lowest Deductible, Carrier Rating
+  - Carrier logo support (shows logo image when available, falls back to initials)
+  - Quote count display
+- **Lead Intake form enhancements:**
+  - Dynamic product catalog from `/products/visible` API (replaces hardcoded list)
+  - ZIP code field (enables geographic lead routing)
+  - Urgency selector ("ASAP", "Within the next month", "Just exploring")
+  - ZIP and urgency auto-appended to lead notes
+- **Email notifications for lead intake:**
+  - Agent notification: `LeadAssignedMail` sent to assigned agent on intake submission
+  - Consumer confirmation: new `LeadIntakeConfirmationMail` with agency name, insurance type, CTA to compare quotes
+  - Both wrapped in try-catch to prevent form submission failure on mail errors
+- **Frontend deployed to GitHub Pages** (auto-deploy CI triggered)
 
 ### Phase 4 (2026-02-23) — Add Lead + Compliance Pack + Admin CRUD + Agency Codes + Lead Intake
 - **Add New Lead modal:** CRM Leads page now has "Add Lead" button + full form modal (uses existing `POST /crm/leads` backend)
@@ -291,9 +312,10 @@ All passwords: `password`
 Agent emails follow pattern: `contact+AgencyX.agent1@ennhealth.com` through `contact+AgencyX.agent5@ennhealth.com`
 
 ## Known Issues
-- **InsuranceAiService:** `$apiKey` property is null on Railway — needs AI API key configured in env vars. Prevents `route:list` and `route:cache` from working. Does NOT affect normal API operation.
+- **InsuranceAiService:** `$apiKey` gracefully handled (returns "not configured" message) but still needs `ANTHROPIC_API_KEY` env var on Railway for AI chat to work. `route:list`/`route:cache` issue may persist until key is set.
 - **Cache table missing:** `cache:clear` fails because there's no `cache` table in DB. Non-critical (using file/array cache driver instead).
 - **Stripe not configured:** Price IDs in seeded plans are null. Subscriptions return 422 until Stripe keys are added.
+- **Backend redeploy needed:** Phase 5 backend changes (LeadIntakeController emails, InsuranceAiService fix) need Railway deployment.
 
 ## Session Management Rules
 
@@ -316,21 +338,21 @@ Agent emails follow pattern: `contact+AgencyX.agent1@ennhealth.com` through `con
 - Working directory: `c:\Users\BellaCare_MICROPC\OneDrive - EnnHealth\Documents\GitHub\InsureFlow`
 
 ## Next Tasks
-- **Fix InsuranceAiService:** Add AI API key env var to Railway or make $apiKey nullable to prevent boot errors
-- **Create cache table:** Run `php artisan cache:table && php artisan migrate` to fix cache:clear
+- **Deploy backend to Railway:** `cd laravel-backend && railway up` to deploy Phase 5 backend changes (email notifications, AI service fix)
+- **Create cache table:** Run `php artisan cache:table && php artisan migrate` on Railway to fix cache:clear
 - **Configure Stripe:** Add real Stripe API keys to Railway env vars, create products/prices, update seeded plans
-- **Test Phase 4 end-to-end:**
-  - Login as agent → Leads → "Add Lead" button → fill form → verify lead appears
-  - Login as agent → Compliance → "Compliance Pack" tab → "Generate My Pack" → verify requirements
-  - Login as agency_owner → Agency Settings → verify agency code display/copy/regenerate
-  - Login as agency_owner → Agency Settings → Team → "Add Agent" → verify agent created
-  - Test lead intake form at `/intake/{agencyCode}` → verify lead routed correctly
-  - Login as superadmin → Platform Settings → Compliance tab → manage requirements
-  - Login as admin → Agencies → click agency → verify detail view + verify/activate buttons
-  - Login as admin → Plans → create/edit/delete plans
-  - Login as admin → Carriers → list + detail + create/edit
-  - Login as admin → Users → create user, edit, reset password
-- **Deploy frontend to GitHub Pages:** Build and push latest frontend with all Phase 4 UI changes
-- Add real carrier integrations (API connections)
-- Consider email notifications for lead intake submissions
-- Consider agent notification when compliance pack items are overdue
+- **Implement more INTAKE_COMPARISON.md quick wins:**
+  - One-at-a-time question mode for Calculator Step 2 (Lemonade-style progressive disclosure)
+  - Address auto-complete on ZIP code field (Google Places or Mapbox)
+  - Save & resume for abandoned quotes (localStorage + "Welcome back" banner)
+  - Premium breakdown on quote results (base rate, fees, discounts, total)
+  - Coverage comparison matrix (side-by-side table view)
+- **Test Phase 4+5 end-to-end:**
+  - Test lead intake form at `/intake/{agencyCode}` → verify lead routed + emails sent
+  - Login as agent → Leads → "Add Lead" → verify lead appears
+  - Login as agent → Compliance → "Compliance Pack" tab → "Generate My Pack"
+  - Login as agency_owner → Agency Settings → verify all tabs
+  - Login as admin → all admin pages (Users, Plans, Carriers, Agencies)
+- Add real carrier API integrations
+- Agent notification when compliance pack items are overdue
+- Embeddable quote widget (iframe/web component for agency websites)
