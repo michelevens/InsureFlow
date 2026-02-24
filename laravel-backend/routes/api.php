@@ -55,6 +55,7 @@ use App\Http\Controllers\AgencyProductController;
 use App\Http\Controllers\ProductVisibilityController;
 use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\LeadIntakeController;
+use App\Http\Controllers\LeadMarketplaceController;
 use App\Http\Controllers\ProfileClaimController;
 use App\Http\Controllers\ConsumerMarketplaceController;
 use App\Http\Controllers\PublicSigningController;
@@ -681,6 +682,18 @@ Route::middleware(['auth:sanctum', 'agency.scope'])->group(function () {
         Route::post('/rate-tables/{rateTable}/fees', [AdminRateTableController::class, 'storeFee']);
         Route::put('/rate-tables/{rateTable}/fees/{fee}', [AdminRateTableController::class, 'updateFee']);
         Route::delete('/rate-tables/{rateTable}/fees/{fee}', [AdminRateTableController::class, 'destroyFee']);
+    });
+
+    // Lead Marketplace
+    Route::prefix('lead-marketplace')->group(function () {
+        Route::get('/browse', [LeadMarketplaceController::class, 'browse']);
+        Route::get('/listings/{listing}', [LeadMarketplaceController::class, 'show']);
+        Route::post('/listings/{listing}/purchase', [LeadMarketplaceController::class, 'purchase']);
+        Route::get('/my-listings', [LeadMarketplaceController::class, 'myListings']);
+        Route::post('/listings', [LeadMarketplaceController::class, 'createListing']);
+        Route::post('/listings/{listing}/withdraw', [LeadMarketplaceController::class, 'withdraw']);
+        Route::get('/stats', [LeadMarketplaceController::class, 'stats']);
+        Route::get('/transactions', [LeadMarketplaceController::class, 'transactions']);
     });
 
     // Agency Settings (agency_owner)

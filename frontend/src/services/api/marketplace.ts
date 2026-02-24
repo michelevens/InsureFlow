@@ -204,4 +204,135 @@ export const marketplaceService = {
   async creditHistory(page = 1): Promise<{ transactions: unknown; balance: number }> {
     return api.get(`/credits/history?page=${page}`);
   },
+
+  // ── Lead Marketplace ──
+
+  async browseLeads(params?: {
+    insurance_type?: string;
+    state?: string;
+    grade?: string;
+    max_price?: number;
+    min_score?: number;
+    sort?: string;
+    page?: number;
+  }): Promise<LeadMarketplaceListResponse> {
+    const query = new URLSearchParams();
+    if (params?.insurance_type) query.set('insurance_type', params.insurance_type);
+    if (params?.state) query.set('state', params.state);
+    if (params?.grade) query.set('grade', params.grade);
+    if (params?.max_price) query.set('max_price', String(params.max_price));
+    if (params?.min_score) query.set('min_score', String(params.min_score));
+    if (params?.sort) query.set('sort', params.sort);
+    if (params?.page) query.set('page', String(params.page));
+    return api.get(`/lead-marketplace/browse?${query.toString()}`);
+  },
+
+  async getLeadListing(id: number): Promise<{ listing: LeadMarketplaceListing; seller: { agency_name: string } }> {
+    return api.get(`/lead-marketplace/listings/${id}`);
+  },
+
+  async purchaseLead(listingId: number): Promise<LeadPurchaseResponse> {
+    return api.post(`/lead-marketplace/listings/${listingId}/purchase`);
+  },
+
+  async myListings(page = 1): Promise<LeadMarketplaceListResponse> {
+    return api.get(`/lead-marketplace/my-listings?page=${page}`);
+  },
+
+  async createListing(data: {
+    insurance_profile_id: number;
+    asking_price: number;
+    seller_notes?: string;
+    expires_in_days?: number;
+  }): Promise<{ message: string; listing: LeadMarketplaceListing }> {
+    return api.post('/lead-marketplace/listings', data);
+  },
+
+  async withdrawListing(listingId: number): Promise<{ message: string }> {
+    return api.post(`/lead-marketplace/listings/${listingId}/withdraw`);
+  },
+
+  async leadMarketplaceStats(): Promise<LeadMarketplaceStats> {
+    return api.get('/lead-marketplace/stats');
+  },
+
+  async leadMarketplaceTransactions(type?: 'bought' | 'sold' | 'all', page = 1): Promise<LeadMarketplaceTransactionResponse> {
+    const query = new URLSearchParams();
+    if (type) query.set('type', type);
+    query.set('page', String(page));
+    return api.get(`/lead-marketplace/transactions?${query.toString()}`);
+  },
 };
+
+// ── Lead Marketplace Types ──
+
+export interface LeadMarketplaceListing {
+  id: number;
+  seller_agency_id: number;
+  insurance_type: string;
+  state: string | null;
+  zip_prefix: string | null;
+  coverage_level: string | null;
+  urgency: string | null;
+  asking_price: string;
+  lead_score: number | null;
+  lead_grade: string | null;
+  has_phone: boolean;
+  has_email: boolean;
+  days_old: number;
+  status: 'active' | 'sold' | 'expired' | 'withdrawn';
+  seller_notes: string | null;
+  expires_at: string | null;
+  created_at: string;
+  seller_agency?: { id: number; name: string };
+  transaction?: LeadMarketplaceTransaction | null;
+}
+
+export interface LeadMarketplaceTransaction {
+  id: number;
+  listing_id: number;
+  buyer_agency_id: number;
+  seller_agency_id: number;
+  purchase_price: string;
+  platform_fee: string;
+  seller_payout: string;
+  status: string;
+  direction?: 'bought' | 'sold';
+  created_at: string;
+  listing?: Partial<LeadMarketplaceListing>;
+}
+
+export interface LeadMarketplaceStats {
+  seller: { active_listings: number; total_sold: number; total_revenue: number };
+  buyer: { total_purchased: number; total_spent: number };
+  marketplace: { total_active_listings: number };
+}
+
+export interface LeadPurchaseResponse {
+  message: string;
+  transaction_id: number;
+  lead: {
+    id: number;
+    profile_id: number;
+    first_name: string;
+    last_name: string;
+    email: string;
+    phone: string | null;
+    insurance_type: string;
+  };
+  cost: { purchase_price: string; platform_fee: string };
+}
+
+export interface LeadMarketplaceListResponse {
+  data: LeadMarketplaceListing[];
+  current_page: number;
+  last_page: number;
+  total: number;
+}
+
+export interface LeadMarketplaceTransactionResponse {
+  data: LeadMarketplaceTransaction[];
+  current_page: number;
+  last_page: number;
+  total: number;
+}

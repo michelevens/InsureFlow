@@ -53,6 +53,7 @@ const ApplicationSigningPage = lazy(() => import('@/pages/marketplace/Applicatio
 
 // Agent Marketplace (protected)
 const AgentMarketplace = lazy(() => import('@/pages/marketplace/AgentMarketplace'));
+const LeadMarketplace = lazy(() => import('@/pages/marketplace/LeadMarketplace'));
 
 // Dashboard
 const Dashboard = lazy(() => import('@/pages/dashboard/Dashboard'));
@@ -206,6 +207,7 @@ export default function App() {
 
                 {/* Agent Marketplace */}
                 <Route path="/marketplace/requests" element={<AgentMarketplace />} />
+                <Route path="/lead-marketplace" element={<LeadMarketplace />} />
 
                 {/* Agent / Agency CRM */}
                 <Route path="/crm/leads" element={<Leads />} />
