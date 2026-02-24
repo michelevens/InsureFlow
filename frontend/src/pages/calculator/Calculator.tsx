@@ -56,9 +56,9 @@ const fallbackGroups = [
 ];
 
 const coverageLevels = [
-  { value: 'basic', label: 'Basic Coverage' },
-  { value: 'standard', label: 'Standard Coverage' },
-  { value: 'premium', label: 'Premium Coverage' },
+  { value: 'basic', label: 'Basic — Minimum required coverage' },
+  { value: 'standard', label: 'Standard — Balanced coverage & cost (most popular)' },
+  { value: 'premium', label: 'Premium — Maximum protection & lowest deductibles' },
 ];
 
 export default function Calculator() {
@@ -230,6 +230,7 @@ export default function Calculator() {
             {step === 1 && 'Select your coverage type and we\'ll find the best rates — no account needed'}
             {step === 2 && 'This helps us get you accurate quotes from top carriers'}
           </p>
+          <p className="text-xs text-slate-400 mt-1">Takes about 60 seconds</p>
         </div>
 
         <Card className="max-w-2xl mx-auto">

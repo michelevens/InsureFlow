@@ -4,10 +4,16 @@ import { Card, Button, Input } from '@/components/ui';
 import { Loader2, CheckCircle, ShieldCheck } from 'lucide-react';
 import { api } from '@/services/api/client';
 
-const INSURANCE_TYPES = [
+const FALLBACK_INSURANCE_TYPES = [
   'Auto', 'Home', 'Renters', 'Life - Term', 'Life - Whole', 'Health - Individual',
   'Health - Group', 'Commercial GL', 'Workers Comp', 'Disability - STD', 'Disability - LTD',
   'Long Term Care', 'Medicare', 'Dental', 'Vision', 'Umbrella', 'Other',
+];
+
+const URGENCY_OPTIONS = [
+  { value: 'asap', label: 'As soon as possible' },
+  { value: 'this_month', label: 'Within the next month' },
+  { value: 'exploring', label: 'Just exploring options' },
 ];
 
 export default function LeadIntake() {
@@ -21,9 +27,10 @@ export default function LeadIntake() {
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [insuranceTypes, setInsuranceTypes] = useState<string[]>(FALLBACK_INSURANCE_TYPES);
 
   const [form, setForm] = useState({
-    first_name: '', last_name: '', email: '', phone: '', insurance_type: '', notes: '',
+    first_name: '', last_name: '', email: '', phone: '', zip_code: '', insurance_type: '', urgency: '', notes: '',
   });
 
   useEffect(() => {
@@ -36,6 +43,14 @@ export default function LeadIntake() {
     }).finally(() => {
       setLoading(false);
     });
+
+    // Load dynamic product catalog
+    api.get('/products/visible').then((res: unknown) => {
+      const data = res as { products: { name: string }[] };
+      if (data.products?.length > 0) {
+        setInsuranceTypes(data.products.map(p => p.name));
+      }
+    }).catch(() => { /* use fallback */ });
   }, [agencyCode]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -119,9 +134,15 @@ export default function LeadIntake() {
             <Input type="email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} placeholder="john@example.com" required />
           </div>
 
-          <div className="space-y-1">
-            <label className="text-sm font-medium text-slate-700">Phone</label>
-            <Input value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} placeholder="(555) 123-4567" />
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <label className="text-sm font-medium text-slate-700">Phone</label>
+              <Input value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} placeholder="(555) 123-4567" />
+            </div>
+            <div className="space-y-1">
+              <label className="text-sm font-medium text-slate-700">ZIP Code</label>
+              <Input value={form.zip_code} onChange={e => setForm({ ...form, zip_code: e.target.value })} placeholder="33607" maxLength={5} />
+            </div>
           </div>
 
           <div className="space-y-1">
@@ -129,7 +150,16 @@ export default function LeadIntake() {
             <select value={form.insurance_type} onChange={e => setForm({ ...form, insurance_type: e.target.value })} required
               className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-shield-500">
               <option value="">Select type...</option>
-              {INSURANCE_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+              {insuranceTypes.map(t => <option key={t} value={t}>{t}</option>)}
+            </select>
+          </div>
+
+          <div className="space-y-1">
+            <label className="text-sm font-medium text-slate-700">When do you need coverage?</label>
+            <select value={form.urgency} onChange={e => setForm({ ...form, urgency: e.target.value })}
+              className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-shield-500">
+              <option value="">Select timeline...</option>
+              {URGENCY_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
             </select>
           </div>
 

@@ -1,10 +1,12 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button, Card, Badge, Input } from '@/components/ui';
-import { Shield, ShieldCheck, ArrowRight, ArrowLeft, Check, Phone, Mail, Award, CheckCircle2, User, Lock } from 'lucide-react';
+import { Shield, ShieldCheck, ArrowRight, ArrowLeft, Check, Phone, Mail, Award, CheckCircle2, User, Lock, ArrowUpDown } from 'lucide-react';
 import { quoteService, authService } from '@/services/api';
 import { useAuth } from '@/hooks/useAuth';
 import type { EstimateQuote } from '@/services/api/quotes';
+
+type SortOption = 'recommended' | 'price_asc' | 'price_desc' | 'deductible_asc' | 'rating';
 
 export default function QuoteResults() {
   const location = useLocation();
@@ -22,6 +24,7 @@ export default function QuoteResults() {
   const [signingUp, setSigningUp] = useState(false);
   const [signedUp, setSignedUp] = useState(false);
   const [signupError, setSignupError] = useState('');
+  const [sortBy, setSortBy] = useState<SortOption>('recommended');
 
   const quotes: EstimateQuote[] = location.state?.quotes || [];
   const quoteRequestId: number = location.state?.quoteRequestId;
@@ -29,12 +32,25 @@ export default function QuoteResults() {
   const coverageLevel: string = location.state?.coverageLevel || 'standard';
   const zipCode: string = location.state?.zipCode || '';
 
-  // Sort: recommended first, then by monthly premium ascending
-  const sortedQuotes = [...quotes].sort((a, b) => {
-    if (a.is_recommended && !b.is_recommended) return -1;
-    if (!a.is_recommended && b.is_recommended) return 1;
-    return parseFloat(a.monthly_premium) - parseFloat(b.monthly_premium);
-  });
+  const sortedQuotes = useMemo(() => [...quotes].sort((a, b) => {
+    switch (sortBy) {
+      case 'price_asc':
+        return parseFloat(a.monthly_premium) - parseFloat(b.monthly_premium);
+      case 'price_desc':
+        return parseFloat(b.monthly_premium) - parseFloat(a.monthly_premium);
+      case 'deductible_asc':
+        return parseFloat(a.deductible) - parseFloat(b.deductible);
+      case 'rating': {
+        const rA = a.carrier_product?.carrier?.am_best_rating || 'Z';
+        const rB = b.carrier_product?.carrier?.am_best_rating || 'Z';
+        return rA.localeCompare(rB);
+      }
+      default: // recommended
+        if (a.is_recommended && !b.is_recommended) return -1;
+        if (!a.is_recommended && b.is_recommended) return 1;
+        return parseFloat(a.monthly_premium) - parseFloat(b.monthly_premium);
+    }
+  }), [quotes, sortBy]);
 
   const lowestPremium = quotes.length > 0
     ? Math.min(...quotes.map(q => parseFloat(q.monthly_premium)))
@@ -171,12 +187,32 @@ export default function QuoteResults() {
           </div>
         </div>
 
+        {/* Sort controls */}
+        <div className="flex items-center justify-between mb-4">
+          <p className="text-sm text-slate-500">{sortedQuotes.length} quote{sortedQuotes.length !== 1 ? 's' : ''}</p>
+          <div className="flex items-center gap-2">
+            <ArrowUpDown className="w-4 h-4 text-slate-400" />
+            <select
+              value={sortBy}
+              onChange={e => setSortBy(e.target.value as SortOption)}
+              className="text-sm border border-slate-200 rounded-lg px-3 py-1.5 text-slate-700 focus:outline-none focus:ring-2 focus:ring-shield-500"
+            >
+              <option value="recommended">Best Match</option>
+              <option value="price_asc">Price: Low to High</option>
+              <option value="price_desc">Price: High to Low</option>
+              <option value="deductible_asc">Lowest Deductible</option>
+              <option value="rating">Carrier Rating</option>
+            </select>
+          </div>
+        </div>
+
         {/* Quote cards */}
         <div className="space-y-4">
           {sortedQuotes.map(quote => {
             const carrier = quote.carrier_product?.carrier;
             const carrierName = carrier?.name || 'Insurance Carrier';
             const carrierInitials = carrierName.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+            const carrierLogo = carrier?.logo;
             const rating = carrier?.am_best_rating;
             const monthly = parseFloat(quote.monthly_premium);
             const annual = parseFloat(quote.annual_premium);
@@ -194,9 +230,13 @@ export default function QuoteResults() {
                   <div className="flex flex-col lg:flex-row lg:items-center gap-6">
                     {/* Carrier info */}
                     <div className="flex items-center gap-4 lg:w-56">
-                      <div className="w-14 h-14 rounded-xl bg-shield-100 text-shield-700 flex items-center justify-center text-lg font-bold">
-                        {carrierInitials}
-                      </div>
+                      {carrierLogo ? (
+                        <img src={carrierLogo} alt={carrierName} className="w-14 h-14 rounded-xl object-contain bg-white border border-slate-100 p-1" />
+                      ) : (
+                        <div className="w-14 h-14 rounded-xl bg-shield-100 text-shield-700 flex items-center justify-center text-lg font-bold">
+                          {carrierInitials}
+                        </div>
+                      )}
                       <div>
                         <h3 className="font-semibold text-slate-900">{carrierName}</h3>
                         {rating && (

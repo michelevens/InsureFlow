@@ -33,6 +33,7 @@ export interface EstimateQuote {
       id: number;
       name: string;
       slug: string;
+      logo: string | null;
       am_best_rating: string | null;
     };
   };
