@@ -32,7 +32,7 @@ function normaliseProductLabel(productType: string): string {
 
 export default function AdminRateTables() {
   const [rateTables, setRateTables] = useState<AdminRateTable[]>([]);
-  const [counts, setCounts] = useState<RateTableCounts>({ total: 0, active: 0, inactive: 0, by_product_type: {} });
+  const [counts, setCounts] = useState<RateTableCounts>({ total: 0, active: 0, ltc: 0, ltd: 0 });
   const [carriers, setCarriers] = useState<CarrierOption[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [productFilter, setProductFilter] = useState<ProductFilter>('All');
@@ -67,8 +67,8 @@ export default function AdminRateTables() {
       if (carrierFilter && rt.carrier_id !== Number(carrierFilter)) return false;
       if (searchTerm) {
         const q = searchTerm.toLowerCase();
-        const nameMatch = (rt.label ?? rt.product_type).toLowerCase().includes(q);
-        const carrierMatch = (rt.carrier_name ?? '').toLowerCase().includes(q);
+        const nameMatch = (rt.name ?? rt.product_type).toLowerCase().includes(q);
+        const carrierMatch = (rt.carrier?.name ?? '').toLowerCase().includes(q);
         const versionMatch = rt.version.toLowerCase().includes(q);
         if (!nameMatch && !carrierMatch && !versionMatch) return false;
       }
@@ -164,7 +164,7 @@ export default function AdminRateTables() {
             <XCircle className="w-5 h-5 text-red-500" />
           </div>
           <div>
-            <p className="text-xl font-bold text-slate-900">{counts.inactive}</p>
+            <p className="text-xl font-bold text-slate-900">{counts.total - counts.active}</p>
             <p className="text-sm text-slate-500">Inactive</p>
           </div>
         </div>
@@ -241,7 +241,7 @@ export default function AdminRateTables() {
               </thead>
               <tbody className="divide-y divide-slate-50">
                 {filtered.map(rt => {
-                  const displayName = rt.label ?? rt.product_type;
+                  const displayName = rt.name ?? rt.product_type;
                   const productLabel = normaliseProductLabel(rt.product_type);
                   return (
                     <tr key={rt.id} className="hover:bg-slate-50 transition-colors">
@@ -253,8 +253,8 @@ export default function AdminRateTables() {
                           </div>
                           <div>
                             <p className="font-medium text-slate-900">{displayName}</p>
-                            {rt.carrier_name && (
-                              <p className="text-xs text-slate-400">{rt.carrier_name}</p>
+                            {rt.carrier?.name && (
+                              <p className="text-xs text-slate-400">{rt.carrier.name}</p>
                             )}
                           </div>
                         </div>

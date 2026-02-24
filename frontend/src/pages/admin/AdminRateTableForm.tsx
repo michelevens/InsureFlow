@@ -94,7 +94,7 @@ export default function AdminRateTableForm() {
   const loadRateTable = async (tableId: string) => {
     setLoading(true);
     try {
-      const data = await rateTableAdminService.get(tableId);
+      const data = await rateTableAdminService.get(Number(tableId));
       setForm({
         name: data.name ?? '',
         product_type: data.product_type ?? '',
@@ -147,9 +147,9 @@ export default function AdminRateTableForm() {
 
     try {
       if (isEdit && id) {
-        await rateTableAdminService.update(id, payload);
+        await rateTableAdminService.update(Number(id!), payload);
         toast.success('Rate table updated');
-        navigate(-1);
+        navigate('/admin/rate-tables');
       } else {
         await rateTableAdminService.create(payload);
         toast.success('Rate table created');
@@ -178,7 +178,7 @@ export default function AdminRateTableForm() {
     if (!csvFile || !id) return;
     setCsvUploading(true);
     try {
-      await rateTableAdminService.importCsv(id, csvFile, csvType);
+      await rateTableAdminService.importCsv(Number(id!), csvFile, csvType);
       toast.success(`CSV imported as "${csvType}" successfully`);
       setCsvFile(null);
       if (fileInputRef.current) fileInputRef.current.value = '';
@@ -202,7 +202,7 @@ export default function AdminRateTableForm() {
       {/* Back link */}
       <button
         type="button"
-        onClick={() => navigate(isEdit ? -1 : '/admin/rate-tables')}
+        onClick={() => navigate('/admin/rate-tables')}
         className="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-800 transition-colors"
       >
         <ArrowLeft className="h-4 w-4" />

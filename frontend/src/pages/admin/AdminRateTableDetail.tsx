@@ -130,24 +130,24 @@ function RowActions({
 
 function EntriesTab({ tableId, entries, onReload }: { tableId: number; entries: RateTableEntry[]; onReload: () => void }) {
   const [editingId, setEditingId] = useState<number | null>(null);
-  const [editForm, setEditForm] = useState({ key: '', value: '' });
+  const [editForm, setEditForm] = useState({ rate_key: '', rate_value: '' });
   const [saving, setSaving] = useState(false);
-  const [addForm, setAddForm] = useState({ key: '', value: '' });
+  const [addForm, setAddForm] = useState({ rate_key: '', rate_value: '' });
   const [adding, setAdding] = useState(false);
   const [showAdd, setShowAdd] = useState(false);
 
   const startEdit = (entry: RateTableEntry) => {
     setEditingId(entry.id);
-    setEditForm({ key: entry.key, value: String(entry.value) });
+    setEditForm({ rate_key: entry.rate_key, rate_value: String(entry.rate_value) });
   };
 
-  const cancelEdit = () => { setEditingId(null); setEditForm({ key: '', value: '' }); };
+  const cancelEdit = () => { setEditingId(null); setEditForm({ rate_key: '', rate_value: '' }); };
 
   const handleSave = async () => {
-    if (!editForm.key.trim()) { toast.error('Rate key is required'); return; }
+    if (!editForm.rate_key.trim()) { toast.error('Rate key is required'); return; }
     setSaving(true);
     try {
-      await rateTableAdminService.updateEntry(tableId, editingId!, { key: editForm.key, value: parseFloat(editForm.value) || 0 });
+      await rateTableAdminService.updateEntry(tableId, editingId!, { rate_key: editForm.rate_key, rate_value: parseFloat(editForm.rate_value) || 0 });
       toast.success('Entry updated');
       setEditingId(null);
       onReload();
@@ -165,12 +165,12 @@ function EntriesTab({ tableId, entries, onReload }: { tableId: number; entries: 
   };
 
   const handleAdd = async () => {
-    if (!addForm.key.trim()) { toast.error('Rate key is required'); return; }
+    if (!addForm.rate_key.trim()) { toast.error('Rate key is required'); return; }
     setAdding(true);
     try {
-      await rateTableAdminService.createEntry(tableId, { key: addForm.key, value: parseFloat(addForm.value) || 0 });
+      await rateTableAdminService.createEntry(tableId, { rate_key: addForm.rate_key, rate_value: parseFloat(addForm.rate_value) || 0 });
       toast.success('Entry added');
-      setAddForm({ key: '', value: '' });
+      setAddForm({ rate_key: '', rate_value: '' });
       setShowAdd(false);
       onReload();
     } catch { toast.error('Failed to add entry'); }
@@ -203,13 +203,13 @@ function EntriesTab({ tableId, entries, onReload }: { tableId: number; entries: 
               <tr key={entry.id} className="hover:bg-slate-50">
                 <td className="p-3 font-mono text-slate-700">
                   {editingId === entry.id
-                    ? <InlineInput value={editForm.key} onChange={v => setEditForm(f => ({ ...f, key: v }))} placeholder="rate_key" />
-                    : entry.key}
+                    ? <InlineInput value={editForm.rate_key} onChange={v => setEditForm(f => ({ ...f, rate_key: v }))} placeholder="rate_key" />
+                    : entry.rate_key}
                 </td>
                 <td className="p-3 text-slate-700">
                   {editingId === entry.id
-                    ? <InlineInput value={editForm.value} onChange={v => setEditForm(f => ({ ...f, value: v }))} type="number" placeholder="0.00" className="max-w-[120px]" />
-                    : entry.value.toFixed(4)}
+                    ? <InlineInput value={editForm.rate_value} onChange={v => setEditForm(f => ({ ...f, rate_value: v }))} type="number" placeholder="0.00" className="max-w-[120px]" />
+                    : entry.rate_value.toFixed(4)}
                 </td>
                 <td className="p-3">
                   <RowActions
@@ -225,17 +225,17 @@ function EntriesTab({ tableId, entries, onReload }: { tableId: number; entries: 
             {showAdd && (
               <tr className="bg-shield-50/40">
                 <td className="p-3">
-                  <InlineInput value={addForm.key} onChange={v => setAddForm(f => ({ ...f, key: v }))} placeholder="e.g. age_25_male" />
+                  <InlineInput value={addForm.rate_key} onChange={v => setAddForm(f => ({ ...f, rate_key: v }))} placeholder="e.g. age_25_male" />
                 </td>
                 <td className="p-3">
-                  <InlineInput value={addForm.value} onChange={v => setAddForm(f => ({ ...f, value: v }))} type="number" placeholder="0.00" className="max-w-[120px]" />
+                  <InlineInput value={addForm.rate_value} onChange={v => setAddForm(f => ({ ...f, rate_value: v }))} type="number" placeholder="0.00" className="max-w-[120px]" />
                 </td>
                 <td className="p-3">
                   <div className="flex items-center gap-1 justify-end">
                     <button onClick={handleAdd} disabled={adding} className="p-1.5 rounded text-green-600 hover:bg-green-50 disabled:opacity-50" title="Save">
                       {adding ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                     </button>
-                    <button onClick={() => { setShowAdd(false); setAddForm({ key: '', value: '' }); }} className="p-1.5 rounded text-slate-500 hover:bg-slate-100" title="Cancel">
+                    <button onClick={() => { setShowAdd(false); setAddForm({ rate_key: '', rate_value: '' }); }} className="p-1.5 rounded text-slate-500 hover:bg-slate-100" title="Cancel">
                       <X className="w-4 h-4" />
                     </button>
                   </div>
@@ -259,17 +259,17 @@ const APPLY_MODE_OPTIONS = [
 
 function FactorsTab({ tableId, factors, onReload }: { tableId: number; factors: RateFactor[]; onReload: () => void }) {
   const [editingId, setEditingId] = useState<number | null>(null);
-  const [editForm, setEditForm] = useState({ factor_code: '', factor_label: '', option_value: '', option_label: '', apply_mode: 'multiply', factor_value: '' });
+  const [editForm, setEditForm] = useState({ factor_code: '', factor_label: '', option_value: '', apply_mode: 'multiply', factor_value: '' });
   const [saving, setSaving] = useState(false);
   const [showAdd, setShowAdd] = useState(false);
-  const [addForm, setAddForm] = useState({ factor_code: '', factor_label: '', option_value: '', option_label: '', apply_mode: 'multiply', factor_value: '' });
+  const [addForm, setAddForm] = useState({ factor_code: '', factor_label: '', option_value: '', apply_mode: 'multiply', factor_value: '' });
   const [adding, setAdding] = useState(false);
 
   const groups = Array.from(new Set(factors.map(f => f.factor_code)));
 
   const startEdit = (f: RateFactor) => {
     setEditingId(f.id);
-    setEditForm({ factor_code: f.factor_code, factor_label: f.factor_label, option_value: f.option_value, option_label: f.option_label, apply_mode: f.apply_mode, factor_value: String(f.factor_value) });
+    setEditForm({ factor_code: f.factor_code, factor_label: f.factor_label, option_value: f.option_value, apply_mode: f.apply_mode, factor_value: String(f.factor_value) });
   };
 
   const cancelEdit = () => setEditingId(null);
@@ -279,7 +279,7 @@ function FactorsTab({ tableId, factors, onReload }: { tableId: number; factors: 
     try {
       await rateTableAdminService.updateFactor(tableId, editingId!, {
         factor_code: editForm.factor_code, factor_label: editForm.factor_label,
-        option_value: editForm.option_value, option_label: editForm.option_label,
+        option_value: editForm.option_value,
         apply_mode: editForm.apply_mode as RateFactor['apply_mode'],
         factor_value: parseFloat(editForm.factor_value) || 0,
       });
@@ -305,12 +305,12 @@ function FactorsTab({ tableId, factors, onReload }: { tableId: number; factors: 
     try {
       await rateTableAdminService.createFactor(tableId, {
         factor_code: addForm.factor_code, factor_label: addForm.factor_label,
-        option_value: addForm.option_value, option_label: addForm.option_label,
+        option_value: addForm.option_value,
         apply_mode: addForm.apply_mode as RateFactor['apply_mode'],
         factor_value: parseFloat(addForm.factor_value) || 0,
       });
       toast.success('Factor added');
-      setAddForm({ factor_code: '', factor_label: '', option_value: '', option_label: '', apply_mode: 'multiply', factor_value: '' });
+      setAddForm({ factor_code: '', factor_label: '', option_value: '', apply_mode: 'multiply', factor_value: '' });
       setShowAdd(false);
       onReload();
     } catch { toast.error('Failed to add factor'); }
@@ -338,7 +338,6 @@ function FactorsTab({ tableId, factors, onReload }: { tableId: number; factors: 
               <thead>
                 <tr className="border-b border-slate-50">
                   <th className="text-left text-xs font-medium text-slate-400 uppercase tracking-wider px-3 py-2">Option Value</th>
-                  <th className="text-left text-xs font-medium text-slate-400 uppercase tracking-wider px-3 py-2">Option Label</th>
                   <th className="text-left text-xs font-medium text-slate-400 uppercase tracking-wider px-3 py-2">Apply Mode</th>
                   <th className="text-left text-xs font-medium text-slate-400 uppercase tracking-wider px-3 py-2">Factor Value</th>
                   <th className="text-right text-xs font-medium text-slate-400 uppercase tracking-wider px-3 py-2">Actions</th>
@@ -351,11 +350,6 @@ function FactorsTab({ tableId, factors, onReload }: { tableId: number; factors: 
                       {editingId === factor.id
                         ? <InlineInput value={editForm.option_value} onChange={v => setEditForm(f => ({ ...f, option_value: v }))} placeholder="option_value" />
                         : factor.option_value}
-                    </td>
-                    <td className="px-3 py-2 text-slate-600">
-                      {editingId === factor.id
-                        ? <InlineInput value={editForm.option_label} onChange={v => setEditForm(f => ({ ...f, option_label: v }))} placeholder="Label" />
-                        : factor.option_label}
                     </td>
                     <td className="px-3 py-2">
                       {editingId === factor.id
@@ -400,10 +394,6 @@ function FactorsTab({ tableId, factors, onReload }: { tableId: number; factors: 
             <div>
               <label className="text-xs text-slate-500 mb-1 block">Option Value</label>
               <InlineInput value={addForm.option_value} onChange={v => setAddForm(f => ({ ...f, option_value: v }))} placeholder="e.g. yes" />
-            </div>
-            <div>
-              <label className="text-xs text-slate-500 mb-1 block">Option Label</label>
-              <InlineInput value={addForm.option_label} onChange={v => setAddForm(f => ({ ...f, option_label: v }))} placeholder="e.g. Yes" />
             </div>
             <div>
               <label className="text-xs text-slate-500 mb-1 block">Apply Mode</label>
@@ -758,68 +748,33 @@ const MODE_LABELS: Record<string, string> = {
   annual: 'Annual',
 };
 
-function ModalFactorsTab({ tableId, modalFactors, onReload }: { tableId: number; modalFactors: RateModalFactor[]; onReload: () => void }) {
-  const [editingId, setEditingId] = useState<number | null>(null);
-  const [editForm, setEditForm] = useState({ factor: '', flat_fee: '' });
-  const [saving, setSaving] = useState(false);
-
-  const startEdit = (m: RateModalFactor) => {
-    setEditingId(m.id);
-    setEditForm({ factor: String(m.factor), flat_fee: String(m.flat_fee) });
-  };
-
-  const handleSave = async () => {
-    setSaving(true);
-    try {
-      await rateTableAdminService.updateModalFactor(tableId, editingId!, {
-        factor: parseFloat(editForm.factor) || 0,
-        flat_fee: parseFloat(editForm.flat_fee) || 0,
-      });
-      toast.success('Modal factor updated');
-      setEditingId(null);
-      onReload();
-    } catch { toast.error('Failed to update modal factor'); }
-    finally { setSaving(false); }
-  };
-
+function ModalFactorsTab({ modalFactors }: { tableId: number; modalFactors: RateModalFactor[]; onReload: () => void }) {
   const orderedModes = ['annual', 'semiannual', 'quarterly', 'monthly'];
-  const sorted = [...modalFactors].sort((a, b) => orderedModes.indexOf(a.payment_mode) - orderedModes.indexOf(b.payment_mode));
+  const sorted = [...modalFactors].sort((a, b) => orderedModes.indexOf(a.mode) - orderedModes.indexOf(b.mode));
 
   return (
     <div className="overflow-x-auto">
+      <div className="px-4 py-3 border-b border-slate-100">
+        <span className="text-xs text-slate-400">Modal factors are read-only. Manage them via the API.</span>
+      </div>
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b border-slate-100 bg-slate-50">
             <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider p-3">Payment Mode</th>
             <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider p-3">Factor Value</th>
             <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider p-3">Flat Fee</th>
-            <th className="text-right text-xs font-medium text-slate-500 uppercase tracking-wider p-3">Actions</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-50">
           {sorted.map(m => (
             <tr key={m.id} className="hover:bg-slate-50">
-              <td className="p-3 font-medium text-slate-700">{MODE_LABELS[m.payment_mode] ?? m.payment_mode}</td>
-              <td className="p-3 text-slate-700">
-                {editingId === m.id
-                  ? <InlineInput value={editForm.factor} onChange={v => setEditForm(f => ({ ...f, factor: v }))} type="number" className="max-w-[120px]" />
-                  : m.factor.toFixed(4)}
-              </td>
-              <td className="p-3 text-slate-700">
-                {editingId === m.id
-                  ? <InlineInput value={editForm.flat_fee} onChange={v => setEditForm(f => ({ ...f, flat_fee: v }))} type="number" className="max-w-[120px]" />
-                  : `$${m.flat_fee.toFixed(2)}`}
-              </td>
-              <td className="p-3">
-                <RowActions
-                  onEdit={() => startEdit(m)} onDelete={() => toast.info('Modal factors cannot be deleted; edit them instead.')}
-                  editing={editingId === m.id} onSave={handleSave} onCancel={() => setEditingId(null)} saving={saving}
-                />
-              </td>
+              <td className="p-3 font-medium text-slate-700">{MODE_LABELS[m.mode] ?? m.mode}</td>
+              <td className="p-3 text-slate-700">{m.factor.toFixed(4)}</td>
+              <td className="p-3 text-slate-700">{`$${m.flat_fee.toFixed(2)}`}</td>
             </tr>
           ))}
           {sorted.length === 0 && (
-            <tr><td colSpan={4} className="p-6 text-center text-slate-400 text-sm">No modal factors defined.</td></tr>
+            <tr><td colSpan={3} className="p-6 text-center text-slate-400 text-sm">No modal factors defined.</td></tr>
           )}
         </tbody>
       </table>
@@ -870,7 +825,7 @@ export default function AdminRateTableDetailPage() {
 
   const handleClone = async () => {
     if (!table) return;
-    if (!confirm(`Clone rate table "${table.label || table.version}"? A new draft copy will be created.`)) return;
+    if (!confirm(`Clone rate table "${table.name || table.version}"? A new draft copy will be created.`)) return;
     setCloning(true);
     try {
       const cloned = await rateTableAdminService.clone(table.id);
@@ -885,7 +840,7 @@ export default function AdminRateTableDetailPage() {
 
   const handleDelete = async () => {
     if (!table) return;
-    if (!confirm(`Permanently delete rate table "${table.label || table.version}"? This cannot be undone.`)) return;
+    if (!confirm(`Permanently delete rate table "${table.name || table.version}"? This cannot be undone.`)) return;
     setDeleting(true);
     try {
       await rateTableAdminService.delete(table.id);
@@ -928,10 +883,10 @@ export default function AdminRateTableDetailPage() {
       <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
           <div className="space-y-1.5">
-            <h1 className="text-2xl font-bold text-slate-900">{table.label || `${table.carrier_name} – v${table.version}`}</h1>
+            <h1 className="text-2xl font-bold text-slate-900">{table.name || `${table.carrier?.name ?? 'Unknown Carrier'} – v${table.version}`}</h1>
             <div className="flex flex-wrap items-center gap-2">
               <span className="inline-flex items-center rounded-full bg-shield-100 text-shield-700 px-2.5 py-0.5 text-xs font-medium">
-                {table.carrier_name}
+                {table.carrier?.name ?? 'No Carrier'}
               </span>
               <span className="inline-flex items-center rounded-full bg-slate-100 text-slate-600 px-2.5 py-0.5 text-xs font-medium capitalize">
                 {table.product_type}
@@ -1004,17 +959,17 @@ export default function AdminRateTableDetailPage() {
               }`}
             >
               {tab.label}
-              {tab.id === 'entries' && table.entries_count > 0 && (
-                <span className="ml-1.5 text-xs rounded-full bg-slate-100 text-slate-500 px-1.5 py-0.5">{table.entries_count}</span>
+              {tab.id === 'entries' && table.entries.length > 0 && (
+                <span className="ml-1.5 text-xs rounded-full bg-slate-100 text-slate-500 px-1.5 py-0.5">{table.entries.length}</span>
               )}
-              {tab.id === 'factors' && table.factors_count > 0 && (
-                <span className="ml-1.5 text-xs rounded-full bg-slate-100 text-slate-500 px-1.5 py-0.5">{table.factors_count}</span>
+              {tab.id === 'factors' && table.factors.length > 0 && (
+                <span className="ml-1.5 text-xs rounded-full bg-slate-100 text-slate-500 px-1.5 py-0.5">{table.factors.length}</span>
               )}
-              {tab.id === 'riders' && table.riders_count > 0 && (
-                <span className="ml-1.5 text-xs rounded-full bg-slate-100 text-slate-500 px-1.5 py-0.5">{table.riders_count}</span>
+              {tab.id === 'riders' && table.riders.length > 0 && (
+                <span className="ml-1.5 text-xs rounded-full bg-slate-100 text-slate-500 px-1.5 py-0.5">{table.riders.length}</span>
               )}
-              {tab.id === 'fees' && table.fees_count > 0 && (
-                <span className="ml-1.5 text-xs rounded-full bg-slate-100 text-slate-500 px-1.5 py-0.5">{table.fees_count}</span>
+              {tab.id === 'fees' && table.fees.length > 0 && (
+                <span className="ml-1.5 text-xs rounded-full bg-slate-100 text-slate-500 px-1.5 py-0.5">{table.fees.length}</span>
               )}
             </button>
           ))}

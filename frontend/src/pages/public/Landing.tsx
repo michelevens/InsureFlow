@@ -4,7 +4,7 @@ import { Button } from '@/components/ui';
 import {
   Calculator, Users, FileText, ShieldCheck, ArrowRight, Star,
   CheckCircle2, Building2, BarChart3, Route, Lock, Zap, Globe,
-  UserCheck, PieChart, Network, Car, Home, Heart, Activity,
+  UserCheck, PieChart, Network, Car, Heart, Activity,
   Accessibility, Briefcase, Sparkles,
 } from 'lucide-react';
 import { api } from '@/services/api';
