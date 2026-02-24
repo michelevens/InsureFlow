@@ -1,10 +1,12 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button, Input, Select, Card } from '@/components/ui';
-import { Calculator as CalcIcon, ArrowRight, ShieldCheck, Clock, CheckCircle2 } from 'lucide-react';
+import { Calculator as CalcIcon, ArrowRight, ShieldCheck, Clock, CheckCircle2, RotateCcw, X } from 'lucide-react';
 import { quoteService } from '@/services/api';
 import { platformProductService } from '@/services/api/platformProducts';
 import type { PlatformProduct } from '@/types';
+
+const STORAGE_KEY = 'insurons_calculator_draft';
 
 /* ── Product-category → slug mapping for dynamic field rendering ── */
 
@@ -61,45 +63,61 @@ const coverageLevels = [
   { value: 'premium', label: 'Premium — Maximum protection & lowest deductibles' },
 ];
 
+const defaultForm = {
+  insurance_type: '',
+  zip_code: '',
+  coverage_level: 'standard',
+  vehicle_year: '',
+  vehicle_make: '',
+  vehicle_model: '',
+  home_value: '',
+  year_built: '',
+  square_footage: '',
+  date_of_birth: '',
+  smoker: '',
+  coverage_amount: '',
+  health_rating: '',
+  household_size: '',
+  current_coverage: '',
+  occupation: '',
+  annual_income: '',
+  employment_status: '',
+  business_type: '',
+  annual_revenue: '',
+  num_employees: '',
+  years_in_business: '',
+};
+
+function loadDraft(): { form: typeof defaultForm; step: number } | null {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (parsed.form?.insurance_type && parsed.savedAt) {
+      // Expire after 24 hours
+      if (Date.now() - parsed.savedAt > 24 * 60 * 60 * 1000) {
+        localStorage.removeItem(STORAGE_KEY);
+        return null;
+      }
+      return { form: { ...defaultForm, ...parsed.form }, step: parsed.step || 1 };
+    }
+  } catch { /* ignore */ }
+  return null;
+}
+
 export default function Calculator() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const agencyId = searchParams.get('agency_id') ? parseInt(searchParams.get('agency_id')!) : undefined;
-  const [step, setStep] = useState(1);
+
+  const draft = useMemo(() => loadDraft(), []);
+  const [showResumeBanner, setShowResumeBanner] = useState(!!draft);
+  const [step, setStep] = useState(draft?.step || 1);
   const [loading, setLoading] = useState(false);
   const [loadingProducts, setLoadingProducts] = useState(true);
   const [platformProducts, setPlatformProducts] = useState<PlatformProduct[]>([]);
   const [error, setError] = useState('');
-  const [form, setForm] = useState({
-    insurance_type: '',
-    zip_code: '',
-    coverage_level: 'standard',
-    // Vehicle
-    vehicle_year: '',
-    vehicle_make: '',
-    vehicle_model: '',
-    // Property
-    home_value: '',
-    year_built: '',
-    square_footage: '',
-    // Life
-    date_of_birth: '',
-    smoker: '',
-    coverage_amount: '',
-    health_rating: '',
-    // Health
-    household_size: '',
-    current_coverage: '',
-    // Disability
-    occupation: '',
-    annual_income: '',
-    employment_status: '',
-    // Commercial
-    business_type: '',
-    annual_revenue: '',
-    num_employees: '',
-    years_in_business: '',
-  });
+  const [form, setForm] = useState(draft?.form || defaultForm);
 
   // Fetch available products from platform
   useEffect(() => {
@@ -128,7 +146,25 @@ export default function Calculator() {
     [form.insurance_type, platformProducts],
   );
 
-  const update = (field: string, value: string) => setForm(f => ({ ...f, [field]: value }));
+  // Save draft to localStorage on form changes
+  const saveDraft = useCallback((updatedForm: typeof defaultForm, currentStep: number) => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ form: updatedForm, step: currentStep, savedAt: Date.now() }));
+    } catch { /* quota exceeded — ignore */ }
+  }, []);
+
+  const update = (field: string, value: string) => setForm(f => {
+    const next = { ...f, [field]: value };
+    saveDraft(next, step);
+    return next;
+  });
+
+  const handleClearDraft = () => {
+    localStorage.removeItem(STORAGE_KEY);
+    setShowResumeBanner(false);
+    setStep(1);
+    setForm(defaultForm);
+  };
 
   const handleGetQuotes = async () => {
     setLoading(true);
@@ -173,15 +209,21 @@ export default function Calculator() {
         agency_id: agencyId,
       });
 
-      navigate('/calculator/results', {
-        state: {
-          quoteRequestId: result.quote_request_id,
-          quotes: result.quotes,
-          insuranceType: form.insurance_type,
-          coverageLevel: form.coverage_level,
-          zipCode: form.zip_code,
-        },
-      });
+      // Clear draft on successful quote — results are persisted separately
+      localStorage.removeItem(STORAGE_KEY);
+
+      // Persist quote results so QuoteResults survives page refresh
+      const resultsData = {
+        quoteRequestId: result.quote_request_id,
+        quotes: result.quotes,
+        insuranceType: form.insurance_type,
+        coverageLevel: form.coverage_level,
+        zipCode: form.zip_code,
+        savedAt: Date.now(),
+      };
+      try { localStorage.setItem('insurons_quote_results', JSON.stringify(resultsData)); } catch { /* ignore */ }
+
+      navigate('/calculator/results', { state: resultsData });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to get quotes. Please try again.');
     } finally {
@@ -207,6 +249,20 @@ export default function Calculator() {
       </nav>
 
       <div className="max-w-4xl mx-auto px-6 py-12">
+        {/* Welcome back banner for resumed drafts */}
+        {showResumeBanner && (
+          <div className="max-w-2xl mx-auto mb-6 flex items-center justify-between gap-3 px-4 py-3 rounded-xl bg-shield-50 border border-shield-200 text-sm">
+            <div className="flex items-center gap-2 text-shield-700">
+              <RotateCcw className="w-4 h-4" />
+              <span>Welcome back! We saved your progress.</span>
+            </div>
+            <button onClick={handleClearDraft} className="flex items-center gap-1 text-slate-500 hover:text-slate-700">
+              <X className="w-3.5 h-3.5" />
+              Start over
+            </button>
+          </div>
+        )}
+
         {/* Progress */}
         <div className="flex items-center justify-center gap-3 mb-10">
           {[1, 2].map(s => (
@@ -267,7 +323,7 @@ export default function Calculator() {
                   size="lg"
                   className="w-full"
                   rightIcon={<ArrowRight className="w-5 h-5" />}
-                  onClick={() => form.insurance_type && form.zip_code ? setStep(2) : null}
+                  onClick={() => { if (form.insurance_type && form.zip_code) { setStep(2); saveDraft(form, 2); } }}
                   disabled={!form.insurance_type || !form.zip_code}
                 >
                   Continue
@@ -374,7 +430,7 @@ export default function Calculator() {
                 )}
 
                 <div className="flex gap-3">
-                  <Button variant="outline" size="lg" className="flex-1" onClick={() => setStep(1)}>Back</Button>
+                  <Button variant="outline" size="lg" className="flex-1" onClick={() => { setStep(1); saveDraft(form, 1); }}>Back</Button>
                   <Button
                     variant="shield"
                     size="lg"

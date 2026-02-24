@@ -26,11 +26,26 @@ export default function QuoteResults() {
   const [signupError, setSignupError] = useState('');
   const [sortBy, setSortBy] = useState<SortOption>('recommended');
 
-  const quotes: EstimateQuote[] = location.state?.quotes || [];
-  const quoteRequestId: number = location.state?.quoteRequestId;
-  const insuranceType: string = location.state?.insuranceType || 'auto';
-  const coverageLevel: string = location.state?.coverageLevel || 'standard';
-  const zipCode: string = location.state?.zipCode || '';
+  // Try location.state first, fall back to localStorage (survives page refresh)
+  const stateData = useMemo(() => {
+    if (location.state?.quotes?.length) return location.state;
+    try {
+      const raw = localStorage.getItem('insurons_quote_results');
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        // Expire after 24 hours
+        if (parsed.savedAt && Date.now() - parsed.savedAt < 24 * 60 * 60 * 1000) return parsed;
+        localStorage.removeItem('insurons_quote_results');
+      }
+    } catch { /* ignore */ }
+    return null;
+  }, [location.state]);
+
+  const quotes: EstimateQuote[] = stateData?.quotes || [];
+  const quoteRequestId: number = stateData?.quoteRequestId;
+  const insuranceType: string = stateData?.insuranceType || 'auto';
+  const coverageLevel: string = stateData?.coverageLevel || 'standard';
+  const zipCode: string = stateData?.zipCode || '';
 
   const sortedQuotes = useMemo(() => [...quotes].sort((a, b) => {
     switch (sortBy) {
