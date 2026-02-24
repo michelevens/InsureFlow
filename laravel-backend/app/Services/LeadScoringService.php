@@ -116,12 +116,12 @@ class LeadScoringService
 
     private function stageScore(InsuranceProfile $profile): int
     {
-        return match ($profile->stage) {
-            'application' => 15,
-            'quoting' => 12,
-            'qualified' => 10,
-            'contacted' => 7,
-            'new' => 3,
+        return match ($profile->current_stage) {
+            'bound', 'policy' => 15,
+            'application' => 14,
+            'quoted' => 12,
+            'lead' => 10,
+            'intake' => 5,
             default => 0,
         };
     }
@@ -133,6 +133,7 @@ class LeadScoringService
             'referral' => 15,
             'marketplace' => 12,
             'calculator' => 10,
+            'intake_link' => 9,
             'direct' => 8,
             'import' => 5,
             default => 3,

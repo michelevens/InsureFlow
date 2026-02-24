@@ -71,6 +71,11 @@ class InsuranceProfile extends Model
         return $this->belongsTo(Policy::class);
     }
 
+    public function engagementEvents()
+    {
+        return $this->hasMany(LeadEngagementEvent::class);
+    }
+
     // --- Scopes ---
 
     public function scopeForAgency($query, $agencyId)

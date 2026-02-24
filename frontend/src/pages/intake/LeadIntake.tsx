@@ -20,6 +20,9 @@ export default function LeadIntake() {
   const { agencyCode } = useParams();
   const [searchParams] = useSearchParams();
   const agentId = searchParams.get('agent');
+  const utmSource = searchParams.get('utm_source');
+  const utmMedium = searchParams.get('utm_medium');
+  const utmCampaign = searchParams.get('utm_campaign');
 
   const [agencyName, setAgencyName] = useState('');
   const [loading, setLoading] = useState(true);
@@ -65,6 +68,9 @@ export default function LeadIntake() {
       await api.post(`/intake/${agencyCode}`, {
         ...form,
         agent_id: agentId ? Number(agentId) : undefined,
+        utm_source: utmSource || undefined,
+        utm_medium: utmMedium || undefined,
+        utm_campaign: utmCampaign || undefined,
       });
       setSubmitted(true);
     } catch {
