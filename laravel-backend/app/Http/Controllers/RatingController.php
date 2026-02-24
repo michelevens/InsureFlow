@@ -45,10 +45,11 @@ class RatingController extends Controller
      * Get available rating options (factors, riders, fees) for a product type.
      * GET /rate/options/{productType}
      */
-    public function productOptions(string $productType): JsonResponse
+    public function productOptions(Request $request, string $productType): JsonResponse
     {
+        $carrierId = $request->has('carrier_id') ? (int) $request->carrier_id : null;
         $engine = new RatingEngine();
-        $options = $engine->getProductOptions($productType);
+        $options = $engine->getProductOptions($productType, $carrierId);
 
         if (!$options) {
             return response()->json([

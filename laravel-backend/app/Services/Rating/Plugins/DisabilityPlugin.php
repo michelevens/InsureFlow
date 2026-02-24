@@ -52,7 +52,7 @@ class DisabilityPlugin implements ProductPlugin
         $output->engineVersion = self::ENGINE_VERSION;
 
         // Resolve rate table
-        $rateTable = RateTable::activeFor($input->productType, $input->rateTableVersion);
+        $rateTable = RateTable::activeFor($input->productType, $input->carrierId, $input->rateTableVersion);
         if (!$rateTable) {
             $output->eligible = false;
             $output->ineligibleReason = "No active rate table for {$input->productType}";
@@ -151,7 +151,7 @@ class DisabilityPlugin implements ProductPlugin
         $output = new RateOutput();
         $output->engineVersion = self::ENGINE_VERSION;
 
-        $rateTable = RateTable::activeFor($input->productType, $input->rateTableVersion);
+        $rateTable = RateTable::activeFor($input->productType, $input->carrierId, $input->rateTableVersion);
         if (!$rateTable) {
             $output->eligible = false;
             $output->ineligibleReason = "No active rate table for {$input->productType}";

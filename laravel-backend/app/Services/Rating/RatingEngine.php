@@ -127,13 +127,12 @@ class RatingEngine
     /**
      * Get available factors and riders for a product type (for UI).
      */
-    public function getProductOptions(string $productType): ?array
+    public function getProductOptions(string $productType, ?int $carrierId = null): ?array
     {
         $plugin = $this->resolvePlugin($productType);
         if (!$plugin) return null;
 
-        // Use reflection or a static method if available
-        $rateTable = \App\Models\RateTable::activeFor($productType);
+        $rateTable = \App\Models\RateTable::activeFor($productType, $carrierId);
         if (!$rateTable) return null;
 
         return [
@@ -193,6 +192,7 @@ class RatingEngine
         $input = new RateInput();
         $input->productType = $scenario->product_type;
         $input->scenarioId = $scenario->id;
+        $input->carrierId = $scenario->selected_carrier_id;
 
         // Load related data
         $scenario->loadMissing(['insuredObjects', 'coverages']);

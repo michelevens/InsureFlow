@@ -10,6 +10,7 @@ class RateInput
 {
     public string $productType;
     public int $scenarioId;
+    public ?int $carrierId = null;
     public ?string $rateTableVersion = null;
     public string $paymentMode = 'monthly'; // annual, semiannual, quarterly, monthly
 

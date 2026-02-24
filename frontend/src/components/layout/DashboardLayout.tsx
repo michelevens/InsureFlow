@@ -124,6 +124,7 @@ const navSections: NavSection[] = [
       { label: 'Profiles', href: '/admin/profiles', icon: <Database className="w-5 h-5" />, roles: ['admin', 'superadmin'] },
       { label: 'Analytics', href: '/admin/analytics', icon: <BarChart3 className="w-5 h-5" />, roles: ['admin', 'superadmin'] },
       { label: 'Plans', href: '/admin/plans', icon: <DollarSign className="w-5 h-5" />, roles: ['admin', 'superadmin'] },
+      { label: 'Rate Tables', href: '/admin/rate-tables', icon: <Calculator className="w-5 h-5" />, roles: ['admin', 'superadmin'] },
       { label: 'Audit Log', href: '/admin/audit-log', icon: <Activity className="w-5 h-5" />, roles: ['admin', 'superadmin'] },
       { label: 'SSO Config', href: '/admin/sso', icon: <Key className="w-5 h-5" />, roles: ['admin', 'superadmin'] },
       { label: 'API Config', href: '/carrier/api-config', icon: <Plug className="w-5 h-5" />, roles: ['admin', 'superadmin'] },

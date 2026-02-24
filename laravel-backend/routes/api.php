@@ -59,6 +59,7 @@ use App\Http\Controllers\ProfileClaimController;
 use App\Http\Controllers\ConsumerMarketplaceController;
 use App\Http\Controllers\PublicSigningController;
 use App\Http\Controllers\CreditController;
+use App\Http\Controllers\AdminRateTableController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -656,6 +657,30 @@ Route::middleware(['auth:sanctum', 'agency.scope'])->group(function () {
         Route::get('/profiles/list', [ProfileClaimController::class, 'adminList']);
         Route::get('/profiles/stats', [ProfileClaimController::class, 'stats']);
         Route::get('/profiles/sources', [ProfileClaimController::class, 'sources']);
+
+        // Rate Table Management
+        Route::get('/rate-tables/carriers', [AdminRateTableController::class, 'carriers']);
+        Route::get('/rate-tables', [AdminRateTableController::class, 'index']);
+        Route::post('/rate-tables', [AdminRateTableController::class, 'store']);
+        Route::get('/rate-tables/{rateTable}', [AdminRateTableController::class, 'show']);
+        Route::put('/rate-tables/{rateTable}', [AdminRateTableController::class, 'update']);
+        Route::delete('/rate-tables/{rateTable}', [AdminRateTableController::class, 'destroy']);
+        Route::put('/rate-tables/{rateTable}/toggle-status', [AdminRateTableController::class, 'toggleStatus']);
+        Route::post('/rate-tables/{rateTable}/clone', [AdminRateTableController::class, 'cloneTable']);
+        Route::post('/rate-tables/{rateTable}/import-csv', [AdminRateTableController::class, 'importCsv']);
+        // Rate Table sub-resources
+        Route::post('/rate-tables/{rateTable}/entries', [AdminRateTableController::class, 'storeEntry']);
+        Route::put('/rate-tables/{rateTable}/entries/{entry}', [AdminRateTableController::class, 'updateEntry']);
+        Route::delete('/rate-tables/{rateTable}/entries/{entry}', [AdminRateTableController::class, 'destroyEntry']);
+        Route::post('/rate-tables/{rateTable}/factors', [AdminRateTableController::class, 'storeFactor']);
+        Route::put('/rate-tables/{rateTable}/factors/{factor}', [AdminRateTableController::class, 'updateFactor']);
+        Route::delete('/rate-tables/{rateTable}/factors/{factor}', [AdminRateTableController::class, 'destroyFactor']);
+        Route::post('/rate-tables/{rateTable}/riders', [AdminRateTableController::class, 'storeRider']);
+        Route::put('/rate-tables/{rateTable}/riders/{rider}', [AdminRateTableController::class, 'updateRider']);
+        Route::delete('/rate-tables/{rateTable}/riders/{rider}', [AdminRateTableController::class, 'destroyRider']);
+        Route::post('/rate-tables/{rateTable}/fees', [AdminRateTableController::class, 'storeFee']);
+        Route::put('/rate-tables/{rateTable}/fees/{fee}', [AdminRateTableController::class, 'updateFee']);
+        Route::delete('/rate-tables/{rateTable}/fees/{fee}', [AdminRateTableController::class, 'destroyFee']);
     });
 
     // Agency Settings (agency_owner)

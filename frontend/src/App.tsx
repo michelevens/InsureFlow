@@ -100,6 +100,9 @@ const AdminProducts = lazy(() => import('@/pages/admin/AdminProducts'));
 const AdminCarriers = lazy(() => import('@/pages/admin/AdminCarriers'));
 const AdminProfiles = lazy(() => import('@/pages/admin/AdminProfiles'));
 const AdminAuditLog = lazy(() => import('@/pages/admin/AdminAuditLog'));
+const AdminRateTables = lazy(() => import('@/pages/admin/AdminRateTables'));
+const AdminRateTableDetail = lazy(() => import('@/pages/admin/AdminRateTableDetail'));
+const AdminRateTableForm = lazy(() => import('@/pages/admin/AdminRateTableForm'));
 const SuperAdminDashboard = lazy(() => import('@/pages/admin/SuperAdminDashboard'));
 const SuperAdminSettings = lazy(() => import('@/pages/admin/SuperAdminSettings'));
 const SsoConfig = lazy(() => import('@/pages/admin/SsoConfig'));
@@ -286,6 +289,10 @@ export default function App() {
                 <Route path="/admin/profiles" element={<AdminProfiles />} />
                 <Route path="/admin/audit-log" element={<AdminAuditLog />} />
                 <Route path="/admin/sso" element={<SsoConfig />} />
+                <Route path="/admin/rate-tables" element={<AdminRateTables />} />
+                <Route path="/admin/rate-tables/new" element={<AdminRateTableForm />} />
+                <Route path="/admin/rate-tables/:id/edit" element={<AdminRateTableForm />} />
+                <Route path="/admin/rate-tables/:id" element={<AdminRateTableDetail />} />
                 <Route path="/admin/platform" element={<SuperAdminDashboard />} />
                 <Route path="/admin/platform-settings" element={<SuperAdminSettings />} />
 
