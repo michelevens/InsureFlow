@@ -260,16 +260,50 @@ class LeadMarketplaceController extends Controller
     {
         $user = $request->user();
         $data = $request->validate([
-            'insurance_profile_id' => 'required|integer',
+            'insurance_profile_id' => 'nullable|integer|required_without:lead_id',
+            'lead_id' => 'nullable|integer|required_without:insurance_profile_id',
             'asking_price' => 'required|numeric|min:1|max:9999.99',
             'seller_notes' => 'nullable|string|max:500',
             'expires_in_days' => 'nullable|integer|min:1|max:90',
         ]);
 
-        $profile = InsuranceProfile::where('id', $data['insurance_profile_id'])
-            ->where('agency_id', $user->agency_id)
-            ->where('status', 'active')
-            ->first();
+        // Resolve profile from either insurance_profile_id or lead_id
+        if (!empty($data['insurance_profile_id'])) {
+            $profile = InsuranceProfile::where('id', $data['insurance_profile_id'])
+                ->where('agency_id', $user->agency_id)
+                ->where('status', 'active')
+                ->first();
+        } else {
+            $lead = Lead::where('id', $data['lead_id'])
+                ->where('agency_id', $user->agency_id)
+                ->first();
+
+            if (!$lead) {
+                return response()->json(['message' => 'Lead not found or not in your agency'], 404);
+            }
+
+            $profile = InsuranceProfile::where('lead_id', $lead->id)
+                ->where('agency_id', $user->agency_id)
+                ->where('status', 'active')
+                ->first();
+
+            // Auto-create a profile from the lead if none exists
+            if (!$profile) {
+                $profile = InsuranceProfile::create([
+                    'agency_id' => $user->agency_id,
+                    'first_name' => $lead->first_name,
+                    'last_name' => $lead->last_name,
+                    'email' => $lead->email,
+                    'phone' => $lead->phone,
+                    'insurance_type' => $lead->insurance_type,
+                    'coverage_level' => 'standard',
+                    'current_stage' => 'lead',
+                    'lead_id' => $lead->id,
+                    'source' => $lead->source ?? 'crm',
+                    'status' => 'active',
+                ]);
+            }
+        }
 
         if (!$profile) {
             return response()->json(['message' => 'Profile not found or not eligible'], 404);

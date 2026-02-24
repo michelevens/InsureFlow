@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Card, Badge, Button, Input } from '@/components/ui';
 import { Search, ShoppingCart, Tag, MapPin, Clock, Star, TrendingUp, Phone, Mail, DollarSign, RefreshCw, ArrowUpDown } from 'lucide-react';
-import { marketplaceService, type LeadMarketplaceListing, type LeadMarketplaceStats } from '@/services/api/marketplace';
+import { marketplaceService, type LeadMarketplaceListing, type LeadMarketplaceStats, type LeadMarketplaceTransaction } from '@/services/api/marketplace';
 import { toast } from 'sonner';
 
 const GRADE_COLORS: Record<string, 'default' | 'success' | 'warning' | 'danger'> = {
@@ -320,7 +320,7 @@ function ListingCard({ listing, onPurchase, purchasing }: {
 
 function TransactionsTab() {
   const [txType, setTxType] = useState<'all' | 'bought' | 'sold'>('all');
-  const [transactions, setTransactions] = useState<Array<{ id: number; direction: string; purchase_price: string; platform_fee: string; seller_payout: string; status: string; created_at: string; listing?: { insurance_type?: string; state?: string; lead_grade?: string } }>>([]);
+  const [transactions, setTransactions] = useState<LeadMarketplaceTransaction[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

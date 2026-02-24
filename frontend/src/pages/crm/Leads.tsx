@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Card, Badge, Button, Input, Select, Modal, Textarea } from '@/components/ui';
-import { crmService, scenarioService, ratingService } from '@/services/api';
+import { crmService, scenarioService, ratingService, marketplaceService } from '@/services/api';
 import type { Lead } from '@/types';
 import type {
   LeadScenario, Coverage,
@@ -14,7 +14,7 @@ import {
   Search, Phone, Mail, Plus, ChevronRight, ChevronDown,
   User, Car, Home, Building2, HelpCircle, Shield, Trash2, FileText, ArrowRight,
   Layers, Target, ClipboardList, Calculator, DollarSign, History, CheckCircle2,
-  XCircle, TrendingUp, ToggleLeft, ToggleRight, RefreshCw,
+  XCircle, TrendingUp, ToggleLeft, ToggleRight, RefreshCw, ShoppingCart,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -97,6 +97,7 @@ export default function Leads() {
   const [showAddCoverage, setShowAddCoverage] = useState<number | null>(null);
   const [showConvert, setShowConvert] = useState<number | null>(null);
   const [showRating, setShowRating] = useState<number | null>(null);
+  const [showSellLead, setShowSellLead] = useState(false);
 
   // Reference data
   const [productTypes, setProductTypes] = useState<ProductTypeMap>({});
@@ -200,6 +201,9 @@ export default function Leads() {
               </div>
             </div>
           </div>
+          <Button variant="ghost" size="sm" onClick={() => setShowSellLead(true)}>
+            <ShoppingCart className="w-4 h-4 mr-1" /> Sell on Marketplace
+          </Button>
         </div>
 
         {/* Info cards */}
@@ -484,6 +488,14 @@ export default function Leads() {
             scenario={scenarios.find(s => s.id === showRating)!}
             onClose={() => setShowRating(null)}
             onRated={refreshScenarios}
+          />
+        )}
+
+        {showSellLead && selectedLead && (
+          <SellLeadModal
+            lead={selectedLead}
+            onClose={() => setShowSellLead(false)}
+            onListed={() => { setShowSellLead(false); toast.success('Lead listed on marketplace!'); }}
           />
         )}
       </div>
@@ -1566,6 +1578,104 @@ function RatingPanel({ scenario, onClose, onRated }: {
             )}
           </div>
         )}
+      </div>
+    </Modal>
+  );
+}
+
+// ── Sell Lead Modal ─────────────────────────────────
+
+function SellLeadModal({ lead, onClose, onListed }: { lead: Lead; onClose: () => void; onListed: () => void }) {
+  const [askingPrice, setAskingPrice] = useState('');
+  const [notes, setNotes] = useState('');
+  const [expiresIn, setExpiresIn] = useState('30');
+  const [submitting, setSubmitting] = useState(false);
+
+  const handleSubmit = async () => {
+    const price = parseFloat(askingPrice);
+    if (!price || price < 1) {
+      toast.error('Enter a valid asking price ($1 minimum)');
+      return;
+    }
+    setSubmitting(true);
+    try {
+      await marketplaceService.createListing({
+        lead_id: lead.id,
+        asking_price: price,
+        seller_notes: notes || undefined,
+        expires_in_days: parseInt(expiresIn) || 30,
+      });
+      onListed();
+    } catch (err: unknown) {
+      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Failed to list lead';
+      toast.error(msg);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <Modal isOpen title="Sell Lead on Marketplace" onClose={onClose}>
+      <div className="space-y-4">
+        <Card className="p-4 bg-slate-50">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-shield-100 text-shield-700 flex items-center justify-center font-bold">
+              {lead.first_name[0]}{lead.last_name[0]}
+            </div>
+            <div>
+              <p className="font-medium text-slate-900">{lead.first_name} {lead.last_name}</p>
+              <p className="text-sm text-slate-500 capitalize">{lead.insurance_type} &middot; {lead.email}</p>
+            </div>
+          </div>
+        </Card>
+
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-1">Asking Price ($)</label>
+          <Input
+            type="number"
+            min="1"
+            max="9999"
+            step="0.01"
+            placeholder="e.g. 25.00"
+            value={askingPrice}
+            onChange={e => setAskingPrice(e.target.value)}
+            leftIcon={<DollarSign className="w-4 h-4" />}
+          />
+          <p className="text-xs text-slate-400 mt-1">Platform takes a small fee; you receive the remainder.</p>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-1">Seller Notes (optional)</label>
+          <Textarea
+            placeholder="Any details that help buyers (e.g. 'Hot lead, called 2x, ready to quote')"
+            value={notes}
+            onChange={e => setNotes(e.target.value)}
+            rows={3}
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-slate-700 mb-1">Listing Duration</label>
+          <select
+            className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"
+            value={expiresIn}
+            onChange={e => setExpiresIn(e.target.value)}
+          >
+            <option value="7">7 days</option>
+            <option value="14">14 days</option>
+            <option value="30">30 days</option>
+            <option value="60">60 days</option>
+            <option value="90">90 days</option>
+          </select>
+        </div>
+
+        <div className="flex gap-3 pt-2">
+          <Button variant="ghost" className="flex-1" onClick={onClose}>Cancel</Button>
+          <Button variant="shield" className="flex-1" onClick={handleSubmit} disabled={submitting}>
+            <ShoppingCart className="w-4 h-4 mr-1" />
+            {submitting ? 'Listing...' : 'List on Marketplace'}
+          </Button>
+        </div>
       </div>
     </Modal>
   );

@@ -8,7 +8,7 @@ import {
   LayoutDashboard, Calculator, Users, FileText, Briefcase,
   Building2, BarChart3, UserCircle, Settings, LogOut, Menu, X,
   ClipboardList, Target, DollarSign, Star, ShieldCheck, ChevronDown, MessageSquare, Activity, AlertTriangle, RefreshCw, TrendingUp, Key, Plug, Network, CalendarDays, Palette, Code, Award, Database, BookOpen, HelpCircle,
-  MessagesSquare, Calendar, Handshake, Mail, FileBarChart, Video,
+  MessagesSquare, Calendar, Handshake, Mail, FileBarChart, Video, ShoppingCart,
 } from 'lucide-react';
 import type { ReactNode } from 'react';
 import type { UserRole } from '@/types';
@@ -52,6 +52,7 @@ const navSections: NavSection[] = [
     roles: ['agent', 'agency_owner', 'carrier'],
     items: [
       { label: 'Leads', href: '/crm/leads', icon: <Target className="w-5 h-5" />, roles: ['agent', 'agency_owner'] },
+      { label: 'Lead Marketplace', href: '/lead-marketplace', icon: <ShoppingCart className="w-5 h-5" />, roles: ['agent', 'agency_owner'] },
       { label: 'Applications', href: '/applications', icon: <FileText className="w-5 h-5" />, roles: ['agent', 'agency_owner', 'carrier'] },
       { label: 'Policies', href: '/policies', icon: <ShieldCheck className="w-5 h-5" />, roles: ['agent', 'agency_owner'] },
       { label: 'Claims', href: '/claims', icon: <AlertTriangle className="w-5 h-5" />, roles: ['agent', 'agency_owner', 'admin', 'superadmin'] },

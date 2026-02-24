@@ -240,7 +240,8 @@ export const marketplaceService = {
   },
 
   async createListing(data: {
-    insurance_profile_id: number;
+    insurance_profile_id?: number;
+    lead_id?: number;
     asking_price: number;
     seller_notes?: string;
     expires_in_days?: number;
