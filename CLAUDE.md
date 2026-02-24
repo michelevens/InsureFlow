@@ -11,7 +11,7 @@ InsureFlow is a comprehensive insurance marketplace that connects consumers with
 - **Styling:** Tailwind CSS 4.x with custom design system
 - **Routing:** React Router v7
 - **State:** React Query + Context API
-- **UI:** Custom premium components (Shield Blue design)
+- **UI:** Custom premium components (Navy + Teal + Amber palette)
 - **Icons:** Lucide React
 
 ### Backend
@@ -87,9 +87,10 @@ InsureFlow/
 
 ## Design System
 
-### Color Palette (Shield-Inspired)
-- **Shield Blue (Primary):** `#2563eb` - Trust, protection
-- **Confidence Indigo (Secondary):** `#4f46e5` - Authority, expertise
+### Color Palette (Premium Navy + Teal)
+- **Shield Navy (Primary):** `#102a43`→`#f0f4f8` - Deep trust, authority
+- **Confidence Teal (Secondary):** `#014d40`→`#effcf6` - Modern, professional
+- **Amber Accent:** `#f59e0b` - CTAs, warmth, attention
 - **Savings Green (Success):** `#16a34a` - Money saved, growth
 
 ### Component Variants
@@ -187,21 +188,33 @@ php artisan serve
 
 ## Current Status (as of 2026-02-24)
 - **Frontend:** 50+ pages built, TypeScript passes, Vite build succeeds, **GitHub Pages deployment working** (auto-deploys on push)
-- **Backend:** Laravel 12 on Railway — **Phase 5+6+7 deployed**, marketplace tables migrated, all endpoints live
-- **API Domain:** api.insurons.com — WORKING, all endpoints tested
+- **Backend:** Laravel 12 on Railway — **Phase 5+6+7+8 deployed**, marketplace tables migrated, all endpoints live
+- **API Domain:** api.insurons.com — WORKING, CORS fixed for ennhealth.github.io
 - **Database:** All migrations run (including compliance_pack_tables batch 16), 39 compliance requirements seeded
 - **Seed Data:** 5 subscription plans, 10 carriers with products, 6 demo users, 35+ platform products, 10 agencies (50 agents), 70 leads, 3 rate tables (DI LTD, Term Life, LTC) — 180 rate entries + PipelineSeeder (25 applications, 15 policies, 15 commissions, 6 claims, 12 appointments, 20 routing rules) + 39 compliance requirements
 - **Lead Pipeline:** Full InsuranceProfile → Lead → RoutingEngine → LeadScoring pipeline wired for intake submissions
 - **Lead Aging Alerts:** Hourly `leads:check-aging` command — 24h → remind agent, 48h → escalate to agency owner (email + in-app notification)
 - **UTM Attribution:** Frontend reads utm_source/utm_medium/utm_campaign from URL, backend stores in InsuranceProfile details
-- **Lead Marketplace:** Full lead exchange — agencies list excess leads for sale, other agencies browse/purchase, platform takes 15% fee, auto-routes purchased leads through buyer's RoutingEngine. Sidebar nav link + "Sell on Marketplace" button in CRM lead detail.
+- **Lead Marketplace:** Full lead exchange — agencies can only sell own-sourced leads (not marketplace purchases), platform takes 15% fee, auto-routes purchased leads through buyer's RoutingEngine
 - **Rating Engine:** Full plugin architecture with DI/Life/P&C/LTC support, audit trail, versioned rate tables — **tested end-to-end on production**
 - **Product Visibility System:** 3-layer platform→agency→carrier appointment model deployed
 - **Demo Agencies:** 10 agencies (A-J) with 5 agents each, 70 leads, carrier appointments — all seeded on Railway
 - **Admin Overhaul Complete:** SuperAdmin dashboard + 7-tab platform settings (incl. Compliance), Agency Owner 7-tab settings
 - **Auto-Commission:** Creating/binding a policy automatically generates a commission record (10% default)
+- **Design System:** Premium Navy + Teal + Amber palette (refreshed from original bright blue)
+- **Quote UX:** Save & resume (localStorage), comparison matrix, premium breakdown, Lemonade-style progressive disclosure
 
 ## Recent Work
+
+### Phase 8 (2026-02-24) — UX Quick Wins + CORS Fix + Palette Refresh
+- **CORS fix:** Added `ennhealth.github.io` to allowed_origins in `cors.php` — was missing, causing all API requests from the deployed frontend to be blocked by the browser (only `michelevens.github.io` was listed)
+- **Save & resume abandoned quotes:** Calculator auto-saves form draft to localStorage, shows "Welcome back" banner when returning. QuoteResults falls back to localStorage on page refresh (24h expiry)
+- **Coverage comparison matrix:** Toggle between card view and side-by-side comparison table on quote results — carriers as columns, rows for premium, deductible, coverage, AM Best rating, features
+- **Premium breakdown:** Expandable "Premium Breakdown" section on each quote card showing base rate, policy fee, multi-policy discount, monthly total, and annual savings callout
+- **Lemonade-style progressive disclosure:** Calculator Step 2 now shows one question at a time with progress bar, Enter-to-advance, skip links, and smooth fade-in animations (replaces all-fields-at-once layout)
+- **Lead marketplace restriction:** Agencies can only sell leads they acquired through their own intake link or effort — marketplace-purchased leads (`source='marketplace'`) cannot be re-listed. Backend returns 422, frontend hides "Sell" button
+- **Palette refresh:** Deep navy primary (`#102a43`), teal secondary (`#014d40`), amber accent (`#f59e0b`), richer emerald success. Updated gradients, glass morphism, shadows, PWA theme color
+- **Files changed:** `cors.php`, `Calculator.tsx`, `QuoteResults.tsx`, `Leads.tsx`, `LeadMarketplaceController.php`, `index.css`, `vite.config.ts`
 
 ### Phase 7 (2026-02-24) — Marketplace Navigation + Sell Lead from CRM
 - **Lead Marketplace in sidebar:** Added "Lead Marketplace" nav item with ShoppingCart icon to Pipeline section (visible to agent + agency_owner roles) in `DashboardLayout.tsx`
@@ -343,10 +356,10 @@ All passwords: `password`
 Agent emails follow pattern: `contact+AgencyX.agent1@ennhealth.com` through `contact+AgencyX.agent5@ennhealth.com`
 
 ## Known Issues
-- **InsuranceAiService:** `$apiKey` gracefully handled (returns "not configured" message) but still needs `ANTHROPIC_API_KEY` env var on Railway for AI chat to work. `route:list`/`route:cache` issue may persist until key is set.
+- **InsuranceAiService:** `$apiKey` gracefully handled (returns "not configured" message) but still needs `ANTHROPIC_API_KEY` env var on Railway for AI chat to work.
 - **Cache table missing:** `cache:clear` fails because there's no `cache` table in DB. Non-critical (using file/array cache driver instead).
 - **Stripe not configured:** Price IDs in seeded plans are null. Subscriptions return 422 until Stripe keys are added.
-- **Backend redeploy needed:** Phase 5+6 backend changes (pipeline rewire, aging alerts, emails) need Railway deployment.
+- **Backend redeploy needed:** Phase 8 backend changes (CORS fix, marketplace restriction) need Railway deployment. Run `railway up` or wait for auto-deploy.
 - **Scheduler not running:** `leads:check-aging` is registered but Railway needs `php artisan schedule:work` or a cron entry to actually run the scheduler.
 
 ## Session Management Rules
@@ -383,11 +396,7 @@ All 4 core flows tested against production and **PASSING**:
 - **Create cache table:** Run `php artisan cache:table && php artisan migrate` on Railway to fix cache:clear
 - **Configure Stripe:** Add real Stripe API keys to Railway env vars, create products/prices, update seeded plans with real price IDs
 
-### UX Quick Wins (from INTAKE_COMPARISON.md)
-- Save & resume for abandoned quotes (localStorage + "Welcome back" banner)
-- Coverage comparison matrix (side-by-side table view on quote results)
-- Premium breakdown on quote results (base rate, fees, discounts, total)
-- One-at-a-time question mode for Calculator Step 2 (Lemonade-style progressive disclosure)
+### UX Quick Wins (Remaining)
 - Address auto-complete on ZIP code field (Google Places or Mapbox)
 
 ### New Features
@@ -396,9 +405,12 @@ All 4 core flows tested against production and **PASSING**:
 - **Agent notification when compliance pack items are overdue**
 - **Marketplace enhancements:** Lead auction/bidding mode, bulk listing, suggested pricing based on lead score
 - **Consumer portal improvements:** Let consumers track their quote requests, view scenarios, sign applications
+- **Real premium breakdown from backend:** Currently the breakdown is computed client-side with synthetic values — wire to actual rate engine output
 
 ### Testing (Remaining)
+- **Deploy Phase 8 to Railway** and verify CORS fix works in browser (quotes should load now)
 - Test `php artisan leads:check-aging` with stale test leads (needs scheduler running)
 - Test aging reminder email to agent (24h) and escalation to agency owner (48h)
 - Test full UI flow in browser: login → Leads → click lead → Sell on Marketplace → switch agency → browse → buy
+- Verify marketplace restriction: try selling a purchased lead (should be blocked)
 - Load test marketplace with 50+ listings to verify pagination and filters
