@@ -13,12 +13,24 @@ class InsuranceAiService
 
     public function __construct()
     {
-        $this->apiKey = config('services.anthropic.api_key') ?? '';
-        $this->model = config('services.anthropic.model') ?? 'claude-sonnet-4-20250514';
+        $this->apiKey = config('services.anthropic.api_key') ?: null;
+        $this->model = config('services.anthropic.model') ?: 'claude-sonnet-4-20250514';
+    }
+
+    public function isConfigured(): bool
+    {
+        return !empty($this->apiKey);
     }
 
     public function chat(User $user, array $messageHistory, string $contextPage = null): array
     {
+        if (!$this->isConfigured()) {
+            return [
+                'content' => 'AI assistant is not yet configured. Please contact your administrator.',
+                'tokens' => 0,
+            ];
+        }
+
         $systemPrompt = $this->buildSystemPrompt($user, $contextPage);
 
         try {
