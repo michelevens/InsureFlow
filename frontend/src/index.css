@@ -3,54 +3,67 @@
 /* ============================================
    INSUREFLOW DESIGN SYSTEM
    Insurance Marketplace Platform
-   Trust & Protection Inspired Colors
+   Premium Navy + Teal + Amber Palette
    ============================================ */
 
 @theme {
-  /* Shield Blue (Primary) - Trust, protection, security */
-  --color-shield-50: #eff6ff;
-  --color-shield-100: #dbeafe;
-  --color-shield-200: #bfdbfe;
-  --color-shield-300: #93c5fd;
-  --color-shield-400: #60a5fa;
-  --color-shield-500: #3b82f6;
-  --color-shield-600: #2563eb;
-  --color-shield-700: #1d4ed8;
-  --color-shield-800: #1e40af;
-  --color-shield-900: #1e3a8a;
-  --color-shield-950: #172554;
+  /* Shield Navy (Primary) - Deep trust, authority, protection */
+  --color-shield-50: #f0f4f8;
+  --color-shield-100: #d9e2ec;
+  --color-shield-200: #bcccdc;
+  --color-shield-300: #9fb3c8;
+  --color-shield-400: #829ab1;
+  --color-shield-500: #627d98;
+  --color-shield-600: #486581;
+  --color-shield-700: #334e68;
+  --color-shield-800: #243b53;
+  --color-shield-900: #102a43;
+  --color-shield-950: #0a1929;
 
-  /* Confidence Indigo (Secondary) - Authority, reliability */
-  --color-confidence-50: #eef2ff;
-  --color-confidence-100: #e0e7ff;
-  --color-confidence-200: #c7d2fe;
-  --color-confidence-300: #a5b4fc;
-  --color-confidence-400: #818cf8;
-  --color-confidence-500: #6366f1;
-  --color-confidence-600: #4f46e5;
-  --color-confidence-700: #4338ca;
-  --color-confidence-800: #3730a3;
-  --color-confidence-900: #312e81;
-  --color-confidence-950: #1e1b4b;
+  /* Confidence Teal (Secondary) - Modern, professional, reliable */
+  --color-confidence-50: #effcf6;
+  --color-confidence-100: #c6f7e2;
+  --color-confidence-200: #8eedc7;
+  --color-confidence-300: #65d6ad;
+  --color-confidence-400: #3ebd93;
+  --color-confidence-500: #27ab83;
+  --color-confidence-600: #199473;
+  --color-confidence-700: #147d64;
+  --color-confidence-800: #0c6b58;
+  --color-confidence-900: #014d40;
+  --color-confidence-950: #003833;
 
-  /* Savings Green (Accent) - Good value, approved */
-  --color-savings-50: #f0fdf4;
-  --color-savings-100: #dcfce7;
-  --color-savings-200: #bbf7d0;
-  --color-savings-300: #86efac;
-  --color-savings-400: #4ade80;
-  --color-savings-500: #22c55e;
-  --color-savings-600: #16a34a;
-  --color-savings-700: #15803d;
-  --color-savings-800: #166534;
-  --color-savings-900: #14532d;
-  --color-savings-950: #052e16;
+  /* Savings Green (Success) - Growth, approved, money saved */
+  --color-savings-50: #e3f9e5;
+  --color-savings-100: #c1eac5;
+  --color-savings-200: #a3d9a5;
+  --color-savings-300: #7bc47f;
+  --color-savings-400: #57ae5b;
+  --color-savings-500: #3f9142;
+  --color-savings-600: #2f8132;
+  --color-savings-700: #207227;
+  --color-savings-800: #0e5814;
+  --color-savings-900: #05400a;
+  --color-savings-950: #022b07;
 
-  /* Premium shadows */
-  --shadow-glass: 0 8px 32px rgba(37, 99, 235, 0.08);
+  /* Amber Accent - CTAs, warmth, attention */
+  --color-amber-50: #fffbeb;
+  --color-amber-100: #fef3c7;
+  --color-amber-200: #fde68a;
+  --color-amber-300: #fcd34d;
+  --color-amber-400: #fbbf24;
+  --color-amber-500: #f59e0b;
+  --color-amber-600: #d97706;
+  --color-amber-700: #b45309;
+  --color-amber-800: #92400e;
+  --color-amber-900: #78350f;
+  --color-amber-950: #451a03;
+
+  /* Premium shadows - navy-tinted */
+  --shadow-glass: 0 8px 32px rgba(16, 42, 67, 0.08);
   --shadow-premium: 0 4px 24px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
-  --shadow-shield: 0 4px 16px rgba(37, 99, 235, 0.15);
-  --shadow-shield-lg: 0 8px 32px rgba(37, 99, 235, 0.25);
+  --shadow-shield: 0 4px 16px rgba(16, 42, 67, 0.15);
+  --shadow-shield-lg: 0 8px 32px rgba(16, 42, 67, 0.25);
 }
 
 /* Glass morphism utilities */
@@ -62,10 +75,10 @@
 }
 
 .glass-shield {
-  background: linear-gradient(135deg, rgba(37, 99, 235, 0.08), rgba(79, 70, 229, 0.05));
+  background: linear-gradient(135deg, rgba(16, 42, 67, 0.08), rgba(20, 125, 100, 0.05));
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(37, 99, 235, 0.15);
+  border: 1px solid rgba(16, 42, 67, 0.12);
 }
 
 .hover-lift {
@@ -78,11 +91,11 @@
 }
 
 .gradient-shield {
-  background: linear-gradient(135deg, #2563eb, #4f46e5);
+  background: linear-gradient(135deg, #243b53, #147d64);
 }
 
 .gradient-trust {
-  background: linear-gradient(135deg, #1e40af, #312e81);
+  background: linear-gradient(135deg, #102a43, #014d40);
 }
 
 html {

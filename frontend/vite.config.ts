@@ -16,7 +16,7 @@ export default defineConfig({
         name: 'Insurons — Insurance Platform',
         short_name: 'Insurons',
         description: 'The modern insurance platform for agents, agencies, and consumers',
-        theme_color: '#1e40af',
+        theme_color: '#102a43',
         background_color: '#f8fafc',
         display: 'standalone',
         orientation: 'portrait-primary',
