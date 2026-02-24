@@ -118,6 +118,7 @@ export default function Calculator() {
   const [platformProducts, setPlatformProducts] = useState<PlatformProduct[]>([]);
   const [error, setError] = useState('');
   const [form, setForm] = useState(draft?.form || defaultForm);
+  const [subStep, setSubStep] = useState(0);
 
   // Fetch available products from platform
   useEffect(() => {
@@ -145,6 +146,70 @@ export default function Calculator() {
     () => form.insurance_type ? resolveCategory(form.insurance_type, platformProducts) : 'generic',
     [form.insurance_type, platformProducts],
   );
+
+  // Define fields per category for progressive disclosure
+  type FieldDef = { field: string; label: string; placeholder?: string; type?: string; options?: { value: string; label: string }[] };
+  const step2Fields: FieldDef[] = useMemo(() => {
+    switch (fieldCategory) {
+      case 'vehicle': return [
+        { field: 'vehicle_year', label: 'What year is your vehicle?', placeholder: '2024' },
+        { field: 'vehicle_make', label: 'What make?', placeholder: 'Toyota' },
+        { field: 'vehicle_model', label: 'What model?', placeholder: 'Camry' },
+      ];
+      case 'property': return [
+        { field: 'home_value', label: 'What is your home\'s estimated value?', placeholder: '$350,000' },
+        { field: 'year_built', label: 'What year was it built?', placeholder: '1995' },
+        { field: 'square_footage', label: 'How many square feet?', placeholder: '2,000' },
+      ];
+      case 'life': return [
+        { field: 'date_of_birth', label: 'What is your date of birth?', type: 'date' },
+        { field: 'smoker', label: 'What is your smoker status?', options: [
+          { value: 'non_smoker', label: 'Non-Smoker' }, { value: 'smoker', label: 'Smoker' }, { value: 'former_smoker', label: 'Former Smoker (quit 2+ yrs)' },
+        ]},
+        { field: 'coverage_amount', label: 'How much coverage do you want?', placeholder: '$500,000' },
+        { field: 'health_rating', label: 'How would you rate your general health?', options: [
+          { value: 'excellent', label: 'Excellent' }, { value: 'good', label: 'Good' }, { value: 'average', label: 'Average' }, { value: 'below_average', label: 'Below Average' },
+        ]},
+      ];
+      case 'health': return [
+        { field: 'date_of_birth', label: 'What is your date of birth?', type: 'date' },
+        { field: 'household_size', label: 'How many people need coverage?', options: [
+          { value: '1', label: 'Just me' }, { value: '2', label: 'Me + spouse/partner' }, { value: '3', label: 'Me + 1 dependent' }, { value: '4', label: 'Me + spouse + 1 dependent' }, { value: '5+', label: 'Family (5+)' },
+        ]},
+        { field: 'current_coverage', label: 'Do you have coverage now?', options: [
+          { value: 'none', label: 'No current coverage' }, { value: 'employer', label: 'Employer plan (switching)' }, { value: 'marketplace', label: 'Marketplace / ACA plan' }, { value: 'other', label: 'Other' },
+        ]},
+      ];
+      case 'disability': return [
+        { field: 'date_of_birth', label: 'What is your date of birth?', type: 'date' },
+        { field: 'occupation', label: 'What is your occupation?', placeholder: 'Software Engineer' },
+        { field: 'annual_income', label: 'What is your annual income?', placeholder: '$85,000' },
+        { field: 'employment_status', label: 'What is your employment status?', options: [
+          { value: 'employed', label: 'Employed (W-2)' }, { value: 'self_employed', label: 'Self-Employed' }, { value: 'business_owner', label: 'Business Owner' }, { value: 'part_time', label: 'Part-Time' },
+        ]},
+      ];
+      case 'commercial': return [
+        { field: 'business_type', label: 'What type of business?', placeholder: 'Restaurant, Tech Startup, etc.' },
+        { field: 'annual_revenue', label: 'What is your annual revenue?', placeholder: '$500,000' },
+        { field: 'num_employees', label: 'How many employees?', placeholder: '12' },
+        { field: 'years_in_business', label: 'How many years in business?', placeholder: '5' },
+      ];
+      default: return [];
+    }
+  }, [fieldCategory]);
+
+  const totalSubSteps = step2Fields.length;
+  const currentField = step2Fields[subStep];
+  const currentFieldValue = currentField ? (form as Record<string, string>)[currentField.field] || '' : '';
+  const isLastSubStep = subStep >= totalSubSteps - 1;
+
+  const advanceSubStep = () => {
+    if (isLastSubStep) {
+      handleGetQuotes();
+    } else {
+      setSubStep(s => s + 1);
+    }
+  };
 
   // Save draft to localStorage on form changes
   const saveDraft = useCallback((updatedForm: typeof defaultForm, currentStep: number) => {
@@ -323,7 +388,7 @@ export default function Calculator() {
                   size="lg"
                   className="w-full"
                   rightIcon={<ArrowRight className="w-5 h-5" />}
-                  onClick={() => { if (form.insurance_type && form.zip_code) { setStep(2); saveDraft(form, 2); } }}
+                  onClick={() => { if (form.insurance_type && form.zip_code) { setStep(2); setSubStep(0); saveDraft(form, 2); } }}
                   disabled={!form.insurance_type || !form.zip_code}
                 >
                   Continue
@@ -333,90 +398,48 @@ export default function Calculator() {
 
             {step === 2 && (
               <div className="space-y-5">
-                {/* Vehicle fields */}
-                {fieldCategory === 'vehicle' && (
-                  <>
-                    <Input label="Vehicle Year" placeholder="2024" value={form.vehicle_year} onChange={e => update('vehicle_year', e.target.value)} />
-                    <Input label="Vehicle Make" placeholder="Toyota" value={form.vehicle_make} onChange={e => update('vehicle_make', e.target.value)} />
-                    <Input label="Vehicle Model" placeholder="Camry" value={form.vehicle_model} onChange={e => update('vehicle_model', e.target.value)} />
-                  </>
+                {/* Sub-step progress */}
+                {totalSubSteps > 0 && (
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between text-xs text-slate-500">
+                      <span>Question {subStep + 1} of {totalSubSteps}</span>
+                      <span>{Math.round(((subStep + 1) / totalSubSteps) * 100)}%</span>
+                    </div>
+                    <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-shield-500 rounded-full transition-all duration-500 ease-out"
+                        style={{ width: `${((subStep + 1) / totalSubSteps) * 100}%` }}
+                      />
+                    </div>
+                  </div>
                 )}
 
-                {/* Property fields */}
-                {fieldCategory === 'property' && (
-                  <>
-                    <Input label="Home Value" placeholder="$350,000" value={form.home_value} onChange={e => update('home_value', e.target.value)} />
-                    <Input label="Year Built" placeholder="1995" value={form.year_built} onChange={e => update('year_built', e.target.value)} />
-                    <Input label="Square Footage" placeholder="2,000" value={form.square_footage} onChange={e => update('square_footage', e.target.value)} />
-                  </>
-                )}
-
-                {/* Life insurance fields */}
-                {fieldCategory === 'life' && (
-                  <>
-                    <Input label="Date of Birth" type="date" value={form.date_of_birth} onChange={e => update('date_of_birth', e.target.value)} />
-                    <Select label="Smoker Status" options={[
-                      { value: 'non_smoker', label: 'Non-Smoker' },
-                      { value: 'smoker', label: 'Smoker' },
-                      { value: 'former_smoker', label: 'Former Smoker (quit 2+ yrs)' },
-                    ]} placeholder="Select status" value={form.smoker} onChange={e => update('smoker', e.target.value)} />
-                    <Input label="Desired Coverage Amount" placeholder="$500,000" value={form.coverage_amount} onChange={e => update('coverage_amount', e.target.value)} />
-                    <Select label="General Health" options={[
-                      { value: 'excellent', label: 'Excellent' },
-                      { value: 'good', label: 'Good' },
-                      { value: 'average', label: 'Average' },
-                      { value: 'below_average', label: 'Below Average' },
-                    ]} placeholder="Select health rating" value={form.health_rating} onChange={e => update('health_rating', e.target.value)} />
-                  </>
-                )}
-
-                {/* Health insurance fields */}
-                {fieldCategory === 'health' && (
-                  <>
-                    <Input label="Date of Birth" type="date" value={form.date_of_birth} onChange={e => update('date_of_birth', e.target.value)} />
-                    <Select label="Household Size" options={[
-                      { value: '1', label: 'Just me' },
-                      { value: '2', label: 'Me + spouse/partner' },
-                      { value: '3', label: 'Me + 1 dependent' },
-                      { value: '4', label: 'Me + spouse + 1 dependent' },
-                      { value: '5+', label: 'Family (5+)' },
-                    ]} placeholder="Select household size" value={form.household_size} onChange={e => update('household_size', e.target.value)} />
-                    <Select label="Current Coverage" options={[
-                      { value: 'none', label: 'No current coverage' },
-                      { value: 'employer', label: 'Employer plan (switching)' },
-                      { value: 'marketplace', label: 'Marketplace / ACA plan' },
-                      { value: 'other', label: 'Other' },
-                    ]} placeholder="Select current coverage" value={form.current_coverage} onChange={e => update('current_coverage', e.target.value)} />
-                  </>
-                )}
-
-                {/* Disability / LTC fields */}
-                {fieldCategory === 'disability' && (
-                  <>
-                    <Input label="Date of Birth" type="date" value={form.date_of_birth} onChange={e => update('date_of_birth', e.target.value)} />
-                    <Input label="Occupation" placeholder="Software Engineer" value={form.occupation} onChange={e => update('occupation', e.target.value)} />
-                    <Input label="Annual Income" placeholder="$85,000" value={form.annual_income} onChange={e => update('annual_income', e.target.value)} />
-                    <Select label="Employment Status" options={[
-                      { value: 'employed', label: 'Employed (W-2)' },
-                      { value: 'self_employed', label: 'Self-Employed' },
-                      { value: 'business_owner', label: 'Business Owner' },
-                      { value: 'part_time', label: 'Part-Time' },
-                    ]} placeholder="Select status" value={form.employment_status} onChange={e => update('employment_status', e.target.value)} />
-                  </>
-                )}
-
-                {/* Commercial fields */}
-                {fieldCategory === 'commercial' && (
-                  <>
-                    <Input label="Business Type / Industry" placeholder="Restaurant, Tech Startup, etc." value={form.business_type} onChange={e => update('business_type', e.target.value)} />
-                    <Input label="Annual Revenue" placeholder="$500,000" value={form.annual_revenue} onChange={e => update('annual_revenue', e.target.value)} />
-                    <Input label="Number of Employees" placeholder="12" value={form.num_employees} onChange={e => update('num_employees', e.target.value)} />
-                    <Input label="Years in Business" placeholder="5" value={form.years_in_business} onChange={e => update('years_in_business', e.target.value)} />
-                  </>
-                )}
-
-                {/* Generic fallback */}
-                {fieldCategory === 'generic' && (
+                {/* Progressive disclosure: one field at a time */}
+                {currentField ? (
+                  <div key={currentField.field} className="animate-fade-in">
+                    <h3 className="text-lg font-semibold text-slate-800 mb-4">{currentField.label}</h3>
+                    {currentField.options ? (
+                      <Select
+                        label=""
+                        options={currentField.options}
+                        placeholder="Select one..."
+                        value={currentFieldValue}
+                        onChange={e => { update(currentField.field, e.target.value); }}
+                      />
+                    ) : (
+                      <Input
+                        label=""
+                        type={currentField.type || 'text'}
+                        placeholder={currentField.placeholder || ''}
+                        value={currentFieldValue}
+                        onChange={e => update(currentField.field, e.target.value)}
+                        onKeyDown={e => { if (e.key === 'Enter' && currentFieldValue) advanceSubStep(); }}
+                        autoFocus
+                      />
+                    )}
+                  </div>
+                ) : (
+                  /* Generic fallback (no fields for this category) */
                   <div className="text-center py-8">
                     <CalcIcon className="w-12 h-12 text-shield-400 mx-auto mb-3" />
                     <p className="text-slate-600">Great choice! We'll match you with the best {selectedProductName} rates in your area.</p>
@@ -430,18 +453,35 @@ export default function Calculator() {
                 )}
 
                 <div className="flex gap-3">
-                  <Button variant="outline" size="lg" className="flex-1" onClick={() => { setStep(1); saveDraft(form, 1); }}>Back</Button>
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    className="flex-1"
+                    onClick={() => {
+                      if (subStep > 0) { setSubStep(s => s - 1); }
+                      else { setStep(1); saveDraft(form, 1); }
+                    }}
+                  >
+                    Back
+                  </Button>
                   <Button
                     variant="shield"
                     size="lg"
                     className="flex-1"
                     rightIcon={<ArrowRight className="w-5 h-5" />}
-                    onClick={handleGetQuotes}
+                    onClick={advanceSubStep}
                     isLoading={loading}
                   >
-                    Get My Quotes
+                    {isLastSubStep || totalSubSteps === 0 ? 'Get My Quotes' : 'Continue'}
                   </Button>
                 </div>
+
+                {/* Skip hint */}
+                {!isLastSubStep && totalSubSteps > 0 && (
+                  <p className="text-center text-xs text-slate-400">
+                    Press Enter to continue or <button type="button" onClick={advanceSubStep} className="text-shield-500 hover:underline">skip</button>
+                  </p>
+                )}
               </div>
             )}
           </div>
