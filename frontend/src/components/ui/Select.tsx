@@ -3,15 +3,19 @@ import type { SelectHTMLAttributes } from 'react';
 import { cn } from '@/lib/utils';
 import { ChevronDown } from 'lucide-react';
 
+interface SelectOption { value: string; label: string }
+interface SelectOptionGroup { label: string; options: SelectOption[] }
+
 interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
   label?: string;
   error?: string;
-  options: { value: string; label: string }[];
+  options: SelectOption[];
+  groups?: SelectOptionGroup[];
   placeholder?: string;
 }
 
 const Select = forwardRef<HTMLSelectElement, SelectProps>(
-  ({ className, label, error, options, placeholder, id, ...props }, ref) => {
+  ({ className, label, error, options, groups, placeholder, id, ...props }, ref) => {
     const selectId = id || props.name;
 
     return (
@@ -33,7 +37,13 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(
             {...props}
           >
             {placeholder && <option value="">{placeholder}</option>}
-            {options.map((opt) => (
+            {groups ? groups.map((g) => (
+              <optgroup key={g.label} label={g.label}>
+                {g.options.map((opt) => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </optgroup>
+            )) : options.map((opt) => (
               <option key={opt.value} value={opt.value}>{opt.label}</option>
             ))}
           </select>
