@@ -187,7 +187,7 @@ php artisan serve
 
 ## Current Status (as of 2026-02-24)
 - **Frontend:** 50+ pages built, TypeScript passes, Vite build succeeds, **GitHub Pages deployment working** (auto-deploys on push)
-- **Backend:** Laravel 12 on Railway — needs redeploy for Phase 5+6+7 backend changes
+- **Backend:** Laravel 12 on Railway — **Phase 5+6+7 deployed**, marketplace tables migrated, all endpoints live
 - **API Domain:** api.insurons.com — WORKING, all endpoints tested
 - **Database:** All migrations run (including compliance_pack_tables batch 16), 39 compliance requirements seeded
 - **Seed Data:** 5 subscription plans, 10 carriers with products, 6 demo users, 35+ platform products, 10 agencies (50 agents), 70 leads, 3 rate tables (DI LTD, Term Life, LTC) — 180 rate entries + PipelineSeeder (25 applications, 15 policies, 15 commissions, 6 claims, 12 appointments, 20 routing rules) + 39 compliance requirements
@@ -369,25 +369,36 @@ Agent emails follow pattern: `contact+AgencyX.agent1@ennhealth.com` through `con
 - Always run `npx tsc -b --noEmit` before committing frontend changes
 - Working directory: `c:\Users\BellaCare_MICROPC\OneDrive - EnnHealth\Documents\GitHub\InsureFlow`
 
+## E2E Test Results (2026-02-24)
+All 4 core flows tested against production and **PASSING**:
+1. **Consumer quote flow:** Calculator estimate → 3+ carrier quotes → save contact → lead 115 created, routed to agent
+2. **Agency intake link:** `/intake/AGYA347` → lead 116 (Jane Smith, homeowners, FL) → profile created, routed to agent 53
+3. **Agent CRM view:** Agency A owner sees lead 116 with notes (ZIP, timeline, consumer message)
+4. **Marketplace sell→buy:** Agency A lists lead for $25 → Agency B browses, purchases → lead 117 in buyer CRM with full contact. Seller gets $21.25 (85%), platform fee $3.75 (15%)
+
 ## Next Tasks
-- **Deploy backend to Railway:** `cd laravel-backend && railway up` to deploy Phase 5+6+7 backend changes (pipeline rewire, aging alerts, lead marketplace, sell-lead endpoint)
-- **Run new migration:** `php artisan migrate` on Railway to create `lead_marketplace_listings` + `lead_marketplace_transactions` tables
+
+### Infrastructure & Config
 - **Configure scheduler on Railway:** Add `php artisan schedule:work` as a worker process or cron job so `leads:check-aging` actually runs
 - **Create cache table:** Run `php artisan cache:table && php artisan migrate` on Railway to fix cache:clear
-- **Configure Stripe:** Add real Stripe API keys to Railway env vars, create products/prices, update seeded plans
-- **Implement more INTAKE_COMPARISON.md quick wins:**
-  - One-at-a-time question mode for Calculator Step 2 (Lemonade-style progressive disclosure)
-  - Address auto-complete on ZIP code field (Google Places or Mapbox)
-  - Save & resume for abandoned quotes (localStorage + "Welcome back" banner)
-  - Premium breakdown on quote results (base rate, fees, discounts, total)
-  - Coverage comparison matrix (side-by-side table view)
-- **Test Phase 4+5+6+7 end-to-end:**
-  - Test lead intake form at `/intake/{agencyCode}?utm_source=test` → verify profile created, lead routed, score calculated, emails sent
-  - Test `php artisan leads:check-aging` with stale test leads
-  - Test lead marketplace: list a lead from CRM → browse as another agency → purchase → verify new lead created in buyer CRM
-  - Test "Sell on Marketplace" button: open lead detail → sell → verify listing appears in Lead Marketplace
-  - Login as agent → Leads → verify aging reminder appears
-  - Login as agency_owner → verify escalation notification
-- Add real carrier API integrations
-- Agent notification when compliance pack items are overdue
-- Embeddable quote widget (iframe/web component for agency websites)
+- **Configure Stripe:** Add real Stripe API keys to Railway env vars, create products/prices, update seeded plans with real price IDs
+
+### UX Quick Wins (from INTAKE_COMPARISON.md)
+- Save & resume for abandoned quotes (localStorage + "Welcome back" banner)
+- Coverage comparison matrix (side-by-side table view on quote results)
+- Premium breakdown on quote results (base rate, fees, discounts, total)
+- One-at-a-time question mode for Calculator Step 2 (Lemonade-style progressive disclosure)
+- Address auto-complete on ZIP code field (Google Places or Mapbox)
+
+### New Features
+- **Embeddable quote widget:** iframe/web component agencies can put on their own websites
+- **Real carrier API integrations:** Connect to actual carrier rating APIs (Progressive, Travelers, etc.)
+- **Agent notification when compliance pack items are overdue**
+- **Marketplace enhancements:** Lead auction/bidding mode, bulk listing, suggested pricing based on lead score
+- **Consumer portal improvements:** Let consumers track their quote requests, view scenarios, sign applications
+
+### Testing (Remaining)
+- Test `php artisan leads:check-aging` with stale test leads (needs scheduler running)
+- Test aging reminder email to agent (24h) and escalation to agency owner (48h)
+- Test full UI flow in browser: login → Leads → click lead → Sell on Marketplace → switch agency → browse → buy
+- Load test marketplace with 50+ listings to verify pagination and filters
