@@ -55,6 +55,7 @@
     7.  invitation.blade.php         — $inviterName, $agencyName, $inviteUrl, $role
     8.  account-approved.blade.php   — $user
     9.  registration-received.blade.php — $user
+    10. lead-intake-confirmation.blade.php — $firstName, $agencyName, $insuranceType
 
     FRONTEND URL
     ─────────────
