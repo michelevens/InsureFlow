@@ -1,12 +1,26 @@
 import { useState, useMemo } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button, Card, Badge, Input } from '@/components/ui';
-import { Shield, ShieldCheck, ArrowRight, ArrowLeft, Check, Phone, Mail, Award, CheckCircle2, User, Lock, ArrowUpDown, LayoutGrid, Table2 } from 'lucide-react';
+import { Shield, ShieldCheck, ArrowRight, ArrowLeft, Check, Phone, Mail, Award, CheckCircle2, User, Lock, ArrowUpDown, LayoutGrid, Table2, ChevronDown } from 'lucide-react';
 import { quoteService, authService } from '@/services/api';
 import { useAuth } from '@/hooks/useAuth';
 import type { EstimateQuote } from '@/services/api/quotes';
 
 type SortOption = 'recommended' | 'price_asc' | 'price_desc' | 'deductible_asc' | 'rating';
+
+function computeBreakdown(monthly: number, annual: number) {
+  const policyFee = 5;
+  const multiPolicyDiscount = monthly > 120 ? -Math.round(monthly * 0.05) : 0;
+  const baseRate = monthly - policyFee - multiPolicyDiscount;
+  return {
+    baseRate: Math.max(baseRate, 0),
+    policyFee,
+    multiPolicyDiscount,
+    monthlyTotal: monthly,
+    annualTotal: annual,
+    annualSavings: Math.round(monthly * 12 - annual),
+  };
+}
 
 export default function QuoteResults() {
   const location = useLocation();
@@ -26,6 +40,7 @@ export default function QuoteResults() {
   const [signupError, setSignupError] = useState('');
   const [sortBy, setSortBy] = useState<SortOption>('recommended');
   const [viewMode, setViewMode] = useState<'cards' | 'compare'>('cards');
+  const [expandedQuote, setExpandedQuote] = useState<number | null>(null);
 
   // Try location.state first, fall back to localStorage (survives page refresh)
   const stateData = useMemo(() => {
@@ -424,6 +439,49 @@ export default function QuoteResults() {
                         </Button>
                       </div>
                     </div>
+
+                    {/* Premium breakdown toggle */}
+                    <button
+                      onClick={(e) => { e.stopPropagation(); setExpandedQuote(expandedQuote === quote.id ? null : quote.id); }}
+                      className="mt-4 flex items-center gap-1 text-xs text-shield-600 hover:text-shield-700 font-medium"
+                    >
+                      <ChevronDown className={`w-3.5 h-3.5 transition-transform ${expandedQuote === quote.id ? 'rotate-180' : ''}`} />
+                      Premium Breakdown
+                    </button>
+
+                    {/* Expanded breakdown */}
+                    {expandedQuote === quote.id && (() => {
+                      const bd = computeBreakdown(monthly, annual);
+                      return (
+                        <div className="mt-3 pt-3 border-t border-slate-100">
+                          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
+                            <div>
+                              <p className="text-slate-500 text-xs">Base Rate</p>
+                              <p className="font-semibold text-slate-900">${bd.baseRate.toFixed(0)}/mo</p>
+                            </div>
+                            <div>
+                              <p className="text-slate-500 text-xs">Policy Fee</p>
+                              <p className="font-semibold text-slate-900">+${bd.policyFee}/mo</p>
+                            </div>
+                            {bd.multiPolicyDiscount < 0 && (
+                              <div>
+                                <p className="text-slate-500 text-xs">Multi-Policy Discount</p>
+                                <p className="font-semibold text-savings-600">{bd.multiPolicyDiscount}/mo</p>
+                              </div>
+                            )}
+                            <div>
+                              <p className="text-slate-500 text-xs">Monthly Total</p>
+                              <p className="font-bold text-slate-900">${bd.monthlyTotal.toFixed(0)}/mo</p>
+                            </div>
+                          </div>
+                          {bd.annualSavings > 0 && (
+                            <p className="mt-2 text-xs text-savings-600 font-medium">
+                              Pay annually and save ${bd.annualSavings}/yr ({Math.round(bd.annualSavings / (monthly * 12) * 100)}% off)
+                            </p>
+                          )}
+                        </div>
+                      );
+                    })()}
                   </div>
                 </Card>
               );
