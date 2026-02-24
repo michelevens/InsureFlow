@@ -13,6 +13,7 @@ use App\Models\LeadScenario;
 use App\Models\PlatformProduct;
 use App\Models\Quote;
 use App\Models\QuoteRequest;
+use App\Helpers\ZipToState;
 use App\Services\RoutingEngine;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -77,10 +78,18 @@ class QuoteController extends Controller
             'date_of_birth' => $data['date_of_birth'] ?? null,
         ]);
 
+        // Derive state from ZIP code for geographic filtering
+        $state = ZipToState::resolve($data['zip_code']);
+
         // Get matching carrier products, filtered by agency appointments if applicable
         $query = CarrierProduct::where('insurance_type', $data['insurance_type'])
             ->where('is_active', true)
-            ->whereHas('carrier', fn($q) => $q->where('is_active', true))
+            ->whereHas('carrier', function ($q) use ($state) {
+                $q->where('is_active', true);
+                if ($state) {
+                    $q->whereJsonContains('states_available', $state);
+                }
+            })
             ->with('carrier');
 
         if ($agencyId && $platformProduct) {
@@ -139,6 +148,7 @@ class QuoteController extends Controller
             'quote_request_id' => $quoteRequest->id,
             'profile_id' => $profile->id,
             'quotes' => $quotes,
+            'state' => $state,
         ]);
     }
 
