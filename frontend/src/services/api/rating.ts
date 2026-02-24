@@ -3,22 +3,22 @@ import { api } from './client';
 // ── Types ─────────────────────────────────────────
 
 export interface RatingFactorOption {
-  factor_code: string;
-  factor_label: string;
-  option_value: string;
-  option_label: string;
-  factor_value: number;
-  apply_mode: 'multiply' | 'add' | 'subtract';
-  sort_order: number;
+  value: string;
+  factor: number;
+  mode: 'multiply' | 'add' | 'subtract';
+}
+
+export interface RatingFactorGroup {
+  label: string;
+  options: RatingFactorOption[];
 }
 
 export interface RatingRiderOption {
-  rider_code: string;
-  rider_label: string;
-  rider_value: number;
-  apply_mode: 'add' | 'multiply';
-  is_default: boolean;
-  sort_order: number;
+  code: string;
+  label: string;
+  value: number;
+  mode: 'add' | 'multiply';
+  default: boolean;
 }
 
 export interface RatingFee {
@@ -33,7 +33,7 @@ export interface RatingFee {
 export interface RatingOptions {
   product_type: string;
   rate_table_version: string;
-  factors: Record<string, RatingFactorOption[]>;
+  factors: Record<string, RatingFactorGroup>;
   riders: RatingRiderOption[];
   fees: RatingFee[];
   modal_factors: { mode: string; factor: number; flat_fee: number }[];
@@ -123,7 +123,8 @@ export interface RegisteredProduct {
 export const ratingService = {
   /** Rate a scenario using the plugin engine */
   async rateScenario(scenarioId: number, payload?: RateScenarioPayload): Promise<RatingResult> {
-    return api.post<RatingResult>(`/rate/scenario/${scenarioId}`, payload);
+    const res = await api.post<{ rating: RatingResult; scenario_id: number; product_type: string }>(`/rate/scenario/${scenarioId}`, payload);
+    return res.rating;
   },
 
   /** Get available factors, riders, and fees for a product type (to build the UI) */

@@ -72,7 +72,7 @@ export type { ReportDefinition, ReportRun } from './reports';
 export { videoMeetingService } from './videoMeetings';
 export type { VideoMeeting, VideoMeetingSetting, MeetingStatus, MeetingType, MeetingLink } from './videoMeetings';
 export { ratingService } from './rating';
-export type { RatingResult, RatingOptions, RatingRunAudit, RatingFactorOption, RatingRiderOption, RatingFee, RateScenarioPayload, FactorApplied, RiderApplied, FeeApplied, RegisteredProduct } from './rating';
+export type { RatingResult, RatingOptions, RatingRunAudit, RatingFactorOption, RatingFactorGroup, RatingRiderOption, RatingFee, RateScenarioPayload, FactorApplied, RiderApplied, FeeApplied, RegisteredProduct } from './rating';
 export { onboardingService } from './onboarding';
 export type { OnboardingFormData, AgencyOnboardingPayload, AgentOnboardingPayload } from './onboarding';
 export { profileClaimService } from './profileClaim';

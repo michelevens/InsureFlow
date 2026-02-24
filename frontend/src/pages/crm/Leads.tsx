@@ -1175,7 +1175,7 @@ function RatingPanel({ scenario, onClose, onRated }: {
         setOptions(opts);
         // Pre-select default riders
         const defaults: Record<string, boolean> = {};
-        opts.riders.forEach(r => { defaults[r.rider_code] = r.is_default; });
+        opts.riders.forEach(r => { defaults[r.code] = r.default; });
         setRiderSelections(defaults);
       })
       .catch(() => toast.error('Failed to load rating options'))
@@ -1303,10 +1303,10 @@ function RatingPanel({ scenario, onClose, onRated }: {
                       <TrendingUp className="w-4 h-4" /> Rating Factors
                     </h3>
                     <div className="grid grid-cols-2 gap-3">
-                      {factorGroups.map(([code, opts]) => (
+                      {factorGroups.map(([code, group]) => (
                         <div key={code}>
-                          <label className="text-xs font-medium text-slate-600 block mb-1 capitalize">
-                            {code.replace(/_/g, ' ')}
+                          <label className="text-xs font-medium text-slate-600 block mb-1">
+                            {group.label || code.replace(/_/g, ' ')}
                           </label>
                           <select
                             className="w-full text-sm border border-slate-200 rounded-lg px-3 py-2 focus:ring-2 focus:ring-shield-500 focus:border-shield-500"
@@ -1314,9 +1314,9 @@ function RatingPanel({ scenario, onClose, onRated }: {
                             onChange={e => setFactorSelections({ ...factorSelections, [code]: e.target.value })}
                           >
                             <option value="">— Not selected —</option>
-                            {opts.map(o => (
-                              <option key={o.option_value} value={o.option_value}>
-                                {o.option_label || o.option_value} ({o.apply_mode === 'multiply' ? `×${o.factor_value}` : `+${o.factor_value}`})
+                            {group.options.map(o => (
+                              <option key={o.value} value={o.value}>
+                                {o.value.replace(/_/g, ' ')} ({o.mode === 'multiply' ? `×${o.factor}` : `+${o.factor}`})
                               </option>
                             ))}
                           </select>
@@ -1334,24 +1334,24 @@ function RatingPanel({ scenario, onClose, onRated }: {
                     </h3>
                     <div className="space-y-2">
                       {options.riders.map(rider => {
-                        const isOn = riderSelections[rider.rider_code] ?? rider.is_default;
+                        const isOn = riderSelections[rider.code] ?? rider.default;
                         return (
                           <button
-                            key={rider.rider_code}
+                            key={rider.code}
                             className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm transition-colors ${
                               isOn ? 'bg-shield-50 border border-shield-200' : 'bg-slate-50 border border-slate-100'
                             }`}
-                            onClick={() => setRiderSelections({ ...riderSelections, [rider.rider_code]: !isOn })}
+                            onClick={() => setRiderSelections({ ...riderSelections, [rider.code]: !isOn })}
                           >
                             <div className="flex items-center gap-2">
                               {isOn
                                 ? <ToggleRight className="w-5 h-5 text-shield-600" />
                                 : <ToggleLeft className="w-5 h-5 text-slate-400" />
                               }
-                              <span className={isOn ? 'text-shield-800 font-medium' : 'text-slate-600'}>{rider.rider_label}</span>
+                              <span className={isOn ? 'text-shield-800 font-medium' : 'text-slate-600'}>{rider.label}</span>
                             </div>
                             <span className="text-xs text-slate-500">
-                              {rider.apply_mode === 'add' ? fmtCurrency(rider.rider_value) : `×${rider.rider_value}`}
+                              {rider.mode === 'add' ? fmtCurrency(rider.value) : `×${rider.value}`}
                             </span>
                           </button>
                         );
