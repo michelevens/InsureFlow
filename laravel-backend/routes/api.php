@@ -712,8 +712,11 @@ Route::middleware(['auth:sanctum', 'agency.scope'])->group(function () {
         Route::get('/billing', [AgencySettingController::class, 'billing']);
         Route::get('/compliance', [AgencySettingController::class, 'compliance']);
         Route::get('/team-permissions', [AgencySettingController::class, 'teamPermissions']);
+        Route::get('/team', [AgencySettingController::class, 'team']);
         Route::post('/agents', [AgencySettingController::class, 'createAgent']);
         Route::post('/agents/{agent}/reset-password', [AgencySettingController::class, 'resetAgentPassword']);
+        Route::post('/agents/{agent}/toggle-status', [AgencySettingController::class, 'toggleAgentStatus']);
+        Route::delete('/invites/{invite}', [AgencySettingController::class, 'cancelInvite']);
         Route::post('/regenerate-code', [AgencySettingController::class, 'regenerateCode']);
         Route::get('/lead-intake', [AgencySettingController::class, 'leadIntakeInfo']);
     });

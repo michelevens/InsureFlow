@@ -126,6 +126,100 @@ class AgencySettingController extends Controller
     }
 
     /**
+     * Get combined team view: agents with stats + pending invites.
+     */
+    public function team()
+    {
+        $user = Auth::user();
+        $agency = $user->ownedAgency ?? $user->agency;
+
+        if (!$agency) {
+            return response()->json(['message' => 'No agency found'], 404);
+        }
+
+        $agents = $agency->agents()->with('agentProfile')->get()->map(function ($agent) {
+            $profile = $agent->agentProfile;
+            $leadCount = $agent->leads()->count();
+            $policyCount = $agent->policies()->count();
+
+            return [
+                'id' => $agent->id,
+                'name' => $agent->name,
+                'email' => $agent->email,
+                'phone' => $agent->phone,
+                'role' => $agent->role,
+                'is_active' => (bool) $agent->is_active,
+                'avatar' => $agent->avatar,
+                'joined_at' => $agent->created_at?->toDateString(),
+                'leads_count' => $leadCount,
+                'policies_count' => $policyCount,
+                'avg_rating' => $profile->avg_rating ?? 0,
+                'specialties' => $profile->specialties ?? [],
+            ];
+        });
+
+        $invites = \App\Models\Invite::where('agency_id', $agency->id)
+            ->whereNull('accepted_at')
+            ->where('expires_at', '>', now())
+            ->orderByDesc('created_at')
+            ->get(['id', 'email', 'role', 'created_at', 'expires_at']);
+
+        $activeCount = $agents->where('is_active', true)->count();
+
+        return response()->json([
+            'agents' => $agents,
+            'invites' => $invites,
+            'stats' => [
+                'active_agents' => $activeCount,
+                'pending_invites' => $invites->count(),
+                'total_leads' => $agents->sum('leads_count'),
+                'total_policies' => $agents->sum('policies_count'),
+            ],
+        ]);
+    }
+
+    /**
+     * Toggle agent active status.
+     */
+    public function toggleAgentStatus(User $agent)
+    {
+        $user = Auth::user();
+        $agency = $user->ownedAgency;
+
+        if (!$agency || $agent->agency_id !== $agency->id) {
+            return response()->json(['message' => 'Agent does not belong to your agency'], 403);
+        }
+
+        if ($agent->id === $user->id) {
+            return response()->json(['message' => 'Cannot deactivate yourself'], 422);
+        }
+
+        $agent->update(['is_active' => !$agent->is_active]);
+
+        return response()->json([
+            'message' => $agent->is_active ? 'Agent activated' : 'Agent deactivated',
+            'is_active' => $agent->is_active,
+        ]);
+    }
+
+    /**
+     * Cancel a pending invite.
+     */
+    public function cancelInvite(\App\Models\Invite $invite)
+    {
+        $user = Auth::user();
+        $agency = $user->ownedAgency;
+
+        if (!$agency || $invite->agency_id !== $agency->id) {
+            return response()->json(['message' => 'Invite does not belong to your agency'], 403);
+        }
+
+        $invite->delete();
+
+        return response()->json(['message' => 'Invite cancelled']);
+    }
+
+    /**
      * Get team permissions matrix.
      */
     public function teamPermissions()
