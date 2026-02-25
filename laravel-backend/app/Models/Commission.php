@@ -10,7 +10,7 @@ class Commission extends Model
     use HasFactory;
 
     protected $fillable = [
-        'agent_id', 'policy_id', 'carrier_name',
+        'agent_id', 'agency_id', 'policy_id', 'carrier_name',
         'premium_amount', 'commission_rate', 'commission_amount',
         'status', 'paid_at',
     ];
@@ -30,8 +30,18 @@ class Commission extends Model
         return $this->belongsTo(User::class, 'agent_id');
     }
 
+    public function agency()
+    {
+        return $this->belongsTo(Agency::class);
+    }
+
     public function policy()
     {
         return $this->belongsTo(Policy::class);
+    }
+
+    public function splits()
+    {
+        return $this->hasMany(CommissionSplit::class);
     }
 }

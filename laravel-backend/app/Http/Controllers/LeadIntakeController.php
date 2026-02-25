@@ -212,6 +212,22 @@ class LeadIntakeController extends Controller
             \Log::warning('Failed to send intake confirmation email', ['error' => $e->getMessage()]);
         }
 
+        // ── 9. Fire workflow automation ──
+        try {
+            app(\App\Services\WorkflowEngine::class)->fire('intake_form_submitted', [
+                'lead_id' => $lead->id,
+                'agent_id' => $lead->assigned_agent_id,
+                'agency_id' => $agency->id,
+                'agency_owner_id' => $agency->owner_id,
+                'insurance_type' => $data['insurance_type'],
+                'state' => $data['zip_code'] ?? null,
+                'lead_source' => 'intake_link',
+                'consumer_name' => $data['first_name'] . ' ' . $data['last_name'],
+            ]);
+        } catch (\Throwable $e) {
+            \Log::warning('Workflow engine error on intake', ['error' => $e->getMessage()]);
+        }
+
         return response()->json([
             'message' => 'Your information has been submitted successfully. An agent will contact you shortly.',
             'lead_id' => $lead->id,

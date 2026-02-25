@@ -62,6 +62,7 @@ use App\Http\Controllers\PublicSigningController;
 use App\Http\Controllers\CreditController;
 use App\Http\Controllers\AdminRateTableController;
 use App\Http\Controllers\ZipCodeController;
+use App\Http\Controllers\WorkflowRuleController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -287,6 +288,21 @@ Route::middleware(['auth:sanctum', 'agency.scope'])->group(function () {
     // Commissions
     Route::get('/commissions', [CommissionController::class, 'index']);
     Route::get('/commissions/{commission}', [CommissionController::class, 'show']);
+    Route::get('/commissions/{commission}/splits', [CommissionController::class, 'splits']);
+    Route::post('/commissions/{commission}/splits', [CommissionController::class, 'storeSplit']);
+    Route::put('/commissions/{commission}/splits/{split}', [CommissionController::class, 'updateSplit']);
+    Route::delete('/commissions/{commission}/splits/{split}', [CommissionController::class, 'destroySplit']);
+
+    // Workflow Automation Rules
+    Route::get('/workflows/options', [WorkflowRuleController::class, 'options']);
+    Route::get('/workflows/executions', [WorkflowRuleController::class, 'executions']);
+    Route::get('/workflows', [WorkflowRuleController::class, 'index']);
+    Route::post('/workflows', [WorkflowRuleController::class, 'store']);
+    Route::get('/workflows/{rule}', [WorkflowRuleController::class, 'show']);
+    Route::put('/workflows/{rule}', [WorkflowRuleController::class, 'update']);
+    Route::delete('/workflows/{rule}', [WorkflowRuleController::class, 'destroy']);
+    Route::post('/workflows/{rule}/toggle', [WorkflowRuleController::class, 'toggle']);
+    Route::post('/workflows/{rule}/test', [WorkflowRuleController::class, 'test']);
 
     // Agent profile
     Route::put('/agent/profile', [AgentController::class, 'updateProfile']);

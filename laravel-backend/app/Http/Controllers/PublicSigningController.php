@@ -153,6 +153,21 @@ class PublicSigningController extends Controller
             // Don't fail
         }
 
+        // Fire workflow automation
+        try {
+            app(\App\Services\WorkflowEngine::class)->fire('application_signed', [
+                'application_id' => $application->id,
+                'agent_id' => $application->agent_id,
+                'agency_id' => $application->agency_id,
+                'consumer_id' => $application->user_id,
+                'carrier_name' => $application->carrier_name,
+                'insurance_type' => $application->insurance_type,
+                'premium' => $application->monthly_premium,
+            ]);
+        } catch (\Throwable $e) {
+            // Don't fail
+        }
+
         return response()->json([
             'message' => 'Application signed successfully.',
             'reference' => $application->reference,

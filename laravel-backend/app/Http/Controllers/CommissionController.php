@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Commission;
+use App\Models\CommissionSplit;
 use Illuminate\Http\Request;
 
 class CommissionController extends Controller
@@ -49,7 +50,70 @@ class CommissionController extends Controller
 
     public function show(Commission $commission)
     {
-        $commission->load(['policy.carrierProduct.carrier', 'policy.user']);
+        $commission->load(['policy.carrierProduct.carrier', 'policy.user', 'splits.agent:id,name']);
         return response()->json($commission);
+    }
+
+    public function splits(Commission $commission)
+    {
+        return response()->json([
+            'splits' => $commission->splits()->with('agent:id,name')->get(),
+        ]);
+    }
+
+    public function storeSplit(Request $request, Commission $commission)
+    {
+        $data = $request->validate([
+            'agent_id' => 'required|exists:users,id',
+            'split_percentage' => 'required|numeric|min:0.01|max:100',
+            'role' => 'nullable|string|in:primary,secondary,referral,override',
+            'notes' => 'nullable|string|max:500',
+        ]);
+
+        // Check total doesn't exceed 100%
+        $existingTotal = $commission->splits()->sum('split_percentage');
+        if ($existingTotal + $data['split_percentage'] > 100) {
+            return response()->json([
+                'message' => 'Total split percentage cannot exceed 100%. Current total: ' . $existingTotal . '%',
+            ], 422);
+        }
+
+        $data['split_amount'] = round($commission->commission_amount * ($data['split_percentage'] / 100), 2);
+        $data['role'] = $data['role'] ?? 'secondary';
+
+        $split = $commission->splits()->create($data);
+        $split->load('agent:id,name');
+
+        return response()->json(['split' => $split], 201);
+    }
+
+    public function updateSplit(Request $request, Commission $commission, CommissionSplit $split)
+    {
+        $data = $request->validate([
+            'split_percentage' => 'sometimes|numeric|min:0.01|max:100',
+            'role' => 'nullable|string|in:primary,secondary,referral,override',
+            'notes' => 'nullable|string|max:500',
+        ]);
+
+        if (isset($data['split_percentage'])) {
+            $existingTotal = $commission->splits()->where('id', '!=', $split->id)->sum('split_percentage');
+            if ($existingTotal + $data['split_percentage'] > 100) {
+                return response()->json([
+                    'message' => 'Total split percentage cannot exceed 100%. Other splits total: ' . $existingTotal . '%',
+                ], 422);
+            }
+            $data['split_amount'] = round($commission->commission_amount * ($data['split_percentage'] / 100), 2);
+        }
+
+        $split->update($data);
+        $split->load('agent:id,name');
+
+        return response()->json(['split' => $split]);
+    }
+
+    public function destroySplit(Commission $commission, CommissionSplit $split)
+    {
+        $split->delete();
+        return response()->json(['message' => 'Split removed.']);
     }
 }
