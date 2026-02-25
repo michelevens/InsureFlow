@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Button, Input, Card, Select } from '@/components/ui';
+import { Button, Input, Card, Select, AddressAutocomplete } from '@/components/ui';
+import type { ZipCodeResult } from '@/components/ui';
 import { ShieldCheck, CheckCircle2, ArrowRight, Loader2 } from 'lucide-react';
 import { marketplaceService, type MarketplaceRequest } from '@/services/api';
 import { toast } from 'sonner';
@@ -179,8 +180,16 @@ export default function InsuranceRequestForm() {
                 <Select value={form.state} onChange={(e) => update('state', e.target.value)} options={US_STATES} />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Zip Code *</label>
-                <Input value={form.zip_code} onChange={(e) => update('zip_code', e.target.value)} placeholder="75001" maxLength={10} />
+                <AddressAutocomplete
+                  label="Zip Code *"
+                  placeholder="Enter ZIP or city"
+                  value={form.zip_code}
+                  onChange={(zip) => update('zip_code', zip)}
+                  onSelect={(result: ZipCodeResult) => {
+                    update('zip_code', result.zip);
+                    update('state', result.state);
+                  }}
+                />
               </div>
             </div>
 

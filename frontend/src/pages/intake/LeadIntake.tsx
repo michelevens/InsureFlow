@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useSearchParams, Link } from 'react-router-dom';
-import { Card, Button, Input } from '@/components/ui';
+import { Card, Button, Input, AddressAutocomplete } from '@/components/ui';
+import type { ZipCodeResult } from '@/components/ui';
 import { Loader2, CheckCircle, ShieldCheck } from 'lucide-react';
 import { api } from '@/services/api/client';
 
@@ -146,8 +147,15 @@ export default function LeadIntake() {
               <Input value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} placeholder="(555) 123-4567" />
             </div>
             <div className="space-y-1">
-              <label className="text-sm font-medium text-slate-700">ZIP Code</label>
-              <Input value={form.zip_code} onChange={e => setForm({ ...form, zip_code: e.target.value })} placeholder="33607" maxLength={5} />
+              <AddressAutocomplete
+                label="ZIP Code"
+                placeholder="Enter ZIP or city"
+                value={form.zip_code}
+                onChange={(zip) => setForm({ ...form, zip_code: zip })}
+                onSelect={(result: ZipCodeResult) => {
+                  setForm(f => ({ ...f, zip_code: result.zip }));
+                }}
+              />
             </div>
           </div>
 

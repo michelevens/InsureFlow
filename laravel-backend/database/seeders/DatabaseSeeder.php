@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
             RecruitmentSeeder::class,
             ReportSeeder::class,
             ComplianceRequirementSeeder::class,
+            ZipCodeSeeder::class,
         ]);
     }
 }

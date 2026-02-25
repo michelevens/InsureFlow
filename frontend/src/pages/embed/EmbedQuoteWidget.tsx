@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Button, Input, Select, Card, Badge } from '@/components/ui';
+import { Button, Input, Select, Card, Badge, AddressAutocomplete } from '@/components/ui';
+import type { ZipCodeResult } from '@/components/ui';
 import {
   ArrowRight, ShieldCheck, Clock, CheckCircle2, Award, Check, ArrowLeft,
   User, Mail, Phone, ExternalLink,
@@ -358,12 +359,14 @@ export default function EmbedQuoteWidget() {
                     onChange={e => update('insurance_type', e.target.value)}
                   />
                 )}
-                <Input
+                <AddressAutocomplete
                   label="ZIP Code"
-                  placeholder="Enter your ZIP code"
+                  placeholder="Enter ZIP code or city"
                   value={form.zip_code}
-                  onChange={e => update('zip_code', e.target.value)}
-                  maxLength={5}
+                  onChange={(zip) => update('zip_code', zip)}
+                  onSelect={(result: ZipCodeResult) => {
+                    update('zip_code', result.zip);
+                  }}
                 />
                 <Select
                   label="Coverage Level"

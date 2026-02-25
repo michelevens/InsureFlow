@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Button, Input, Select, Card } from '@/components/ui';
+import { Button, Input, Select, Card, AddressAutocomplete } from '@/components/ui';
+import type { ZipCodeResult } from '@/components/ui';
 import { Calculator as CalcIcon, ArrowRight, ShieldCheck, Clock, CheckCircle2, RotateCcw, X } from 'lucide-react';
 import { quoteService } from '@/services/api';
 import { platformProductService } from '@/services/api/platformProducts';
@@ -411,12 +412,14 @@ export default function Calculator() {
                     onChange={e => update('insurance_type', e.target.value)}
                   />
                 )}
-                <Input
+                <AddressAutocomplete
                   label="ZIP Code"
-                  placeholder="Enter your ZIP code"
+                  placeholder="Enter ZIP code or city"
                   value={form.zip_code}
-                  onChange={e => update('zip_code', e.target.value)}
-                  maxLength={5}
+                  onChange={(zip) => update('zip_code', zip)}
+                  onSelect={(result: ZipCodeResult) => {
+                    update('zip_code', result.zip);
+                  }}
                 />
                 <Select
                   label="Coverage Level"

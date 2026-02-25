@@ -61,6 +61,7 @@ use App\Http\Controllers\ConsumerMarketplaceController;
 use App\Http\Controllers\PublicSigningController;
 use App\Http\Controllers\CreditController;
 use App\Http\Controllers\AdminRateTableController;
+use App\Http\Controllers\ZipCodeController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -116,6 +117,10 @@ Route::get('/products/visible', [ProductVisibilityController::class, 'visible'])
 // Lead intake (public — agencies share these links with potential leads)
 Route::get('/intake/{agencyCode}', [LeadIntakeController::class, 'formData']);
 Route::post('/intake/{agencyCode}', [LeadIntakeController::class, 'submit']);
+
+// ZIP code lookup (public)
+Route::get('/zip-codes/search', [ZipCodeController::class, 'search']);
+Route::get('/zip-codes/{zip}', [ZipCodeController::class, 'lookup']);
 
 // Consumer Marketplace (public)
 Route::post('/marketplace/insurance/request', [ConsumerMarketplaceController::class, 'submitRequest']);

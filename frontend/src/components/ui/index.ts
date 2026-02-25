@@ -7,3 +7,5 @@ export { Badge } from './Badge';
 export { Modal } from './Modal';
 export { Select } from './Select';
 export { Textarea } from './Textarea';
+export { AddressAutocomplete } from './AddressAutocomplete';
+export type { AddressAutocompleteProps, ZipCodeResult } from './AddressAutocomplete';
