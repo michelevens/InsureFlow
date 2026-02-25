@@ -244,6 +244,7 @@ Route::middleware(['auth:sanctum', 'agency.scope'])->group(function () {
     Route::get('/crm/leads/{lead}', [LeadController::class, 'show']);
     Route::put('/crm/leads/{lead}', [LeadController::class, 'update']);
     Route::post('/crm/leads/{lead}/activity', [LeadController::class, 'addActivity']);
+    Route::put('/crm/leads/bulk-status', [LeadController::class, 'bulkUpdateStatus']);
 
     // Lead Scenarios (nested under leads)
     Route::get('/crm/leads/{lead}/scenarios', [LeadScenarioController::class, 'index']);

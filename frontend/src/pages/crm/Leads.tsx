@@ -90,6 +90,10 @@ export default function Leads() {
   const [expandedScenario, setExpandedScenario] = useState<number | null>(null);
   const [scenariosLoading, setScenariosLoading] = useState(false);
 
+  // Bulk selection
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
+  const [bulkUpdating, setBulkUpdating] = useState(false);
+
   // Modals
   const [showAddLead, setShowAddLead] = useState(false);
   const [showNewScenario, setShowNewScenario] = useState(false);
@@ -653,6 +657,67 @@ export default function Leads() {
     );
   }
 
+  // ── Bulk Operations ─────────────────────────
+
+  const toggleSelect = (id: number) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedIds.size === leads.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(leads.map(l => l.id)));
+    }
+  };
+
+  const handleBulkStatus = async (newStatus: string) => {
+    if (selectedIds.size === 0) return;
+    setBulkUpdating(true);
+    try {
+      const res = await crmService.bulkUpdateStatus(Array.from(selectedIds), newStatus);
+      toast.success(`${res.updated} lead(s) updated to ${newStatus}`);
+      setSelectedIds(new Set());
+      fetchLeads();
+    } catch {
+      toast.error('Failed to update leads');
+    } finally {
+      setBulkUpdating(false);
+    }
+  };
+
+  const handleExportCsv = () => {
+    const rows = leads.filter(l => selectedIds.size === 0 || selectedIds.has(l.id));
+    const headers = ['ID', 'First Name', 'Last Name', 'Email', 'Phone', 'Insurance Type', 'Status', 'Source', 'Created'];
+    const csv = [
+      headers.join(','),
+      ...rows.map(l => [
+        l.id,
+        `"${l.first_name}"`,
+        `"${l.last_name}"`,
+        `"${l.email}"`,
+        `"${l.phone || ''}"`,
+        l.insurance_type,
+        l.status,
+        l.source || '',
+        l.created_at,
+      ].join(',')),
+    ].join('\n');
+
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `leads-export-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success(`Exported ${rows.length} leads`);
+  };
+
   // ── Lead List View ─────────────────────────
 
   return (
@@ -697,6 +762,28 @@ export default function Leads() {
         </div>
       </div>
 
+      {/* Bulk action bar */}
+      {selectedIds.size > 0 && (
+        <Card className="p-3 flex items-center gap-4 bg-shield-50 border-shield-200">
+          <span className="text-sm font-medium text-shield-700">{selectedIds.size} selected</span>
+          <div className="flex items-center gap-2">
+            <Select
+              options={statusOptions.filter(o => o.value !== '')}
+              value=""
+              onChange={e => handleBulkStatus(e.target.value)}
+              placeholder="Change status..."
+              disabled={bulkUpdating}
+            />
+          </div>
+          <Button variant="outline" size="sm" leftIcon={<FileDown className="w-4 h-4" />} onClick={handleExportCsv}>
+            Export CSV
+          </Button>
+          <Button variant="ghost" size="sm" onClick={() => setSelectedIds(new Set())}>
+            Clear
+          </Button>
+        </Card>
+      )}
+
       {/* Lead list */}
       <Card>
         {loading ? (
@@ -710,6 +797,14 @@ export default function Leads() {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-slate-100">
+                  <th className="p-4 w-10">
+                    <input
+                      type="checkbox"
+                      className="rounded border-slate-300 text-shield-600 focus:ring-shield-500"
+                      checked={selectedIds.size === leads.length && leads.length > 0}
+                      onChange={toggleSelectAll}
+                    />
+                  </th>
                   <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider p-4">Lead</th>
                   <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider p-4">Insurance</th>
                   <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider p-4">Status</th>
@@ -723,6 +818,14 @@ export default function Leads() {
                   const config = leadStatusConfig[lead.status] || leadStatusConfig.new;
                   return (
                     <tr key={lead.id} className="hover:bg-slate-50 cursor-pointer" onClick={() => openLead(lead)}>
+                      <td className="p-4" onClick={e => e.stopPropagation()}>
+                        <input
+                          type="checkbox"
+                          className="rounded border-slate-300 text-shield-600 focus:ring-shield-500"
+                          checked={selectedIds.has(lead.id)}
+                          onChange={() => toggleSelect(lead.id)}
+                        />
+                      </td>
                       <td className="p-4">
                         <div className="flex items-center gap-3">
                           <div className="w-9 h-9 rounded-full bg-shield-100 text-shield-700 flex items-center justify-center text-sm font-bold">

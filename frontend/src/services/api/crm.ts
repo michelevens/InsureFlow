@@ -86,4 +86,8 @@ export const crmService = {
   async logActivity(leadId: number, data: { type: string; description: string }): Promise<LeadActivity> {
     return api.post<LeadActivity>(`/crm/leads/${leadId}/activity`, data);
   },
+
+  async bulkUpdateStatus(leadIds: number[], status: string): Promise<{ updated: number }> {
+    return api.put('/crm/leads/bulk-status', { lead_ids: leadIds, status });
+  },
 };

@@ -162,4 +162,24 @@ class LeadController extends Controller
 
         return response()->json($activity, 201);
     }
+
+    /**
+     * Bulk update lead status.
+     */
+    public function bulkUpdateStatus(Request $request)
+    {
+        $data = $request->validate([
+            'lead_ids' => 'required|array|min:1|max:100',
+            'lead_ids.*' => 'integer|exists:leads,id',
+            'status' => 'required|string|in:new,contacted,quoted,applied,won,lost',
+        ]);
+
+        $agencyId = $request->attributes->get('agency_id');
+
+        $updated = Lead::whereIn('id', $data['lead_ids'])
+            ->where('agency_id', $agencyId)
+            ->update(['status' => $data['status']]);
+
+        return response()->json(['updated' => $updated]);
+    }
 }
