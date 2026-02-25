@@ -445,12 +445,10 @@
                 @endif
             </td>
             <td class="header-right">
-                @if(!empty($agency['phone'])){{ $agency['phone'] }}<br>@endif
-                @if(!empty($agency['email'])){{ $agency['email'] }}<br>@endif
+                {!! !empty($agency['phone']) ? e($agency['phone']) . '<br>' : '' !!}
+                {!! !empty($agency['email']) ? e($agency['email']) . '<br>' : '' !!}
                 @if(!empty($agency['address']))
-                    {{ $agency['address'] }}@if(!empty($agency['city'])), {{ $agency['city'] }}@endif
-                    @if(!empty($agency['state'])) {{ $agency['state'] }}@endif
-                    @if(!empty($agency['zip_code'])) {{ $agency['zip_code'] }}@endif
+                    {{ $agency['address'] }}{{ !empty($agency['city']) ? ', ' . $agency['city'] : '' }}{{ !empty($agency['state']) ? ' ' . $agency['state'] : '' }}{{ !empty($agency['zip_code']) ? ' ' . $agency['zip_code'] : '' }}
                 @endif
             </td>
         </tr>
@@ -588,28 +586,25 @@
             <td>{{ ucfirst($obj->object_type) }}</td>
             <td>
                 @if($obj->object_type === 'person')
-                    @if($obj->date_of_birth)DOB: {{ \Carbon\Carbon::parse($obj->date_of_birth)->format('m/d/Y') }}@endif
-                    @if($obj->relationship) &bull; {{ $obj->relationship }}@endif
-                    @if($obj->occupation)<br>Occupation: {{ $obj->occupation }}@endif
+                    {!! $obj->date_of_birth ? 'DOB: ' . \Carbon\Carbon::parse($obj->date_of_birth)->format('m/d/Y') : '' !!}
+                    {!! $obj->relationship ? ' &bull; ' . e($obj->relationship) : '' !!}
+                    {!! $obj->occupation ? '<br>Occupation: ' . e($obj->occupation) : '' !!}
                 @elseif($obj->object_type === 'vehicle')
                     {{ $obj->vehicle_year }} {{ $obj->vehicle_make }} {{ $obj->vehicle_model }}
-                    @if($obj->vin)<br>VIN: {{ $obj->vin }}@endif
+                    {!! $obj->vin ? '<br>VIN: ' . e($obj->vin) : '' !!}
                 @elseif($obj->object_type === 'property')
-                    @if($obj->year_built)Built {{ $obj->year_built }}@endif
-                    @if($obj->square_footage) &bull; {{ number_format($obj->square_footage) }} sq ft@endif
-                    @if($obj->construction_type)<br>{{ $obj->construction_type }}@endif
+                    {{ $obj->year_built ? 'Built ' . $obj->year_built : '' }}
+                    {!! $obj->square_footage ? ' &bull; ' . number_format($obj->square_footage) . ' sq ft' : '' !!}
+                    {!! $obj->construction_type ? '<br>' . e($obj->construction_type) : '' !!}
                 @elseif($obj->object_type === 'business')
-                    @if($obj->naics_code)NAICS: {{ $obj->naics_code }}@endif
-                    @if($obj->annual_revenue)<br>Revenue: ${{ number_format($obj->annual_revenue) }}@endif
-                    @if($obj->employee_count) &bull; {{ $obj->employee_count }} employees@endif
+                    {{ $obj->naics_code ? 'NAICS: ' . $obj->naics_code : '' }}
+                    {!! $obj->annual_revenue ? '<br>Revenue: $' . number_format($obj->annual_revenue) : '' !!}
+                    {!! $obj->employee_count ? ' &bull; ' . $obj->employee_count . ' employees' : '' !!}
                 @endif
             </td>
             <td>
                 @if($obj->address_line1)
-                    {{ $obj->address_line1 }}
-                    @if($obj->city), {{ $obj->city }}@endif
-                    @if($obj->state) {{ $obj->state }}@endif
-                    @if($obj->zip) {{ $obj->zip }}@endif
+                    {{ $obj->address_line1 }}{{ $obj->city ? ', ' . $obj->city : '' }}{{ $obj->state ? ' ' . $obj->state : '' }}{{ $obj->zip ? ' ' . $obj->zip : '' }}
                 @else
                     &mdash;
                 @endif
@@ -643,16 +638,18 @@
             <td class="text-bold">{{ ucwords(str_replace('_', ' ', $cov->coverage_type)) }}</td>
             <td>{{ ucfirst($cov->coverage_category) }}</td>
             <td class="text-right">
-                @if($cov->limit_amount) ${{ number_format($cov->limit_amount, 0) }}
-                @elseif($cov->per_occurrence_limit) ${{ number_format($cov->per_occurrence_limit, 0) }}/occ
-                @elseif($cov->benefit_amount) ${{ number_format($cov->benefit_amount, 0) }}
-                @else &mdash;
-                @endif
+                @php
+                    if ($cov->limit_amount) $limitDisplay = '$' . number_format($cov->limit_amount, 0);
+                    elseif ($cov->per_occurrence_limit) $limitDisplay = '$' . number_format($cov->per_occurrence_limit, 0) . '/occ';
+                    elseif ($cov->benefit_amount) $limitDisplay = '$' . number_format($cov->benefit_amount, 0);
+                    else $limitDisplay = '---';
+                @endphp
+                {{ $limitDisplay }}
             </td>
             <td class="text-right">
-                {{ $cov->deductible_amount ? '$' . number_format($cov->deductible_amount, 0) : '—' }}
+                {{ $cov->deductible_amount ? '$' . number_format($cov->deductible_amount, 0) : '---' }}
             </td>
-            <td class="text-center">{{ $cov->is_included ? '✓' : '—' }}</td>
+            <td class="text-center">{{ $cov->is_included ? 'Yes' : '---' }}</td>
         </tr>
     @endforeach
     </tbody>
@@ -674,7 +671,9 @@
             @foreach($quotes as $q)
                 <th class="{{ $q->is_recommended ? 'recommended-header' : '' }}">
                     {{ $q->carrier_name }}
-                    @if($q->is_recommended)<br><span style="font-size:7pt;">★ RECOMMENDED</span>@endif
+                    @if($q->is_recommended)
+                        <br><span style="font-size:7pt;">RECOMMENDED</span>
+                    @endif
                 </th>
             @endforeach
         </tr>
@@ -713,8 +712,10 @@
             <td>AM Best Rating</td>
             @foreach($quotes as $q)
                 <td class="{{ $q->is_recommended ? 'recommended-col' : '' }}">
-                    <strong>{{ $q->am_best_rating ?? '—' }}</strong>
-                    @if($q->financial_strength_score)<br><span class="text-xs text-muted">Score: {{ $q->financial_strength_score }}/10</span>@endif
+                    <strong>{{ $q->am_best_rating ?? '---' }}</strong>
+                    @if($q->financial_strength_score)
+                        <br><span class="text-xs text-muted">Score: {{ $q->financial_strength_score }}/10</span>
+                    @endif
                 </td>
             @endforeach
         </tr>
@@ -725,7 +726,7 @@
             @foreach($quotes as $q)
                 <td class="{{ $q->is_recommended ? 'recommended-col' : '' }}">
                     @if($q->premium_monthly)
-                        <span class="premium-highlight">${{ number_format($q->premium_monthly, 2) }}</span>
+                        <span class="premium-highlight">{{ '$' . number_format($q->premium_monthly, 2) }}</span>
                     @else
                         —
                     @endif
@@ -774,7 +775,9 @@
             @foreach($quotes as $q)
                 <td class="{{ $q->is_recommended ? 'recommended-col' : '' }}">
                     @if($q->endorsements && count($q->endorsements) > 0)
-                        @foreach($q->endorsements as $e)<span class="tag">{{ $e }}</span> @endforeach
+                        @foreach($q->endorsements as $e)
+                            <span class="tag">{{ $e }}</span>
+                        @endforeach
                     @else
                         —
                     @endif
@@ -790,7 +793,9 @@
             @foreach($quotes as $q)
                 <td class="{{ $q->is_recommended ? 'recommended-col' : '' }}">
                     @if($q->exclusions && count($q->exclusions) > 0)
-                        @foreach($q->exclusions as $e)<span class="tag tag-amber">{{ $e }}</span> @endforeach
+                        @foreach($q->exclusions as $e)
+                            <span class="tag tag-amber">{{ $e }}</span>
+                        @endforeach
                     @else
                         None noted
                     @endif
@@ -806,7 +811,9 @@
             @foreach($quotes as $q)
                 <td class="{{ $q->is_recommended ? 'recommended-col' : '' }}">
                     @if($q->discounts_applied && count($q->discounts_applied) > 0)
-                        @foreach($q->discounts_applied as $d)<span class="tag tag-green">{{ $d }}</span> @endforeach
+                        @foreach($q->discounts_applied as $d)
+                            <span class="tag tag-green">{{ $d }}</span>
+                        @endforeach
                     @else
                         —
                     @endif
@@ -854,14 +861,20 @@
         <table style="width:100%; border-collapse:collapse;">
             <tr>
                 <td style="width:50%; vertical-align:top; padding-right:20px;">
-                    <strong>Monthly Premium:</strong> <span class="premium-highlight">${{ number_format($recommended->premium_monthly ?? 0, 2) }}</span><br>
-                    @if($recommended->premium_annual)<strong>Annual:</strong> ${{ number_format($recommended->premium_annual, 2) }}<br>@endif
-                    @if($recommended->am_best_rating)<strong>AM Best:</strong> {{ $recommended->am_best_rating }}@endif
+                    <strong>Monthly Premium:</strong> <span class="premium-highlight">{{ '$' . number_format($recommended->premium_monthly ?? 0, 2) }}</span><br>
+                    @if($recommended->premium_annual)
+                        <strong>Annual:</strong> {{ '$' . number_format($recommended->premium_annual, 2) }}<br>
+                    @endif
+                    @if($recommended->am_best_rating)
+                        <strong>AM Best:</strong> {{ $recommended->am_best_rating }}
+                    @endif
                 </td>
                 <td style="width:50%; vertical-align:top;">
                     @if($recommended->discounts_applied && count($recommended->discounts_applied) > 0)
                         <strong>Discounts:</strong><br>
-                        @foreach($recommended->discounts_applied as $d)<span class="tag tag-green">{{ $d }}</span> @endforeach
+                        @foreach($recommended->discounts_applied as $d)
+                            <span class="tag tag-green">{{ $d }}</span>
+                        @endforeach
                         <br>
                     @endif
                     @if($recommended->agent_notes)

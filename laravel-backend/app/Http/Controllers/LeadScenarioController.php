@@ -527,12 +527,22 @@ class LeadScenarioController extends Controller
             'agent_name' => $user->name,
         ];
 
-        $pdf = Pdf::loadView('documents.proposal', $data)
-            ->setPaper('letter')
-            ->setOption(['isPhpEnabled' => true, 'isRemoteEnabled' => false]);
+        try {
+            $pdf = Pdf::loadView('documents.proposal', $data)
+                ->setPaper('letter')
+                ->setOptions(['isPhpEnabled' => true, 'isRemoteEnabled' => false]);
 
-        $filename = 'Proposal-' . Str::slug($scenario->scenario_name) . '-' . now()->format('Y-m-d') . '.pdf';
+            $filename = 'Proposal-' . Str::slug($scenario->scenario_name) . '-' . now()->format('Y-m-d') . '.pdf';
 
-        return $pdf->download($filename);
+            return $pdf->download($filename);
+        } catch (\Throwable $e) {
+            \Log::error('Proposal PDF generation failed', [
+                'lead_id' => $lead->id,
+                'scenario_id' => $scenario->id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+            return response()->json(['message' => 'PDF generation failed: ' . $e->getMessage()], 500);
+        }
     }
 }

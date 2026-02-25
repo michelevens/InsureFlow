@@ -248,9 +248,9 @@ export function DashboardLayout() {
         sidebarOpen ? 'translate-x-0' : '-translate-x-full'
       )}>
         {/* Logo */}
-        <div className="flex items-center justify-between px-6 py-6 border-b border-slate-100">
+        <div className="flex items-center justify-between px-6 py-3 border-b border-slate-100">
           <Link to="/dashboard" className="flex items-center gap-2.5">
-            <img src="/logo.png" alt="Insurons" className="h-24 w-auto" />
+            <img src="/logo.png" alt="Insurons" className="h-10 w-auto" />
           </Link>
           <button onClick={() => setSidebarOpen(false)} className="lg:hidden p-1 rounded hover:bg-slate-100">
             <X className="w-5 h-5 text-slate-400" />
