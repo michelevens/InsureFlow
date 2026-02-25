@@ -43,17 +43,19 @@ function qs(params?: Record<string, string | number | boolean | undefined>): str
 
 export const emailCampaignService = {
   list: (params?: { status?: string; page?: number }) =>
-    api.get<{ data: EmailCampaign[]; last_page: number }>(`/campaigns${qs(params)}`),
-  show: (id: number) => api.get<EmailCampaign>(`/campaigns/${id}`),
-  create: (data: Partial<EmailCampaign>) => api.post<EmailCampaign>('/campaigns', data),
-  update: (id: number, data: Partial<EmailCampaign>) => api.put<EmailCampaign>(`/campaigns/${id}`, data),
-  destroy: (id: number) => api.delete(`/campaigns/${id}`),
-  send: (id: number) => api.post<{ recipients_count: number }>(`/campaigns/${id}/send`),
-  analytics: (id: number) => api.get<CampaignAnalytics>(`/campaigns/${id}/analytics`),
+    api.get<{ data: EmailCampaign[]; last_page: number }>(`/email/campaigns${qs(params)}`),
+  show: (id: number) => api.get<EmailCampaign>(`/email/campaigns/${id}`),
+  create: (data: Partial<EmailCampaign>) => api.post<EmailCampaign>('/email/campaigns', data),
+  update: (id: number, data: Partial<EmailCampaign>) => api.put<EmailCampaign>(`/email/campaigns/${id}`, data),
+  destroy: (id: number) => api.delete(`/email/campaigns/${id}`),
+  send: (id: number) => api.post<{ recipients_count: number }>(`/email/campaigns/${id}/send`),
+  cancel: (id: number) => api.post(`/email/campaigns/${id}/cancel`),
+  analytics: (id: number) => api.get<CampaignAnalytics>(`/email/campaigns/${id}/analytics`),
+  sends: (id: number) => api.get(`/email/campaigns/${id}/sends`),
 
   // Templates
-  templates: () => api.get<EmailTemplate[]>('/campaigns/templates'),
-  createTemplate: (data: Partial<EmailTemplate>) => api.post<EmailTemplate>('/campaigns/templates', data),
-  updateTemplate: (id: number, data: Partial<EmailTemplate>) => api.put<EmailTemplate>(`/campaigns/templates/${id}`, data),
-  deleteTemplate: (id: number) => api.delete(`/campaigns/templates/${id}`),
+  templates: () => api.get<EmailTemplate[]>('/email/templates'),
+  createTemplate: (data: Partial<EmailTemplate>) => api.post<EmailTemplate>('/email/templates', data),
+  updateTemplate: (id: number, data: Partial<EmailTemplate>) => api.put<EmailTemplate>(`/email/templates/${id}`, data),
+  deleteTemplate: (id: number) => api.delete(`/email/templates/${id}`),
 };

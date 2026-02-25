@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\AgentWelcomeMail;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
 class AgencySettingController extends Controller
@@ -182,7 +184,22 @@ class AgencySettingController extends Controller
             'role' => 'agent',
             'agency_id' => $agency->id,
             'is_active' => true,
+            'email_verified_at' => now(),
         ]);
+
+        $loginUrl = rtrim(config('app.frontend_url', 'https://ennhealth.github.io/InsureFlow'), '/') . '/login';
+
+        try {
+            Mail::to($data['email'])->send(new AgentWelcomeMail(
+                agentName: $data['name'],
+                agencyName: $agency->name,
+                email: $data['email'],
+                temporaryPassword: $password,
+                loginUrl: $loginUrl,
+            ));
+        } catch (\Exception $e) {
+            \Log::warning('Agent welcome email failed: ' . $e->getMessage());
+        }
 
         return response()->json([
             'agent' => $agent,

@@ -581,7 +581,7 @@ Route::middleware(['auth:sanctum', 'agency.scope'])->group(function () {
     |----------------------------------------------------------------------
     */
 
-    Route::prefix('admin')->group(function () {
+    Route::prefix('admin')->middleware('role.admin')->group(function () {
         // Users
         Route::get('/users', [AdminController::class, 'users']);
         Route::get('/users/{user}', [AdminController::class, 'showUser']);
