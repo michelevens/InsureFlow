@@ -120,6 +120,7 @@ const OrganizationTree = lazyRetry(() => import('@/pages/organizations/Organizat
 
 // Webhooks
 const WebhookSettings = lazyRetry(() => import('@/pages/webhooks/WebhookSettings'));
+const WorkflowBuilder = lazyRetry(() => import('@/pages/workflows/WorkflowBuilder'));
 
 // Calendar
 const CalendarPage = lazyRetry(() => import('@/pages/calendar/Calendar'));
@@ -243,6 +244,8 @@ export default function App() {
 
                 {/* Webhooks */}
                 <Route path="/webhooks" element={<WebhookSettings />} />
+                {/* Workflow Automation */}
+                <Route path="/workflows" element={<WorkflowBuilder />} />
 
                 {/* Calendar */}
                 <Route path="/calendar" element={<CalendarPage />} />

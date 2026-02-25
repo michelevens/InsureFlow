@@ -8,7 +8,7 @@ import {
   LayoutDashboard, Calculator, Users, FileText, Briefcase,
   Building2, BarChart3, UserCircle, Settings, LogOut, Menu, X,
   ClipboardList, Target, DollarSign, Star, ShieldCheck, ChevronDown, MessageSquare, Activity, AlertTriangle, RefreshCw, TrendingUp, Key, Plug, Network, CalendarDays, Palette, Code, Award, Database, BookOpen, HelpCircle,
-  MessagesSquare, Calendar, Handshake, Mail, FileBarChart, Video, ShoppingCart,
+  MessagesSquare, Calendar, Handshake, Mail, FileBarChart, Video, ShoppingCart, Zap,
 } from 'lucide-react';
 import type { ReactNode } from 'react';
 import type { UserRole } from '@/types';
@@ -139,6 +139,7 @@ const navSections: NavSection[] = [
     title: 'Integrations',
     roles: ['agency_owner', 'carrier', 'admin', 'superadmin'],
     items: [
+      { label: 'Workflows', href: '/workflows', icon: <Zap className="w-5 h-5" />, roles: ['agent', 'agency_owner', 'admin', 'superadmin'] },
       { label: 'API Keys', href: '/api-keys', icon: <Key className="w-5 h-5" />, roles: ['carrier', 'admin', 'superadmin'] },
       { label: 'Webhooks', href: '/webhooks', icon: <Plug className="w-5 h-5" />, roles: ['carrier', 'admin', 'superadmin'] },
       { label: 'White-Label', href: '/white-label', icon: <Palette className="w-5 h-5" />, roles: ['agency_owner', 'admin', 'superadmin'] },
