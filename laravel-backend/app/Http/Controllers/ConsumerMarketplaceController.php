@@ -252,7 +252,7 @@ class ConsumerMarketplaceController extends Controller
     {
         $scenario = LeadScenario::where('consumer_token', $token)
             ->where('consumer_visible', true)
-            ->with(['agent:id,name', 'coverages', 'insuredObjects', 'lead.agency:id,name,city,state'])
+            ->with(['quotes', 'agent:id,name', 'coverages', 'insuredObjects', 'lead.agency:id,name,city,state'])
             ->firstOrFail();
 
         // Mark as viewed

@@ -4,7 +4,7 @@ import { Card, Button, Badge } from '@/components/ui';
 import { marketplaceService, type PublicScenarioView as ScenarioData } from '@/services/api';
 import {
   ShieldCheck, CheckCircle2, XCircle, Loader2, AlertCircle,
-  Shield, User, Building2, FileText,
+  Shield, User, Building2, FileText, BarChart3,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -145,6 +145,53 @@ export default function ScenarioPublicView() {
             </div>
           )}
         </Card>
+
+        {/* Carrier Quote Comparison */}
+        {scenario.quotes && scenario.quotes.length > 0 && (
+          <Card className="p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <BarChart3 className="w-5 h-5 text-shield-600" />
+              <h2 className="text-lg font-semibold text-slate-900">Carrier Comparison</h2>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-slate-200">
+                    <th className="text-left py-2 font-medium text-slate-500">Carrier</th>
+                    <th className="text-center py-2 font-medium text-slate-500">AM Best</th>
+                    <th className="text-right py-2 font-medium text-slate-500">Monthly</th>
+                    <th className="text-right py-2 font-medium text-slate-500">Annual</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {scenario.quotes.map(q => (
+                    <tr key={q.id} className={`border-b border-slate-100 ${q.is_recommended ? 'bg-savings-50/50' : ''}`}>
+                      <td className="py-3">
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium text-slate-900">{q.carrier_name}</span>
+                          {q.is_recommended && <Badge variant="success" className="text-xs">Recommended</Badge>}
+                        </div>
+                      </td>
+                      <td className="text-center py-3 text-slate-600">{q.am_best_rating || '\u2014'}</td>
+                      <td className="text-right py-3 font-semibold text-slate-900">{formatCurrency(q.premium_monthly)}/mo</td>
+                      <td className="text-right py-3 text-slate-600">{formatCurrency(q.premium_annual)}/yr</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            {/* Savings callout */}
+            {scenario.quotes.length > 1 && (() => {
+              const premiums = scenario.quotes.map(q => Number(q.premium_monthly)).filter(p => p > 0);
+              const savings = Math.max(...premiums) - Math.min(...premiums);
+              return savings > 0 ? (
+                <div className="mt-3 text-center text-sm text-savings-600 font-medium">
+                  Save up to ${savings.toLocaleString()}/mo by choosing the right carrier
+                </div>
+              ) : null;
+            })()}
+          </Card>
+        )}
 
         {/* Coverages */}
         {scenario.coverages.length > 0 && (

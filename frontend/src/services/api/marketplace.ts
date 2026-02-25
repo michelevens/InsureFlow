@@ -110,6 +110,15 @@ export interface PublicScenarioView {
     name: string;
     relationship: string | null;
   }>;
+  quotes: Array<{
+    id: number;
+    carrier_name: string;
+    product_name: string | null;
+    premium_monthly: string;
+    premium_annual: string;
+    am_best_rating: string | null;
+    is_recommended: boolean;
+  }>;
 }
 
 export interface PublicApplicationView {
