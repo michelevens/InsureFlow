@@ -272,6 +272,21 @@ export const marketplaceService = {
     query.set('page', String(page));
     return api.get(`/lead-marketplace/transactions?${query.toString()}`);
   },
+
+  async placeBid(listingId: number, amount: number): Promise<PlaceBidResponse> {
+    return api.post<PlaceBidResponse>(`/lead-marketplace/listings/${listingId}/bid`, { amount });
+  },
+
+  async suggestPrice(insuranceType: string, state?: string, leadScore?: number): Promise<SuggestPriceResponse> {
+    const params = new URLSearchParams({ insurance_type: insuranceType });
+    if (state) params.set('state', state);
+    if (leadScore !== undefined) params.set('lead_score', String(leadScore));
+    return api.get<SuggestPriceResponse>(`/lead-marketplace/suggest-price?${params}`);
+  },
+
+  async bulkList(data: BulkListRequest): Promise<BulkListResponse> {
+    return api.post<BulkListResponse>('/lead-marketplace/bulk-list', data);
+  },
 };
 
 // ── Lead Marketplace Types ──
@@ -285,6 +300,13 @@ export interface LeadMarketplaceListing {
   coverage_level: string | null;
   urgency: string | null;
   asking_price: string;
+  listing_type: 'fixed_price' | 'auction';
+  min_bid: number | null;
+  current_bid: number | null;
+  current_bidder_id: number | null;
+  auction_ends_at: string | null;
+  bid_count: number;
+  suggested_price: number | null;
   lead_score: number | null;
   lead_grade: string | null;
   has_phone: boolean;
@@ -345,4 +367,33 @@ export interface LeadMarketplaceTransactionResponse {
   current_page: number;
   last_page: number;
   total: number;
+}
+
+export interface PlaceBidResponse {
+  message: string;
+  current_bid: number;
+  bid_count: number;
+}
+
+export interface SuggestPriceResponse {
+  suggested_price: number;
+  avg_market_price: number;
+  recent_transactions: number;
+  price_range: { low: number; high: number };
+}
+
+export interface BulkListRequest {
+  lead_ids: number[];
+  asking_price: number;
+  listing_type?: 'fixed_price' | 'auction';
+  min_bid?: number;
+  duration_days?: number;
+  seller_notes?: string;
+}
+
+export interface BulkListResponse {
+  message: string;
+  created: number;
+  skipped: number;
+  errors: string[];
 }

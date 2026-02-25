@@ -718,6 +718,9 @@ Route::middleware(['auth:sanctum', 'agency.scope'])->group(function () {
         Route::post('/listings/{listing}/withdraw', [LeadMarketplaceController::class, 'withdraw']);
         Route::get('/stats', [LeadMarketplaceController::class, 'stats']);
         Route::get('/transactions', [LeadMarketplaceController::class, 'transactions']);
+        Route::post('/listings/{listing}/bid', [LeadMarketplaceController::class, 'placeBid']);
+        Route::get('/suggest-price', [LeadMarketplaceController::class, 'suggestPrice']);
+        Route::post('/bulk-list', [LeadMarketplaceController::class, 'bulkList']);
     });
 
     // Agency Settings (agency_owner)

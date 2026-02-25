@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Card, Badge, Button, Input } from '@/components/ui';
-import { Search, ShoppingCart, Tag, MapPin, Clock, Star, TrendingUp, Phone, Mail, DollarSign, RefreshCw, ArrowUpDown } from 'lucide-react';
+import { Search, ShoppingCart, Tag, MapPin, Clock, Star, TrendingUp, Phone, Mail, DollarSign, RefreshCw, ArrowUpDown, Gavel, Package } from 'lucide-react';
 import { marketplaceService, type LeadMarketplaceListing, type LeadMarketplaceStats, type LeadMarketplaceTransaction } from '@/services/api/marketplace';
 import { toast } from 'sonner';
 
@@ -24,6 +24,7 @@ export default function LeadMarketplace() {
   const [stats, setStats] = useState<LeadMarketplaceStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [purchasing, setPurchasing] = useState<number | null>(null);
+  const [biddingId, setBiddingId] = useState<number | null>(null);
 
   // Filters
   const [search, setSearch] = useState('');
@@ -99,6 +100,27 @@ export default function LeadMarketplace() {
       fetchStats();
     } catch {
       toast.error('Failed to withdraw listing');
+    }
+  };
+
+  const handleBid = async (listing: LeadMarketplaceListing) => {
+    const minRequired = Math.max(listing.min_bid ?? 0, (listing.current_bid ?? 0) + 0.50);
+    const amount = prompt(`Enter bid amount (minimum $${minRequired.toFixed(2)}):`);
+    if (!amount) return;
+    const parsed = parseFloat(amount);
+    if (isNaN(parsed) || parsed < minRequired) {
+      toast.error(`Bid must be at least $${minRequired.toFixed(2)}`);
+      return;
+    }
+    setBiddingId(listing.id);
+    try {
+      await marketplaceService.placeBid(listing.id, parsed);
+      toast.success('Bid placed!');
+      fetchBrowse();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to place bid');
+    } finally {
+      setBiddingId(null);
     }
   };
 
@@ -199,7 +221,9 @@ export default function LeadMarketplace() {
               {filtered.map(listing => (
                 <ListingCard key={listing.id} listing={listing}
                   onPurchase={() => handlePurchase(listing)}
-                  purchasing={purchasing === listing.id} />
+                  onBid={() => handleBid(listing)}
+                  purchasing={purchasing === listing.id}
+                  bidding={biddingId === listing.id} />
               ))}
             </div>
           )}
@@ -210,40 +234,65 @@ export default function LeadMarketplace() {
       {tab === 'my-listings' && (
         loading ? (
           <div className="text-center py-12 text-slate-400">Loading...</div>
-        ) : myListings.length === 0 ? (
-          <Card className="p-12 text-center">
-            <Tag className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-            <p className="text-slate-500 font-medium">No listings yet</p>
-            <p className="text-slate-400 text-sm mt-1">List leads from your CRM to sell them on the marketplace</p>
-          </Card>
         ) : (
-          <div className="space-y-3">
-            {myListings.map(listing => (
-              <Card key={listing.id} className="p-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <Badge variant={listing.status === 'active' ? 'success' : listing.status === 'sold' ? 'default' : 'warning'}>
-                      {listing.status}
-                    </Badge>
-                    <span className="font-medium text-slate-900">{listing.insurance_type}</span>
-                    {listing.state && <span className="text-slate-500 text-sm">{listing.state}</span>}
-                    <span className="text-shield-600 font-bold">${listing.asking_price}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {listing.status === 'sold' && listing.transaction && (
-                      <span className="text-sm text-savings-600 font-medium">
-                        Sold — payout ${listing.transaction.seller_payout}
-                      </span>
-                    )}
-                    {listing.status === 'active' && (
-                      <Button variant="ghost" size="sm" onClick={() => handleWithdraw(listing.id)}>
-                        Withdraw
-                      </Button>
-                    )}
-                  </div>
-                </div>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <p className="text-sm text-slate-500">{myListings.length} listing{myListings.length !== 1 ? 's' : ''}</p>
+              <Button variant="primary" size="sm" onClick={() => toast.info('Select leads from your CRM to bulk-list them here.')}>
+                <Package className="w-4 h-4 mr-1" /> Bulk List
+              </Button>
+            </div>
+            {myListings.length === 0 ? (
+              <Card className="p-12 text-center">
+                <Tag className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+                <p className="text-slate-500 font-medium">No listings yet</p>
+                <p className="text-slate-400 text-sm mt-1">List leads from your CRM to sell them on the marketplace</p>
               </Card>
-            ))}
+            ) : (
+              <div className="space-y-3">
+                {myListings.map(listing => (
+                  <Card key={listing.id} className="p-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <Badge variant={listing.status === 'active' ? 'success' : listing.status === 'sold' ? 'default' : 'warning'}>
+                          {listing.status}
+                        </Badge>
+                        {listing.listing_type === 'auction' && (
+                          <Badge variant="warning">
+                            <Gavel className="w-3 h-3 mr-1" /> Auction
+                          </Badge>
+                        )}
+                        <span className="font-medium text-slate-900">{listing.insurance_type}</span>
+                        {listing.state && <span className="text-slate-500 text-sm">{listing.state}</span>}
+                        <span className="text-shield-600 font-bold">${listing.asking_price}</span>
+                        {listing.listing_type === 'auction' && listing.bid_count > 0 && (
+                          <span className="text-xs text-amber-600">
+                            {listing.bid_count} bid{listing.bid_count !== 1 ? 's' : ''} — current: ${listing.current_bid}
+                          </span>
+                        )}
+                        {listing.suggested_price != null && (
+                          <span className="text-xs text-slate-400">
+                            Suggested: ${listing.suggested_price}
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {listing.status === 'sold' && listing.transaction && (
+                          <span className="text-sm text-savings-600 font-medium">
+                            Sold — payout ${listing.transaction.seller_payout}
+                          </span>
+                        )}
+                        {listing.status === 'active' && (
+                          <Button variant="ghost" size="sm" onClick={() => handleWithdraw(listing.id)}>
+                            Withdraw
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            )}
           </div>
         )
       )}
@@ -254,11 +303,15 @@ export default function LeadMarketplace() {
   );
 }
 
-function ListingCard({ listing, onPurchase, purchasing }: {
+function ListingCard({ listing, onPurchase, onBid, purchasing, bidding }: {
   listing: LeadMarketplaceListing;
   onPurchase: () => void;
+  onBid: () => void;
   purchasing: boolean;
+  bidding: boolean;
 }) {
+  const isAuction = listing.listing_type === 'auction';
+
   return (
     <Card className="p-5 hover:shadow-lg transition-shadow">
       <div className="flex items-start justify-between mb-3">
@@ -269,8 +322,24 @@ function ListingCard({ listing, onPurchase, purchasing }: {
               Grade {listing.lead_grade}
             </Badge>
           )}
+          {isAuction && (
+            <Badge variant="warning">
+              <Gavel className="w-3 h-3 mr-1" /> Auction
+            </Badge>
+          )}
         </div>
-        <span className="text-xl font-bold text-shield-600">${listing.asking_price}</span>
+        {isAuction ? (
+          <div className="text-right">
+            <span className="text-xl font-bold text-amber-600">
+              ${listing.current_bid || listing.min_bid || listing.asking_price}
+            </span>
+            {listing.bid_count > 0 && (
+              <p className="text-xs text-slate-500">{listing.bid_count} bid{listing.bid_count !== 1 ? 's' : ''}</p>
+            )}
+          </div>
+        ) : (
+          <span className="text-xl font-bold text-shield-600">${listing.asking_price}</span>
+        )}
       </div>
 
       <div className="grid grid-cols-2 gap-2 text-sm mb-4">
@@ -302,6 +371,13 @@ function ListingCard({ listing, onPurchase, purchasing }: {
         )}
       </div>
 
+      {isAuction && listing.auction_ends_at && (
+        <p className="text-xs text-amber-600 mb-3">
+          <Clock className="w-3 h-3 inline mr-1" />
+          Auction ends {new Date(listing.auction_ends_at).toLocaleDateString()}
+        </p>
+      )}
+
       {listing.seller_notes && (
         <p className="text-xs text-slate-500 mb-3 italic">{listing.seller_notes}</p>
       )}
@@ -310,10 +386,17 @@ function ListingCard({ listing, onPurchase, purchasing }: {
         <p className="text-xs text-slate-400 mb-3">From: {listing.seller_agency.name}</p>
       )}
 
-      <Button className="w-full" onClick={onPurchase} disabled={purchasing}>
-        <DollarSign className="w-4 h-4 mr-1" />
-        {purchasing ? 'Purchasing...' : `Buy Lead — $${listing.asking_price}`}
-      </Button>
+      {isAuction ? (
+        <Button className="w-full" variant="shield" onClick={onBid} disabled={bidding}>
+          <Gavel className="w-4 h-4 mr-1" />
+          {bidding ? 'Placing bid...' : 'Place Bid'}
+        </Button>
+      ) : (
+        <Button className="w-full" onClick={onPurchase} disabled={purchasing}>
+          <DollarSign className="w-4 h-4 mr-1" />
+          {purchasing ? 'Purchasing...' : `Buy Lead — $${listing.asking_price}`}
+        </Button>
+      )}
     </Card>
   );
 }

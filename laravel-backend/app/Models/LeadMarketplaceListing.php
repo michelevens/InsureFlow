@@ -9,7 +9,9 @@ class LeadMarketplaceListing extends Model
     protected $fillable = [
         'seller_agency_id', 'insurance_profile_id', 'lead_id',
         'insurance_type', 'state', 'zip_prefix', 'coverage_level', 'urgency',
-        'asking_price', 'platform_fee', 'platform_fee_pct',
+        'asking_price', 'listing_type', 'min_bid', 'current_bid', 'current_bidder_id',
+        'auction_ends_at', 'bid_count', 'suggested_price',
+        'platform_fee', 'platform_fee_pct',
         'lead_score', 'lead_grade', 'has_phone', 'has_email', 'days_old',
         'status', 'expires_at', 'sold_at', 'seller_notes',
     ];
@@ -18,12 +20,16 @@ class LeadMarketplaceListing extends Model
     {
         return [
             'asking_price' => 'decimal:2',
+            'min_bid' => 'decimal:2',
+            'current_bid' => 'decimal:2',
+            'suggested_price' => 'decimal:2',
             'platform_fee' => 'decimal:2',
             'platform_fee_pct' => 'decimal:2',
             'has_phone' => 'boolean',
             'has_email' => 'boolean',
             'expires_at' => 'datetime',
             'sold_at' => 'datetime',
+            'auction_ends_at' => 'datetime',
         ];
     }
 
@@ -45,6 +51,16 @@ class LeadMarketplaceListing extends Model
     public function transaction()
     {
         return $this->hasOne(LeadMarketplaceTransaction::class, 'listing_id');
+    }
+
+    public function bids()
+    {
+        return $this->hasMany(LeadMarketplaceBid::class, 'listing_id');
+    }
+
+    public function currentBidder()
+    {
+        return $this->belongsTo(User::class, 'current_bidder_id');
     }
 
     // --- Scopes ---

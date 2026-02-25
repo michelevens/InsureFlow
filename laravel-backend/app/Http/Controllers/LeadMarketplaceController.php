@@ -6,6 +6,7 @@ use App\Models\Agency;
 use App\Models\InsuranceProfile;
 use App\Models\Lead;
 use App\Models\LeadEngagementEvent;
+use App\Models\LeadMarketplaceBid;
 use App\Models\LeadMarketplaceListing;
 use App\Models\LeadMarketplaceTransaction;
 use App\Services\LeadScoringService;
@@ -448,6 +449,205 @@ class LeadMarketplaceController extends Controller
         });
 
         return response()->json($transactions);
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // AUCTION / BIDDING
+    // ═══════════════════════════════════════════════════════════════
+
+    /**
+     * Place a bid on an auction-type listing.
+     */
+    public function placeBid(Request $request, LeadMarketplaceListing $listing)
+    {
+        $user = $request->user();
+
+        // Validate listing is an auction and still active
+        if ($listing->listing_type !== 'auction' || $listing->status !== 'active') {
+            return response()->json(['message' => 'This listing is not available for bidding'], 422);
+        }
+        if ($listing->auction_ends_at && $listing->auction_ends_at->isPast()) {
+            return response()->json(['message' => 'Auction has ended'], 422);
+        }
+        // Can't bid on own listing
+        if ($listing->seller_agency_id === ($user->agency_id ?? 0)) {
+            return response()->json(['message' => 'Cannot bid on your own listing'], 422);
+        }
+
+        $data = $request->validate([
+            'amount' => 'required|numeric|min:1',
+        ]);
+
+        // Must be higher than current bid and min_bid
+        $minRequired = max($listing->min_bid ?? 0, ($listing->current_bid ?? 0) + 0.50);
+        if ($data['amount'] < $minRequired) {
+            return response()->json(['message' => "Bid must be at least \${$minRequired}"], 422);
+        }
+
+        DB::transaction(function () use ($listing, $user, $data) {
+            // Mark previous winning bid as not winning
+            LeadMarketplaceBid::where('listing_id', $listing->id)
+                ->where('is_winning', true)
+                ->update(['is_winning' => false]);
+
+            // Create new bid
+            LeadMarketplaceBid::create([
+                'listing_id' => $listing->id,
+                'bidder_id' => $user->id,
+                'amount' => $data['amount'],
+                'is_winning' => true,
+            ]);
+
+            $listing->update([
+                'current_bid' => $data['amount'],
+                'current_bidder_id' => $user->id,
+                'bid_count' => $listing->bid_count + 1,
+            ]);
+        });
+
+        return response()->json([
+            'message' => 'Bid placed successfully',
+            'current_bid' => $data['amount'],
+            'bid_count' => $listing->fresh()->bid_count,
+        ]);
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // SUGGESTED PRICING
+    // ═══════════════════════════════════════════════════════════════
+
+    /**
+     * Get suggested price based on historical transaction data.
+     */
+    public function suggestPrice(Request $request)
+    {
+        $data = $request->validate([
+            'insurance_type' => 'required|string',
+            'state' => 'nullable|string',
+            'lead_score' => 'nullable|integer',
+        ]);
+
+        // Calculate suggested price based on historical transaction data
+        $query = LeadMarketplaceTransaction::query()
+            ->join('lead_marketplace_listings', 'lead_marketplace_listings.id', '=', 'lead_marketplace_transactions.listing_id');
+
+        if (!empty($data['insurance_type'])) {
+            $query->where('lead_marketplace_listings.insurance_type', $data['insurance_type']);
+        }
+
+        $avgPrice = (clone $query)->avg('lead_marketplace_transactions.purchase_price') ?? 15.00;
+        $medianPrice = $avgPrice; // Simplified
+        $recentCount = (clone $query)->where('lead_marketplace_transactions.created_at', '>', now()->subDays(30))->count();
+
+        // Adjust by lead score
+        $score = $data['lead_score'] ?? 50;
+        $scoreMultiplier = 0.5 + ($score / 100); // 50 score = 1.0x, 100 score = 1.5x, 0 score = 0.5x
+        $suggested = round($avgPrice * $scoreMultiplier, 2);
+        $suggested = max(5.00, min(500.00, $suggested)); // Clamp
+
+        return response()->json([
+            'suggested_price' => $suggested,
+            'avg_market_price' => round((float) $avgPrice, 2),
+            'recent_transactions' => $recentCount,
+            'price_range' => [
+                'low' => round($suggested * 0.7, 2),
+                'high' => round($suggested * 1.3, 2),
+            ],
+        ]);
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // BULK LISTING
+    // ═══════════════════════════════════════════════════════════════
+
+    /**
+     * List multiple leads at once on the marketplace.
+     */
+    public function bulkList(Request $request)
+    {
+        $user = $request->user();
+        $agency = $user->ownedAgency ?? $user->agency;
+        if (!$agency) {
+            return response()->json(['message' => 'No agency found'], 404);
+        }
+
+        $data = $request->validate([
+            'lead_ids' => 'required|array|min:1|max:50',
+            'lead_ids.*' => 'integer|exists:leads,id',
+            'asking_price' => 'required|numeric|min:1|max:9999',
+            'listing_type' => 'sometimes|in:fixed_price,auction',
+            'min_bid' => 'nullable|numeric|min:1',
+            'duration_days' => 'sometimes|integer|in:7,14,30,60,90',
+            'seller_notes' => 'nullable|string|max:500',
+        ]);
+
+        $created = 0;
+        $skipped = 0;
+        $errors = [];
+
+        foreach ($data['lead_ids'] as $leadId) {
+            $lead = Lead::find($leadId);
+            if (!$lead || $lead->agency_id !== $agency->id) {
+                $skipped++;
+                $errors[] = "Lead #{$leadId}: not found or not yours";
+                continue;
+            }
+            // Can't sell marketplace-purchased leads
+            if ($lead->source === 'marketplace') {
+                $skipped++;
+                $errors[] = "Lead #{$leadId}: marketplace-purchased leads cannot be re-listed";
+                continue;
+            }
+            // Check if already listed
+            $profile = $lead->insuranceProfile;
+            if (!$profile) {
+                $skipped++;
+                $errors[] = "Lead #{$leadId}: no insurance profile found";
+                continue;
+            }
+
+            $existing = LeadMarketplaceListing::where('insurance_profile_id', $profile->id)
+                ->where('status', 'active')->exists();
+            if ($existing) {
+                $skipped++;
+                $errors[] = "Lead #{$leadId}: already listed";
+                continue;
+            }
+
+            $durationDays = $data['duration_days'] ?? 30;
+            $listingType = $data['listing_type'] ?? 'fixed_price';
+            $leadScore = $profile->leadScore?->score ?? 0;
+
+            LeadMarketplaceListing::create([
+                'insurance_profile_id' => $profile->id,
+                'seller_agency_id' => $agency->id,
+                'lead_id' => $lead->id,
+                'insurance_type' => $lead->insurance_type ?? $profile->insurance_type ?? 'general',
+                'state' => $profile->zip_code ? $this->stateFromZip($profile->zip_code) : null,
+                'zip_prefix' => $profile->zip_code ? substr($profile->zip_code, 0, 3) : null,
+                'lead_score' => $leadScore,
+                'lead_grade' => $this->gradeFromScore($leadScore),
+                'has_phone' => !empty($profile->phone),
+                'has_email' => !empty($profile->email),
+                'days_old' => $profile->created_at ? (int) now()->diffInDays($profile->created_at) : 0,
+                'asking_price' => $data['asking_price'],
+                'listing_type' => $listingType,
+                'min_bid' => $data['min_bid'] ?? null,
+                'auction_ends_at' => $listingType === 'auction'
+                    ? now()->addDays($durationDays) : null,
+                'expires_at' => now()->addDays($durationDays),
+                'seller_notes' => $data['seller_notes'] ?? null,
+                'status' => 'active',
+            ]);
+            $created++;
+        }
+
+        return response()->json([
+            'message' => "{$created} leads listed, {$skipped} skipped",
+            'created' => $created,
+            'skipped' => $skipped,
+            'errors' => $errors,
+        ]);
     }
 
     // ═══════════════════════════════════════════════════════════════
