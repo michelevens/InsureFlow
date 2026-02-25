@@ -160,11 +160,24 @@ class EmbedController extends Controller
 
     public function widgetCode(EmbedPartner $partner): JsonResponse
     {
-        $code = '<script src="' . config('app.url') . '/embed/insurons-widget.js" data-key="' . $partner->api_key . '"></script>';
+        $frontendUrl = rtrim(config('app.frontend_url', 'https://insurons.com'), '/');
+        $code = '<script src="' . $frontendUrl . '/embed/insurons-widget.js" data-key="' . $partner->api_key . '"></script>';
 
         return response()->json([
             'embed_code' => $code,
             'api_key' => $partner->api_key,
         ]);
+    }
+
+    public function markConverted(Request $request): JsonResponse
+    {
+        $sessionToken = $request->input('session_token');
+        $session = EmbedSession::where('session_token', $sessionToken)->first();
+
+        if ($session && !$session->converted_at) {
+            $session->update(['converted_at' => now()]);
+        }
+
+        return response()->json(['ok' => true]);
     }
 }
