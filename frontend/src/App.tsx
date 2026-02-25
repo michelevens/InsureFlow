@@ -1,4 +1,4 @@
-import { lazy, Suspense } from 'react';
+import { Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'sonner';
@@ -6,6 +6,7 @@ import { AuthProvider } from '@/contexts/AuthContext';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { PWAPrompt } from '@/components/pwa/PWAPrompt';
+import { ChunkErrorBoundary, lazyRetry } from '@/components/ChunkErrorBoundary';
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 1, staleTime: 5 * 60 * 1000 } },
@@ -20,151 +21,152 @@ function PageLoader() {
   );
 }
 
-// Lazy-loaded pages
+// Lazy-loaded pages (with retry on chunk load failure)
 // Auth
-const Login = lazy(() => import('@/pages/auth/Login'));
-const Register = lazy(() => import('@/pages/auth/Register'));
-const VerifyEmail = lazy(() => import('@/pages/auth/VerifyEmail'));
-const AcceptInvite = lazy(() => import('@/pages/auth/AcceptInvite'));
-const ForgotPassword = lazy(() => import('@/pages/auth/ForgotPassword'));
-const ResetPassword = lazy(() => import('@/pages/auth/ResetPassword'));
-const SsoLogin = lazy(() => import('@/pages/auth/SsoLogin'));
-const SsoCallback = lazy(() => import('@/pages/auth/SsoCallback'));
+const Login = lazyRetry(() => import('@/pages/auth/Login'));
+const Register = lazyRetry(() => import('@/pages/auth/Register'));
+const VerifyEmail = lazyRetry(() => import('@/pages/auth/VerifyEmail'));
+const AcceptInvite = lazyRetry(() => import('@/pages/auth/AcceptInvite'));
+const ForgotPassword = lazyRetry(() => import('@/pages/auth/ForgotPassword'));
+const ResetPassword = lazyRetry(() => import('@/pages/auth/ResetPassword'));
+const SsoLogin = lazyRetry(() => import('@/pages/auth/SsoLogin'));
+const SsoCallback = lazyRetry(() => import('@/pages/auth/SsoCallback'));
 
 // Onboarding
-const Onboarding = lazy(() => import('@/pages/onboarding/Onboarding'));
+const Onboarding = lazyRetry(() => import('@/pages/onboarding/Onboarding'));
 
 // Public
-const Landing = lazy(() => import('@/pages/public/Landing'));
-const Pricing = lazy(() => import('@/pages/public/Pricing'));
-const Privacy = lazy(() => import('@/pages/public/Privacy'));
-const Terms = lazy(() => import('@/pages/public/Terms'));
+const Landing = lazyRetry(() => import('@/pages/public/Landing'));
+const Pricing = lazyRetry(() => import('@/pages/public/Pricing'));
+const Privacy = lazyRetry(() => import('@/pages/public/Privacy'));
+const Terms = lazyRetry(() => import('@/pages/public/Terms'));
 
 // Calculator (public)
-const Calculator = lazy(() => import('@/pages/calculator/Calculator'));
-const QuoteResults = lazy(() => import('@/pages/calculator/QuoteResults'));
+const Calculator = lazyRetry(() => import('@/pages/calculator/Calculator'));
+const QuoteResults = lazyRetry(() => import('@/pages/calculator/QuoteResults'));
 
 // Marketplace (public)
-const Marketplace = lazy(() => import('@/pages/marketplace/Marketplace'));
-const AgentProfile = lazy(() => import('@/pages/marketplace/AgentProfile'));
-const InsuranceRequestForm = lazy(() => import('@/pages/marketplace/InsuranceRequestForm'));
-const ScenarioPublicView = lazy(() => import('@/pages/marketplace/ScenarioPublicView'));
-const ApplicationSigningPage = lazy(() => import('@/pages/marketplace/ApplicationSigningPage'));
+const Marketplace = lazyRetry(() => import('@/pages/marketplace/Marketplace'));
+const AgentProfile = lazyRetry(() => import('@/pages/marketplace/AgentProfile'));
+const InsuranceRequestForm = lazyRetry(() => import('@/pages/marketplace/InsuranceRequestForm'));
+const ScenarioPublicView = lazyRetry(() => import('@/pages/marketplace/ScenarioPublicView'));
+const ApplicationSigningPage = lazyRetry(() => import('@/pages/marketplace/ApplicationSigningPage'));
 
 // Agent Marketplace (protected)
-const AgentMarketplace = lazy(() => import('@/pages/marketplace/AgentMarketplace'));
-const LeadMarketplace = lazy(() => import('@/pages/marketplace/LeadMarketplace'));
+const AgentMarketplace = lazyRetry(() => import('@/pages/marketplace/AgentMarketplace'));
+const LeadMarketplace = lazyRetry(() => import('@/pages/marketplace/LeadMarketplace'));
 
 // Dashboard
-const Dashboard = lazy(() => import('@/pages/dashboard/Dashboard'));
+const Dashboard = lazyRetry(() => import('@/pages/dashboard/Dashboard'));
 
 // Consumer Portal
-const MyQuotes = lazy(() => import('@/pages/portal/MyQuotes'));
-const MyApplications = lazy(() => import('@/pages/portal/MyApplications'));
-const MyPolicies = lazy(() => import('@/pages/portal/MyPolicies'));
+const MyQuotes = lazyRetry(() => import('@/pages/portal/MyQuotes'));
+const MyApplications = lazyRetry(() => import('@/pages/portal/MyApplications'));
+const MyPolicies = lazyRetry(() => import('@/pages/portal/MyPolicies'));
 
 // Messaging & Notifications
-const Messages = lazy(() => import('@/pages/messages/Messages'));
-const Notifications = lazy(() => import('@/pages/notifications/Notifications'));
+const Messages = lazyRetry(() => import('@/pages/messages/Messages'));
+const Notifications = lazyRetry(() => import('@/pages/notifications/Notifications'));
 
 // Documents & E-Signature
-const DocumentsPage = lazy(() => import('@/pages/documents/Documents'));
+const DocumentsPage = lazyRetry(() => import('@/pages/documents/Documents'));
 
 // Agent / Agency
-const Leads = lazy(() => import('@/pages/crm/Leads'));
-const Applications = lazy(() => import('@/pages/applications/Applications'));
-const Policies = lazy(() => import('@/pages/policies/Policies'));
-const Commissions = lazy(() => import('@/pages/analytics/Commissions'));
-const Reviews = lazy(() => import('@/pages/analytics/Reviews'));
-const AgencyTeam = lazy(() => import('@/pages/admin/AgencyTeam'));
+const Leads = lazyRetry(() => import('@/pages/crm/Leads'));
+const Applications = lazyRetry(() => import('@/pages/applications/Applications'));
+const Policies = lazyRetry(() => import('@/pages/policies/Policies'));
+const Commissions = lazyRetry(() => import('@/pages/analytics/Commissions'));
+const Reviews = lazyRetry(() => import('@/pages/analytics/Reviews'));
+const AgencyTeam = lazyRetry(() => import('@/pages/admin/AgencyTeam'));
 
 // Claims
-const ClaimsPage = lazy(() => import('@/pages/claims/Claims'));
+const ClaimsPage = lazyRetry(() => import('@/pages/claims/Claims'));
 
 // Renewals
-const RenewalsPage = lazy(() => import('@/pages/renewals/Renewals'));
+const RenewalsPage = lazyRetry(() => import('@/pages/renewals/Renewals'));
 
 // Carrier
-const Products = lazy(() => import('@/pages/carriers/Products'));
-const Production = lazy(() => import('@/pages/carriers/Production'));
-const CarrierApiConfigPage = lazy(() => import('@/pages/carriers/CarrierApiConfig'));
+const Products = lazyRetry(() => import('@/pages/carriers/Products'));
+const Production = lazyRetry(() => import('@/pages/carriers/Production'));
+const CarrierApiConfigPage = lazyRetry(() => import('@/pages/carriers/CarrierApiConfig'));
 
 // Analytics
-const AdvancedAnalytics = lazy(() => import('@/pages/analytics/AdvancedAnalytics'));
+const AdvancedAnalytics = lazyRetry(() => import('@/pages/analytics/AdvancedAnalytics'));
 
 // Admin
-const AdminUsers = lazy(() => import('@/pages/admin/AdminUsers'));
-const AdminAgencies = lazy(() => import('@/pages/admin/AdminAgencies'));
-const AdminAnalytics = lazy(() => import('@/pages/admin/AdminAnalytics'));
-const AdminPlans = lazy(() => import('@/pages/admin/AdminPlans'));
-const AdminProducts = lazy(() => import('@/pages/admin/AdminProducts'));
-const AdminCarriers = lazy(() => import('@/pages/admin/AdminCarriers'));
-const AdminProfiles = lazy(() => import('@/pages/admin/AdminProfiles'));
-const AdminAuditLog = lazy(() => import('@/pages/admin/AdminAuditLog'));
-const AdminRateTables = lazy(() => import('@/pages/admin/AdminRateTables'));
-const AdminRateTableDetail = lazy(() => import('@/pages/admin/AdminRateTableDetail'));
-const AdminRateTableForm = lazy(() => import('@/pages/admin/AdminRateTableForm'));
-const SuperAdminDashboard = lazy(() => import('@/pages/admin/SuperAdminDashboard'));
-const SuperAdminSettings = lazy(() => import('@/pages/admin/SuperAdminSettings'));
-const SsoConfig = lazy(() => import('@/pages/admin/SsoConfig'));
+const AdminUsers = lazyRetry(() => import('@/pages/admin/AdminUsers'));
+const AdminAgencies = lazyRetry(() => import('@/pages/admin/AdminAgencies'));
+const AdminAnalytics = lazyRetry(() => import('@/pages/admin/AdminAnalytics'));
+const AdminPlans = lazyRetry(() => import('@/pages/admin/AdminPlans'));
+const AdminProducts = lazyRetry(() => import('@/pages/admin/AdminProducts'));
+const AdminCarriers = lazyRetry(() => import('@/pages/admin/AdminCarriers'));
+const AdminProfiles = lazyRetry(() => import('@/pages/admin/AdminProfiles'));
+const AdminAuditLog = lazyRetry(() => import('@/pages/admin/AdminAuditLog'));
+const AdminRateTables = lazyRetry(() => import('@/pages/admin/AdminRateTables'));
+const AdminRateTableDetail = lazyRetry(() => import('@/pages/admin/AdminRateTableDetail'));
+const AdminRateTableForm = lazyRetry(() => import('@/pages/admin/AdminRateTableForm'));
+const SuperAdminDashboard = lazyRetry(() => import('@/pages/admin/SuperAdminDashboard'));
+const SuperAdminSettings = lazyRetry(() => import('@/pages/admin/SuperAdminSettings'));
+const SsoConfig = lazyRetry(() => import('@/pages/admin/SsoConfig'));
 
 // Agency
-const AgencyProducts = lazy(() => import('@/pages/agency/AgencyProducts'));
-const AgencyAppointments = lazy(() => import('@/pages/agency/AgencyAppointments'));
-const AgencySettings = lazy(() => import('@/pages/agency/AgencySettings'));
+const AgencyProducts = lazyRetry(() => import('@/pages/agency/AgencyProducts'));
+const AgencyAppointments = lazyRetry(() => import('@/pages/agency/AgencyAppointments'));
+const AgencySettings = lazyRetry(() => import('@/pages/agency/AgencySettings'));
 
 // Organizations
-const OrganizationTree = lazy(() => import('@/pages/organizations/OrganizationTree'));
+const OrganizationTree = lazyRetry(() => import('@/pages/organizations/OrganizationTree'));
 
 // Webhooks
-const WebhookSettings = lazy(() => import('@/pages/webhooks/WebhookSettings'));
+const WebhookSettings = lazyRetry(() => import('@/pages/webhooks/WebhookSettings'));
 
 // Calendar
-const CalendarPage = lazy(() => import('@/pages/calendar/Calendar'));
+const CalendarPage = lazyRetry(() => import('@/pages/calendar/Calendar'));
 
 // White-Label
-const WhiteLabelConfigPage = lazy(() => import('@/pages/whitelabel/WhiteLabelConfig'));
+const WhiteLabelConfigPage = lazyRetry(() => import('@/pages/whitelabel/WhiteLabelConfig'));
 
 // Embed Partners
-const EmbedPartnerDashboard = lazy(() => import('@/pages/embed/EmbedPartnerDashboard'));
+const EmbedPartnerDashboard = lazyRetry(() => import('@/pages/embed/EmbedPartnerDashboard'));
 
 // Compliance
-const ComplianceDashboard = lazy(() => import('@/pages/compliance/ComplianceDashboard'));
+const ComplianceDashboard = lazyRetry(() => import('@/pages/compliance/ComplianceDashboard'));
 
 // Data Products & API Keys
-const MarketIntelDashboard = lazy(() => import('@/pages/data/MarketIntelDashboard'));
-const ApiKeyManagement = lazy(() => import('@/pages/apikeys/ApiKeyManagement'));
+const MarketIntelDashboard = lazyRetry(() => import('@/pages/data/MarketIntelDashboard'));
+const ApiKeyManagement = lazyRetry(() => import('@/pages/apikeys/ApiKeyManagement'));
 
 // Recruitment & Training
-const RecruitmentDashboard = lazy(() => import('@/pages/recruitment/RecruitmentDashboard'));
-const TrainingCatalog = lazy(() => import('@/pages/training/TrainingCatalog'));
+const RecruitmentDashboard = lazyRetry(() => import('@/pages/recruitment/RecruitmentDashboard'));
+const TrainingCatalog = lazyRetry(() => import('@/pages/training/TrainingCatalog'));
 
 // Help Center
-const HelpCenterPage = lazy(() => import('@/pages/help/HelpCenter'));
+const HelpCenterPage = lazyRetry(() => import('@/pages/help/HelpCenter'));
 
 // Phase 6: Ecosystem
-const ForumHome = lazy(() => import('@/pages/forum/ForumHome'));
-const EventCalendar = lazy(() => import('@/pages/events/EventCalendar'));
-const PartnerDirectory = lazy(() => import('@/pages/partners/PartnerDirectory'));
-const CampaignBuilder = lazy(() => import('@/pages/campaigns/CampaignBuilder'));
-const ReportBuilder = lazy(() => import('@/pages/reports/ReportBuilder'));
-const LtcComparisonReport = lazy(() => import('@/pages/reports/LtcComparisonReport'));
+const ForumHome = lazyRetry(() => import('@/pages/forum/ForumHome'));
+const EventCalendar = lazyRetry(() => import('@/pages/events/EventCalendar'));
+const PartnerDirectory = lazyRetry(() => import('@/pages/partners/PartnerDirectory'));
+const CampaignBuilder = lazyRetry(() => import('@/pages/campaigns/CampaignBuilder'));
+const ReportBuilder = lazyRetry(() => import('@/pages/reports/ReportBuilder'));
+const LtcComparisonReport = lazyRetry(() => import('@/pages/reports/LtcComparisonReport'));
 
 // Video Meetings
-const MeetingsPage = lazy(() => import('@/pages/meetings/Meetings'));
-const MeetingRoom = lazy(() => import('@/pages/meetings/MeetingRoom'));
+const MeetingsPage = lazyRetry(() => import('@/pages/meetings/Meetings'));
+const MeetingRoom = lazyRetry(() => import('@/pages/meetings/MeetingRoom'));
 
 // Lead Intake (public)
-const LeadIntake = lazy(() => import('@/pages/intake/LeadIntake'));
+const LeadIntake = lazyRetry(() => import('@/pages/intake/LeadIntake'));
 
 // Settings
-const Settings = lazy(() => import('@/pages/public/Settings'));
+const Settings = lazyRetry(() => import('@/pages/public/Settings'));
 
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter basename={import.meta.env.BASE_URL}>
         <AuthProvider>
+          <ChunkErrorBoundary>
           <Suspense fallback={<PageLoader />}>
             <Routes>
               {/* Public routes */}
@@ -312,6 +314,7 @@ export default function App() {
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </Suspense>
+          </ChunkErrorBoundary>
           <PWAPrompt />
           <Toaster position="top-right" richColors closeButton />
         </AuthProvider>
