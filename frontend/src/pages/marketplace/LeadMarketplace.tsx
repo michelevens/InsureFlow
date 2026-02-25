@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Card, Badge, Button, Input } from '@/components/ui';
+import { Card, Badge, Button, Input, useConfirm } from '@/components/ui';
 import { Search, ShoppingCart, Tag, MapPin, Clock, Star, TrendingUp, Phone, Mail, RefreshCw, ArrowUpDown, Gavel, Package, CreditCard, Loader2 } from 'lucide-react';
 import { marketplaceService, type LeadMarketplaceListing, type LeadMarketplaceStats, type LeadMarketplaceTransaction } from '@/services/api/marketplace';
 import { toast } from 'sonner';
@@ -19,6 +19,7 @@ const SORT_OPTIONS = [
 type Tab = 'browse' | 'my-listings' | 'transactions';
 
 export default function LeadMarketplace() {
+  const confirm = useConfirm();
   const [searchParams, setSearchParams] = useSearchParams();
   const [tab, setTab] = useState<Tab>('browse');
   const [listings, setListings] = useState<LeadMarketplaceListing[]>([]);
@@ -92,7 +93,14 @@ export default function LeadMarketplace() {
   }, [tab, fetchBrowse, fetchMyListings]);
 
   const handlePurchase = async (listing: LeadMarketplaceListing) => {
-    if (!confirm(`Purchase this ${listing.insurance_type} lead for $${listing.asking_price}?`)) return;
+    const ok = await confirm({
+      title: 'Purchase Lead',
+      message: `Purchase this ${listing.insurance_type.replace(/_/g, ' ')} lead for $${Number(listing.asking_price).toFixed(2)}?`,
+      confirmLabel: 'Buy Now',
+      cancelLabel: 'Cancel',
+      variant: 'info',
+    });
+    if (!ok) return;
     setPurchasing(listing.id);
     try {
       // Try Stripe checkout first

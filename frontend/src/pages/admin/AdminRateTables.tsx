@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { rateTableAdminService } from '@/services/api/rateTableAdmin';
 import type { AdminRateTable, RateTableCounts, CarrierOption } from '@/services/api/rateTableAdmin';
 import { toast } from 'sonner';
+import { useConfirm } from '@/components/ui';
 import { Search, Plus, Table2, ToggleLeft, Copy, Trash2, Eye, Loader2, Database, CheckCircle, XCircle } from 'lucide-react';
 
 const PRODUCT_TYPES = ['All', 'LTC', 'LTD', 'Life', 'P&C', 'Annuity'] as const;
@@ -31,6 +32,7 @@ function normaliseProductLabel(productType: string): string {
 }
 
 export default function AdminRateTables() {
+  const confirm = useConfirm();
   const [rateTables, setRateTables] = useState<AdminRateTable[]>([]);
   const [counts, setCounts] = useState<RateTableCounts>({ total: 0, active: 0, ltc: 0, ltd: 0 });
   const [carriers, setCarriers] = useState<CarrierOption[]>([]);
@@ -97,7 +99,8 @@ export default function AdminRateTables() {
   };
 
   const handleDelete = async (id: number, name: string) => {
-    if (!confirm(`Delete "${name}"? This cannot be undone.`)) return;
+    const ok = await confirm({ title: 'Delete Rate Table', message: `Delete "${name}"? This cannot be undone.`, confirmLabel: 'Delete', variant: 'danger' });
+    if (!ok) return;
     try {
       await rateTableAdminService.delete(id);
       toast.success('Rate table deleted');

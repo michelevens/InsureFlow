@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Card, Badge, Button, Input } from '@/components/ui';
+import { Card, Badge, Button, Input, useConfirm } from '@/components/ui';
 import { DollarSign, Plus, Edit, Trash2, CheckCircle2, Users, Loader2, X } from 'lucide-react';
 import { adminService } from '@/services/api/admin';
 import { toast } from 'sonner';
@@ -8,6 +8,7 @@ import type { SubscriptionPlan } from '@/types';
 const emptyForm = { name: '', slug: '', role: 'agent', price_monthly: 0, price_yearly: 0, is_active: true, is_popular: false, sort_order: 0 };
 
 export default function AdminPlans() {
+  const confirm = useConfirm();
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -73,7 +74,8 @@ export default function AdminPlans() {
   };
 
   const handleDelete = async (plan: SubscriptionPlan) => {
-    if (!confirm(`Delete "${plan.name}"? This cannot be undone.`)) return;
+    const ok = await confirm({ title: 'Delete Plan', message: `Delete "${plan.name}"? This cannot be undone.`, confirmLabel: 'Delete', variant: 'danger' });
+    if (!ok) return;
     try {
       await adminService.deletePlan(plan.id);
       toast.success('Plan deleted');

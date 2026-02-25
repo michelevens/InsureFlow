@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Card, Button, Input, Badge } from '@/components/ui';
+import { Card, Button, Input, Badge, useConfirm } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import { Loader2, CheckCircle, XCircle, Plus, Key, Plug, Palette, Shield, UserPlus, Copy, RefreshCw, Link2 } from 'lucide-react';
 import { api } from '@/services/api/client';
@@ -52,6 +52,7 @@ interface ComplianceAgent {
 }
 
 export default function AgencySettings() {
+  const confirm = useConfirm();
   const [activeTab, setActiveTab] = useState('general');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -186,7 +187,8 @@ export default function AgencySettings() {
   }, [activeTab]);
 
   const handleRegenerateCode = async () => {
-    if (!confirm('Regenerate agency code? Existing shared codes will stop working.')) return;
+    const ok = await confirm({ title: 'Regenerate Agency Code', message: 'Regenerate agency code? Existing shared intake links will stop working.', confirmLabel: 'Regenerate', variant: 'warning' });
+    if (!ok) return;
     setRegeneratingCode(true);
     try {
       const res = await api.post('/agency/settings/regenerate-code') as { agency_code: string };

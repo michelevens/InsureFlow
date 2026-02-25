@@ -5,6 +5,7 @@ export type { InputProps } from './Input';
 export { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from './Card';
 export { Badge } from './Badge';
 export { Modal } from './Modal';
+export { ConfirmDialog, ConfirmProvider, useConfirm } from './ConfirmDialog';
 export { Select } from './Select';
 export { Textarea } from './Textarea';
 export { AddressAutocomplete } from './AddressAutocomplete';

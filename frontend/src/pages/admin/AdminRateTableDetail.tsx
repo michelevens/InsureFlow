@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { rateTableAdminService } from '@/services/api/rateTableAdmin';
 import type { RateTableDetail, RateTableEntry, RateFactor, RateRider, RateFee, RateModalFactor } from '@/services/api/rateTableAdmin';
 import { toast } from 'sonner';
+import { useConfirm } from '@/components/ui';
 import { ArrowLeft, Edit, Copy, ToggleLeft, Trash2, Loader2, Plus, Save, X } from 'lucide-react';
 
 type TabId = 'entries' | 'factors' | 'riders' | 'fees' | 'modal_factors';
@@ -129,6 +130,7 @@ function RowActions({
 // ── Tab: Base Rates ───────────────────────────────────────────────────────────
 
 function EntriesTab({ tableId, entries, onReload }: { tableId: number; entries: RateTableEntry[]; onReload: () => void }) {
+  const confirm = useConfirm();
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editForm, setEditForm] = useState({ rate_key: '', rate_value: '' });
   const [saving, setSaving] = useState(false);
@@ -156,7 +158,8 @@ function EntriesTab({ tableId, entries, onReload }: { tableId: number; entries: 
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm('Delete this base rate entry?')) return;
+    const ok = await confirm({ title: 'Delete Entry', message: 'Delete this base rate entry?', confirmLabel: 'Delete', variant: 'danger' });
+    if (!ok) return;
     try {
       await rateTableAdminService.deleteEntry(tableId, id);
       toast.success('Entry deleted');
@@ -258,6 +261,7 @@ const APPLY_MODE_OPTIONS = [
 ];
 
 function FactorsTab({ tableId, factors, onReload }: { tableId: number; factors: RateFactor[]; onReload: () => void }) {
+  const confirm = useConfirm();
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editForm, setEditForm] = useState({ factor_code: '', factor_label: '', option_value: '', apply_mode: 'multiply', factor_value: '' });
   const [saving, setSaving] = useState(false);
@@ -291,7 +295,8 @@ function FactorsTab({ tableId, factors, onReload }: { tableId: number; factors: 
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm('Delete this factor?')) return;
+    const ok = await confirm({ title: 'Delete Factor', message: 'Delete this factor?', confirmLabel: 'Delete', variant: 'danger' });
+    if (!ok) return;
     try {
       await rateTableAdminService.deleteFactor(tableId, id);
       toast.success('Factor deleted');
@@ -426,6 +431,7 @@ const RIDER_APPLY_OPTIONS = [
 ];
 
 function RidersTab({ tableId, riders, onReload }: { tableId: number; riders: RateRider[]; onReload: () => void }) {
+  const confirm = useConfirm();
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editForm, setEditForm] = useState({ rider_code: '', rider_label: '', apply_mode: 'add', rider_value: '' });
   const [saving, setSaving] = useState(false);
@@ -454,7 +460,8 @@ function RidersTab({ tableId, riders, onReload }: { tableId: number; riders: Rat
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm('Delete this rider?')) return;
+    const ok = await confirm({ title: 'Delete Rider', message: 'Delete this rider?', confirmLabel: 'Delete', variant: 'danger' });
+    if (!ok) return;
     try {
       await rateTableAdminService.deleteRider(tableId, id);
       toast.success('Rider deleted');
@@ -583,6 +590,7 @@ const FEE_APPLY_OPTIONS = [
 ];
 
 function FeesTab({ tableId, fees, onReload }: { tableId: number; fees: RateFee[]; onReload: () => void }) {
+  const confirm = useConfirm();
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editForm, setEditForm] = useState({ fee_code: '', fee_label: '', fee_type: 'fee', apply_mode: 'add', fee_value: '' });
   const [saving, setSaving] = useState(false);
@@ -612,7 +620,8 @@ function FeesTab({ tableId, fees, onReload }: { tableId: number; fees: RateFee[]
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm('Delete this fee?')) return;
+    const ok = await confirm({ title: 'Delete Fee', message: 'Delete this fee?', confirmLabel: 'Delete', variant: 'danger' });
+    if (!ok) return;
     try {
       await rateTableAdminService.deleteFee(tableId, id);
       toast.success('Fee deleted');
@@ -785,6 +794,7 @@ function ModalFactorsTab({ modalFactors }: { tableId: number; modalFactors: Rate
 // ── Main Page ─────────────────────────────────────────────────────────────────
 
 export default function AdminRateTableDetailPage() {
+  const confirm = useConfirm();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [table, setTable] = useState<RateTableDetail | null>(null);
@@ -825,7 +835,8 @@ export default function AdminRateTableDetailPage() {
 
   const handleClone = async () => {
     if (!table) return;
-    if (!confirm(`Clone rate table "${table.name || table.version}"? A new draft copy will be created.`)) return;
+    const okClone = await confirm({ title: 'Clone Rate Table', message: `Clone "${table.name || table.version}"? A new draft copy will be created.`, confirmLabel: 'Clone', variant: 'info' });
+    if (!okClone) return;
     setCloning(true);
     try {
       const cloned = await rateTableAdminService.clone(table.id);
@@ -840,7 +851,8 @@ export default function AdminRateTableDetailPage() {
 
   const handleDelete = async () => {
     if (!table) return;
-    if (!confirm(`Permanently delete rate table "${table.name || table.version}"? This cannot be undone.`)) return;
+    const okDel = await confirm({ title: 'Delete Rate Table', message: `Permanently delete "${table.name || table.version}"? This cannot be undone.`, confirmLabel: 'Delete', variant: 'danger' });
+    if (!okDel) return;
     setDeleting(true);
     try {
       await rateTableAdminService.delete(table.id);

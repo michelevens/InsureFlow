@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Card, Badge, Button, Select } from '@/components/ui';
+import { Card, Badge, Button, Select, useConfirm } from '@/components/ui';
 import { useAuth } from '@/hooks/useAuth';
 import { payoutService, type Commission, type CommissionPayout, type ConnectStatus } from '@/services/api/payouts';
 import {
@@ -18,6 +18,7 @@ const statusConfig: Record<string, { label: string; variant: 'success' | 'warnin
 };
 
 export default function Commissions() {
+  const confirm = useConfirm();
   const { user } = useAuth();
   const [commissions, setCommissions] = useState<Commission[]>([]);
   const [payouts, setPayouts] = useState<CommissionPayout[]>([]);
@@ -83,7 +84,8 @@ export default function Commissions() {
   };
 
   const handleRequestPayout = async () => {
-    if (!confirm('Request payout for all pending commissions?')) return;
+    const ok = await confirm({ title: 'Request Payout', message: 'Request payout for all pending commissions?', confirmLabel: 'Request Payout', variant: 'info' });
+    if (!ok) return;
     setPayoutLoading(true);
     try {
       await payoutService.requestPayout();

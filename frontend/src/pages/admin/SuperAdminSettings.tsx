@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Card, Button, Input, Badge } from '@/components/ui';
+import { Card, Button, Input, Badge, useConfirm } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import { Loader2, CheckCircle, XCircle, Plus, Edit, Trash2, Search, ShieldCheck } from 'lucide-react';
 import { api } from '@/services/api/client';
@@ -18,6 +18,7 @@ const tabs = [
 ];
 
 export default function SuperAdminSettings() {
+  const confirm = useConfirm();
   const [activeTab, setActiveTab] = useState('platform');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -181,7 +182,8 @@ export default function SuperAdminSettings() {
   };
 
   const handleDeleteReq = async (id: number) => {
-    if (!confirm('Delete this compliance requirement?')) return;
+    const ok = await confirm({ title: 'Delete Requirement', message: 'Delete this compliance requirement? This cannot be undone.', confirmLabel: 'Delete', variant: 'danger' });
+    if (!ok) return;
     try {
       await complianceService.deleteRequirement(id);
       toast.success('Requirement deleted');

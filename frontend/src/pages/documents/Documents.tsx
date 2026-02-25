@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Button, Badge, Modal, Input, Select } from '@/components/ui';
+import { Button, Badge, Modal, Input, Select, useConfirm } from '@/components/ui';
 import { useAuth } from '@/hooks/useAuth';
 import { documentService, signatureService, type InsuranceDocument, type SignatureRequest } from '@/services/api/documents';
 import {
@@ -40,6 +40,7 @@ interface Props {
 }
 
 export default function Documents({ entityType = 'application', entityId }: Props) {
+  const confirm = useConfirm();
   const { user } = useAuth();
   const [documents, setDocuments] = useState<InsuranceDocument[]>([]);
   const [pendingSignatures, setPendingSignatures] = useState<SignatureRequest[]>([]);
@@ -96,7 +97,8 @@ export default function Documents({ entityType = 'application', entityId }: Prop
   };
 
   const handleDelete = async (doc: InsuranceDocument) => {
-    if (!confirm('Delete this document?')) return;
+    const ok = await confirm({ title: 'Delete Document', message: `Delete "${doc.title || doc.file_name}"? This cannot be undone.`, confirmLabel: 'Delete', variant: 'danger' });
+    if (!ok) return;
     try {
       await documentService.deleteDocument(doc.id);
       setDocuments((prev) => prev.filter((d) => d.id !== doc.id));
