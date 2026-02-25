@@ -126,6 +126,37 @@ class SubscriptionController extends Controller
         }
     }
 
+    public function portal(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        $subscription = Subscription::where('user_id', $user->id)
+            ->whereNotNull('stripe_customer_id')
+            ->latest()
+            ->first();
+
+        if (!$subscription || !$subscription->stripe_customer_id) {
+            return response()->json(['error' => 'No billing account found'], 404);
+        }
+
+        $stripeSecret = config('services.stripe.secret');
+        if (!$stripeSecret) {
+            return response()->json(['error' => 'Payment system not configured'], 503);
+        }
+
+        Stripe::setApiKey($stripeSecret);
+
+        try {
+            $portalSession = \Stripe\BillingPortal\Session::create([
+                'customer' => $subscription->stripe_customer_id,
+                'return_url' => rtrim(config('app.frontend_url', env('FRONTEND_URL', 'https://insurons.com')), '/') . '/billing',
+            ]);
+
+            return response()->json(['portal_url' => $portalSession->url]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Failed to create billing portal session'], 503);
+        }
+    }
+
     public function handleWebhook(Request $request): JsonResponse
     {
         $secret = config('services.stripe.webhook_secret');

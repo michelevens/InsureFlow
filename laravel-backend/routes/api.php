@@ -126,6 +126,11 @@ Route::post('/scenarios/{token}/respond', [ConsumerMarketplaceController::class,
 Route::get('/applications/{token}/view', [PublicSigningController::class, 'view']);
 Route::post('/applications/{token}/sign', [PublicSigningController::class, 'sign']);
 
+// Embed widget (public — no auth, API key validated in controller)
+Route::get('/embed/config/{apiKey}', [EmbedController::class, 'config']);
+Route::post('/embed/quote', [EmbedController::class, 'quote']);
+Route::post('/embed/convert', [EmbedController::class, 'markConverted']);
+
 /*
 |--------------------------------------------------------------------------
 | Protected Routes (auth:sanctum + agency scope)
@@ -175,6 +180,11 @@ Route::middleware(['auth:sanctum', 'agency.scope'])->group(function () {
     // Quotes
     Route::get('/quotes', [QuoteController::class, 'myQuotes']);
     Route::get('/quotes/{quoteRequest}', [QuoteController::class, 'show']);
+
+    // Quote Drafts (save & resume)
+    Route::get('/calculator/draft', [QuoteController::class, 'getDraft']);
+    Route::post('/calculator/draft', [QuoteController::class, 'saveDraft']);
+    Route::delete('/calculator/draft', [QuoteController::class, 'deleteDraft']);
 
     // --- Unified Insurance Profiles (UIP) ---
     Route::get('/profiles', [InsuranceProfileController::class, 'index']);
@@ -290,6 +300,7 @@ Route::middleware(['auth:sanctum', 'agency.scope'])->group(function () {
     Route::post('/subscriptions/checkout', [SubscriptionController::class, 'checkout']);
     Route::post('/subscriptions/cancel', [SubscriptionController::class, 'cancel']);
     Route::post('/subscriptions/resume', [SubscriptionController::class, 'resume']);
+    Route::post('/subscriptions/portal', [SubscriptionController::class, 'portal']);
 
     // Referrals
     Route::get('/referrals/dashboard', [ReferralController::class, 'dashboard']);
@@ -364,11 +375,15 @@ Route::middleware(['auth:sanctum', 'agency.scope'])->group(function () {
     // Carrier API Integration
     Route::get('/carrier-api/configs', [CarrierApiController::class, 'index']);
     Route::post('/carrier-api/configs', [CarrierApiController::class, 'store']);
+    Route::get('/carrier-api/configs/{config}', [CarrierApiController::class, 'show']);
     Route::put('/carrier-api/configs/{config}', [CarrierApiController::class, 'update']);
     Route::delete('/carrier-api/configs/{config}', [CarrierApiController::class, 'destroy']);
     Route::post('/carrier-api/configs/{config}/test', [CarrierApiController::class, 'test']);
+    Route::post('/carrier-api/configs/{config}/test-connection', [CarrierApiController::class, 'testConnection']);
     Route::get('/carrier-api/configs/{config}/logs', [CarrierApiController::class, 'logs']);
+    Route::get('/carrier-api/adapters', [CarrierApiController::class, 'availableAdapters']);
     Route::post('/carrier-api/live-rates', [CarrierApiController::class, 'getLiveRates']);
+    Route::post('/carrier-api/adapter-quotes', [CarrierApiController::class, 'getAdapterQuotes']);
 
     // Organizations (MGA hierarchy)
     Route::get('/organizations', [OrganizationController::class, 'index']);
