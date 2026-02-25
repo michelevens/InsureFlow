@@ -216,6 +216,13 @@ php artisan serve
 
 ## Recent Work
 
+### Phase 14 (2026-02-25) — Task Management, Kanban Board, Dashboard Enrichment, Password UX
+- **Task Management System:** Migration adds `priority`, `completed_at`, `assigned_by` columns + `task` type to appointments enum. `TaskController` with CRUD, complete/reopen, priority/overdue/today filters. Tasks page with stats cards, priority badges, completion toggle, search/filter, create modal. Route at `/tasks`, nav item in Pipeline section.
+- **Kanban Pipeline Board:** Drag-and-drop board view for CRM leads with 6 status columns (New→Contacted→Quoted→Applied→Won→Lost). View toggle (list/board) in Leads header. Dragging a lead between columns updates its status via API.
+- **Enriched Agent Dashboard:** Added "Tasks Due Today" widget, "Recent Leads" widget with status badges + phone/email actions, action items now link to relevant pages, quick links row (Commissions, Reviews, Calendar, Tasks). 10s timeout safety valve prevents infinite spinner.
+- **Password Strength on AcceptInvite:** Password strength meter (5-segment bar) with real-time scoring (8+ chars, uppercase, lowercase, number, special char). "Generate Strong Password" button creates 16-char password, auto-copies to clipboard. Show/hide toggle, copy button. Confirm password also respects visibility toggle.
+- **Files changed:** 15+ files (5 new, 10+ modified) across frontend + backend
+
 ### Phase 13 (2026-02-25) — Workflow Automation, Commission Splits, Bulk CRM, UX Polish
 - **Styled ConfirmDialog component:** Replaced all 13 native `confirm()` dialogs across 8 pages with a React Context-based ConfirmDialog. Supports danger/warning/info variants with matching icons (Trash2/AlertTriangle/HelpCircle). Promise-based `useConfirm()` hook. Files: `ConfirmDialog.tsx` (new), `App.tsx`, `LeadMarketplace.tsx`, `AgencySettings.tsx`, `Commissions.tsx`, `SuperAdminSettings.tsx`, `Documents.tsx`, `AdminPlans.tsx`, `AdminRateTables.tsx`, `AdminRateTableDetail.tsx`.
 - **Workflow Automation Engine (backend):** Event-driven rule engine with 22 trigger events (lead_created, application_signed, policy_bound, etc.), JSON conditions with operators (equals, contains, greater_than, etc.), 8 action types (send_notification, update_status, assign_agent, create_task, add_tag, fire_webhook, send_email). `WorkflowRule` model with `conditionsMatch()`, `WorkflowExecution` audit log, `WorkflowEngine` service with `fire()` method. `WorkflowRuleController` with CRUD, toggle, test, execution history. Integrated into `LeadIntakeController` and `PublicSigningController`.
@@ -446,9 +453,10 @@ All 4 core flows tested against production and **PASSING**:
 ## Next Tasks
 
 ### Immediate
-- **Deploy Phase 12+13:** Push + redeploy on Railway — migrations pending: marketplace payment columns (`2026_02_25_300001`), signatures table (`2026_02_21_400005`), signing fields on applications (`2026_02_24_100004`), workflow rules + commission splits (`2026_02_25_400001`). Run `ZipCodeSeeder` after deploy.
+- **Deploy Phase 12-14:** Push + redeploy on Railway — migrations pending: marketplace payment columns (`2026_02_25_300001`), signatures table (`2026_02_21_400005`), signing fields on applications (`2026_02_24_100004`), workflow rules + commission splits (`2026_02_25_400001`), task support on appointments (`2026_02_25_500001`). Run `ZipCodeSeeder` after deploy.
 - **Test e-signature flow end-to-end:** Agent creates application from scenario → consumer receives signing email → opens `/applications/:token/sign` → draws signature → submits → agent gets notification.
 - **Test workflow automation:** Create rule (e.g., on lead_created → send notification) → submit intake form → verify execution log.
+- **Test task management:** Create task → verify in Tasks page → complete → verify dashboard widget.
 
 ### Infrastructure & Config
 - **Add Stripe keys to Railway:** Set `STRIPE_SECRET_KEY`, `STRIPE_PUBLISHABLE_KEY`, `STRIPE_WEBHOOK_SECRET` env vars. Then run `php artisan stripe:sync-plans` to create products/prices in Stripe.
