@@ -48,7 +48,7 @@ class AppointmentController extends Controller
             'consumer_id' => 'nullable|integer|exists:users,id',
             'lead_id' => 'nullable|integer|exists:leads,id',
             'title' => 'required|string|max:255',
-            'type' => 'sometimes|in:consultation,review,follow_up,claim,renewal,other',
+            'type' => 'sometimes|in:consultation,review,follow_up,claim,renewal,other,task',
             'date' => 'required|date|after_or_equal:today',
             'start_time' => 'required|date_format:H:i',
             'end_time' => 'required|date_format:H:i|after:start_time',
@@ -120,7 +120,7 @@ class AppointmentController extends Controller
     {
         $data = $request->validate([
             'title' => 'sometimes|string|max:255',
-            'type' => 'sometimes|in:consultation,review,follow_up,claim,renewal,other',
+            'type' => 'sometimes|in:consultation,review,follow_up,claim,renewal,other,task',
             'date' => 'sometimes|date|after_or_equal:today',
             'start_time' => 'sometimes|date_format:H:i',
             'end_time' => 'sometimes|date_format:H:i',

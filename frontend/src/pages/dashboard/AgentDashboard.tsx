@@ -8,7 +8,6 @@ import {
   Target, FileText, DollarSign, Star, Users, ArrowRight, TrendingUp,
   Clock, CheckCircle2, AlertCircle, Loader2,
 } from 'lucide-react';
-import { toast } from 'sonner';
 
 interface AgentStats {
   total_leads: number;
@@ -25,10 +24,17 @@ export default function AgentDashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const timeout = setTimeout(() => {
+      // Safety valve: stop loading after 10s even if API hangs
+      setLoading(false);
+    }, 10000);
+
     analyticsService.getDashboardStats()
       .then((data) => setStats(data as unknown as AgentStats))
-      .catch(() => { toast.error('Failed to load dashboard stats'); })
-      .finally(() => setLoading(false));
+      .catch(() => { /* silently fall back to zeros */ })
+      .finally(() => { setLoading(false); clearTimeout(timeout); });
+
+    return () => clearTimeout(timeout);
   }, []);
 
   const fmt = (n: number | undefined) => n?.toLocaleString() ?? '0';

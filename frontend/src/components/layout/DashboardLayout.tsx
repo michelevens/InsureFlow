@@ -8,7 +8,7 @@ import {
   LayoutDashboard, Calculator, Users, FileText, Briefcase,
   Building2, BarChart3, UserCircle, Settings, LogOut, Menu, X,
   ClipboardList, Target, DollarSign, Star, ShieldCheck, ChevronDown, MessageSquare, Activity, AlertTriangle, RefreshCw, TrendingUp, Key, Plug, Network, CalendarDays, Palette, Code, Award, Database, BookOpen, HelpCircle,
-  MessagesSquare, Calendar, Handshake, Mail, FileBarChart, Video, ShoppingCart, Zap,
+  MessagesSquare, Calendar, Handshake, Mail, FileBarChart, Video, ShoppingCart, Zap, ListChecks,
 } from 'lucide-react';
 import type { ReactNode } from 'react';
 import type { UserRole } from '@/types';
@@ -96,6 +96,7 @@ const navSections: NavSection[] = [
       { label: 'Policies', href: '/policies', icon: <ShieldCheck className="w-5 h-5" />, roles: ['agent', 'agency_owner'] },
       { label: 'Claims', href: '/claims', icon: <AlertTriangle className="w-5 h-5" />, roles: ['agent', 'agency_owner', 'admin', 'superadmin'] },
       { label: 'Renewals', href: '/renewals', icon: <RefreshCw className="w-5 h-5" />, roles: ['agent', 'agency_owner', 'admin', 'superadmin'] },
+      { label: 'Tasks', href: '/tasks', icon: <ListChecks className="w-5 h-5" />, roles: ['agent', 'agency_owner', 'admin', 'superadmin'] },
     ],
   },
   {

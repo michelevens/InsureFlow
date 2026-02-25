@@ -63,6 +63,7 @@ use App\Http\Controllers\CreditController;
 use App\Http\Controllers\AdminRateTableController;
 use App\Http\Controllers\ZipCodeController;
 use App\Http\Controllers\WorkflowRuleController;
+use App\Http\Controllers\TaskController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -304,6 +305,14 @@ Route::middleware(['auth:sanctum', 'agency.scope'])->group(function () {
     Route::delete('/workflows/{rule}', [WorkflowRuleController::class, 'destroy']);
     Route::post('/workflows/{rule}/toggle', [WorkflowRuleController::class, 'toggle']);
     Route::post('/workflows/{rule}/test', [WorkflowRuleController::class, 'test']);
+
+    // Task Management
+    Route::get('/tasks', [TaskController::class, 'index']);
+    Route::post('/tasks', [TaskController::class, 'store']);
+    Route::put('/tasks/{task}', [TaskController::class, 'update']);
+    Route::post('/tasks/{task}/complete', [TaskController::class, 'complete']);
+    Route::post('/tasks/{task}/reopen', [TaskController::class, 'reopen']);
+    Route::delete('/tasks/{task}', [TaskController::class, 'destroy']);
 
     // Agent profile
     Route::put('/agent/profile', [AgentController::class, 'updateProfile']);

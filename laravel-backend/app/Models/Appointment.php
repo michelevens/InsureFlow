@@ -10,8 +10,8 @@ class Appointment extends Model
     use HasFactory;
 
     protected $fillable = [
-        'agent_id', 'consumer_id', 'lead_id', 'title', 'type',
-        'date', 'start_time', 'end_time', 'status',
+        'agent_id', 'assigned_by', 'consumer_id', 'lead_id', 'title', 'type',
+        'priority', 'date', 'start_time', 'end_time', 'status', 'completed_at',
         'location', 'video_link', 'notes',
     ];
 

@@ -80,6 +80,9 @@ const Commissions = lazyRetry(() => import('@/pages/analytics/Commissions'));
 const Reviews = lazyRetry(() => import('@/pages/analytics/Reviews'));
 const AgencyTeam = lazyRetry(() => import('@/pages/admin/AgencyTeam'));
 
+// Tasks
+const TasksPage = lazyRetry(() => import('@/pages/tasks/Tasks'));
+
 // Claims
 const ClaimsPage = lazyRetry(() => import('@/pages/claims/Claims'));
 
@@ -246,6 +249,9 @@ export default function App() {
                 <Route path="/webhooks" element={<WebhookSettings />} />
                 {/* Workflow Automation */}
                 <Route path="/workflows" element={<WorkflowBuilder />} />
+
+                {/* Tasks */}
+                <Route path="/tasks" element={<TasksPage />} />
 
                 {/* Calendar */}
                 <Route path="/calendar" element={<CalendarPage />} />

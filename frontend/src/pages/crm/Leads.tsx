@@ -15,6 +15,7 @@ import {
   User, Car, Home, Building2, HelpCircle, Shield, Trash2, FileText, ArrowRight,
   Layers, Target, ClipboardList, Calculator, DollarSign, History, CheckCircle2,
   XCircle, TrendingUp, ToggleLeft, ToggleRight, RefreshCw, ShoppingCart, FileDown, Star, Award,
+  LayoutList, LayoutGrid,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -83,6 +84,7 @@ export default function Leads() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [loading, setLoading] = useState(true);
+  const [viewMode, setViewMode] = useState<'list' | 'board'>('list');
 
   // Detail / scenario state
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
@@ -727,9 +729,27 @@ export default function Leads() {
           <h1 className="text-2xl font-bold text-slate-900">Lead Pipeline</h1>
           <p className="text-slate-500 mt-1">Manage leads, scenarios, and applications</p>
         </div>
-        <Button variant="shield" leftIcon={<Plus className="w-4 h-4" />} onClick={() => setShowAddLead(true)}>
-          Add Lead
-        </Button>
+        <div className="flex items-center gap-3">
+          <div className="flex bg-slate-100 rounded-lg p-0.5">
+            <button
+              onClick={() => setViewMode('list')}
+              className={`p-1.5 rounded-md transition-colors ${viewMode === 'list' ? 'bg-white shadow-sm text-shield-700' : 'text-slate-400 hover:text-slate-600'}`}
+              title="List view"
+            >
+              <LayoutList className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => setViewMode('board')}
+              className={`p-1.5 rounded-md transition-colors ${viewMode === 'board' ? 'bg-white shadow-sm text-shield-700' : 'text-slate-400 hover:text-slate-600'}`}
+              title="Board view"
+            >
+              <LayoutGrid className="w-4 h-4" />
+            </button>
+          </div>
+          <Button variant="shield" leftIcon={<Plus className="w-4 h-4" />} onClick={() => setShowAddLead(true)}>
+            Add Lead
+          </Button>
+        </div>
       </div>
 
       {/* Stats */}
@@ -784,7 +804,15 @@ export default function Leads() {
         </Card>
       )}
 
-      {/* Lead list */}
+      {/* Lead list or board view */}
+      {viewMode === 'board' ? (
+        <KanbanBoard leads={leads} loading={loading} onOpenLead={openLead} onStatusChange={async (leadId, newStatus) => {
+          try {
+            await crmService.updateLead(leadId, { status: newStatus } as Partial<Lead>);
+            fetchLeads();
+          } catch { toast.error('Failed to move lead'); }
+        }} />
+      ) : (
       <Card>
         {loading ? (
           <div className="flex items-center justify-center py-12">
@@ -856,6 +884,7 @@ export default function Leads() {
           </div>
         )}
       </Card>
+      )}
 
       {showAddLead && (
         <AddLeadModal
@@ -863,6 +892,89 @@ export default function Leads() {
           onCreated={fetchLeads}
         />
       )}
+    </div>
+  );
+}
+
+// ── Kanban Board ─────────────────────────────────
+
+const kanbanColumns: { status: string; label: string; color: string; bgColor: string }[] = [
+  { status: 'new', label: 'New', color: 'text-shield-700', bgColor: 'bg-shield-50 border-shield-200' },
+  { status: 'contacted', label: 'Contacted', color: 'text-blue-700', bgColor: 'bg-blue-50 border-blue-200' },
+  { status: 'quoted', label: 'Quoted', color: 'text-amber-700', bgColor: 'bg-amber-50 border-amber-200' },
+  { status: 'applied', label: 'Applied', color: 'text-purple-700', bgColor: 'bg-purple-50 border-purple-200' },
+  { status: 'won', label: 'Won', color: 'text-savings-700', bgColor: 'bg-savings-50 border-savings-200' },
+  { status: 'lost', label: 'Lost', color: 'text-red-700', bgColor: 'bg-red-50 border-red-200' },
+];
+
+function KanbanBoard({ leads, loading, onOpenLead, onStatusChange }: {
+  leads: Lead[];
+  loading: boolean;
+  onOpenLead: (lead: Lead) => void;
+  onStatusChange: (leadId: number, newStatus: string) => void;
+}) {
+  const [draggedLead, setDraggedLead] = useState<Lead | null>(null);
+  const [dragOverColumn, setDragOverColumn] = useState<string | null>(null);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="w-8 h-8 border-4 border-shield-200 border-t-shield-600 rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+      {kanbanColumns.map(col => {
+        const colLeads = leads.filter(l => l.status === col.status);
+        const isOver = dragOverColumn === col.status;
+        return (
+          <div
+            key={col.status}
+            className={`rounded-xl border p-3 min-h-[300px] transition-all ${col.bgColor} ${isOver ? 'ring-2 ring-shield-400 scale-[1.01]' : ''}`}
+            onDragOver={e => { e.preventDefault(); setDragOverColumn(col.status); }}
+            onDragLeave={() => setDragOverColumn(null)}
+            onDrop={e => {
+              e.preventDefault();
+              setDragOverColumn(null);
+              if (draggedLead && draggedLead.status !== col.status) {
+                onStatusChange(draggedLead.id, col.status);
+              }
+              setDraggedLead(null);
+            }}
+          >
+            <div className="flex items-center justify-between mb-3">
+              <h3 className={`text-xs font-semibold uppercase tracking-wider ${col.color}`}>{col.label}</h3>
+              <span className={`text-xs font-bold ${col.color} bg-white/60 rounded-full w-5 h-5 flex items-center justify-center`}>{colLeads.length}</span>
+            </div>
+            <div className="space-y-2">
+              {colLeads.map(lead => (
+                <div
+                  key={lead.id}
+                  draggable
+                  onDragStart={() => setDraggedLead(lead)}
+                  onDragEnd={() => { setDraggedLead(null); setDragOverColumn(null); }}
+                  onClick={() => onOpenLead(lead)}
+                  className="bg-white rounded-lg p-3 shadow-sm border border-white/80 cursor-grab active:cursor-grabbing hover:shadow-md transition-shadow"
+                >
+                  <div className="flex items-center gap-2 mb-1">
+                    <div className="w-6 h-6 rounded-full bg-shield-100 text-shield-700 flex items-center justify-center text-[10px] font-bold flex-shrink-0">
+                      {lead.first_name[0]}{lead.last_name[0]}
+                    </div>
+                    <p className="text-sm font-medium text-slate-900 truncate">{lead.first_name} {lead.last_name}</p>
+                  </div>
+                  <p className="text-xs text-slate-500 capitalize truncate">{lead.insurance_type?.replace(/_/g, ' ')}</p>
+                  <p className="text-[10px] text-slate-400 mt-1">{formatDate(lead.created_at)}</p>
+                </div>
+              ))}
+              {colLeads.length === 0 && (
+                <div className="text-center py-6 text-xs text-slate-400">No leads</div>
+              )}
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 }

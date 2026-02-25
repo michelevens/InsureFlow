@@ -83,3 +83,5 @@ export { subscriptionService } from './subscriptions';
 export type { SubscriptionPlan, SubscriptionCurrent, CheckoutResponse, PortalResponse } from './subscriptions';
 export type { AdminRateTable, RateTableDetail, RateTableEntry, RateFactor, RateRider, RateFee, RateModalFactor, RateTableCounts, CarrierOption, RateTablePayload } from './rateTableAdmin';
 export type { MarketplaceRequest, MarketplaceQuoteRequest, ConsumerScenario, ConsumerDashboardResponse, PublicScenarioView, PublicApplicationView, CreditBalance } from './marketplace';
+export { taskService } from './tasks';
+export type { Task, TaskCounts } from './tasks';
