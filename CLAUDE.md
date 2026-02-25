@@ -216,10 +216,10 @@ php artisan serve
 
 ## Recent Work
 
-### Phase 12 (2026-02-25) — Payments, Emails, E-Signature (in progress)
+### Phase 12 (2026-02-25) — Payments, Emails, E-Signature (complete)
 - **Stripe marketplace payments:** Full Stripe Checkout + PaymentIntent flow for lead purchases. `createCheckoutForLead()` creates Stripe Checkout in payment mode, `createPaymentIntent()` for in-app payment. Pending transaction records with `stripe_payment_intent_id`, `stripe_checkout_session_id`, `payment_status`. Webhook handlers in SubscriptionController route marketplace events. Falls back to free transfer when Stripe not configured. Frontend: "Buy Now" redirects to Stripe, handles `?purchased=true`/`?canceled=true` return params.
-- **Email layout + partials (partial):** Master `layout.blade.php` with teal header, white body, gray footer. Reusable partials: `button.blade.php`, `stat-card.blade.php`, `status-badge.blade.php`. **Remaining:** 6 Mailable classes + templates (WelcomeEmail, QuoteReadyEmail, ApplicationStatusEmail, LeadAssignedEmail, MarketplacePurchaseEmail, MarketplaceSaleEmail), update existing emails to extend layout.
-- **E-signature flow (not started):** Planned: ESignatureAdapter interface, InternalAdapter (token-based), DocuSignAdapter (stub), SignatureRequest model/migration, SignatureController, public /sign/{token} page. Agent hit API errors before writing files.
+- **Branded email system (complete):** All 20+ email templates refactored to extend master `layout.blade.php` (accent bar, branded header, icon section, content, footer). Reusable partials: `button.blade.php`, `stat-card.blade.php`, `status-badge.blade.php`. Custom accent colors for compliance (red), lead aging (amber/red). Created `MarketplacePurchaseMail` (buyer confirmation with lead details + price) and `MarketplaceSaleMail` (seller notification with earnings breakdown). Both wired into `LeadMarketplaceController::completePurchase()`.
+- **E-signature flow (complete):** Full e-sign system already built in prior sessions: `Signature` model (UUID, polymorphic signable, canvas-based), `SignatureController` (request/sign/reject/myPending), `PublicSigningController` (token-based create-from-scenario, public view/sign). Frontend `ApplicationSigningPage` with canvas drawing, full sign/submit flow. Email notifications: `SignatureRequestMail`, `ApplicationReadyToSignMail`, `ApplicationSignedMail`. Migration: `signatures` table + `signing_token`/`signature_data` columns on `applications`.
 
 ### Phase 11 (2026-02-25) — Feature Completion + Product Activation Gate
 - **Calculator server draft sync:** When logged in, Calculator loads draft from server on mount and debounce-saves (2s) to `GET/PUT /calculator/draft`. Clear and "Get Quotes" also sync to server.
@@ -437,10 +437,9 @@ All 4 core flows tested against production and **PASSING**:
 
 ## Next Tasks
 
-### Immediate (resume from Phase 12)
-- **Finish branded email Mailables:** Create 6 Mailable classes + Blade templates (WelcomeEmail, QuoteReadyEmail, ApplicationStatusEmail, LeadAssignedEmail, MarketplacePurchaseEmail, MarketplaceSaleEmail). Update existing compliance-overdue email to extend layout.
-- **Build e-signature flow:** ESignatureAdapter interface, InternalAdapter (token-based signing), DocuSignAdapter (stub), SignatureRequest model + migration, SignatureController (send/status/sign/complete/void), frontend SignDocument.tsx public page, signatures.ts API service.
-- **Deploy Phase 12:** Push + `railway up` — 2 new migrations pending (marketplace payment columns, signature_requests).
+### Immediate
+- **Deploy Phase 12:** Push + redeploy on Railway — migrations pending: marketplace payment columns (`2026_02_25_300001`), signatures table (`2026_02_21_400005`), signing fields on applications (`2026_02_24_100004`). Run `ZipCodeSeeder` after deploy.
+- **Test e-signature flow end-to-end:** Agent creates application from scenario → consumer receives signing email → opens `/applications/:token/sign` → draws signature → submits → agent gets notification.
 
 ### Infrastructure & Config
 - **Add Stripe keys to Railway:** Set `STRIPE_SECRET_KEY`, `STRIPE_PUBLISHABLE_KEY`, `STRIPE_WEBHOOK_SECRET` env vars. Then run `php artisan stripe:sync-plans` to create products/prices in Stripe.
