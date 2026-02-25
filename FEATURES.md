@@ -1,10 +1,10 @@
 # Insurons — Complete Feature Tracker
 
-## Platform Summary (as of 2026-02-23)
+## Platform Summary (as of 2026-02-25)
 
-**59 frontend pages | 79 models | 45 controllers | 60 migrations | 39 API services**
+**65+ frontend pages | 82+ models | 65+ controllers | 91 migrations | 42+ API services**
 
-All 6 expansion phases are **BUILT** — from MVP through $100M enterprise platform.
+All 14 phases are **BUILT** — from MVP through enterprise platform with workflow automation, task management, and full UX polish.
 
 ### Status Legend
 - [x] Built and committed
@@ -297,6 +297,221 @@ All 6 expansion phases are **BUILT** — from MVP through $100M enterprise platf
 
 ---
 
+## Phase 7: Marketplace Navigation & Lead Exchange
+
+### 7.1 Lead Marketplace
+- [x] Sell leads from CRM (own-sourced only, no resale of purchased leads)
+- [x] Lead marketplace browse and purchase flow
+- [x] Platform fee (15%) with seller earnings breakdown
+- [x] Auto-route purchased leads through buyer's RoutingEngine
+- [x] Lead marketplace sidebar nav item (agent, agency_owner)
+
+---
+
+## Phase 8: UX Quick Wins & Design Polish
+
+### 8.1 Quote UX Enhancements
+- [x] Save & resume abandoned quotes (localStorage, 24h expiry)
+- [x] Coverage comparison matrix (toggle between card and table view)
+- [x] Premium breakdown (base rate, policy fee, discount, monthly/annual)
+- [x] Lemonade-style progressive disclosure (one question at a time, progress bar)
+
+### 8.2 Design Refresh
+- [x] Premium Navy + Teal + Amber palette (deep navy #102a43, teal #014d40, amber #f59e0b)
+- [x] Updated gradients, glass morphism, shadows
+- [x] PWA theme color updated
+
+---
+
+## Phase 9: Stability & Team Management
+
+### 9.1 Error Recovery
+- [x] ChunkErrorBoundary — catches stale chunk load errors after deploys
+- [x] lazyRetry() wrapper — retries failed dynamic imports once after 1s
+- [x] All 65+ lazy() calls updated to lazyRetry()
+
+### 9.2 Agency Team Management (Real API)
+- [x] AgencyTeam page wired to real API (previously mock data)
+- [x] Invite agents, toggle active/inactive status, cancel pending invites
+- [x] Team stats cards and agent performance summaries
+
+### 9.3 CRM Carrier Quote Comparison
+- [x] Full comparison table in scenario detail (carrier, AM Best, premiums, status)
+- [x] Recommend, select, delete quote actions
+- [x] Savings spread summary (cheapest vs most expensive)
+
+### 9.4 Scenario Proposal PDF
+- [x] DomPDF template with agency header, Insurons footer, executive summary
+- [x] Coverage tables and carrier comparison in PDF
+- [x] `POST /crm/leads/{lead}/scenarios/{scenario}/proposal`
+
+---
+
+## Phase 10: Infrastructure & Integrations
+
+### 10.1 Embeddable Quote Widget
+- [x] Standalone iframe-friendly calculator page (no nav/sidebar)
+- [x] API key validation and embed session tracking
+- [x] PostMessage communication for iframe resize and conversion events
+- [x] Vanilla JS embed script (`insurons-widget.js`) with inline and button modes
+- [x] Conversion tracking endpoint
+
+### 10.2 Carrier API Adapter Pattern
+- [x] CarrierApiAdapter interface with DTOs
+- [x] GenericRestAdapter (configurable for any REST API)
+- [x] ProgressiveAdapter and TravelersAdapter (carrier-specific stubs)
+- [x] Multi-carrier quote fan-out via CarrierApiService orchestrator
+- [x] test-connection, available-adapters, adapter-quotes endpoints
+
+### 10.3 Consumer Multi-Quote Comparison
+- [x] ScenarioPublicView shows all carrier quotes in comparison table
+- [x] Savings callout between cheapest and most expensive
+
+### 10.4 Server-Side Quote Drafts
+- [x] quote_drafts table (one per user)
+- [x] GET/PUT/DELETE /calculator/draft endpoints
+- [x] Complements localStorage drafts for logged-in users
+
+### 10.5 Compliance Overdue Notifications
+- [x] `compliance:check-overdue` artisan command (daily)
+- [x] Groups overdue items by user, sends email + in-app notification
+- [x] Deduplication (once per week per user)
+
+### 10.6 Stripe Integration
+- [x] `stripe:sync-plans` command (creates Stripe products + prices from DB)
+- [x] Stripe Customer Portal (`POST /subscriptions/portal`)
+- [x] API-driven Pricing page (fetches plans from API, monthly/annual toggle)
+
+### 10.7 Railway Scheduler
+- [x] Procfile updated with `scheduler: php artisan schedule:work`
+
+---
+
+## Phase 11: Feature Completion & Product Gates
+
+### 11.1 Calculator Server Draft Sync
+- [x] Logged-in Calculator loads draft from server on mount
+- [x] Debounce-saves (2s) to server
+- [x] Clear and "Get Quotes" also sync to server
+
+### 11.2 Consumer Portal Actions
+- [x] MyPolicies: real "Call Agent" (tel: link), "Download" (print popup), "File Claim" (navigate)
+- [x] Added phone field to AgentProfile type
+
+### 11.3 Marketplace Auction/Bidding
+- [x] lead_marketplace_bids table
+- [x] Auction-type listings (min_bid, bid_increment, auction_ends_at)
+- [x] placeBid() with $0.50 minimum increment in DB transaction
+- [x] suggestPrice() uses historical averages × lead score multiplier
+- [x] bulkList() for up to 50 leads at once
+
+### 11.4 Real Premium Breakdown
+- [x] QuoteController::estimate() returns breakdown (base_rate, coverage_factor, state_factor, policy_fee, discount)
+- [x] Frontend uses server breakdown with syntheticBreakdown() fallback
+
+### 11.5 Embed Widget Customization
+- [x] widget_config: logo_url, company_name, hide_branding, theme (primary color), cta_text
+- [x] Partner header with logo/name when configured
+- [x] Conditional "Powered by Insurons" footer
+
+### 11.6 ZIP Code Auto-Complete
+- [x] zip_codes table with 160+ US ZIP codes (all 50 states + DC)
+- [x] AddressAutocomplete reusable component (debounced 300ms, keyboard nav)
+- [x] Wired into Calculator, EmbedQuoteWidget, InsuranceRequestForm, LeadIntake
+
+### 11.7 Product Activation Gate
+- [x] Scenario create/update validates product_type against PlatformProduct.is_active
+- [x] Agency-level intersection with carrier appointments
+- [x] Backwards compatible (if no PlatformProducts exist, all types allowed)
+
+---
+
+## Phase 12: Payments, Emails, E-Signature
+
+### 12.1 Stripe Marketplace Payments
+- [x] Full Stripe Checkout + PaymentIntent flow for lead purchases
+- [x] Pending transaction records with stripe_payment_intent_id, stripe_checkout_session_id
+- [x] Webhook handlers for marketplace payment events
+- [x] Falls back to free transfer when Stripe not configured
+
+### 12.2 Branded Email System
+- [x] Master layout.blade.php (accent bar, branded header, icon section, content, footer)
+- [x] Reusable partials: button.blade.php, stat-card.blade.php, status-badge.blade.php
+- [x] Custom accent colors per email type (compliance=red, lead aging=amber)
+- [x] 20+ email templates refactored to extend branded layout
+- [x] MarketplacePurchaseMail + MarketplaceSaleMail
+
+### 12.3 E-Signature Flow
+- [x] Signature model (UUID, polymorphic signable, canvas-based)
+- [x] SignatureController (request/sign/reject/myPending)
+- [x] PublicSigningController (token-based create-from-scenario, public view/sign)
+- [x] ApplicationSigningPage with canvas drawing, full sign/submit flow
+- [x] Email notifications: SignatureRequestMail, ApplicationReadyToSignMail, ApplicationSignedMail
+
+---
+
+## Phase 13: Workflow Automation & Bulk Operations
+
+### 13.1 Styled Confirmation Dialogs
+- [x] ConfirmDialog component with ConfirmProvider context + useConfirm() hook
+- [x] Replaced all 13 native confirm() calls across 8 pages
+- [x] Danger/warning/info variants with matching icons
+
+### 13.2 Workflow Automation Engine
+- [x] WorkflowRule model with 22 trigger events and JSON conditions
+- [x] Condition operators: equals, not_equals, contains, greater_than, less_than, in, not_in
+- [x] 8 action types: send_notification, update_status, assign_agent, create_task, add_tag, fire_webhook, send_email
+- [x] WorkflowExecution audit log with duration tracking
+- [x] WorkflowEngine service with fire() method
+- [x] Integrated into LeadIntakeController and PublicSigningController
+
+### 13.3 Commission Splits
+- [x] CommissionSplit model for multi-agent commission sharing
+- [x] Percentage validation (total ≤ 100%)
+- [x] CRUD endpoints on CommissionController
+
+### 13.4 WorkflowBuilder Page
+- [x] Rules tab with CRUD, toggle on/off, test execution, expand detail
+- [x] Executions tab with audit log history
+- [x] Create modal with trigger event, condition builder, action builder
+- [x] Route at /workflows, nav in Integrations section
+
+### 13.5 Bulk CRM Operations
+- [x] Checkbox selection in lead table with select-all
+- [x] Bulk action bar with status change dropdown
+- [x] CSV export (selected or all leads)
+- [x] Backend bulkUpdateStatus with agency scoping
+
+---
+
+## Phase 14: Task Management, Kanban, Dashboard & Password UX
+
+### 14.1 Task Management System
+- [x] Migration: priority, completed_at, assigned_by columns + task type on appointments
+- [x] TaskController with CRUD, complete/reopen, priority/overdue/today filters
+- [x] Tasks page with stats cards, priority badges, completion toggle, create modal
+- [x] Route at /tasks, nav item in Pipeline section
+
+### 14.2 Kanban Pipeline Board
+- [x] Drag-and-drop board view for CRM leads with 6 status columns
+- [x] View toggle (list/board) in Leads header
+- [x] Drag lead between columns updates status via API
+
+### 14.3 Enriched Agent Dashboard
+- [x] Tasks Due Today widget with overdue indicators
+- [x] Recent Leads widget with status badges, phone/email actions
+- [x] Action items link to relevant pages
+- [x] Quick links row (Commissions, Reviews, Calendar, Tasks)
+- [x] 10s timeout safety valve for API calls
+
+### 14.4 Password Strength on Invite
+- [x] Password strength meter (5-segment bar) with real-time scoring
+- [x] Checklist: 8+ chars, uppercase, lowercase, number, special char
+- [x] "Generate Strong Password" button (16-char, auto-copies to clipboard)
+- [x] Show/hide password toggle, copy button
+
+---
+
 ## UI/UX & Branding
 
 ### Platform Branding
@@ -318,23 +533,37 @@ All 6 expansion phases are **BUILT** — from MVP through $100M enterprise platf
 
 ## Future Roadmap (Not Yet Built)
 
-### Phase 6.6 Multi-Language Support (i18n)
+### Multi-Language Support (i18n)
 - (P) react-intl or react-i18next framework
 - (P) Spanish language translations (consumer-facing)
-- (P) Accept-Language header support
 - (P) Language selector in Settings
 
-### Phase 5.1 React Native Mobile App
-- (P) Expo project with 12 screens
-- (P) Push notifications
+### React Native Mobile App
+- (P) Expo project with core screens
+- (P) Push notifications (FCM/APNs)
 - (P) Camera document capture
-- (P) SecureStore for auth tokens
+- (P) Biometric auth (FaceID/fingerprint)
+
+### Training Content System
+- (P) Course modules with video/text content
+- (P) Quiz functionality with scoring
+- (P) Certificate generation on completion
+- (P) Learning paths/sequences
+
+### Recruitment Pipeline
+- (P) Applicant kanban board
+- (P) Interview scheduling integration
+- (P) Offer letter generation
 
 ### Ongoing Enhancements
-- (P) Real-time carrier API rate integrations (beyond config framework)
-- (P) Async email campaign sending via Laravel queues
+- (P) Real carrier API credentials (Progressive, Travelers, etc.)
+- (P) Push notifications (PWA web push)
+- (P) Recurring appointments in calendar
+- (P) File attachments in messages
+- (P) Document upload/evidence in compliance
 - (P) ML-powered lead scoring (upgrade from rule-based)
 - (P) Bundle quoting (auto + home discount)
+- (P) Async email campaign sending via Laravel queues
 
 ---
 
@@ -349,4 +578,12 @@ All 6 expansion phases are **BUILT** — from MVP through $100M enterprise platf
 | Phase 4 | White-label, embed, PDF gen, compliance, PWA | +10 | +5 | +4 | +6 |
 | Phase 5 | Data products, API keys, recruitment, training, help center | +10 | +5 | +5 | +4 |
 | Phase 6 | Forum, events, partners, campaigns, reports | +13 | +5 | +5 | +5 |
-| **Total** | **All 6 phases complete** | **79** | **45** | **59** | **60** |
+| Phase 7 | Lead marketplace (sell/buy/auction) | — | +1 | +2 | +1 |
+| Phase 8 | Quote UX, comparison matrix, palette refresh | — | — | — | — |
+| Phase 9 | ChunkErrorBoundary, team mgmt, CRM quotes, proposal PDF | — | — | — | — |
+| Phase 10 | Embed widget, carrier adapters, Stripe sync, scheduler | +1 | +3 | +3 | +3 |
+| Phase 11 | Auction bidding, ZIP auto-complete, product gate | +1 | +1 | — | +2 |
+| Phase 12 | Stripe payments, branded emails, e-signature | — | +1 | +2 | +2 |
+| Phase 13 | Workflow engine, commission splits, bulk CRM, ConfirmDialog | +3 | +1 | +1 | +1 |
+| Phase 14 | Task management, kanban board, dashboard enrichment, password UX | — | +1 | +1 | +1 |
+| **Total** | **All 14 phases complete** | **~82** | **~65** | **~68** | **~91** |
