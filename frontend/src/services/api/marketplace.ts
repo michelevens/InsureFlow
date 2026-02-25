@@ -244,6 +244,14 @@ export const marketplaceService = {
     return api.post(`/lead-marketplace/listings/${listingId}/purchase`);
   },
 
+  async checkoutLead(listingId: number): Promise<LeadCheckoutResponse> {
+    return api.post(`/lead-marketplace/listings/${listingId}/checkout`);
+  },
+
+  async createPayIntent(listingId: number): Promise<LeadPayIntentResponse> {
+    return api.post(`/lead-marketplace/listings/${listingId}/pay-intent`);
+  },
+
   async myListings(page = 1): Promise<LeadMarketplaceListResponse> {
     return api.get(`/lead-marketplace/my-listings?page=${page}`);
   },
@@ -332,6 +340,12 @@ export interface LeadMarketplaceTransaction {
   direction?: 'bought' | 'sold';
   created_at: string;
   listing?: Partial<LeadMarketplaceListing>;
+  stripe_payment_intent_id?: string | null;
+  stripe_checkout_session_id?: string | null;
+  payment_status?: string;
+  platform_fee_amount?: string | null;
+  seller_payout_amount?: string | null;
+  paid_at?: string | null;
 }
 
 export interface LeadMarketplaceStats {
@@ -353,6 +367,18 @@ export interface LeadPurchaseResponse {
     insurance_type: string;
   };
   cost: { purchase_price: string; platform_fee: string };
+}
+
+export interface LeadCheckoutResponse {
+  checkout_url: string;
+  session_id: string;
+  transaction_id: number;
+}
+
+export interface LeadPayIntentResponse {
+  client_secret: string;
+  payment_intent_id: string;
+  transaction_id: number;
 }
 
 export interface LeadMarketplaceListResponse {

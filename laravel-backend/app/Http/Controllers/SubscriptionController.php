@@ -1,8 +1,11 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\Models\LeadMarketplaceListing;
+use App\Models\LeadMarketplaceTransaction;
 use App\Models\Subscription;
 use App\Models\SubscriptionPlan;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Stripe\Checkout\Session as StripeSession;
@@ -177,7 +180,18 @@ class SubscriptionController extends Controller
         switch ($event->type) {
             case 'checkout.session.completed':
                 $session = $event->data->object;
-                $this->handleCheckoutCompleted($session);
+                // Route marketplace lead purchases to dedicated handler
+                if (($session->metadata->type ?? null) === 'marketplace_lead_purchase') {
+                    $this->handleMarketplacePurchaseCompleted($session);
+                } else {
+                    $this->handleCheckoutCompleted($session);
+                }
+                break;
+            case 'payment_intent.succeeded':
+                $paymentIntent = $event->data->object;
+                if (($paymentIntent->metadata->type ?? null) === 'marketplace_lead_purchase') {
+                    $this->handleMarketplacePaymentIntentSucceeded($paymentIntent);
+                }
                 break;
             case 'customer.subscription.updated':
                 $stripeSubscription = $event->data->object;
@@ -238,5 +252,92 @@ class SubscriptionController extends Controller
     {
         Subscription::where('stripe_subscription_id', $stripeSubscription->id)
             ->update(['status' => 'canceled', 'canceled_at' => now()]);
+    }
+
+    /**
+     * Handle Stripe Checkout completion for a marketplace lead purchase.
+     */
+    private function handleMarketplacePurchaseCompleted($session): void
+    {
+        $listingId = $session->metadata->listing_id ?? null;
+        $buyerId = $session->metadata->buyer_id ?? null;
+
+        if (!$listingId || !$buyerId) {
+            \Log::warning('Marketplace checkout webhook missing metadata', ['session_id' => $session->id]);
+            return;
+        }
+
+        $transaction = LeadMarketplaceTransaction::where('stripe_checkout_session_id', $session->id)
+            ->where('payment_status', 'pending')
+            ->first();
+
+        if (!$transaction) {
+            \Log::warning('No pending transaction found for checkout session', ['session_id' => $session->id]);
+            return;
+        }
+
+        $listing = LeadMarketplaceListing::find($listingId);
+        $buyer = User::find($buyerId);
+
+        if (!$listing || !$buyer) {
+            \Log::error('Marketplace webhook: listing or buyer not found', ['listing_id' => $listingId, 'buyer_id' => $buyerId]);
+            return;
+        }
+
+        // Update transaction with payment intent from the checkout session
+        $transaction->update([
+            'stripe_payment_intent_id' => $session->payment_intent ?? null,
+        ]);
+
+        try {
+            app(LeadMarketplaceController::class)->completePurchase($listing, $buyer, $transaction);
+        } catch (\Throwable $e) {
+            \Log::error('Marketplace purchase completion failed after checkout', [
+                'session_id' => $session->id,
+                'listing_id' => $listingId,
+                'error' => $e->getMessage(),
+            ]);
+        }
+    }
+
+    /**
+     * Handle Stripe PaymentIntent success for a marketplace lead purchase (in-app payment flow).
+     */
+    private function handleMarketplacePaymentIntentSucceeded($paymentIntent): void
+    {
+        $listingId = $paymentIntent->metadata->listing_id ?? null;
+        $buyerId = $paymentIntent->metadata->buyer_id ?? null;
+
+        if (!$listingId || !$buyerId) {
+            \Log::warning('Marketplace payment_intent webhook missing metadata', ['pi_id' => $paymentIntent->id]);
+            return;
+        }
+
+        $transaction = LeadMarketplaceTransaction::where('stripe_payment_intent_id', $paymentIntent->id)
+            ->where('payment_status', 'pending')
+            ->first();
+
+        if (!$transaction) {
+            \Log::warning('No pending transaction found for payment intent', ['pi_id' => $paymentIntent->id]);
+            return;
+        }
+
+        $listing = LeadMarketplaceListing::find($listingId);
+        $buyer = User::find($buyerId);
+
+        if (!$listing || !$buyer) {
+            \Log::error('Marketplace webhook: listing or buyer not found', ['listing_id' => $listingId, 'buyer_id' => $buyerId]);
+            return;
+        }
+
+        try {
+            app(LeadMarketplaceController::class)->completePurchase($listing, $buyer, $transaction);
+        } catch (\Throwable $e) {
+            \Log::error('Marketplace purchase completion failed after payment_intent', [
+                'pi_id' => $paymentIntent->id,
+                'listing_id' => $listingId,
+                'error' => $e->getMessage(),
+            ]);
+        }
     }
 }

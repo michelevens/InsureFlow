@@ -724,6 +724,8 @@ Route::middleware(['auth:sanctum', 'agency.scope'])->group(function () {
         Route::get('/stats', [LeadMarketplaceController::class, 'stats']);
         Route::get('/transactions', [LeadMarketplaceController::class, 'transactions']);
         Route::post('/listings/{listing}/bid', [LeadMarketplaceController::class, 'placeBid']);
+        Route::post('/listings/{listing}/checkout', [LeadMarketplaceController::class, 'createCheckoutForLead']);
+        Route::post('/listings/{listing}/pay-intent', [LeadMarketplaceController::class, 'createPaymentIntent']);
         Route::get('/suggest-price', [LeadMarketplaceController::class, 'suggestPrice']);
         Route::post('/bulk-list', [LeadMarketplaceController::class, 'bulkList']);
     });

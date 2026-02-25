@@ -14,6 +14,9 @@ use App\Services\NotificationService;
 use App\Services\RoutingEngine;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Stripe\Checkout\Session as StripeSession;
+use Stripe\PaymentIntent;
+use Stripe\Stripe;
 
 class LeadMarketplaceController extends Controller
 {
@@ -89,6 +92,8 @@ class LeadMarketplaceController extends Controller
 
     /**
      * Purchase a listing — reveals lead info, creates new profile+lead for buyer.
+     * If Stripe is configured, returns 402 requiring payment first.
+     * If Stripe is NOT configured, falls back to direct purchase (completePurchase).
      */
     public function purchase(Request $request, LeadMarketplaceListing $listing)
     {
@@ -108,7 +113,183 @@ class LeadMarketplaceController extends Controller
             return response()->json(['message' => 'This listing has expired'], 410);
         }
 
-        return DB::transaction(function () use ($listing, $user) {
+        // If Stripe is configured, require payment first
+        if (config('services.stripe.secret')) {
+            return response()->json([
+                'message' => 'Payment required. Use /checkout or /pay-intent endpoint.',
+                'requires_payment' => true,
+                'listing_id' => $listing->id,
+                'amount' => $listing->asking_price,
+            ], 402);
+        }
+
+        // Stripe not configured — fall back to direct purchase
+        return $this->completePurchase($listing, $user);
+    }
+
+    /**
+     * Create a Stripe Checkout session for purchasing a lead listing.
+     */
+    public function createCheckoutForLead(Request $request, LeadMarketplaceListing $listing)
+    {
+        $user = $request->user();
+
+        if ($listing->status !== 'active') {
+            return response()->json(['message' => 'This listing is no longer available'], 410);
+        }
+        if ($listing->seller_agency_id === $user->agency_id) {
+            return response()->json(['message' => 'You cannot purchase your own listing'], 422);
+        }
+        if ($listing->expires_at && $listing->expires_at->isPast()) {
+            $listing->update(['status' => 'expired']);
+            return response()->json(['message' => 'This listing has expired'], 410);
+        }
+
+        $stripeSecret = config('services.stripe.secret');
+        if (!$stripeSecret) {
+            // Stripe not configured — fall back to direct purchase
+            return $this->completePurchase($listing, $user);
+        }
+
+        Stripe::setApiKey($stripeSecret);
+
+        $purchasePrice = $listing->asking_price;
+        $platformFeePct = $listing->platform_fee_pct ?? config('marketplace.platform_fee_pct', 10);
+        $platformFee = round($purchasePrice * ($platformFeePct / 100), 2);
+        $sellerPayout = round($purchasePrice - $platformFee, 2);
+
+        $frontendUrl = rtrim(config('app.frontend_url', env('FRONTEND_URL', 'https://insurons.com')), '/');
+
+        try {
+            $session = StripeSession::create([
+                'payment_method_types' => ['card'],
+                'mode' => 'payment',
+                'line_items' => [[
+                    'price_data' => [
+                        'currency' => 'usd',
+                        'unit_amount' => (int) round($purchasePrice * 100), // cents
+                        'product_data' => [
+                            'name' => "Lead Purchase — {$listing->insurance_type} ({$listing->state})",
+                            'description' => "Marketplace lead #{$listing->id}, Grade {$listing->lead_grade}",
+                        ],
+                    ],
+                    'quantity' => 1,
+                ]],
+                'customer_email' => $user->email,
+                'metadata' => [
+                    'type' => 'marketplace_lead_purchase',
+                    'listing_id' => $listing->id,
+                    'buyer_id' => $user->id,
+                    'seller_agency_id' => $listing->seller_agency_id,
+                    'lead_id' => $listing->lead_id,
+                ],
+                'success_url' => "{$frontendUrl}/lead-marketplace?purchased=true",
+                'cancel_url' => "{$frontendUrl}/lead-marketplace?canceled=true",
+            ]);
+
+            // Create pending transaction record
+            $transaction = LeadMarketplaceTransaction::create([
+                'listing_id' => $listing->id,
+                'buyer_agency_id' => $user->agency_id,
+                'buyer_user_id' => $user->id,
+                'seller_agency_id' => $listing->seller_agency_id,
+                'purchase_price' => $purchasePrice,
+                'platform_fee' => $platformFee,
+                'seller_payout' => $sellerPayout,
+                'stripe_checkout_session_id' => $session->id,
+                'payment_status' => 'pending',
+                'platform_fee_amount' => $platformFee,
+                'seller_payout_amount' => $sellerPayout,
+            ]);
+
+            return response()->json([
+                'checkout_url' => $session->url,
+                'session_id' => $session->id,
+                'transaction_id' => $transaction->id,
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Stripe checkout creation failed', ['error' => $e->getMessage(), 'listing_id' => $listing->id]);
+            return response()->json(['error' => 'Failed to create checkout session'], 503);
+        }
+    }
+
+    /**
+     * Create a Stripe PaymentIntent for in-app payment of a lead listing.
+     */
+    public function createPaymentIntent(Request $request, LeadMarketplaceListing $listing)
+    {
+        $user = $request->user();
+
+        if ($listing->status !== 'active') {
+            return response()->json(['message' => 'This listing is no longer available'], 410);
+        }
+        if ($listing->seller_agency_id === $user->agency_id) {
+            return response()->json(['message' => 'You cannot purchase your own listing'], 422);
+        }
+        if ($listing->expires_at && $listing->expires_at->isPast()) {
+            $listing->update(['status' => 'expired']);
+            return response()->json(['message' => 'This listing has expired'], 410);
+        }
+
+        $stripeSecret = config('services.stripe.secret');
+        if (!$stripeSecret) {
+            return response()->json(['error' => 'Payment system not configured'], 503);
+        }
+
+        Stripe::setApiKey($stripeSecret);
+
+        $purchasePrice = $listing->asking_price;
+        $platformFeePct = $listing->platform_fee_pct ?? config('marketplace.platform_fee_pct', 10);
+        $platformFee = round($purchasePrice * ($platformFeePct / 100), 2);
+        $sellerPayout = round($purchasePrice - $platformFee, 2);
+
+        try {
+            $paymentIntent = PaymentIntent::create([
+                'amount' => (int) round($purchasePrice * 100), // cents
+                'currency' => 'usd',
+                'metadata' => [
+                    'type' => 'marketplace_lead_purchase',
+                    'listing_id' => $listing->id,
+                    'buyer_id' => $user->id,
+                    'seller_agency_id' => $listing->seller_agency_id,
+                    'lead_id' => $listing->lead_id,
+                ],
+            ]);
+
+            // Create pending transaction record
+            $transaction = LeadMarketplaceTransaction::create([
+                'listing_id' => $listing->id,
+                'buyer_agency_id' => $user->agency_id,
+                'buyer_user_id' => $user->id,
+                'seller_agency_id' => $listing->seller_agency_id,
+                'purchase_price' => $purchasePrice,
+                'platform_fee' => $platformFee,
+                'seller_payout' => $sellerPayout,
+                'stripe_payment_intent_id' => $paymentIntent->id,
+                'payment_status' => 'pending',
+                'platform_fee_amount' => $platformFee,
+                'seller_payout_amount' => $sellerPayout,
+            ]);
+
+            return response()->json([
+                'client_secret' => $paymentIntent->client_secret,
+                'payment_intent_id' => $paymentIntent->id,
+                'transaction_id' => $transaction->id,
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Stripe PaymentIntent creation failed', ['error' => $e->getMessage(), 'listing_id' => $listing->id]);
+            return response()->json(['error' => 'Failed to create payment intent'], 503);
+        }
+    }
+
+    /**
+     * Complete a lead purchase — transfer lead data to buyer, create profile+lead, mark listing sold.
+     * Extracted from the original purchase() logic. Can be called directly (no Stripe)
+     * or after Stripe webhook confirms payment.
+     */
+    public function completePurchase(LeadMarketplaceListing $listing, $user, ?LeadMarketplaceTransaction $existingTx = null)
+    {
+        return DB::transaction(function () use ($listing, $user, $existingTx) {
             // Lock the listing row to prevent double-purchase
             $listing = LeadMarketplaceListing::lockForUpdate()->find($listing->id);
             if ($listing->status !== 'active') {
@@ -117,7 +298,8 @@ class LeadMarketplaceController extends Controller
 
             // Calculate fees
             $purchasePrice = $listing->asking_price;
-            $platformFee = round($purchasePrice * ($listing->platform_fee_pct / 100), 2);
+            $platformFeePct = $listing->platform_fee_pct ?? config('marketplace.platform_fee_pct', 10);
+            $platformFee = round($purchasePrice * ($platformFeePct / 100), 2);
             $sellerPayout = round($purchasePrice - $platformFee, 2);
 
             // Get original profile data
@@ -171,18 +353,37 @@ class LeadMarketplaceController extends Controller
                 \Log::warning('Failed to score marketplace lead', ['profile_id' => $newProfile->id, 'error' => $e->getMessage()]);
             }
 
-            // Create transaction record
-            $transaction = LeadMarketplaceTransaction::create([
-                'listing_id' => $listing->id,
-                'buyer_agency_id' => $user->agency_id,
-                'buyer_user_id' => $user->id,
-                'seller_agency_id' => $listing->seller_agency_id,
-                'purchase_price' => $purchasePrice,
-                'platform_fee' => $platformFee,
-                'seller_payout' => $sellerPayout,
-                'new_profile_id' => $newProfile->id,
-                'new_lead_id' => $newLead->id,
-            ]);
+            // Create or update transaction record
+            if ($existingTx) {
+                $existingTx->update([
+                    'purchase_price' => $purchasePrice,
+                    'platform_fee' => $platformFee,
+                    'seller_payout' => $sellerPayout,
+                    'new_profile_id' => $newProfile->id,
+                    'new_lead_id' => $newLead->id,
+                    'payment_status' => 'completed',
+                    'platform_fee_amount' => $platformFee,
+                    'seller_payout_amount' => $sellerPayout,
+                    'paid_at' => now(),
+                ]);
+                $transaction = $existingTx;
+            } else {
+                $transaction = LeadMarketplaceTransaction::create([
+                    'listing_id' => $listing->id,
+                    'buyer_agency_id' => $user->agency_id,
+                    'buyer_user_id' => $user->id,
+                    'seller_agency_id' => $listing->seller_agency_id,
+                    'purchase_price' => $purchasePrice,
+                    'platform_fee' => $platformFee,
+                    'seller_payout' => $sellerPayout,
+                    'new_profile_id' => $newProfile->id,
+                    'new_lead_id' => $newLead->id,
+                    'payment_status' => 'completed',
+                    'platform_fee_amount' => $platformFee,
+                    'seller_payout_amount' => $sellerPayout,
+                    'paid_at' => now(),
+                ]);
+            }
 
             // Mark listing as sold
             $listing->update([

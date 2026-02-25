@@ -11,6 +11,8 @@ class LeadMarketplaceTransaction extends Model
         'purchase_price', 'platform_fee', 'seller_payout',
         'new_profile_id', 'new_lead_id',
         'status', 'refund_reason',
+        'stripe_payment_intent_id', 'stripe_checkout_session_id',
+        'payment_status', 'platform_fee_amount', 'seller_payout_amount', 'paid_at',
     ];
 
     protected function casts(): array
@@ -19,6 +21,9 @@ class LeadMarketplaceTransaction extends Model
             'purchase_price' => 'decimal:2',
             'platform_fee' => 'decimal:2',
             'seller_payout' => 'decimal:2',
+            'platform_fee_amount' => 'decimal:2',
+            'seller_payout_amount' => 'decimal:2',
+            'paid_at' => 'datetime',
         ];
     }
 

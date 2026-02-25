@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Card, Badge, Button, Input } from '@/components/ui';
-import { Search, ShoppingCart, Tag, MapPin, Clock, Star, TrendingUp, Phone, Mail, DollarSign, RefreshCw, ArrowUpDown, Gavel, Package } from 'lucide-react';
+import { Search, ShoppingCart, Tag, MapPin, Clock, Star, TrendingUp, Phone, Mail, RefreshCw, ArrowUpDown, Gavel, Package, CreditCard, Loader2 } from 'lucide-react';
 import { marketplaceService, type LeadMarketplaceListing, type LeadMarketplaceStats, type LeadMarketplaceTransaction } from '@/services/api/marketplace';
 import { toast } from 'sonner';
 
@@ -18,6 +19,7 @@ const SORT_OPTIONS = [
 type Tab = 'browse' | 'my-listings' | 'transactions';
 
 export default function LeadMarketplace() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [tab, setTab] = useState<Tab>('browse');
   const [listings, setListings] = useState<LeadMarketplaceListing[]>([]);
   const [myListings, setMyListings] = useState<LeadMarketplaceListing[]>([]);
@@ -31,6 +33,18 @@ export default function LeadMarketplace() {
   const [typeFilter, setTypeFilter] = useState('');
   const [stateFilter, setStateFilter] = useState('');
   const [sort, setSort] = useState('newest');
+
+  // Handle Stripe return params
+  useEffect(() => {
+    if (searchParams.get('purchased') === 'true') {
+      toast.success('Payment successful! Your lead purchase is being processed.');
+      setSearchParams({}, { replace: true });
+      setTab('transactions');
+    } else if (searchParams.get('canceled') === 'true') {
+      toast.info('Payment was canceled. No charge was made.');
+      setSearchParams({}, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
 
   const fetchBrowse = useCallback(async () => {
     setLoading(true);
@@ -81,12 +95,27 @@ export default function LeadMarketplace() {
     if (!confirm(`Purchase this ${listing.insurance_type} lead for $${listing.asking_price}?`)) return;
     setPurchasing(listing.id);
     try {
-      const res = await marketplaceService.purchaseLead(listing.id);
-      toast.success(`Lead purchased! ${res.lead.first_name} ${res.lead.last_name} — check your CRM.`);
+      // Try Stripe checkout first
+      const checkoutRes = await marketplaceService.checkoutLead(listing.id);
+      if (checkoutRes.checkout_url) {
+        // Redirect to Stripe Checkout
+        window.location.href = checkoutRes.checkout_url;
+        return;
+      }
+      // If no checkout_url returned (Stripe not configured), it completed directly
+      toast.success('Lead purchased! Check your CRM.');
       fetchBrowse();
       fetchStats();
-    } catch {
-      toast.error('Purchase failed. The listing may no longer be available.');
+    } catch (err) {
+      // If checkout returns a direct purchase response (Stripe not configured, fallback)
+      const errorData = err && typeof err === 'object' && 'message' in err ? err : null;
+      if (errorData && 'lead' in (errorData as Record<string, unknown>)) {
+        toast.success('Lead purchased! Check your CRM.');
+        fetchBrowse();
+        fetchStats();
+      } else {
+        toast.error('Purchase failed. The listing may no longer be available.');
+      }
     } finally {
       setPurchasing(null);
     }
@@ -393,8 +422,12 @@ function ListingCard({ listing, onPurchase, onBid, purchasing, bidding }: {
         </Button>
       ) : (
         <Button className="w-full" onClick={onPurchase} disabled={purchasing}>
-          <DollarSign className="w-4 h-4 mr-1" />
-          {purchasing ? 'Purchasing...' : `Buy Lead — $${listing.asking_price}`}
+          {purchasing ? (
+            <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+          ) : (
+            <CreditCard className="w-4 h-4 mr-1" />
+          )}
+          {purchasing ? 'Processing...' : `Buy Now — $${listing.asking_price}`}
         </Button>
       )}
     </Card>
@@ -440,6 +473,11 @@ function TransactionsTab() {
                   <Badge variant={tx.direction === 'bought' ? 'default' : 'success'}>
                     {tx.direction === 'bought' ? 'Purchased' : 'Sold'}
                   </Badge>
+                  {tx.payment_status && (
+                    <Badge variant={tx.payment_status === 'completed' ? 'success' : tx.payment_status === 'pending' ? 'warning' : 'danger'}>
+                      {tx.payment_status}
+                    </Badge>
+                  )}
                   <span className="font-medium">{tx.listing?.insurance_type || 'Lead'}</span>
                   {tx.listing?.state && <span className="text-slate-500 text-sm">{tx.listing.state}</span>}
                 </div>
@@ -447,7 +485,11 @@ function TransactionsTab() {
                   <p className={`font-bold ${tx.direction === 'bought' ? 'text-red-600' : 'text-savings-600'}`}>
                     {tx.direction === 'bought' ? `-$${tx.purchase_price}` : `+$${tx.seller_payout}`}
                   </p>
-                  <p className="text-xs text-slate-400">{new Date(tx.created_at).toLocaleDateString()}</p>
+                  <p className="text-xs text-slate-400">
+                    {tx.paid_at
+                      ? `Paid ${new Date(tx.paid_at).toLocaleDateString()}`
+                      : new Date(tx.created_at).toLocaleDateString()}
+                  </p>
                 </div>
               </div>
             </Card>
