@@ -1,63 +1,43 @@
-{{--
-    Insurons Email Template Reference
-    ====================================
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin:0;padding:0;background-color:#f0f4f8;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f0f4f8;padding:40px 20px;">
+        <tr>
+            <td align="center">
+                <table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;">
+                    <!-- Header -->
+                    <tr>
+                        <td style="background:linear-gradient(135deg,#014d40 0%,#0d9488 100%);padding:36px 48px;text-align:center;border-radius:12px 12px 0 0;">
+                            <table cellpadding="0" cellspacing="0" style="margin:0 auto;">
+                                <tr>
+                                    <td style="font-size:28px;font-weight:800;color:#ffffff;letter-spacing:0.5px;">Insurons</td>
+                                </tr>
+                            </table>
+                            <p style="margin:8px 0 0;color:rgba(255,255,255,0.85);font-size:13px;letter-spacing:2px;text-transform:uppercase;">Insurance Made Simple</p>
+                        </td>
+                    </tr>
 
-    This file documents the shared design system used across all Insurons email templates.
-    Each email is STANDALONE with all inline styles — no @include or @extends used.
+                    <!-- Body (white card) -->
+                    <tr>
+                        <td style="background-color:#ffffff;padding:0;">
+                            @yield('content')
+                        </td>
+                    </tr>
 
-    COLOR PALETTE
-    ─────────────
-    Primary Gradient:  #0f766e (teal-700) → #0ea5e9 (sky-500)
-    Background:        #f0fdfa (teal-50)
-    Accent:            #14b8a6 (teal-500)
-    Text Dark:         #134e4a (teal-900)
-    Text Muted:        #64748b (slate-500)
-    Info Card BG:      linear-gradient(135deg, #f0fdfa, #ccfbf1)
-    Info Card Border:  #99f6e4 (teal-200)
-    Footer BG:         #f8fafc
-    Footer Border:     #e2e8f0 (slate-200)
-
-    BRAND
-    ─────
-    Name:    Insurons
-    Tagline: Insurance Marketplace
-    Logo:    &#128737; shield icon or text-based shield styling
-
-    STRUCTURE (every email follows this)
-    ─────────────────────────────────────
-    1. <body> background: #f0fdfa, padding 40px 20px
-    2. Centered table max-width: 600px
-    3. Top accent bar: 6px, gradient #0f766e → #0ea5e9, border-radius 12px 12px 0 0
-    4. White card: bg #fff, border-radius 0 0 16px 16px, box-shadow 0 4px 24px rgba(0,0,0,0.08)
-    5. Header: gradient 135deg #0f766e 0%, #0d9488 50%, #0ea5e9 100%, padding 40px 48px
-       - Brand icon + "Insurons" text (26px bold white)
-       - Tagline: "Insurance Marketplace" (13px, uppercase, 2px letter-spacing, rgba white 0.8)
-    6. Icon section: 72px circle, gradient #f0fdfa → #ccfbf1, centered emoji/icon
-    7. Body: padding 24px 48px 40px
-       - H1: #134e4a, 24px, bold, centered
-       - Body text: #64748b, 15px
-       - Info cards: gradient bg, teal border, 14px radius
-       - Bullets: &#9679; prefix, #475569
-    8. CTA button: #0f766e bg, white text, 16px 36px padding, 12px border-radius, 15px bold
-    9. Footer: #f8fafc bg, 1px #e2e8f0 top border, padding 24px 48px
-       - "Insurons" (13px, 600 weight, #64748b)
-       - "Your trusted insurance marketplace" (12px, #94a3b8)
-       - Copyright: {{ date('Y') }} (11px, #cbd5e1)
-
-    TEMPLATES
-    ─────────
-    1.  welcome.blade.php           — $user
-    2.  email-verification.blade.php — $user, $verificationUrl
-    3.  password-reset.blade.php     — $user, $resetUrl
-    4.  quote-received.blade.php     — $firstName, $email, $quoteCount, $lowestPremium
-    5.  application-status.blade.php — $user, $applicationId, $status, $insuranceType
-    6.  lead-assigned.blade.php      — $agent, $leadName, $leadEmail, $insuranceType, $estimatedValue
-    7.  invitation.blade.php         — $inviterName, $agencyName, $inviteUrl, $role
-    8.  account-approved.blade.php   — $user
-    9.  registration-received.blade.php — $user
-    10. lead-intake-confirmation.blade.php — $firstName, $agencyName, $insuranceType
-
-    FRONTEND URL
-    ─────────────
-    env('FRONTEND_URL', 'https://insurons.com')
---}}
+                    <!-- Footer -->
+                    <tr>
+                        <td style="background-color:#f8fafc;padding:24px 48px;border-top:1px solid #e2e8f0;text-align:center;border-radius:0 0 12px 12px;">
+                            <p style="margin:0 0 4px;font-size:13px;font-weight:600;color:#64748b;">Powered by Insurons &middot; <a href="https://insurons.com" style="color:#0d9488;text-decoration:none;">insurons.com</a></p>
+                            <p style="margin:8px 0 0;color:#cbd5e1;font-size:11px;">&copy; 2026 Insurons. All rights reserved.</p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
