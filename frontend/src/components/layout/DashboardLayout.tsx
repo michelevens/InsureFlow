@@ -26,6 +26,45 @@ interface NavSection {
   items: NavItem[];
 }
 
+// Role-based quick links for the top bar (shortcuts to most-used pages)
+const quickNavLinks: Record<string, NavItem[]> = {
+  consumer: [
+    { label: 'Dashboard', href: '/dashboard', icon: <LayoutDashboard className="w-4 h-4" />, roles: ['consumer'] },
+    { label: 'Get Quotes', href: '/calculator', icon: <Calculator className="w-4 h-4" />, roles: ['consumer'] },
+    { label: 'My Quotes', href: '/portal/quotes', icon: <ClipboardList className="w-4 h-4" />, roles: ['consumer'] },
+    { label: 'My Policies', href: '/portal/policies', icon: <ShieldCheck className="w-4 h-4" />, roles: ['consumer'] },
+  ],
+  agent: [
+    { label: 'Dashboard', href: '/dashboard', icon: <LayoutDashboard className="w-4 h-4" />, roles: ['agent'] },
+    { label: 'Leads', href: '/crm/leads', icon: <Target className="w-4 h-4" />, roles: ['agent'] },
+    { label: 'Applications', href: '/applications', icon: <FileText className="w-4 h-4" />, roles: ['agent'] },
+    { label: 'Policies', href: '/policies', icon: <ShieldCheck className="w-4 h-4" />, roles: ['agent'] },
+  ],
+  agency_owner: [
+    { label: 'Dashboard', href: '/dashboard', icon: <LayoutDashboard className="w-4 h-4" />, roles: ['agency_owner'] },
+    { label: 'Leads', href: '/crm/leads', icon: <Target className="w-4 h-4" />, roles: ['agency_owner'] },
+    { label: 'Applications', href: '/applications', icon: <FileText className="w-4 h-4" />, roles: ['agency_owner'] },
+    { label: 'Policies', href: '/policies', icon: <ShieldCheck className="w-4 h-4" />, roles: ['agency_owner'] },
+  ],
+  carrier: [
+    { label: 'Dashboard', href: '/dashboard', icon: <LayoutDashboard className="w-4 h-4" />, roles: ['carrier'] },
+    { label: 'Products', href: '/carrier/products', icon: <Briefcase className="w-4 h-4" />, roles: ['carrier'] },
+    { label: 'Production', href: '/carrier/production', icon: <BarChart3 className="w-4 h-4" />, roles: ['carrier'] },
+  ],
+  admin: [
+    { label: 'Dashboard', href: '/dashboard', icon: <LayoutDashboard className="w-4 h-4" />, roles: ['admin'] },
+    { label: 'Users', href: '/admin/users', icon: <Users className="w-4 h-4" />, roles: ['admin'] },
+    { label: 'Agencies', href: '/admin/agencies', icon: <Building2 className="w-4 h-4" />, roles: ['admin'] },
+    { label: 'Analytics', href: '/admin/analytics', icon: <BarChart3 className="w-4 h-4" />, roles: ['admin'] },
+  ],
+  superadmin: [
+    { label: 'Dashboard', href: '/dashboard', icon: <LayoutDashboard className="w-4 h-4" />, roles: ['superadmin'] },
+    { label: 'Users', href: '/admin/users', icon: <Users className="w-4 h-4" />, roles: ['superadmin'] },
+    { label: 'Agencies', href: '/admin/agencies', icon: <Building2 className="w-4 h-4" />, roles: ['superadmin'] },
+    { label: 'Analytics', href: '/admin/analytics', icon: <BarChart3 className="w-4 h-4" />, roles: ['superadmin'] },
+  ],
+};
+
 const navSections: NavSection[] = [
   {
     title: '',
@@ -156,19 +195,44 @@ export function DashboardLayout() {
   return (
     <div className="min-h-screen bg-slate-50">
       {/* Mobile header */}
-      <div className="lg:hidden flex items-center justify-between px-4 py-3 bg-white border-b border-slate-200">
-        <button onClick={() => setSidebarOpen(true)} className="p-2 rounded-lg hover:bg-slate-100">
-          <Menu className="w-6 h-6 text-slate-600" />
-        </button>
-        <div className="flex items-center gap-2">
-          <img src="/logo.png" alt="Insurons" className="h-14 w-auto" />
+      <div className="lg:hidden sticky top-0 z-30 bg-white border-b border-slate-200">
+        <div className="flex items-center justify-between px-4 py-3">
+          <button onClick={() => setSidebarOpen(true)} className="p-2 rounded-lg hover:bg-slate-100">
+            <Menu className="w-6 h-6 text-slate-600" />
+          </button>
+          <div className="flex items-center gap-2">
+            <img src="/logo.png" alt="Insurons" className="h-14 w-auto" />
+          </div>
+          <div className="flex items-center gap-1">
+            <Link to="/messages" className="p-2 rounded-lg text-slate-500 hover:bg-slate-100">
+              <MessageSquare className="w-5 h-5" />
+            </Link>
+            <NotificationBell />
+          </div>
         </div>
-        <div className="flex items-center gap-1">
-          <Link to="/messages" className="p-2 rounded-lg text-slate-500 hover:bg-slate-100">
-            <MessageSquare className="w-5 h-5" />
-          </Link>
-          <NotificationBell />
-        </div>
+        {/* Mobile quick nav strip */}
+        {user && quickNavLinks[user.role] && (
+          <div className="flex items-center gap-1 px-3 pb-2 overflow-x-auto scrollbar-hide">
+            {quickNavLinks[user.role].map(item => {
+              const isActive = location.pathname === item.href || location.pathname.startsWith(item.href + '/');
+              return (
+                <Link
+                  key={item.href}
+                  to={item.href}
+                  className={cn(
+                    'flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors',
+                    isActive
+                      ? 'bg-shield-50 text-shield-700'
+                      : 'text-slate-500 hover:bg-slate-100 hover:text-slate-700'
+                  )}
+                >
+                  {item.icon}
+                  {item.label}
+                </Link>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {/* Mobile sidebar overlay */}
@@ -244,7 +308,30 @@ export function DashboardLayout() {
       {/* Main content */}
       <main className="lg:ml-64 min-h-screen">
         {/* Desktop top bar */}
-        <div className="hidden lg:flex items-center justify-end gap-1 px-8 py-3 border-b border-slate-200 bg-white">
+        <div className="hidden lg:flex items-center justify-between px-8 py-3 border-b border-slate-200 bg-white sticky top-0 z-30">
+          {/* Quick nav links (left side) */}
+          <div className="flex items-center gap-1">
+            {user && quickNavLinks[user.role]?.map(item => {
+              const isActive = location.pathname === item.href || location.pathname.startsWith(item.href + '/');
+              return (
+                <Link
+                  key={item.href}
+                  to={item.href}
+                  className={cn(
+                    'flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-colors',
+                    isActive
+                      ? 'bg-shield-50 text-shield-700'
+                      : 'text-slate-500 hover:bg-slate-100 hover:text-slate-700'
+                  )}
+                >
+                  {item.icon}
+                  {item.label}
+                </Link>
+              );
+            })}
+          </div>
+          {/* Right side icons */}
+          <div className="flex items-center gap-1">
           <Link
             to="/messages"
             className={cn(
@@ -367,6 +454,7 @@ export function DashboardLayout() {
                 </button>
               </div>
             )}
+          </div>
           </div>
         </div>
         <div className="p-6 lg:p-8">

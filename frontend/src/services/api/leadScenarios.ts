@@ -1,4 +1,4 @@
-import { api } from './client';
+import { api, API_URL } from './client';
 
 // ── Types ─────────────────────────────────────────
 
@@ -271,5 +271,31 @@ export const scenarioService = {
 
   async suggestedCoverages(productType: string): Promise<SuggestedCoverageInfo> {
     return api.get<SuggestedCoverageInfo>(`/insurance/suggested-coverages/${productType}`);
+  },
+
+  // Proposal PDF
+  async generateProposal(leadId: number, scenarioId: number): Promise<void> {
+    const token = localStorage.getItem('auth_token');
+    const res = await fetch(`${API_URL}/crm/leads/${leadId}/scenarios/${scenarioId}/proposal`, {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/pdf',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ message: 'PDF generation failed' }));
+      throw new Error(err.message || `HTTP ${res.status}`);
+    }
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = res.headers.get('content-disposition')?.match(/filename="?(.+?)"?$/)?.[1]
+      ?? `proposal-${scenarioId}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
   },
 };

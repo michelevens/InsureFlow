@@ -14,7 +14,7 @@ import {
   Search, Phone, Mail, Plus, ChevronRight, ChevronDown,
   User, Car, Home, Building2, HelpCircle, Shield, Trash2, FileText, ArrowRight,
   Layers, Target, ClipboardList, Calculator, DollarSign, History, CheckCircle2,
-  XCircle, TrendingUp, ToggleLeft, ToggleRight, RefreshCw, ShoppingCart,
+  XCircle, TrendingUp, ToggleLeft, ToggleRight, RefreshCw, ShoppingCart, FileDown,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -433,6 +433,16 @@ export default function Leads() {
                         </Button>
                         <Button variant="shield" size="sm" onClick={() => setShowConvert(scenario.id)}>
                           <ArrowRight className="w-4 h-4 mr-1" /> Convert to Application
+                        </Button>
+                        <Button variant="outline" size="sm" onClick={async () => {
+                          try {
+                            await scenarioService.generateProposal(selectedLead!.id, scenario.id);
+                            toast.success('Proposal PDF downloaded');
+                          } catch (e: unknown) {
+                            toast.error(e instanceof Error ? e.message : 'Failed to generate proposal');
+                          }
+                        }}>
+                          <FileDown className="w-4 h-4 mr-1" /> Proposal PDF
                         </Button>
                         <Button variant="danger" size="sm" onClick={() => deleteScenario(scenario.id)}>
                           <Trash2 className="w-4 h-4 mr-1" /> Delete

@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Agency;
 use App\Models\Application;
 use App\Models\Coverage;
 use App\Models\InsuredObject;
 use App\Models\Lead;
 use App\Models\LeadScenario;
 use App\Models\ScenarioQuote;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -475,5 +477,62 @@ class LeadScenarioController extends Controller
             'message' => 'Carrier quote selected',
             'quote' => $quote->load('carrier'),
         ]);
+    }
+
+    // ── Proposal PDF ─────────────────────────────────
+
+    /**
+     * Generate a stunning PDF proposal for a scenario.
+     */
+    public function generateProposal(Request $request, Lead $lead, LeadScenario $scenario)
+    {
+        $scenario->load(['insuredObjects', 'coverages', 'quotes.carrier']);
+
+        $user = $request->user();
+        $agency = Agency::where('id', $user->agency_id)->first();
+
+        // Build agency data for header
+        $agencyData = $agency ? [
+            'name' => $agency->name,
+            'phone' => $agency->phone,
+            'email' => $agency->email,
+            'website' => $agency->website,
+            'address' => $agency->address,
+            'city' => $agency->city,
+            'state' => $agency->state,
+            'zip_code' => $agency->zip_code,
+        ] : [
+            'name' => $user->name . ' Insurance',
+            'phone' => null,
+            'email' => $user->email,
+            'website' => null,
+            'address' => null,
+            'city' => null,
+            'state' => null,
+            'zip_code' => null,
+        ];
+
+        // Client name from lead contact
+        $clientName = $lead->first_name
+            ? trim($lead->first_name . ' ' . ($lead->last_name ?? ''))
+            : ($lead->company_name ?? 'Valued Client');
+
+        $data = [
+            'scenario' => $scenario,
+            'insuredObjects' => $scenario->insuredObjects,
+            'coverages' => $scenario->coverages,
+            'quotes' => $scenario->quotes->sortBy('premium_monthly'),
+            'agency' => $agencyData,
+            'client_name' => $clientName,
+            'agent_name' => $user->name,
+        ];
+
+        $pdf = Pdf::loadView('documents.proposal', $data)
+            ->setPaper('letter')
+            ->setOption(['isPhpEnabled' => true, 'isRemoteEnabled' => false]);
+
+        $filename = 'Proposal-' . Str::slug($scenario->scenario_name) . '-' . now()->format('Y-m-d') . '.pdf';
+
+        return $pdf->download($filename);
     }
 }

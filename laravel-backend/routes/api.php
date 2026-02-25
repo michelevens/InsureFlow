@@ -255,6 +255,9 @@ Route::middleware(['auth:sanctum', 'agency.scope'])->group(function () {
     Route::delete('/crm/leads/{lead}/scenarios/{scenario}/quotes/{quote}', [LeadScenarioController::class, 'removeQuote']);
     Route::post('/crm/leads/{lead}/scenarios/{scenario}/quotes/{quote}/select', [LeadScenarioController::class, 'selectQuote']);
 
+    // Scenario — Proposal PDF
+    Route::post('/crm/leads/{lead}/scenarios/{scenario}/proposal', [LeadScenarioController::class, 'generateProposal']);
+
     // Reference data (product types, suggested coverages)
     Route::get('/insurance/product-types', [LeadScenarioController::class, 'productTypes']);
     Route::get('/insurance/suggested-coverages/{productType}', [LeadScenarioController::class, 'suggestedCoverages']);
