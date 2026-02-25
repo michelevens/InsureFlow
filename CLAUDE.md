@@ -216,6 +216,16 @@ php artisan serve
 
 ## Recent Work
 
+### Phase 11 (2026-02-25) — Feature Completion + Product Activation Gate
+- **Calculator server draft sync:** When logged in, Calculator loads draft from server on mount and debounce-saves (2s) to `GET/PUT /calculator/draft`. Clear and "Get Quotes" also sync to server.
+- **Consumer portal action buttons:** MyPolicies now has real "Call Agent" (tel: link with phone), "Download" (print-friendly popup with window.print()), and "File Claim" (navigates to `/claims?policy_id=`). Added `phone` field to `AgentProfile` type.
+- **Marketplace auction/bidding:** New `lead_marketplace_bids` table. Listings can be auction-type with `min_bid`, `bid_increment`, `auction_ends_at`. `placeBid()` enforces $0.50 minimum increment in DB transaction. `suggestPrice()` uses historical averages × lead score multiplier (clamped $5-$500). `bulkList()` lists up to 50 leads at once (validates ownership, prevents re-listing marketplace purchases).
+- **Real premium breakdown from rate engine:** `QuoteController::estimate()` now returns `breakdown` object per quote (base_rate, coverage_factor, state_factor, policy_fee, discount, discount_label). `QuoteResults.tsx` uses server breakdown with `syntheticBreakdown()` fallback for cached quotes.
+- **Embed widget customization:** `EmbedQuoteWidget` supports `widget_config` with `logo_url`, `company_name`, `hide_branding`, `theme` (primary color), `cta_text`. Partner header shows logo/name when configured. Conditional "Powered by Insurons" footer. `EmbedPartnerDashboard` has Widget Customization form section (color picker, logo URL, CTA text, hide branding checkbox).
+- **ZIP code address auto-complete:** Backend: `zip_codes` table with 160+ US ZIP codes (all 50 states + DC), `ZipCode` model, `ZipCodeController` (lookup by ZIP, search by city/ZIP prefix). Frontend: `AddressAutocomplete` reusable component (debounced 300ms, keyboard nav, loading spinner, graceful fallback). Wired into Calculator, EmbedQuoteWidget, InsuranceRequestForm, LeadIntake.
+- **Product activation gate:** `LeadScenarioController::store()` and `update()` now validate product_type against `PlatformProduct.is_active` (platform level) and `agency_products` (agency level). `productTypes()` endpoint filters to only admin-activated products, with agency-level intersection. Backwards compatible (if no PlatformProducts exist, all types allowed).
+- **Files changed:** 20+ files (6 new, 14+ modified) across frontend + backend
+
 ### Phase 10 (2026-02-25) — High Impact + Infrastructure + Polish
 - **Embeddable Quote Widget:** `EmbedQuoteWidget.tsx` — standalone iframe-friendly calculator page with no nav/sidebar. Validates API key, creates embed session, shows inline quote results + contact capture form. PostMessage communication for iframe resize and conversion events. `insurons-widget.js` — vanilla JS embed script supporting `data-mode="inline"` (embed in page) and `data-mode="button"` (floating CTA pill). Public route at `/embed/quote`. Backend: `markConverted()` endpoint for conversion tracking.
 - **Carrier API Integration Layer:** Full adapter pattern architecture. `CarrierApiAdapter` interface, DTOs (CarrierQuoteResponse, CarrierApplicationResponse, CarrierStatusResponse), `GenericRestAdapter` (configurable for any REST API with field mapping, auth types, audit logging), `ProgressiveAdapter` and `TravelersAdapter` (carrier-specific stubs). `CarrierApiService` orchestrator with multi-carrier quote fan-out. Migration adds adapter columns to `carrier_api_configs`. New endpoints: `test-connection`, `available-adapters`, `adapter-quotes`.
@@ -390,7 +400,8 @@ Agent emails follow pattern: `contact+AgencyX.agent1@ennhealth.com` through `con
 - **InsuranceAiService:** `$apiKey` gracefully handled (returns "not configured" message) but still needs `ANTHROPIC_API_KEY` env var on Railway for AI chat to work.
 - **Stripe keys needed:** `stripe:sync-plans` command is ready but requires `STRIPE_SECRET_KEY` env var on Railway. Run command after adding keys to create products/prices.
 - **Railway scheduler:** Procfile has `scheduler` process but Railway may need a separate service or cron job configuration. Check if the scheduler process starts after deploy.
-- **New migrations pending on Railway:** `2026_02_25_000001` (carrier API adapter columns), `2026_02_25_000002` (quote_drafts table). Will run on next deploy if `php artisan migrate --force` is in start command.
+- **New migrations pending on Railway:** `2026_02_25_000001` (carrier API adapter columns), `2026_02_25_000002` (quote_drafts), `2026_02_25_100001` (marketplace auction/bids), `2026_02_25_200001` (zip_codes). Will run on next deploy if `php artisan migrate --force` is in start command.
+- **ZipCode seeder:** `ZipCodeSeeder` needs to run on Railway after migration (`php artisan db:seed --class=ZipCodeSeeder`).
 
 ## Session Management Rules
 
@@ -424,20 +435,17 @@ All 4 core flows tested against production and **PASSING**:
 ### Infrastructure & Config
 - **Add Stripe keys to Railway:** Set `STRIPE_SECRET_KEY`, `STRIPE_PUBLISHABLE_KEY`, `STRIPE_WEBHOOK_SECRET` env vars. Then run `php artisan stripe:sync-plans` to create products/prices in Stripe.
 - **Verify Railway scheduler:** Check if the `scheduler` Procfile process starts. If not, create a separate Railway service with start command `php artisan schedule:work`.
-- **Verify new migrations ran:** `carrier_api_adapter_columns` and `quote_drafts` tables should be created on deploy.
-
-### UX Quick Wins (Remaining)
-- Address auto-complete on ZIP code field (Google Places or Mapbox)
-- Wire frontend Calculator to sync drafts to server when user is logged in (backend endpoints ready)
+- **Verify new migrations ran:** 4 new migrations from Phase 10-11 (adapter columns, quote_drafts, marketplace bids, zip_codes).
+- **Run ZipCode seeder on Railway:** `php artisan db:seed --class=ZipCodeSeeder`
 
 ### New Features
 - **Real carrier API credentials:** Add actual Progressive/Travelers API keys to `carrier_api_configs` table when available
-- **Marketplace enhancements:** Lead auction/bidding mode, bulk listing, suggested pricing based on lead score
-- **Consumer portal improvements:** Wire "Call Agent" (tel: link), "Download" (policy PDF), "File Claim" buttons in MyPolicies
-- **Real premium breakdown from backend:** Wire to actual rate engine output instead of client-side synthetic values
-- **Embed widget customization:** Agency branding (logo, colors) in embed widget via `widget_config`
+- **E-signature integration:** DocuSign or HelloSign for application signing flow
+- **Payment processing:** Wire Stripe checkout for marketplace lead purchases (currently mock)
+- **Email templates:** Branded transactional emails for quote delivery, application status, policy docs
+- **Mobile app / PWA enhancements:** Push notifications, offline quote caching
 
-### Testing (Remaining)
+### Testing
 - Test embed widget: create partner → get embed code → put on test page → verify quote flow + conversion tracking
 - Test Stripe checkout: subscribe → verify webhook → check subscription status
 - Test `stripe:sync-plans` output table
@@ -446,3 +454,6 @@ All 4 core flows tested against production and **PASSING**:
 - Test carrier API test-connection endpoint
 - Test multi-quote comparison in consumer scenario view
 - Test server-side quote draft save/load for logged-in users
+- Test marketplace auction: create auction listing → place bids → verify min increment enforcement
+- Test ZIP code auto-complete: type ZIP → verify city/state auto-fill
+- Test product activation gate: deactivate product as admin → verify agent can't create scenario for it
