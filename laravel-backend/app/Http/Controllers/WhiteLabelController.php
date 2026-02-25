@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Agency;
 use App\Models\WhiteLabelConfig;
 use App\Models\WhiteLabelDomain;
 use Illuminate\Http\JsonResponse;
@@ -9,22 +10,46 @@ use Illuminate\Http\Request;
 
 class WhiteLabelController extends Controller
 {
+    /**
+     * Resolve the agency for the current user (agency_owner via ownership or agency_id).
+     */
+    private function resolveAgency(Request $request): ?Agency
+    {
+        $user = $request->user();
+
+        if ($user->role === 'agency_owner') {
+            return Agency::where('owner_id', $user->id)->first()
+                ?? ($user->agency_id ? Agency::find($user->agency_id) : null);
+        }
+
+        return $user->agency_id ? Agency::find($user->agency_id) : null;
+    }
+
     public function index(Request $request): JsonResponse
     {
-        $configs = WhiteLabelConfig::with(['organization', 'domains'])
-            ->whereHas('organization', function ($q) use ($request) {
-                // User must belong to the org
-                $q->whereHas('members', fn($m) => $m->where('user_id', $request->user()->id));
-            })
-            ->get();
+        $user = $request->user();
+        $query = WhiteLabelConfig::with(['organization', 'agency', 'domains']);
+
+        if (in_array($user->role, ['admin', 'superadmin'])) {
+            // Admins see all configs
+            $configs = $query->get();
+        } else {
+            // Agency owners see their agency's configs
+            $agency = $this->resolveAgency($request);
+            if (!$agency) {
+                return response()->json([]);
+            }
+            $configs = $query->where('agency_id', $agency->id)->get();
+        }
 
         return response()->json($configs);
     }
 
     public function store(Request $request): JsonResponse
     {
+        $user = $request->user();
+
         $data = $request->validate([
-            'organization_id' => 'required|exists:organizations,id',
             'brand_name' => 'required|string|max:255',
             'domain' => 'nullable|string|max:255|unique:white_label_configs,domain',
             'logo_url' => 'nullable|url|max:500',
@@ -35,15 +60,26 @@ class WhiteLabelController extends Controller
             'branding' => 'nullable|array',
         ]);
 
+        // Auto-assign agency_id for agency owners
+        if (in_array($user->role, ['agency_owner', 'agent'])) {
+            $agency = $this->resolveAgency($request);
+            if (!$agency) {
+                return response()->json(['message' => 'No agency found for your account'], 422);
+            }
+            $data['agency_id'] = $agency->id;
+        } elseif ($request->has('organization_id')) {
+            $data['organization_id'] = $request->input('organization_id');
+        }
+
         $config = WhiteLabelConfig::create($data);
-        $config->load(['organization', 'domains']);
+        $config->load(['organization', 'agency', 'domains']);
 
         return response()->json($config, 201);
     }
 
     public function show(WhiteLabelConfig $config): JsonResponse
     {
-        $config->load(['organization', 'domains']);
+        $config->load(['organization', 'agency', 'domains']);
         return response()->json($config);
     }
 
@@ -62,7 +98,7 @@ class WhiteLabelController extends Controller
         ]);
 
         $config->update($data);
-        $config->load(['organization', 'domains']);
+        $config->load(['organization', 'agency', 'domains']);
 
         return response()->json($config);
     }

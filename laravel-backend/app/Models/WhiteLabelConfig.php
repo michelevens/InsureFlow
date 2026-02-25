@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class WhiteLabelConfig extends Model
 {
     protected $fillable = [
-        'organization_id', 'domain', 'brand_name', 'logo_url', 'favicon_url',
+        'organization_id', 'agency_id', 'domain', 'brand_name', 'logo_url', 'favicon_url',
         'primary_color', 'secondary_color', 'custom_css', 'branding', 'is_active',
     ];
 
@@ -21,6 +21,11 @@ class WhiteLabelConfig extends Model
     public function organization(): BelongsTo
     {
         return $this->belongsTo(Organization::class);
+    }
+
+    public function agency(): BelongsTo
+    {
+        return $this->belongsTo(Agency::class);
     }
 
     public function domains(): HasMany

@@ -2,7 +2,8 @@ import { api } from './client';
 
 export interface WhiteLabelConfig {
   id: number;
-  organization_id: number;
+  organization_id: number | null;
+  agency_id: number | null;
   domain: string | null;
   brand_name: string;
   logo_url: string | null;
@@ -12,7 +13,8 @@ export interface WhiteLabelConfig {
   custom_css: string | null;
   branding: Record<string, unknown> | null;
   is_active: boolean;
-  organization?: { id: number; name: string };
+  organization?: { id: number; name: string } | null;
+  agency?: { id: number; name: string } | null;
   domains?: WhiteLabelDomain[];
   created_at: string;
   updated_at: string;
@@ -34,7 +36,6 @@ export const whiteLabelService = {
   },
 
   async create(data: {
-    organization_id: number;
     brand_name: string;
     domain?: string;
     logo_url?: string;

@@ -22,8 +22,11 @@ export function ProtectedRoute({ skipOnboardingCheck }: ProtectedRouteProps) {
   }
 
   // Redirect to onboarding if not completed (only for agent/agency_owner roles)
+  // Skip if navigating from onboarding completion (state update race condition)
+  const fromOnboarding = (location.state as Record<string, unknown>)?.fromOnboarding === true;
   if (
     !skipOnboardingCheck &&
+    !fromOnboarding &&
     user &&
     !user.onboarding_completed &&
     ['agent', 'agency_owner'].includes(user.role) &&

@@ -349,7 +349,7 @@ export default function Onboarding() {
       await onboardingService.complete();
       await refreshUser();
       toast.success('Onboarding complete! Welcome to Insurons.');
-      navigate('/dashboard');
+      navigate('/dashboard', { state: { fromOnboarding: true }, replace: true });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Failed to complete onboarding.');
     } finally {

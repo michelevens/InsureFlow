@@ -137,11 +137,11 @@ const navSections: NavSection[] = [
   },
   {
     title: 'Integrations',
-    roles: ['carrier', 'admin', 'superadmin'],
+    roles: ['agency_owner', 'carrier', 'admin', 'superadmin'],
     items: [
       { label: 'API Keys', href: '/api-keys', icon: <Key className="w-5 h-5" />, roles: ['carrier', 'admin', 'superadmin'] },
       { label: 'Webhooks', href: '/webhooks', icon: <Plug className="w-5 h-5" />, roles: ['carrier', 'admin', 'superadmin'] },
-      { label: 'White-Label', href: '/white-label', icon: <Palette className="w-5 h-5" />, roles: ['admin', 'superadmin'] },
+      { label: 'White-Label', href: '/white-label', icon: <Palette className="w-5 h-5" />, roles: ['agency_owner', 'admin', 'superadmin'] },
       { label: 'Embed Widgets', href: '/embed', icon: <Code className="w-5 h-5" />, roles: ['admin', 'superadmin'] },
     ],
   },
@@ -201,7 +201,7 @@ export function DashboardLayout() {
             <Menu className="w-6 h-6 text-slate-600" />
           </button>
           <div className="flex items-center gap-2">
-            <img src="/logo.png" alt="Insurons" className="h-14 w-auto" />
+            <img src="/logo.png" alt="Insurons" className="h-16 w-auto" />
           </div>
           <div className="flex items-center gap-1">
             <Link to="/messages" className="p-2 rounded-lg text-slate-500 hover:bg-slate-100">
@@ -248,9 +248,9 @@ export function DashboardLayout() {
         sidebarOpen ? 'translate-x-0' : '-translate-x-full'
       )}>
         {/* Logo */}
-        <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100">
+        <div className="flex items-center justify-between px-6 py-6 border-b border-slate-100">
           <Link to="/dashboard" className="flex items-center gap-2.5">
-            <img src="/logo.png" alt="Insurons" className="h-16 w-auto" />
+            <img src="/logo.png" alt="Insurons" className="h-24 w-auto" />
           </Link>
           <button onClick={() => setSidebarOpen(false)} className="lg:hidden p-1 rounded hover:bg-slate-100">
             <X className="w-5 h-5 text-slate-400" />

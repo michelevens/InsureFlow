@@ -102,7 +102,7 @@ export default function WhiteLabelConfigPage() {
                   </div>
                   <div>
                     <h3 className="font-bold text-slate-900">{config.brand_name}</h3>
-                    <p className="text-xs text-slate-500">{config.organization?.name}</p>
+                    <p className="text-xs text-slate-500">{config.agency?.name || config.organization?.name}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -220,7 +220,6 @@ function CreateWhiteLabelModal({ onClose, onCreated }: { onClose: () => void; on
     setSaving(true);
     try {
       await whiteLabelService.create({
-        organization_id: 1, // TODO: get from context
         brand_name: brandName,
         primary_color: primaryColor,
         secondary_color: secondaryColor,
