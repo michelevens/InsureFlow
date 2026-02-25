@@ -72,6 +72,54 @@ export interface Coverage {
   updated_at: string;
 }
 
+export interface ScenarioQuote {
+  id: number;
+  scenario_id: number;
+  carrier_id: number | null;
+  carrier_product_id: number | null;
+  carrier_name: string;
+  product_name: string | null;
+  premium_monthly: number | null;
+  premium_annual: number | null;
+  premium_semi_annual: number | null;
+  premium_quarterly: number | null;
+  status: 'pending' | 'quoted' | 'declined' | 'expired' | 'selected';
+  quoted_at: string | null;
+  expires_at: string | null;
+  decline_reason: string | null;
+  am_best_rating: string | null;
+  financial_strength_score: number | null;
+  coverage_details: Record<string, unknown> | null;
+  endorsements: string[] | null;
+  exclusions: string[] | null;
+  discounts_applied: string[] | null;
+  agent_notes: string | null;
+  is_recommended: boolean;
+  carrier?: { id: number; name: string; am_best_rating?: string } | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export type ScenarioQuotePayload = {
+  carrier_id?: number | null;
+  carrier_product_id?: number | null;
+  carrier_name: string;
+  product_name?: string | null;
+  premium_monthly?: number | null;
+  premium_annual?: number | null;
+  premium_semi_annual?: number | null;
+  premium_quarterly?: number | null;
+  status?: ScenarioQuote['status'];
+  am_best_rating?: string | null;
+  financial_strength_score?: number | null;
+  coverage_details?: Record<string, unknown> | null;
+  endorsements?: string[] | null;
+  exclusions?: string[] | null;
+  discounts_applied?: string[] | null;
+  agent_notes?: string | null;
+  is_recommended?: boolean;
+};
+
 export interface LeadScenario {
   id: number;
   lead_id: number;
@@ -95,6 +143,7 @@ export interface LeadScenario {
   notes?: string | null;
   insured_objects: InsuredObject[];
   coverages: Coverage[];
+  quotes?: ScenarioQuote[];
   selected_carrier?: { id: number; name: string } | null;
   applications?: { id: number; reference: string; status: string; carrier_name: string }[];
   created_at: string;
@@ -191,6 +240,23 @@ export const scenarioService = {
 
   async removeCoverage(leadId: number, scenarioId: number, coverageId: number): Promise<void> {
     return api.delete(`/crm/leads/${leadId}/scenarios/${scenarioId}/coverages/${coverageId}`);
+  },
+
+  // Carrier Quotes (multi-carrier comparison)
+  async addQuote(leadId: number, scenarioId: number, data: ScenarioQuotePayload): Promise<ScenarioQuote> {
+    return api.post<ScenarioQuote>(`/crm/leads/${leadId}/scenarios/${scenarioId}/quotes`, data);
+  },
+
+  async updateQuote(leadId: number, scenarioId: number, quoteId: number, data: Partial<ScenarioQuotePayload>): Promise<ScenarioQuote> {
+    return api.put<ScenarioQuote>(`/crm/leads/${leadId}/scenarios/${scenarioId}/quotes/${quoteId}`, data);
+  },
+
+  async removeQuote(leadId: number, scenarioId: number, quoteId: number): Promise<void> {
+    return api.delete(`/crm/leads/${leadId}/scenarios/${scenarioId}/quotes/${quoteId}`);
+  },
+
+  async selectQuote(leadId: number, scenarioId: number, quoteId: number): Promise<{ message: string; quote: ScenarioQuote }> {
+    return api.post(`/crm/leads/${leadId}/scenarios/${scenarioId}/quotes/${quoteId}/select`);
   },
 
   // Convert to application

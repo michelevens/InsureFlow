@@ -249,6 +249,12 @@ Route::middleware(['auth:sanctum', 'agency.scope'])->group(function () {
     // Scenario — Convert to Application
     Route::post('/crm/leads/{lead}/scenarios/{scenario}/convert', [LeadScenarioController::class, 'convertToApplication']);
 
+    // Scenario — Carrier Quotes (multi-carrier comparison)
+    Route::post('/crm/leads/{lead}/scenarios/{scenario}/quotes', [LeadScenarioController::class, 'addQuote']);
+    Route::put('/crm/leads/{lead}/scenarios/{scenario}/quotes/{quote}', [LeadScenarioController::class, 'updateQuote']);
+    Route::delete('/crm/leads/{lead}/scenarios/{scenario}/quotes/{quote}', [LeadScenarioController::class, 'removeQuote']);
+    Route::post('/crm/leads/{lead}/scenarios/{scenario}/quotes/{quote}/select', [LeadScenarioController::class, 'selectQuote']);
+
     // Reference data (product types, suggested coverages)
     Route::get('/insurance/product-types', [LeadScenarioController::class, 'productTypes']);
     Route::get('/insurance/suggested-coverages/{productType}', [LeadScenarioController::class, 'suggestedCoverages']);

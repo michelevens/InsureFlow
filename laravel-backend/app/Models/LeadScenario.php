@@ -74,6 +74,30 @@ class LeadScenario extends Model
         return $this->morphMany(Coverage::class, 'coverable')->orderBy('sort_order');
     }
 
+    /**
+     * Carrier quotes for comparison within this scenario.
+     */
+    public function quotes()
+    {
+        return $this->hasMany(ScenarioQuote::class, 'scenario_id')->orderBy('premium_monthly');
+    }
+
+    /**
+     * The recommended/selected carrier quote.
+     */
+    public function selectedQuote()
+    {
+        return $this->hasOne(ScenarioQuote::class, 'scenario_id')->where('status', 'selected');
+    }
+
+    /**
+     * The agent-recommended carrier quote.
+     */
+    public function recommendedQuote()
+    {
+        return $this->hasOne(ScenarioQuote::class, 'scenario_id')->where('is_recommended', true);
+    }
+
     // ── Product Type Registry ─────────────────────────
 
     /**

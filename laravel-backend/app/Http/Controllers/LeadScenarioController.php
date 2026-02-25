@@ -7,6 +7,7 @@ use App\Models\Coverage;
 use App\Models\InsuredObject;
 use App\Models\Lead;
 use App\Models\LeadScenario;
+use App\Models\ScenarioQuote;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -18,7 +19,7 @@ class LeadScenarioController extends Controller
     public function index(Lead $lead)
     {
         $scenarios = $lead->scenarios()
-            ->with(['insuredObjects', 'coverages', 'selectedCarrier', 'applications'])
+            ->with(['insuredObjects', 'coverages', 'selectedCarrier', 'applications', 'quotes.carrier'])
             ->orderBy('priority')
             ->get();
 
@@ -348,6 +349,131 @@ class LeadScenarioController extends Controller
             'primary_object_type' => LeadScenario::primaryObjectType($productType),
             'coverages' => LeadScenario::suggestedCoverages($productType),
             'coverage_types' => Coverage::typesByCategory(),
+        ]);
+    }
+
+    // ── Carrier Quotes (multi-carrier comparison) ─────
+
+    /**
+     * Add a carrier quote to a scenario.
+     */
+    public function addQuote(Request $request, Lead $lead, LeadScenario $scenario)
+    {
+        $data = $request->validate([
+            'carrier_id' => 'nullable|integer|exists:carriers,id',
+            'carrier_product_id' => 'nullable|integer|exists:carrier_products,id',
+            'carrier_name' => 'required|string|max:255',
+            'product_name' => 'nullable|string|max:255',
+            'premium_monthly' => 'nullable|numeric|min:0',
+            'premium_annual' => 'nullable|numeric|min:0',
+            'premium_semi_annual' => 'nullable|numeric|min:0',
+            'premium_quarterly' => 'nullable|numeric|min:0',
+            'status' => 'nullable|in:pending,quoted,declined,expired,selected',
+            'am_best_rating' => 'nullable|string|max:10',
+            'financial_strength_score' => 'nullable|numeric|min:0|max:10',
+            'coverage_details' => 'nullable|array',
+            'endorsements' => 'nullable|array',
+            'exclusions' => 'nullable|array',
+            'discounts_applied' => 'nullable|array',
+            'agent_notes' => 'nullable|string',
+            'is_recommended' => 'nullable|boolean',
+        ]);
+
+        if (!empty($data['is_recommended'])) {
+            $scenario->quotes()->update(['is_recommended' => false]);
+        }
+
+        $quote = $scenario->quotes()->create(array_merge($data, [
+            'quoted_at' => ($data['status'] ?? 'pending') === 'quoted' ? now() : null,
+        ]));
+
+        // Update scenario stats
+        $scenario->update([
+            'total_quotes_received' => $scenario->quotes()->where('status', 'quoted')->count(),
+            'best_quoted_premium' => $scenario->quotes()->where('status', 'quoted')->min('premium_monthly'),
+            'status' => $scenario->status === 'draft' ? 'quoting' : $scenario->status,
+        ]);
+
+        return response()->json($quote->load('carrier'), 201);
+    }
+
+    /**
+     * Update a carrier quote.
+     */
+    public function updateQuote(Request $request, Lead $lead, LeadScenario $scenario, ScenarioQuote $quote)
+    {
+        $data = $request->validate([
+            'carrier_name' => 'sometimes|string|max:255',
+            'product_name' => 'nullable|string|max:255',
+            'premium_monthly' => 'nullable|numeric|min:0',
+            'premium_annual' => 'nullable|numeric|min:0',
+            'premium_semi_annual' => 'nullable|numeric|min:0',
+            'premium_quarterly' => 'nullable|numeric|min:0',
+            'status' => 'nullable|in:pending,quoted,declined,expired,selected',
+            'am_best_rating' => 'nullable|string|max:10',
+            'financial_strength_score' => 'nullable|numeric|min:0|max:10',
+            'coverage_details' => 'nullable|array',
+            'endorsements' => 'nullable|array',
+            'exclusions' => 'nullable|array',
+            'discounts_applied' => 'nullable|array',
+            'decline_reason' => 'nullable|string',
+            'agent_notes' => 'nullable|string',
+            'is_recommended' => 'nullable|boolean',
+        ]);
+
+        if (!empty($data['is_recommended'])) {
+            $scenario->quotes()->where('id', '!=', $quote->id)->update(['is_recommended' => false]);
+        }
+
+        if (isset($data['status']) && $data['status'] === 'quoted' && !$quote->quoted_at) {
+            $data['quoted_at'] = now();
+        }
+
+        $quote->update($data);
+
+        // Update scenario stats
+        $scenario->update([
+            'total_quotes_received' => $scenario->quotes()->where('status', 'quoted')->count(),
+            'best_quoted_premium' => $scenario->quotes()->where('status', 'quoted')->min('premium_monthly'),
+        ]);
+
+        return response()->json($quote->load('carrier'));
+    }
+
+    /**
+     * Remove a carrier quote.
+     */
+    public function removeQuote(Lead $lead, LeadScenario $scenario, ScenarioQuote $quote)
+    {
+        $quote->delete();
+
+        $scenario->update([
+            'total_quotes_received' => $scenario->quotes()->where('status', 'quoted')->count(),
+            'best_quoted_premium' => $scenario->quotes()->where('status', 'quoted')->min('premium_monthly'),
+        ]);
+
+        return response()->json(['message' => 'Quote removed']);
+    }
+
+    /**
+     * Select a carrier quote (marks it as 'selected' and updates scenario).
+     */
+    public function selectQuote(Lead $lead, LeadScenario $scenario, ScenarioQuote $quote)
+    {
+        // Deselect any previously selected quote
+        $scenario->quotes()->where('status', 'selected')->update(['status' => 'quoted']);
+
+        $quote->update(['status' => 'selected']);
+
+        $scenario->update([
+            'selected_carrier_id' => $quote->carrier_id,
+            'best_quoted_premium' => $quote->premium_monthly,
+            'status' => 'selected',
+        ]);
+
+        return response()->json([
+            'message' => 'Carrier quote selected',
+            'quote' => $quote->load('carrier'),
         ]);
     }
 }
