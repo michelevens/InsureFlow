@@ -187,10 +187,10 @@ php artisan serve
 - superadmin@insureflow.com (Superadmin)
 
 ## Current Status (as of 2026-02-25)
-- **Frontend:** 50+ pages built, TypeScript passes, Vite build succeeds, **GitHub Pages deployment working** (auto-deploys on push)
-- **Backend:** Laravel 12 on Railway — **Phase 5-12 deployed**, marketplace tables migrated, all endpoints live
+- **Frontend:** 65+ pages built, TypeScript passes, Vite build succeeds, **GitHub Pages deployment working** (auto-deploys on push)
+- **Backend:** Laravel 12 on Railway — **All 14 phases deployed**, all endpoints live
 - **API Domain:** api.insurons.com — WORKING, CORS fixed for ennhealth.github.io
-- **Database:** All migrations run (including compliance_pack_tables batch 16), 39 compliance requirements seeded
+- **Database:** All migrations run (100+ total including Phase 10-14), 39 compliance requirements seeded, 160+ ZIP codes seeded
 - **Seed Data:** 5 subscription plans, 10 carriers with products, 6 demo users, 35+ platform products, 10 agencies (50 agents), 70 leads, 3 rate tables (DI LTD, Term Life, LTC) — 180 rate entries + PipelineSeeder (25 applications, 15 policies, 15 commissions, 6 claims, 12 appointments, 20 routing rules) + 39 compliance requirements
 - **Lead Pipeline:** Full InsuranceProfile → Lead → RoutingEngine → LeadScoring pipeline wired for intake submissions
 - **Lead Aging Alerts:** Hourly `leads:check-aging` command — 24h → remind agent, 48h → escalate to agency owner (email + in-app notification)
@@ -213,8 +213,22 @@ php artisan serve
 - **Compliance Overdue Notifications:** Daily check command with email + in-app notifications
 - **Stripe Integration:** stripe:sync-plans command, customer portal, API-driven Pricing page
 - **Railway Scheduler:** Procfile updated with scheduler process for cron commands
+- **Workflow Automation:** Tested end-to-end — rule creation, condition matching, notification sending, execution audit log
+- **Task Management:** CRUD, complete/reopen, priority filters — all tested on production
+- **E-Signature:** Full flow tested — agent creates from scenario → public view → public sign → status updated to submitted
+- **ZIP Code Autocomplete:** 160+ ZIP codes seeded and lookup working on production
 
 ## Recent Work
+
+### Deploy + Test Session (2026-02-25) — Production Deployment & Bug Fixes
+- **Deployed Phase 10-14 to Railway:** 9 pending migrations ran successfully (carrier API adapters, quote drafts, marketplace auction, ZIP codes, Stripe payment columns, workflow rules, task support)
+- **ZipCodeSeeder:** Ran on Railway — 160+ US ZIP codes now available for auto-complete
+- **Fixed stale route cache:** Removed `route:cache` from nixpacks.toml start command — was causing new routes (workflows, tasks) to not appear on Railway
+- **Fixed WorkflowEngine notification bug:** Was using `message` column instead of `body` on notifications table — caused NOT NULL violation
+- **Fixed Application model/controller column mismatches:** `monthly_premium` → `premium`, `applicant_data` → `coverage_details`, removed `agency_id` direct column (scope via agent relationship instead)
+- **Fixed PublicSigningController:** Same column mismatches + removed unused `$agencyId` variable and `DB` import
+- **E2E tested on production:** Workflow automation (rule create → trigger → execution log), Task management (CRUD + complete/reopen), E-signature (create-from-scenario → public view → public sign)
+- **FEATURES.md:** Updated with complete Phase 7-14 documentation
 
 ### Phase 14 (2026-02-25) — Task Management, Kanban Board, Dashboard Enrichment, Password UX
 - **Task Management System:** Migration adds `priority`, `completed_at`, `assigned_by` columns + `task` type to appointments enum. `TaskController` with CRUD, complete/reopen, priority/overdue/today filters. Tasks page with stats cards, priority badges, completion toggle, search/filter, create modal. Route at `/tasks`, nav item in Pipeline section.
@@ -420,8 +434,8 @@ Agent emails follow pattern: `contact+AgencyX.agent1@ennhealth.com` through `con
 - **InsuranceAiService:** `$apiKey` gracefully handled (returns "not configured" message) but still needs `ANTHROPIC_API_KEY` env var on Railway for AI chat to work.
 - **Stripe keys needed:** `stripe:sync-plans` command is ready but requires `STRIPE_SECRET_KEY` env var on Railway. Run command after adding keys to create products/prices.
 - **Railway scheduler:** Procfile has `scheduler` process but Railway may need a separate service or cron job configuration. Check if the scheduler process starts after deploy.
-- **New migrations pending on Railway:** `2026_02_25_000001` (carrier API adapter columns), `2026_02_25_000002` (quote_drafts), `2026_02_25_100001` (marketplace auction/bids), `2026_02_25_200001` (zip_codes). Will run on next deploy if `php artisan migrate --force` is in start command.
-- **ZipCode seeder:** `ZipCodeSeeder` needs to run on Railway after migration (`php artisan db:seed --class=ZipCodeSeeder`).
+- **Route caching disabled:** `route:cache` removed from nixpacks.toml start command because it was causing new routes to not appear. Slightly slower but always current. Can re-enable once deploy pipeline is stable.
+- **Application `agency_id` column missing:** The `applications` table has no `agency_id` column. Agency scoping is done via the agent's `agency_id`. The PipelineSeeder may need updating if it sets `agency_id` directly on applications.
 
 ## Session Management Rules
 
@@ -453,23 +467,18 @@ All 4 core flows tested against production and **PASSING**:
 ## Next Tasks
 
 ### Immediate
-- **Deploy Phase 12-14:** Push + redeploy on Railway — migrations pending: marketplace payment columns (`2026_02_25_300001`), signatures table (`2026_02_21_400005`), signing fields on applications (`2026_02_24_100004`), workflow rules + commission splits (`2026_02_25_400001`), task support on appointments (`2026_02_25_500001`). Run `ZipCodeSeeder` after deploy.
-- **Test e-signature flow end-to-end:** Agent creates application from scenario → consumer receives signing email → opens `/applications/:token/sign` → draws signature → submits → agent gets notification.
-- **Test workflow automation:** Create rule (e.g., on lead_created → send notification) → submit intake form → verify execution log.
-- **Test task management:** Create task → verify in Tasks page → complete → verify dashboard widget.
+- **Test embed widget:** Create partner → get embed code → put on test page → verify quote flow + conversion tracking
+- **Test Kanban board** drag-and-drop on the live frontend (https://ennhealth.github.io/InsureFlow)
 
 ### Infrastructure & Config
 - **Add Stripe keys to Railway:** Set `STRIPE_SECRET_KEY`, `STRIPE_PUBLISHABLE_KEY`, `STRIPE_WEBHOOK_SECRET` env vars. Then run `php artisan stripe:sync-plans` to create products/prices in Stripe.
 - **Verify Railway scheduler:** Check if the `scheduler` Procfile process starts. If not, create a separate Railway service with start command `php artisan schedule:work`.
-- **Verify new migrations ran:** 5+ new migrations from Phase 10-12.
-- **Run ZipCode seeder on Railway:** `php artisan db:seed --class=ZipCodeSeeder`
 
 ### New Features
 - **Real carrier API credentials:** Add actual Progressive/Travelers API keys to `carrier_api_configs` table when available
 - **Mobile app / PWA enhancements:** Push notifications, offline quote caching
 
 ### Testing
-- Test embed widget: create partner → get embed code → put on test page → verify quote flow + conversion tracking
 - Test Stripe checkout: subscribe → verify webhook → check subscription status
 - Test `stripe:sync-plans` output table
 - Test `compliance:check-overdue` with overdue test items
