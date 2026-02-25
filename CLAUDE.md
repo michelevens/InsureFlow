@@ -188,7 +188,7 @@ php artisan serve
 
 ## Current Status (as of 2026-02-25)
 - **Frontend:** 50+ pages built, TypeScript passes, Vite build succeeds, **GitHub Pages deployment working** (auto-deploys on push)
-- **Backend:** Laravel 12 on Railway — **Phase 5-9 deployed**, marketplace tables migrated, all endpoints live
+- **Backend:** Laravel 12 on Railway — **Phase 5-10 deployed**, marketplace tables migrated, all endpoints live
 - **API Domain:** api.insurons.com — WORKING, CORS fixed for ennhealth.github.io
 - **Database:** All migrations run (including compliance_pack_tables batch 16), 39 compliance requirements seeded
 - **Seed Data:** 5 subscription plans, 10 carriers with products, 6 demo users, 35+ platform products, 10 agencies (50 agents), 70 leads, 3 rate tables (DI LTD, Term Life, LTC) — 180 rate entries + PipelineSeeder (25 applications, 15 policies, 15 commissions, 6 claims, 12 appointments, 20 routing rules) + 39 compliance requirements
@@ -206,8 +206,27 @@ php artisan serve
 - **Chunk Error Recovery:** ChunkErrorBoundary + lazyRetry prevent blank pages after deploys
 - **Agency Team Page:** Wired to real API — invite agents, toggle active status, cancel invites
 - **CRM Carrier Quotes:** Full comparison table in scenario detail with recommend/select/delete actions
+- **Embeddable Quote Widget:** Iframe + vanilla JS embed script for agencies to put on their websites
+- **Carrier API Integration Layer:** Adapter pattern with GenericRest, Progressive, Travelers adapters
+- **Consumer Multi-Quote Comparison:** ScenarioPublicView shows all carrier quotes in comparison table
+- **Server-Side Quote Drafts:** Authenticated users can save/resume calculator progress server-side
+- **Compliance Overdue Notifications:** Daily check command with email + in-app notifications
+- **Stripe Integration:** stripe:sync-plans command, customer portal, API-driven Pricing page
+- **Railway Scheduler:** Procfile updated with scheduler process for cron commands
 
 ## Recent Work
+
+### Phase 10 (2026-02-25) — High Impact + Infrastructure + Polish
+- **Embeddable Quote Widget:** `EmbedQuoteWidget.tsx` — standalone iframe-friendly calculator page with no nav/sidebar. Validates API key, creates embed session, shows inline quote results + contact capture form. PostMessage communication for iframe resize and conversion events. `insurons-widget.js` — vanilla JS embed script supporting `data-mode="inline"` (embed in page) and `data-mode="button"` (floating CTA pill). Public route at `/embed/quote`. Backend: `markConverted()` endpoint for conversion tracking.
+- **Carrier API Integration Layer:** Full adapter pattern architecture. `CarrierApiAdapter` interface, DTOs (CarrierQuoteResponse, CarrierApplicationResponse, CarrierStatusResponse), `GenericRestAdapter` (configurable for any REST API with field mapping, auth types, audit logging), `ProgressiveAdapter` and `TravelersAdapter` (carrier-specific stubs). `CarrierApiService` orchestrator with multi-carrier quote fan-out. Migration adds adapter columns to `carrier_api_configs`. New endpoints: `test-connection`, `available-adapters`, `adapter-quotes`.
+- **Consumer Multi-Quote Comparison:** ScenarioPublicView now shows all carrier quotes in a comparison table (carrier, AM Best, monthly/annual premium, recommended badge). Backend loads quotes relationship in `viewScenario()`. Savings callout between cheapest and most expensive.
+- **Server-Side Quote Drafts:** `quote_drafts` table (one per user). `QuoteController::saveDraft/getDraft/deleteDraft`. Three new protected routes. Complements existing localStorage drafts for logged-in users.
+- **Compliance Overdue Notifications:** `compliance:check-overdue` artisan command runs daily. Finds overdue items, groups by user, sends `ComplianceOverdueMail` + in-app notification. Deduplicates (once per week per user). Registered in scheduler alongside `leads:check-aging`.
+- **Stripe Sync Command:** `stripe:sync-plans` creates Stripe products + monthly/annual prices from DB plans, updates `stripe_price_id_monthly/annual` columns. Supports `--force` flag.
+- **Stripe Customer Portal:** `SubscriptionController::portal()` creates Stripe Billing Portal session. Route: `POST /subscriptions/portal`.
+- **API-Driven Pricing Page:** Rewrote `Pricing.tsx` to fetch plans from API instead of hardcoded data. Monthly/annual toggle, Stripe checkout redirect, "Current Plan" badge, "Manage Billing" portal link. Created `subscriptions.ts` API service.
+- **Railway Scheduler:** Procfile updated with `scheduler: php artisan schedule:work` process.
+- **Files changed:** 25+ files (11 new, 14+ modified) across frontend + backend
 
 ### Phase 9 (2026-02-25) — Stability Fixes + Team Management + CRM Quotes
 - **ChunkErrorBoundary + lazyRetry:** Created `ChunkErrorBoundary.tsx` error boundary that catches stale chunk load errors after deploys. Auto-reloads once per path, then shows "Refresh Page" fallback. `lazyRetry()` wrapper retries failed dynamic imports once after 1s. All 65+ `lazy()` calls in `App.tsx` updated to `lazyRetry()`.
@@ -369,10 +388,9 @@ Agent emails follow pattern: `contact+AgencyX.agent1@ennhealth.com` through `con
 
 ## Known Issues
 - **InsuranceAiService:** `$apiKey` gracefully handled (returns "not configured" message) but still needs `ANTHROPIC_API_KEY` env var on Railway for AI chat to work.
-- **Cache table missing:** `cache:clear` fails because there's no `cache` table in DB. Non-critical (using file/array cache driver instead).
-- **Stripe not configured:** Price IDs in seeded plans are null. Subscriptions return 422 until Stripe keys are added.
-- **Scheduler not running:** `leads:check-aging` is registered but Railway needs `php artisan schedule:work` or a cron entry to actually run the scheduler.
-- **Consumer scenario view:** `ScenarioPublicView` only shows one premium — no multi-quote comparison for consumers yet.
+- **Stripe keys needed:** `stripe:sync-plans` command is ready but requires `STRIPE_SECRET_KEY` env var on Railway. Run command after adding keys to create products/prices.
+- **Railway scheduler:** Procfile has `scheduler` process but Railway may need a separate service or cron job configuration. Check if the scheduler process starts after deploy.
+- **New migrations pending on Railway:** `2026_02_25_000001` (carrier API adapter columns), `2026_02_25_000002` (quote_drafts table). Will run on next deploy if `php artisan migrate --force` is in start command.
 
 ## Session Management Rules
 
@@ -404,27 +422,27 @@ All 4 core flows tested against production and **PASSING**:
 ## Next Tasks
 
 ### Infrastructure & Config
-- **Configure scheduler on Railway:** Add `php artisan schedule:work` as a worker process or cron job so `leads:check-aging` actually runs
-- **Create cache table:** Run `php artisan cache:table && php artisan migrate` on Railway to fix cache:clear
-- **Configure Stripe:** Add real Stripe API keys to Railway env vars, create products/prices, update seeded plans with real price IDs
+- **Add Stripe keys to Railway:** Set `STRIPE_SECRET_KEY`, `STRIPE_PUBLISHABLE_KEY`, `STRIPE_WEBHOOK_SECRET` env vars. Then run `php artisan stripe:sync-plans` to create products/prices in Stripe.
+- **Verify Railway scheduler:** Check if the `scheduler` Procfile process starts. If not, create a separate Railway service with start command `php artisan schedule:work`.
+- **Verify new migrations ran:** `carrier_api_adapter_columns` and `quote_drafts` tables should be created on deploy.
 
 ### UX Quick Wins (Remaining)
 - Address auto-complete on ZIP code field (Google Places or Mapbox)
-- Consumer-facing multi-quote comparison in ScenarioPublicView (currently only shows one premium)
+- Wire frontend Calculator to sync drafts to server when user is logged in (backend endpoints ready)
 
 ### New Features
-- **Embeddable quote widget:** iframe/web component agencies can put on their own websites
-- **Real carrier API integrations:** Connect to actual carrier rating APIs (Progressive, Travelers, etc.)
-- **Agent notification when compliance pack items are overdue**
+- **Real carrier API credentials:** Add actual Progressive/Travelers API keys to `carrier_api_configs` table when available
 - **Marketplace enhancements:** Lead auction/bidding mode, bulk listing, suggested pricing based on lead score
-- **Consumer portal improvements:** Let consumers track their quote requests, view scenarios, sign applications
-- **Real premium breakdown from backend:** Currently the breakdown is computed client-side with synthetic values — wire to actual rate engine output
-- **Save & resume quotes (server-side):** localStorage draft saving exists but no authenticated server-side draft storage
+- **Consumer portal improvements:** Wire "Call Agent" (tel: link), "Download" (policy PDF), "File Claim" buttons in MyPolicies
+- **Real premium breakdown from backend:** Wire to actual rate engine output instead of client-side synthetic values
+- **Embed widget customization:** Agency branding (logo, colors) in embed widget via `widget_config`
 
 ### Testing (Remaining)
-- Test `php artisan leads:check-aging` with stale test leads (needs scheduler running)
-- Test aging reminder email to agent (24h) and escalation to agency owner (48h)
-- Test full UI flow in browser: login → Leads → click lead → Sell on Marketplace → switch agency → browse → buy
-- Verify marketplace restriction: try selling a purchased lead (should be blocked)
-- Test agency team page: login as agency owner → Team tab → invite agent, toggle status, cancel invite
-- Test proposal PDF generation: create scenario with quotes → generate proposal → verify PDF content
+- Test embed widget: create partner → get embed code → put on test page → verify quote flow + conversion tracking
+- Test Stripe checkout: subscribe → verify webhook → check subscription status
+- Test `stripe:sync-plans` output table
+- Test `compliance:check-overdue` with overdue test items
+- Test `leads:check-aging` with stale test leads (needs scheduler running)
+- Test carrier API test-connection endpoint
+- Test multi-quote comparison in consumer scenario view
+- Test server-side quote draft save/load for logged-in users
