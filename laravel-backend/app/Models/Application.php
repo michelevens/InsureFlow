@@ -10,17 +10,17 @@ class Application extends Model
     use HasFactory;
 
     protected $fillable = [
-        'reference', 'user_id', 'agent_id', 'agency_id', 'carrier_product_id',
+        'reference', 'user_id', 'agent_id', 'carrier_product_id',
         'quote_id', 'lead_scenario_id', 'lead_id', 'insurance_type', 'carrier_name',
-        'monthly_premium', 'status', 'applicant_data', 'submitted_at',
+        'premium', 'status', 'coverage_details', 'notes', 'submitted_at',
         'signing_token', 'signer_name', 'signature_data', 'signer_ip', 'signed_at',
     ];
 
     protected function casts(): array
     {
         return [
-            'applicant_data' => 'array',
-            'monthly_premium' => 'decimal:2',
+            'coverage_details' => 'array',
+            'premium' => 'decimal:2',
             'submitted_at' => 'datetime',
             'signed_at' => 'datetime',
         ];

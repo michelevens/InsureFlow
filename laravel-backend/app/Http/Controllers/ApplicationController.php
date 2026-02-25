@@ -18,9 +18,9 @@ class ApplicationController extends Controller
         $agencyId = $request->attributes->get('agency_id');
         $query = Application::with(['carrierProduct.carrier', 'agent', 'user']);
 
-        // Tenant scoping
+        // Tenant scoping via agent's agency
         if ($agencyId) {
-            $query->where('agency_id', $agencyId);
+            $query->whereHas('agent', fn ($q) => $q->where('agency_id', $agencyId));
         }
 
         if ($user->role === 'consumer') {
@@ -49,7 +49,7 @@ class ApplicationController extends Controller
             'quote_id' => 'nullable|exists:quotes,id',
             'insurance_type' => 'required|string',
             'carrier_name' => 'required|string',
-            'monthly_premium' => 'required|numeric',
+            'premium' => 'required|numeric',
             'applicant_data' => 'nullable|array',
             'profile_id' => 'nullable|integer|exists:insurance_profiles,id',
         ]);
@@ -61,11 +61,11 @@ class ApplicationController extends Controller
             'quote_id' => $data['quote_id'] ?? null,
             'insurance_type' => $data['insurance_type'],
             'carrier_name' => $data['carrier_name'],
-            'monthly_premium' => $data['monthly_premium'],
-            'applicant_data' => $data['applicant_data'] ?? null,
+            'premium' => $data['premium'],
+            'coverage_details' => $data['applicant_data'] ?? null,
             'reference' => 'APP-' . strtoupper(uniqid()),
             'user_id' => $request->user()->id,
-            'agency_id' => $agencyId,
+            'agent_id' => $request->user()->role === 'agent' ? $request->user()->id : null,
             'status' => 'draft',
         ]);
 
@@ -85,7 +85,7 @@ class ApplicationController extends Controller
         if ($profile) {
             $profile->advanceTo('application', [
                 'application_id' => $application->id,
-                'monthly_premium' => $data['monthly_premium'],
+                'premium' => $data['premium'],
             ]);
         }
 
@@ -133,17 +133,16 @@ class ApplicationController extends Controller
 
         // When bound, auto-create policy + commission if none exists
         if ($data['status'] === 'bound' && !$application->policy) {
-            $annualPremium = round(($application->monthly_premium ?? 0) * 12, 2);
+            $annualPremium = round(($application->premium ?? 0) * 12, 2);
 
             $policy = Policy::create([
                 'application_id' => $application->id,
                 'user_id' => $application->user_id,
                 'agent_id' => $application->agent_id,
-                'agency_id' => $application->agency_id,
                 'carrier_product_id' => $application->carrier_product_id,
                 'type' => $application->insurance_type,
                 'carrier_name' => $application->carrier_name,
-                'monthly_premium' => $application->monthly_premium,
+                'monthly_premium' => $application->premium,
                 'annual_premium' => $annualPremium,
                 'effective_date' => now()->format('Y-m-d'),
                 'expiration_date' => now()->addYear()->format('Y-m-d'),
