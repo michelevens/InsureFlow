@@ -216,6 +216,11 @@ php artisan serve
 
 ## Recent Work
 
+### Phase 12 (2026-02-25) — Payments, Emails, E-Signature (in progress)
+- **Stripe marketplace payments:** Full Stripe Checkout + PaymentIntent flow for lead purchases. `createCheckoutForLead()` creates Stripe Checkout in payment mode, `createPaymentIntent()` for in-app payment. Pending transaction records with `stripe_payment_intent_id`, `stripe_checkout_session_id`, `payment_status`. Webhook handlers in SubscriptionController route marketplace events. Falls back to free transfer when Stripe not configured. Frontend: "Buy Now" redirects to Stripe, handles `?purchased=true`/`?canceled=true` return params.
+- **Email layout + partials (partial):** Master `layout.blade.php` with teal header, white body, gray footer. Reusable partials: `button.blade.php`, `stat-card.blade.php`, `status-badge.blade.php`. **Remaining:** 6 Mailable classes + templates (WelcomeEmail, QuoteReadyEmail, ApplicationStatusEmail, LeadAssignedEmail, MarketplacePurchaseEmail, MarketplaceSaleEmail), update existing emails to extend layout.
+- **E-signature flow (not started):** Planned: ESignatureAdapter interface, InternalAdapter (token-based), DocuSignAdapter (stub), SignatureRequest model/migration, SignatureController, public /sign/{token} page. Agent hit API errors before writing files.
+
 ### Phase 11 (2026-02-25) — Feature Completion + Product Activation Gate
 - **Calculator server draft sync:** When logged in, Calculator loads draft from server on mount and debounce-saves (2s) to `GET/PUT /calculator/draft`. Clear and "Get Quotes" also sync to server.
 - **Consumer portal action buttons:** MyPolicies now has real "Call Agent" (tel: link with phone), "Download" (print-friendly popup with window.print()), and "File Claim" (navigates to `/claims?policy_id=`). Added `phone` field to `AgentProfile` type.
@@ -432,17 +437,19 @@ All 4 core flows tested against production and **PASSING**:
 
 ## Next Tasks
 
+### Immediate (resume from Phase 12)
+- **Finish branded email Mailables:** Create 6 Mailable classes + Blade templates (WelcomeEmail, QuoteReadyEmail, ApplicationStatusEmail, LeadAssignedEmail, MarketplacePurchaseEmail, MarketplaceSaleEmail). Update existing compliance-overdue email to extend layout.
+- **Build e-signature flow:** ESignatureAdapter interface, InternalAdapter (token-based signing), DocuSignAdapter (stub), SignatureRequest model + migration, SignatureController (send/status/sign/complete/void), frontend SignDocument.tsx public page, signatures.ts API service.
+- **Deploy Phase 12:** Push + `railway up` — 2 new migrations pending (marketplace payment columns, signature_requests).
+
 ### Infrastructure & Config
 - **Add Stripe keys to Railway:** Set `STRIPE_SECRET_KEY`, `STRIPE_PUBLISHABLE_KEY`, `STRIPE_WEBHOOK_SECRET` env vars. Then run `php artisan stripe:sync-plans` to create products/prices in Stripe.
 - **Verify Railway scheduler:** Check if the `scheduler` Procfile process starts. If not, create a separate Railway service with start command `php artisan schedule:work`.
-- **Verify new migrations ran:** 4 new migrations from Phase 10-11 (adapter columns, quote_drafts, marketplace bids, zip_codes).
+- **Verify new migrations ran:** 5+ new migrations from Phase 10-12.
 - **Run ZipCode seeder on Railway:** `php artisan db:seed --class=ZipCodeSeeder`
 
 ### New Features
 - **Real carrier API credentials:** Add actual Progressive/Travelers API keys to `carrier_api_configs` table when available
-- **E-signature integration:** DocuSign or HelloSign for application signing flow
-- **Payment processing:** Wire Stripe checkout for marketplace lead purchases (currently mock)
-- **Email templates:** Branded transactional emails for quote delivery, application status, policy docs
 - **Mobile app / PWA enhancements:** Push notifications, offline quote caching
 
 ### Testing
