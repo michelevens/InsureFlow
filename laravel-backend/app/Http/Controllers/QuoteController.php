@@ -247,6 +247,40 @@ class QuoteController extends Controller
         return response()->json($quoteRequest);
     }
 
+    // ── Quote Draft Persistence ─────────────────────────
+
+    public function saveDraft(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $user = $request->user();
+        $data = $request->validate([
+            'insurance_type' => 'nullable|string',
+            'zip_code' => 'nullable|string',
+            'coverage_level' => 'nullable|string',
+            'form_data' => 'required|array',
+            'step' => 'integer|min:1|max:2',
+        ]);
+
+        // Upsert — one draft per user
+        $draft = \App\Models\QuoteDraft::updateOrCreate(
+            ['user_id' => $user->id],
+            $data,
+        );
+
+        return response()->json(['draft' => $draft]);
+    }
+
+    public function getDraft(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $draft = \App\Models\QuoteDraft::where('user_id', $request->user()->id)->first();
+        return response()->json(['draft' => $draft]);
+    }
+
+    public function deleteDraft(Request $request): \Illuminate\Http\JsonResponse
+    {
+        \App\Models\QuoteDraft::where('user_id', $request->user()->id)->delete();
+        return response()->json(['message' => 'Draft deleted']);
+    }
+
     /**
      * Map calculator insurance_type to canonical product_type.
      */
