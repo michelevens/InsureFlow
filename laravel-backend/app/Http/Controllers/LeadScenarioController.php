@@ -8,7 +8,9 @@ use App\Models\Coverage;
 use App\Models\InsuredObject;
 use App\Models\Lead;
 use App\Models\LeadScenario;
+use App\Models\PlatformProduct;
 use App\Models\ScenarioQuote;
+use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -47,6 +49,31 @@ class LeadScenarioController extends Controller
             'metadata_json' => 'nullable|array',
             'notes' => 'nullable|string',
         ]);
+
+        // Enforce: product must be platform-active
+        $platformProduct = PlatformProduct::where('slug', $data['product_type'])
+            ->where('is_active', true)
+            ->first();
+
+        if (PlatformProduct::count() > 0 && !$platformProduct) {
+            return response()->json(['error' => 'This product type is not active. Ask your admin to activate it.'], 422);
+        }
+
+        // Enforce: product must be enabled for the agent's agency (if agency context)
+        $agencyId = $request->user()->agency_id ?? $request->attributes->get('agency_id');
+        if ($agencyId && $platformProduct) {
+            $agencyHasProducts = DB::table('agency_products')->where('agency_id', $agencyId)->exists();
+            if ($agencyHasProducts) {
+                $agencyEnabled = DB::table('agency_products')
+                    ->where('agency_id', $agencyId)
+                    ->where('platform_product_id', $platformProduct->id)
+                    ->where('is_active', true)
+                    ->exists();
+                if (!$agencyEnabled) {
+                    return response()->json(['error' => 'This product is not enabled for your agency.'], 422);
+                }
+            }
+        }
 
         $scenario = $lead->scenarios()->create([
             ...$data,
@@ -99,6 +126,16 @@ class LeadScenarioController extends Controller
             'metadata_json' => 'nullable|array',
             'notes' => 'nullable|string',
         ]);
+
+        // If product_type is being changed, enforce activation
+        if (isset($data['product_type']) && $data['product_type'] !== $scenario->product_type) {
+            $platformProduct = PlatformProduct::where('slug', $data['product_type'])
+                ->where('is_active', true)
+                ->first();
+            if (PlatformProduct::count() > 0 && !$platformProduct) {
+                return response()->json(['error' => 'This product type is not active. Ask your admin to activate it.'], 422);
+            }
+        }
 
         $scenario->update($data);
         $scenario->load(['insuredObjects', 'coverages']);
@@ -334,11 +371,45 @@ class LeadScenarioController extends Controller
     // ── Reference Data ─────────────────────────────────
 
     /**
-     * Return all product types grouped by category.
+     * Return product types grouped by category — only admin-activated products.
      */
-    public function productTypes()
+    public function productTypes(Request $request)
     {
-        return response()->json(LeadScenario::productTypes());
+        $allTypes = LeadScenario::productTypes();
+
+        // If platform_products table has entries, filter to only active ones
+        $activeProducts = PlatformProduct::where('is_active', true)->pluck('slug')->toArray();
+
+        if (empty($activeProducts)) {
+            // No platform products configured yet — return all (backwards compat)
+            return response()->json($allTypes);
+        }
+
+        // Also check agency-level activation if user is authenticated with an agency
+        $agencyId = $request->user()?->agency_id ?? $request->attributes->get('agency_id');
+        if ($agencyId) {
+            $agencyHasProducts = DB::table('agency_products')->where('agency_id', $agencyId)->exists();
+            if ($agencyHasProducts) {
+                $agencyActive = DB::table('agency_products')
+                    ->where('agency_id', $agencyId)
+                    ->where('is_active', true)
+                    ->pluck('platform_product_id')
+                    ->toArray();
+                $agencySlugs = PlatformProduct::whereIn('id', $agencyActive)->pluck('slug')->toArray();
+                $activeProducts = array_intersect($activeProducts, $agencySlugs);
+            }
+        }
+
+        // Filter the category map to only include active slugs
+        $filtered = [];
+        foreach ($allTypes as $category => $types) {
+            $active = array_filter($types, fn($label, $slug) => in_array($slug, $activeProducts), ARRAY_FILTER_USE_BOTH);
+            if (!empty($active)) {
+                $filtered[$category] = $active;
+            }
+        }
+
+        return response()->json($filtered);
     }
 
     /**
