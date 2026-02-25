@@ -142,7 +142,7 @@ class WorkflowEngine
             'user_id' => $userId,
             'type' => 'workflow_automation',
             'title' => 'Automation',
-            'message' => $message,
+            'body' => $message,
             'action_url' => $context['url'] ?? null,
         ]);
 
