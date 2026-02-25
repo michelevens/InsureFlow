@@ -4,35 +4,56 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
-<body style="margin:0;padding:0;background-color:#f0f4f8;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;">
-    <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f0f4f8;padding:40px 20px;">
+<body style="margin:0;padding:0;background-color:#f0fdfa;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f0fdfa;padding:40px 20px;">
         <tr>
             <td align="center">
                 <table width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;">
-                    <!-- Header -->
+                    <!-- Top accent bar -->
                     <tr>
-                        <td style="background:linear-gradient(135deg,#014d40 0%,#0d9488 100%);padding:36px 48px;text-align:center;border-radius:12px 12px 0 0;">
-                            <table cellpadding="0" cellspacing="0" style="margin:0 auto;">
+                        <td style="height:6px;background:@yield('accent_gradient', 'linear-gradient(90deg,#0f766e,#14b8a6,#0ea5e9)');border-radius:12px 12px 0 0;"></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#ffffff;border-radius:0 0 16px 16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
+                                <!-- Header -->
                                 <tr>
-                                    <td style="font-size:28px;font-weight:800;color:#ffffff;letter-spacing:0.5px;">Insurons</td>
+                                    <td style="background:linear-gradient(135deg,#0f766e 0%,#0d9488 50%,#0ea5e9 100%);padding:40px 48px;text-align:center;">
+                                        <table cellpadding="0" cellspacing="0" style="margin:0 auto;">
+                                            <tr>
+                                                <td style="width:36px;height:36px;background:rgba(255,255,255,0.2);border-radius:10px;text-align:center;vertical-align:middle;font-size:20px;color:#ffffff;font-weight:bold;">&#128737;</td>
+                                                <td style="padding-left:12px;font-size:26px;font-weight:800;color:#ffffff;letter-spacing:0.5px;">Insurons</td>
+                                            </tr>
+                                        </table>
+                                        <p style="margin:12px 0 0;color:rgba(255,255,255,0.8);font-size:13px;letter-spacing:2px;text-transform:uppercase;">Insurance Marketplace</p>
+                                    </td>
+                                </tr>
+
+                                <!-- Optional Icon -->
+                                @hasSection('icon')
+                                <tr>
+                                    <td style="text-align:center;padding:32px 48px 0;">
+                                        @yield('icon')
+                                    </td>
+                                </tr>
+                                @endif
+
+                                <!-- Body -->
+                                <tr>
+                                    <td style="padding:24px 48px 40px;">
+                                        @yield('content')
+                                    </td>
+                                </tr>
+
+                                <!-- Footer -->
+                                <tr>
+                                    <td style="padding:24px 48px;background-color:#f8fafc;border-top:1px solid #e2e8f0;text-align:center;">
+                                        <p style="margin:0 0 4px;font-size:13px;font-weight:600;color:#64748b;">Insurons</p>
+                                        <p style="margin:0;color:#94a3b8;font-size:12px;">Your trusted insurance marketplace</p>
+                                        <p style="margin:12px 0 0;color:#cbd5e1;font-size:11px;">&copy; {{ date('Y') }} Insurons. All rights reserved.</p>
+                                    </td>
                                 </tr>
                             </table>
-                            <p style="margin:8px 0 0;color:rgba(255,255,255,0.85);font-size:13px;letter-spacing:2px;text-transform:uppercase;">Insurance Made Simple</p>
-                        </td>
-                    </tr>
-
-                    <!-- Body (white card) -->
-                    <tr>
-                        <td style="background-color:#ffffff;padding:0;">
-                            @yield('content')
-                        </td>
-                    </tr>
-
-                    <!-- Footer -->
-                    <tr>
-                        <td style="background-color:#f8fafc;padding:24px 48px;border-top:1px solid #e2e8f0;text-align:center;border-radius:0 0 12px 12px;">
-                            <p style="margin:0 0 4px;font-size:13px;font-weight:600;color:#64748b;">Powered by Insurons &middot; <a href="https://insurons.com" style="color:#0d9488;text-decoration:none;">insurons.com</a></p>
-                            <p style="margin:8px 0 0;color:#cbd5e1;font-size:11px;">&copy; 2026 Insurons. All rights reserved.</p>
                         </td>
                     </tr>
                 </table>

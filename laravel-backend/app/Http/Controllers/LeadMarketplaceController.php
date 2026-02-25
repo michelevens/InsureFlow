@@ -12,8 +12,11 @@ use App\Models\LeadMarketplaceTransaction;
 use App\Services\LeadScoringService;
 use App\Services\NotificationService;
 use App\Services\RoutingEngine;
+use App\Mail\MarketplacePurchaseMail;
+use App\Mail\MarketplaceSaleMail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Stripe\Checkout\Session as StripeSession;
 use Stripe\PaymentIntent;
 use Stripe\Stripe;
@@ -414,6 +417,35 @@ class LeadMarketplaceController extends Controller
                     'dollar-sign', '/lead-marketplace/my-listings',
                     ['listing_id' => $listing->id, 'transaction_id' => $transaction->id],
                 );
+
+                // Send sale confirmation email to seller
+                try {
+                    Mail::to($sellerOwner->email)->send(new MarketplaceSaleMail(
+                        sellerName: $sellerOwner->name,
+                        insuranceType: $listing->insurance_type ?? $originalProfile->insurance_type,
+                        state: $listing->state ?? $originalProfile->zip_code ?? 'N/A',
+                        salePrice: number_format($purchasePrice, 2),
+                        platformFee: number_format($platformFee, 2),
+                        netEarnings: number_format($sellerPayout, 2),
+                    ));
+                } catch (\Throwable $e) {
+                    \Log::warning('Failed to send marketplace sale email', ['error' => $e->getMessage()]);
+                }
+            }
+
+            // Send purchase confirmation email to buyer
+            try {
+                Mail::to($user->email)->send(new MarketplacePurchaseMail(
+                    buyerName: $user->name,
+                    insuranceType: $originalProfile->insurance_type,
+                    leadName: $newProfile->first_name . ' ' . $newProfile->last_name,
+                    leadEmail: $newProfile->email ?? '',
+                    leadPhone: $newProfile->phone ?? '',
+                    state: $originalProfile->zip_code ?? 'N/A',
+                    price: number_format($purchasePrice, 2),
+                ));
+            } catch (\Throwable $e) {
+                \Log::warning('Failed to send marketplace purchase email', ['error' => $e->getMessage()]);
             }
 
             return response()->json([
