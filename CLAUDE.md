@@ -186,9 +186,9 @@ php artisan serve
 - admin@insureflow.com (Admin)
 - superadmin@insureflow.com (Superadmin)
 
-## Current Status (as of 2026-02-24)
+## Current Status (as of 2026-02-25)
 - **Frontend:** 50+ pages built, TypeScript passes, Vite build succeeds, **GitHub Pages deployment working** (auto-deploys on push)
-- **Backend:** Laravel 12 on Railway — **Phase 5+6+7+8 deployed**, marketplace tables migrated, all endpoints live
+- **Backend:** Laravel 12 on Railway — **Phase 5-9 deployed**, marketplace tables migrated, all endpoints live
 - **API Domain:** api.insurons.com — WORKING, CORS fixed for ennhealth.github.io
 - **Database:** All migrations run (including compliance_pack_tables batch 16), 39 compliance requirements seeded
 - **Seed Data:** 5 subscription plans, 10 carriers with products, 6 demo users, 35+ platform products, 10 agencies (50 agents), 70 leads, 3 rate tables (DI LTD, Term Life, LTC) — 180 rate entries + PipelineSeeder (25 applications, 15 policies, 15 commissions, 6 claims, 12 appointments, 20 routing rules) + 39 compliance requirements
@@ -203,8 +203,20 @@ php artisan serve
 - **Auto-Commission:** Creating/binding a policy automatically generates a commission record (10% default)
 - **Design System:** Premium Navy + Teal + Amber palette (refreshed from original bright blue)
 - **Quote UX:** Save & resume (localStorage), comparison matrix, premium breakdown, Lemonade-style progressive disclosure
+- **Chunk Error Recovery:** ChunkErrorBoundary + lazyRetry prevent blank pages after deploys
+- **Agency Team Page:** Wired to real API — invite agents, toggle active status, cancel invites
+- **CRM Carrier Quotes:** Full comparison table in scenario detail with recommend/select/delete actions
 
 ## Recent Work
+
+### Phase 9 (2026-02-25) — Stability Fixes + Team Management + CRM Quotes
+- **ChunkErrorBoundary + lazyRetry:** Created `ChunkErrorBoundary.tsx` error boundary that catches stale chunk load errors after deploys. Auto-reloads once per path, then shows "Refresh Page" fallback. `lazyRetry()` wrapper retries failed dynamic imports once after 1s. All 65+ `lazy()` calls in `App.tsx` updated to `lazyRetry()`.
+- **Agent dashboard flash fix:** Demo agent accounts (`agent@insureflow.com`, `agent2@insureflow.com`, `agency@insureflow.com`) were missing `onboarding_completed = true` in `DemoUserSeeder`, causing `ProtectedRoute` to redirect to `/onboarding` after every login. Fixed seeder + `demoLogin` endpoint now auto-sets `onboarding_completed = true`.
+- **AgencyTeam wired to real API:** Rewrote `AgencyTeam.tsx` from mock data to real API calls. Added `GET /agency/settings/team` (agents with stats + invites + summary), `POST /agency/settings/agents/{id}/toggle-status`, `DELETE /agency/settings/invites/{id}`. Frontend shows stats cards, pending invites with cancel, team member cards with toggle active/inactive, invite modal.
+- **Carrier quotes comparison table in CRM:** Added full comparison table to `Leads.tsx` scenario detail view showing carrier name, AM Best rating, monthly/annual premiums, status, recommended star, and select/delete actions. Includes savings spread summary (cheapest vs most expensive). Uses existing `scenarioService` methods (`removeQuote`, `selectQuote`).
+- **Sticky nav + role-based quick links (from previous sub-session):** Desktop/mobile headers made sticky (`sticky top-0 z-30`). Role-based quick nav links added to top bar (consumer: Dashboard/Quotes/Policies; agent: Dashboard/Leads/Apps/Policies; etc.).
+- **Scenario Proposal PDF (from previous sub-session):** `proposal.blade.php` DomPDF template with agency header, Insurons footer, executive summary, coverage tables, carrier comparison. `generateProposal()` endpoint at `POST /crm/leads/{lead}/scenarios/{scenario}/proposal`.
+- **Files changed:** `ChunkErrorBoundary.tsx` (new), `App.tsx`, `DemoUserSeeder.php`, `AuthController.php`, `AgencyTeam.tsx`, `AgencySettingController.php`, `routes/api.php`, `Leads.tsx`, `DashboardLayout.tsx`, `proposal.blade.php` (new), `LeadScenarioController.php`, `DocumentGenerationService.php`, `leadScenarios.ts`
 
 ### Phase 8 (2026-02-24) — UX Quick Wins + CORS Fix + Palette Refresh
 - **CORS fix:** Added `ennhealth.github.io` to allowed_origins in `cors.php` — was missing, causing all API requests from the deployed frontend to be blocked by the browser (only `michelevens.github.io` was listed)
@@ -359,8 +371,8 @@ Agent emails follow pattern: `contact+AgencyX.agent1@ennhealth.com` through `con
 - **InsuranceAiService:** `$apiKey` gracefully handled (returns "not configured" message) but still needs `ANTHROPIC_API_KEY` env var on Railway for AI chat to work.
 - **Cache table missing:** `cache:clear` fails because there's no `cache` table in DB. Non-critical (using file/array cache driver instead).
 - **Stripe not configured:** Price IDs in seeded plans are null. Subscriptions return 422 until Stripe keys are added.
-- **Backend redeploy needed:** Phase 8 backend changes (CORS fix, marketplace restriction) need Railway deployment. Run `railway up` or wait for auto-deploy.
 - **Scheduler not running:** `leads:check-aging` is registered but Railway needs `php artisan schedule:work` or a cron entry to actually run the scheduler.
+- **Consumer scenario view:** `ScenarioPublicView` only shows one premium — no multi-quote comparison for consumers yet.
 
 ## Session Management Rules
 
@@ -398,6 +410,7 @@ All 4 core flows tested against production and **PASSING**:
 
 ### UX Quick Wins (Remaining)
 - Address auto-complete on ZIP code field (Google Places or Mapbox)
+- Consumer-facing multi-quote comparison in ScenarioPublicView (currently only shows one premium)
 
 ### New Features
 - **Embeddable quote widget:** iframe/web component agencies can put on their own websites
@@ -406,11 +419,12 @@ All 4 core flows tested against production and **PASSING**:
 - **Marketplace enhancements:** Lead auction/bidding mode, bulk listing, suggested pricing based on lead score
 - **Consumer portal improvements:** Let consumers track their quote requests, view scenarios, sign applications
 - **Real premium breakdown from backend:** Currently the breakdown is computed client-side with synthetic values — wire to actual rate engine output
+- **Save & resume quotes (server-side):** localStorage draft saving exists but no authenticated server-side draft storage
 
 ### Testing (Remaining)
-- **Deploy Phase 8 to Railway** and verify CORS fix works in browser (quotes should load now)
 - Test `php artisan leads:check-aging` with stale test leads (needs scheduler running)
 - Test aging reminder email to agent (24h) and escalation to agency owner (48h)
 - Test full UI flow in browser: login → Leads → click lead → Sell on Marketplace → switch agency → browse → buy
 - Verify marketplace restriction: try selling a purchased lead (should be blocked)
-- Load test marketplace with 50+ listings to verify pagination and filters
+- Test agency team page: login as agency owner → Team tab → invite agent, toggle status, cancel invite
+- Test proposal PDF generation: create scenario with quotes → generate proposal → verify PDF content
