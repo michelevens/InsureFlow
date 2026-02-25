@@ -3,13 +3,14 @@ import { Card, Badge, Button, Input, Modal } from '@/components/ui';
 import { embedService } from '@/services/api';
 import type { EmbedPartner, EmbedAnalytics } from '@/services/api/embed';
 import {
-  Code, Plus, Trash2, BarChart3, Globe, Copy, Key,
+  Code, Plus, Trash2, BarChart3, Globe, Copy, Key, Pencil,
 } from 'lucide-react';
 
 export default function EmbedPartnerDashboard() {
   const [partners, setPartners] = useState<EmbedPartner[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
+  const [editPartner, setEditPartner] = useState<EmbedPartner | null>(null);
   const [selectedPartner, setSelectedPartner] = useState<EmbedPartner | null>(null);
   const [analytics, setAnalytics] = useState<EmbedAnalytics | null>(null);
   const [embedCode, setEmbedCode] = useState<string | null>(null);
@@ -124,6 +125,9 @@ export default function EmbedPartnerDashboard() {
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-lg font-bold text-slate-900">{selectedPartner.name} — Analytics</h2>
                   <div className="flex items-center gap-2">
+                    <Button variant="ghost" size="sm" onClick={() => setEditPartner(selectedPartner)}>
+                      <Pencil className="w-4 h-4 mr-1" /> Edit
+                    </Button>
                     <Button variant="ghost" size="sm" onClick={() => getWidgetCode(selectedPartner.id)}>
                       <Code className="w-4 h-4 mr-1" /> Embed Code
                     </Button>
@@ -191,12 +195,26 @@ export default function EmbedPartnerDashboard() {
 
       {/* Create partner modal */}
       {showCreate && (
-        <CreatePartnerModal
+        <PartnerFormModal
           onClose={() => setShowCreate(false)}
-          onCreated={(partner) => {
+          onSaved={(partner) => {
             if (partner.api_key) setShowApiKey(partner.api_key);
             fetchPartners();
             setShowCreate(false);
+          }}
+        />
+      )}
+
+      {/* Edit partner modal */}
+      {editPartner && (
+        <PartnerFormModal
+          partner={editPartner}
+          onClose={() => setEditPartner(null)}
+          onSaved={() => {
+            fetchPartners();
+            setEditPartner(null);
+            // Refresh analytics for selected partner
+            if (selectedPartner?.id === editPartner.id) loadAnalytics(editPartner);
           }}
         />
       )}
@@ -238,26 +256,54 @@ export default function EmbedPartnerDashboard() {
   );
 }
 
-function CreatePartnerModal({ onClose, onCreated }: { onClose: () => void; onCreated: (p: EmbedPartner) => void }) {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [contactName, setContactName] = useState('');
-  const [domains, setDomains] = useState('');
-  const [commission, setCommission] = useState('10');
+function PartnerFormModal({ partner, onClose, onSaved }: {
+  partner?: EmbedPartner;
+  onClose: () => void;
+  onSaved: (p: EmbedPartner) => void;
+}) {
+  const isEdit = !!partner;
+  const [name, setName] = useState(partner?.name || '');
+  const [email, setEmail] = useState(partner?.contact_email || '');
+  const [contactName, setContactName] = useState(partner?.contact_name || '');
+  const [domains, setDomains] = useState(partner?.allowed_domains?.join(', ') || '');
+  const [commission, setCommission] = useState(String(partner?.commission_share_percent ?? 10));
   const [saving, setSaving] = useState(false);
+
+  // Widget customization fields
+  const wc = (partner?.widget_config || {}) as Record<string, unknown>;
+  const [primaryColor, setPrimaryColor] = useState((wc.primary_color as string) || '');
+  const [logoUrl, setLogoUrl] = useState((wc.logo_url as string) || '');
+  const [companyName, setCompanyName] = useState((wc.company_name as string) || '');
+  const [hideBranding, setHideBranding] = useState(!!wc.hide_branding);
+  const [ctaText, setCtaText] = useState((wc.cta_text as string) || '');
+
+  const buildWidgetConfig = () => {
+    const cfg: Record<string, unknown> = {};
+    if (primaryColor) cfg.primary_color = primaryColor;
+    if (logoUrl) cfg.logo_url = logoUrl;
+    if (companyName) cfg.company_name = companyName;
+    if (hideBranding) cfg.hide_branding = true;
+    if (ctaText) cfg.cta_text = ctaText;
+    return Object.keys(cfg).length > 0 ? cfg : undefined;
+  };
 
   const handleSubmit = async () => {
     if (!name) return;
     setSaving(true);
     try {
-      const partner = await embedService.create({
+      const payload = {
         name,
         contact_email: email || undefined,
         contact_name: contactName || undefined,
         allowed_domains: domains ? domains.split(',').map(d => d.trim()).filter(Boolean) : undefined,
         commission_share_percent: parseFloat(commission) || 10,
-      });
-      onCreated(partner);
+        widget_config: buildWidgetConfig(),
+      };
+
+      const result = isEdit
+        ? await embedService.update(partner.id, payload)
+        : await embedService.create(payload);
+      onSaved(result);
     } catch {
       // handle error
     } finally {
@@ -266,8 +312,8 @@ function CreatePartnerModal({ onClose, onCreated }: { onClose: () => void; onCre
   };
 
   return (
-    <Modal isOpen onClose={onClose} title="New Embed Partner" size="md">
-      <div className="space-y-4">
+    <Modal isOpen onClose={onClose} title={isEdit ? 'Edit Partner' : 'New Embed Partner'} size="md">
+      <div className="space-y-4 max-h-[70vh] overflow-y-auto">
         <Input label="Partner Name" placeholder="e.g. ABC Car Dealerships" value={name} onChange={e => setName(e.target.value)} />
         <div className="grid grid-cols-2 gap-3">
           <Input label="Contact Name" placeholder="John Smith" value={contactName} onChange={e => setContactName(e.target.value)} />
@@ -275,10 +321,50 @@ function CreatePartnerModal({ onClose, onCreated }: { onClose: () => void; onCre
         </div>
         <Input label="Allowed Domains" placeholder="dealer.com, mortgage.co (comma-separated)" value={domains} onChange={e => setDomains(e.target.value)} />
         <Input label="Commission Share %" type="number" value={commission} onChange={e => setCommission(e.target.value)} />
+
+        {/* Widget Customization */}
+        <div className="border-t border-slate-200 pt-4 mt-4">
+          <h3 className="text-sm font-bold text-slate-700 mb-3">Widget Customization</h3>
+          <div className="space-y-3">
+            <div className="grid grid-cols-2 gap-3">
+              <Input label="Company Name" placeholder="Displayed in widget header" value={companyName} onChange={e => setCompanyName(e.target.value)} />
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Primary Color</label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="color"
+                    value={primaryColor || '#102a43'}
+                    onChange={e => setPrimaryColor(e.target.value)}
+                    className="w-10 h-10 rounded border border-slate-200 cursor-pointer p-0.5"
+                  />
+                  <input
+                    type="text"
+                    placeholder="#102a43"
+                    value={primaryColor}
+                    onChange={e => setPrimaryColor(e.target.value)}
+                    className="flex-1 text-sm border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-shield-500"
+                  />
+                </div>
+              </div>
+            </div>
+            <Input label="Logo URL" placeholder="https://partner.com/logo.png" value={logoUrl} onChange={e => setLogoUrl(e.target.value)} />
+            <Input label="CTA Button Text" placeholder="Get My Quotes (default)" value={ctaText} onChange={e => setCtaText(e.target.value)} />
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={hideBranding}
+                onChange={e => setHideBranding(e.target.checked)}
+                className="w-4 h-4 rounded border-slate-300 text-shield-600 focus:ring-shield-500"
+              />
+              <span className="text-sm text-slate-700">Hide "Powered by Insurons" branding</span>
+            </label>
+          </div>
+        </div>
+
         <div className="flex justify-end gap-2 pt-2">
           <Button variant="ghost" onClick={onClose}>Cancel</Button>
           <Button variant="shield" onClick={handleSubmit} disabled={saving || !name}>
-            {saving ? 'Creating...' : 'Create Partner'}
+            {saving ? 'Saving...' : isEdit ? 'Save Changes' : 'Create Partner'}
           </Button>
         </div>
       </div>

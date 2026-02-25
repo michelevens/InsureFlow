@@ -83,8 +83,14 @@ export default function EmbedQuoteWidget() {
   const preselectedType = searchParams.get('type') || '';
 
   // Partner config
-  const [partnerName, setPartnerName] = useState('');
-  const [primaryColor, setPrimaryColor] = useState('');
+  const [config, setConfig] = useState<{
+    primary_color?: string;
+    logo_url?: string;
+    company_name?: string;
+    hide_branding?: boolean;
+    theme?: 'light' | 'dark';
+    cta_text?: string;
+  }>({});
   const [validKey, setValidKey] = useState<boolean | null>(null);
   const [sessionToken, setSessionToken] = useState('');
 
@@ -112,9 +118,15 @@ export default function EmbedQuoteWidget() {
     if (!apiKey) { setValidKey(false); return; }
     api.get<{ partner_name: string; widget_config: Record<string, unknown> | null }>(`/embed/config/${apiKey}`)
       .then(res => {
-        setPartnerName(res.partner_name);
-        const cfg = res.widget_config;
-        if (cfg?.primary_color && typeof cfg.primary_color === 'string') setPrimaryColor(cfg.primary_color);
+        const cfg = (res.widget_config || {}) as typeof config;
+        // Merge partner_name into config as fallback company_name
+        setConfig({ ...cfg, company_name: cfg.company_name || res.partner_name || undefined });
+        if (cfg.primary_color) {
+          document.documentElement.style.setProperty('--embed-primary', cfg.primary_color);
+        }
+        if (cfg.theme === 'dark') {
+          document.body.classList.add('dark-embed');
+        }
         setValidKey(true);
       })
       .catch(() => setValidKey(false));
@@ -277,7 +289,7 @@ export default function EmbedQuoteWidget() {
   }, [step, subStep, quotes.length]);
 
   /* ── Custom primary color as CSS variable ── */
-  const colorStyle = primaryColor ? { '--embed-primary': primaryColor } as React.CSSProperties : {};
+  const colorStyle = config.primary_color ? { '--embed-primary': config.primary_color } as React.CSSProperties : {};
 
   /* ── Invalid key state ── */
   if (validKey === false) {
@@ -310,12 +322,16 @@ export default function EmbedQuoteWidget() {
       <div className="max-w-lg mx-auto px-4 py-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-2">
-            <ShieldCheck className="w-5 h-5 text-shield-600" />
-            <span className="text-sm font-semibold text-slate-700">
-              {partnerName ? `${partnerName} + Insurons` : 'Insurons'}
-            </span>
-          </div>
+          {config.logo_url ? (
+            <img src={config.logo_url} alt={config.company_name || 'Partner'} className="h-8 w-auto" />
+          ) : (
+            <div className="flex items-center gap-2">
+              <ShieldCheck className="w-5 h-5 text-shield-600" />
+              <span className="text-sm font-semibold text-slate-700">
+                {config.company_name || 'Insurons'}
+              </span>
+            </div>
+          )}
           <div className="flex items-center gap-1 text-xs text-slate-400">
             <Clock className="w-3 h-3" />
             60 seconds
@@ -368,7 +384,7 @@ export default function EmbedQuoteWidget() {
                   }}
                   disabled={!form.insurance_type || !form.zip_code}
                 >
-                  Continue
+                  {step2Fields.length === 0 ? (config.cta_text || 'Get My Quotes') : 'Continue'}
                 </Button>
               </div>
             </div>
@@ -429,7 +445,7 @@ export default function EmbedQuoteWidget() {
                   onClick={advanceSubStep}
                   isLoading={loading}
                 >
-                  {isLastSubStep || totalSubSteps === 0 ? 'Get Quotes' : 'Next'}
+                  {isLastSubStep || totalSubSteps === 0 ? (config.cta_text || 'Get My Quotes') : 'Next'}
                 </Button>
               </div>
             </div>
@@ -603,6 +619,11 @@ export default function EmbedQuoteWidget() {
           <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> No login</span>
           <span className="flex items-center gap-1"><CheckCircle2 className="w-3 h-3" /> No obligation</span>
         </div>
+        {!config.hide_branding && (
+          <p className="text-center text-xs text-slate-400 mt-4">
+            Powered by <a href="https://insurons.com" target="_blank" rel="noopener noreferrer" className="text-shield-500 hover:underline">Insurons</a>
+          </p>
+        )}
       </div>
     </div>
   );
