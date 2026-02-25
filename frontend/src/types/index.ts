@@ -45,6 +45,7 @@ export interface AgentProfile {
   license_expiration: string;
   npn_number: string;
   photo: string | null;
+  phone: string | null;
   bio: string | null;
   specialties: string[];
   carriers_appointed: number[];

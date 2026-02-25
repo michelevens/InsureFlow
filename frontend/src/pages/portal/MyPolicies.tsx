@@ -126,9 +126,43 @@ export default function MyPolicies() {
                   {policy.agent && <span>Agent: <span className="font-medium text-slate-900">{policy.agent.first_name} {policy.agent.last_name}</span></span>}
                 </div>
                 <div className="flex gap-2">
-                  <Button variant="outline" size="sm" leftIcon={<Phone className="w-4 h-4" />}>Call Agent</Button>
-                  <Button variant="outline" size="sm" leftIcon={<Download className="w-4 h-4" />}>Download</Button>
-                  <Button variant="outline" size="sm" leftIcon={<FileText className="w-4 h-4" />}>File Claim</Button>
+                  {policy.agent?.phone ? (
+                    <a href={`tel:${policy.agent.phone}`}>
+                      <Button variant="outline" size="sm" leftIcon={<Phone className="w-4 h-4" />}>Call Agent</Button>
+                    </a>
+                  ) : (
+                    <Button variant="outline" size="sm" leftIcon={<Phone className="w-4 h-4" />} onClick={() => window.location.href = '/messages'}>
+                      Message Agent
+                    </Button>
+                  )}
+                  <Button variant="outline" size="sm" leftIcon={<Download className="w-4 h-4" />} onClick={() => {
+                    const win = window.open('', '_blank');
+                    if (win) {
+                      win.document.write(`
+                        <html><head><title>Policy ${policy.policy_number}</title>
+                        <style>body{font-family:sans-serif;max-width:700px;margin:40px auto;padding:20px}
+                        h1{color:#102a43}table{width:100%;border-collapse:collapse;margin-top:20px}
+                        td,th{padding:8px 12px;border:1px solid #e2e8f0;text-align:left}
+                        th{background:#f8fafc;font-weight:600}</style></head><body>
+                        <h1>Insurance Policy Summary</h1>
+                        <table><tr><th>Policy Number</th><td>${policy.policy_number}</td></tr>
+                        <tr><th>Type</th><td>${(policy.type || '').replace(/_/g, ' ')}</td></tr>
+                        <tr><th>Carrier</th><td>${policy.carrier_name}</td></tr>
+                        <tr><th>Monthly Premium</th><td>$${policy.monthly_premium}</td></tr>
+                        <tr><th>Coverage Limit</th><td>${policy.coverage_limit || 'N/A'}</td></tr>
+                        <tr><th>Effective Date</th><td>${policy.effective_date}</td></tr>
+                        <tr><th>Expiration Date</th><td>${policy.expiration_date}</td></tr>
+                        <tr><th>Status</th><td>${policy.status}</td></tr></table>
+                        <p style="margin-top:30px;color:#64748b;font-size:12px">Generated from Insurons &middot; insurons.com</p>
+                        </body></html>`);
+                      win.document.close();
+                      win.print();
+                    }
+                  }}>Download</Button>
+                  <Button variant="outline" size="sm" leftIcon={<FileText className="w-4 h-4" />}
+                    onClick={() => window.location.href = `/claims?policy_id=${policy.id}`}>
+                    File Claim
+                  </Button>
                 </div>
               </div>
             </div>

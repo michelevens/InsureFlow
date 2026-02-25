@@ -1,9 +1,11 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button, Input, Select, Card } from '@/components/ui';
 import { Calculator as CalcIcon, ArrowRight, ShieldCheck, Clock, CheckCircle2, RotateCcw, X } from 'lucide-react';
 import { quoteService } from '@/services/api';
 import { platformProductService } from '@/services/api/platformProducts';
+import { useAuth } from '@/hooks/useAuth';
+import { api } from '@/services/api/client';
 import type { PlatformProduct } from '@/types';
 
 const STORAGE_KEY = 'insurons_calculator_draft';
@@ -120,6 +122,42 @@ export default function Calculator() {
   const [form, setForm] = useState(draft?.form || defaultForm);
   const [subStep, setSubStep] = useState(0);
 
+  const { user } = useAuth();
+
+  // Load server draft on mount (if logged in)
+  useEffect(() => {
+    if (!user) return;
+    api.get<{ draft: { form_data: typeof defaultForm; step: number; updated_at: string } | null }>('/calculator/draft')
+      .then(res => {
+        if (res.draft?.form_data) {
+          const localDraft = loadDraft();
+          // Use server draft if no local draft exists
+          if (!localDraft) {
+            setForm({ ...defaultForm, ...res.draft.form_data });
+            setStep(res.draft.step || 1);
+            setShowResumeBanner(true);
+          }
+        }
+      })
+      .catch(() => {}); // Ignore errors
+  }, [user]);
+
+  // Debounced server save
+  const serverSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const saveToServer = useCallback((updatedForm: typeof defaultForm, currentStep: number) => {
+    if (!user) return;
+    if (serverSaveTimer.current) clearTimeout(serverSaveTimer.current);
+    serverSaveTimer.current = setTimeout(() => {
+      api.post('/calculator/draft', {
+        insurance_type: updatedForm.insurance_type,
+        zip_code: updatedForm.zip_code,
+        coverage_level: updatedForm.coverage_level,
+        form_data: updatedForm,
+        step: currentStep,
+      }).catch(() => {}); // Silent fail
+    }, 2000);
+  }, [user]);
+
   // Fetch available products from platform
   useEffect(() => {
     setLoadingProducts(true);
@@ -216,7 +254,8 @@ export default function Calculator() {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify({ form: updatedForm, step: currentStep, savedAt: Date.now() }));
     } catch { /* quota exceeded — ignore */ }
-  }, []);
+    saveToServer(updatedForm, currentStep);
+  }, [saveToServer]);
 
   const update = (field: string, value: string) => setForm(f => {
     const next = { ...f, [field]: value };
@@ -229,6 +268,7 @@ export default function Calculator() {
     setShowResumeBanner(false);
     setStep(1);
     setForm(defaultForm);
+    if (user) api.delete('/calculator/draft').catch(() => {});
   };
 
   const handleGetQuotes = async () => {
@@ -276,6 +316,7 @@ export default function Calculator() {
 
       // Clear draft on successful quote — results are persisted separately
       localStorage.removeItem(STORAGE_KEY);
+      if (user) api.delete('/calculator/draft').catch(() => {});
 
       // Persist quote results so QuoteResults survives page refresh
       const resultsData = {
