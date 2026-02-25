@@ -356,10 +356,14 @@ class AuthController extends Controller
         }
 
         // Reset password to known value (fixes any corruption from double-hashing)
-        // Also ensure demo account is active and email-verified
+        // Also ensure demo account is active, email-verified, and onboarding complete
         $user->password = 'password'; // 'hashed' cast auto-hashes
         $user->is_active = true;
         $user->email_verified_at = $user->email_verified_at ?? now();
+        if (!$user->onboarding_completed) {
+            $user->onboarding_completed = true;
+            $user->onboarding_completed_at = now();
+        }
         $user->save();
 
         $token = $user->createToken('auth-token')->plainTextToken;

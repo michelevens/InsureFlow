@@ -25,7 +25,7 @@ class DemoUserSeeder extends Seeder
         // Agent
         $agent = User::updateOrCreate(
             ['email' => 'agent@insurons.com'],
-            ['name' => 'Sarah Johnson', 'password' => $password, 'role' => 'agent', 'phone' => '(555) 200-0001', 'is_active' => true, 'email_verified_at' => $verified]
+            ['name' => 'Sarah Johnson', 'password' => $password, 'role' => 'agent', 'phone' => '(555) 200-0001', 'is_active' => true, 'email_verified_at' => $verified, 'onboarding_completed' => true, 'onboarding_completed_at' => now()]
         );
 
         AgentProfile::updateOrCreate(
@@ -49,7 +49,7 @@ class DemoUserSeeder extends Seeder
         // Agency Owner
         $agencyOwner = User::updateOrCreate(
             ['email' => 'agency@insurons.com'],
-            ['name' => 'Robert Martinez', 'password' => $password, 'role' => 'agency_owner', 'phone' => '(555) 300-0001', 'is_active' => true, 'email_verified_at' => $verified]
+            ['name' => 'Robert Martinez', 'password' => $password, 'role' => 'agency_owner', 'phone' => '(555) 300-0001', 'is_active' => true, 'email_verified_at' => $verified, 'onboarding_completed' => true, 'onboarding_completed_at' => now()]
         );
 
         $agency = Agency::updateOrCreate(
@@ -77,7 +77,7 @@ class DemoUserSeeder extends Seeder
         // Additional agent for agency
         $agent2 = User::updateOrCreate(
             ['email' => 'agent2@insurons.com'],
-            ['name' => 'Michael Chen', 'password' => $password, 'role' => 'agent', 'phone' => '(555) 200-0002', 'agency_id' => $agency->id, 'is_active' => true, 'email_verified_at' => $verified]
+            ['name' => 'Michael Chen', 'password' => $password, 'role' => 'agent', 'phone' => '(555) 200-0002', 'agency_id' => $agency->id, 'is_active' => true, 'email_verified_at' => $verified, 'onboarding_completed' => true, 'onboarding_completed_at' => now()]
         );
 
         AgentProfile::updateOrCreate(
