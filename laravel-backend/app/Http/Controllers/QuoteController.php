@@ -116,13 +116,36 @@ class QuoteController extends Controller
         foreach ($products as $i => $product) {
             $basePremium = ($product->min_premium + $product->max_premium) / 2;
             $monthly = round($basePremium * $coverageMultiplier + rand(-20, 20), 2);
+            $annual = round($monthly * 11.5, 2);
+
+            // Build premium breakdown showing how the premium was calculated
+            $baseRate = round($product->base_rate ?? ($monthly * 0.85), 2);
+            $stateFactor = 1.0; // Could vary by state in future
+            $policyFee = round($product->policy_fee ?? 5.00, 2);
+            $discount = 0;
+            $discountLabel = null;
+
+            // Multi-policy discount (if user has multiple quotes in same request)
+            if ($i > 0) {
+                $discount = round($monthly * 0.05, 2);
+                $discountLabel = 'Multi-policy discount (5%)';
+            }
+
+            $breakdown = [
+                'base_rate' => $baseRate,
+                'coverage_factor' => $coverageMultiplier,
+                'state_factor' => $stateFactor,
+                'policy_fee' => $policyFee,
+                'discount' => $discount,
+                'discount_label' => $discountLabel,
+            ];
 
             $quote = Quote::create([
                 'quote_request_id' => $quoteRequest->id,
                 'carrier_product_id' => $product->id,
                 'carrier_name' => $product->carrier?->name ?? $product->name,
                 'monthly_premium' => $monthly,
-                'annual_premium' => round($monthly * 11.5, 2),
+                'annual_premium' => $annual,
                 'deductible' => $product->deductible_options[0] ?? 500,
                 'coverage_limit' => $product->coverage_options[0] ?? '$100,000',
                 'features' => $product->features,
@@ -131,7 +154,11 @@ class QuoteController extends Controller
             ]);
 
             $quote->load('carrierProduct.carrier');
-            $quotes[] = $quote;
+
+            // Append the breakdown to the quote response (not persisted in DB, but returned in API)
+            $quoteData = $quote->toArray();
+            $quoteData['breakdown'] = $breakdown;
+            $quotes[] = $quoteData;
         }
 
         // Create UIP at intake stage
@@ -139,8 +166,8 @@ class QuoteController extends Controller
         if (!empty($quotes)) {
             $lowestQuote = collect($quotes)->sortBy('monthly_premium')->first();
             $profile->advanceTo('quoted', [
-                'monthly_premium' => $lowestQuote->monthly_premium,
-                'annual_premium' => $lowestQuote->annual_premium,
+                'monthly_premium' => $lowestQuote['monthly_premium'],
+                'annual_premium' => $lowestQuote['annual_premium'],
             ]);
         }
 

@@ -13,6 +13,15 @@ export interface EstimatePayload {
   agency_id?: number;
 }
 
+export interface QuoteBreakdown {
+  base_rate: number;
+  coverage_factor: number;
+  state_factor: number;
+  policy_fee: number;
+  discount: number;
+  discount_label: string | null;
+}
+
 export interface EstimateQuote {
   id: number;
   quote_request_id: number;
@@ -24,6 +33,7 @@ export interface EstimateQuote {
   features: string[];
   is_recommended: boolean;
   expires_at: string;
+  breakdown?: QuoteBreakdown;
   carrier_product: {
     id: number;
     carrier_id: number;

@@ -4,21 +4,21 @@ import { Button, Card, Badge, Input } from '@/components/ui';
 import { Shield, ShieldCheck, ArrowRight, ArrowLeft, Check, Phone, Mail, Award, CheckCircle2, User, Lock, ArrowUpDown, LayoutGrid, Table2, ChevronDown } from 'lucide-react';
 import { quoteService, authService } from '@/services/api';
 import { useAuth } from '@/hooks/useAuth';
-import type { EstimateQuote } from '@/services/api/quotes';
+import type { EstimateQuote, QuoteBreakdown } from '@/services/api/quotes';
 
 type SortOption = 'recommended' | 'price_asc' | 'price_desc' | 'deductible_asc' | 'rating';
 
-function computeBreakdown(monthly: number, annual: number) {
+/** Synthetic fallback for quotes without a server-side breakdown (e.g. cached / older quotes) */
+function syntheticBreakdown(monthly: number): QuoteBreakdown {
   const policyFee = 5;
-  const multiPolicyDiscount = monthly > 120 ? -Math.round(monthly * 0.05) : 0;
-  const baseRate = monthly - policyFee - multiPolicyDiscount;
+  const baseRate = Math.max(monthly - policyFee, 0);
   return {
-    baseRate: Math.max(baseRate, 0),
-    policyFee,
-    multiPolicyDiscount,
-    monthlyTotal: monthly,
-    annualTotal: annual,
-    annualSavings: Math.round(monthly * 12 - annual),
+    base_rate: Math.round(baseRate * 100) / 100,
+    coverage_factor: 1,
+    state_factor: 1,
+    policy_fee: policyFee,
+    discount: 0,
+    discount_label: null,
   };
 }
 
@@ -451,34 +451,42 @@ export default function QuoteResults() {
 
                     {/* Expanded breakdown */}
                     {expandedQuote === quote.id && (() => {
-                      const bd = computeBreakdown(monthly, annual);
+                      const bd = quote.breakdown || syntheticBreakdown(monthly);
+                      const annualSavings = Math.round(monthly * 12 - annual);
                       return (
                         <div className="mt-3 pt-3 border-t border-slate-100">
-                          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
-                            <div>
-                              <p className="text-slate-500 text-xs">Base Rate</p>
-                              <p className="font-semibold text-slate-900">${bd.baseRate.toFixed(0)}/mo</p>
+                          <div className="space-y-2 text-sm">
+                            <div className="flex justify-between">
+                              <span className="text-slate-500">Base Rate</span>
+                              <span className="font-medium">${bd.base_rate.toFixed(2)}</span>
                             </div>
-                            <div>
-                              <p className="text-slate-500 text-xs">Policy Fee</p>
-                              <p className="font-semibold text-slate-900">+${bd.policyFee}/mo</p>
-                            </div>
-                            {bd.multiPolicyDiscount < 0 && (
-                              <div>
-                                <p className="text-slate-500 text-xs">Multi-Policy Discount</p>
-                                <p className="font-semibold text-savings-600">{bd.multiPolicyDiscount}/mo</p>
+                            {bd.coverage_factor !== 1 && (
+                              <div className="flex justify-between">
+                                <span className="text-slate-500">Coverage Adjustment ({(bd.coverage_factor * 100).toFixed(0)}%)</span>
+                                <span className="font-medium">&times;{bd.coverage_factor.toFixed(2)}</span>
                               </div>
                             )}
-                            <div>
-                              <p className="text-slate-500 text-xs">Monthly Total</p>
-                              <p className="font-bold text-slate-900">${bd.monthlyTotal.toFixed(0)}/mo</p>
+                            <div className="flex justify-between">
+                              <span className="text-slate-500">Policy Fee</span>
+                              <span className="font-medium">${bd.policy_fee.toFixed(2)}</span>
                             </div>
+                            {bd.discount > 0 && (
+                              <div className="flex justify-between text-savings-600">
+                                <span>{bd.discount_label || 'Discount'}</span>
+                                <span className="font-medium">-${bd.discount.toFixed(2)}</span>
+                              </div>
+                            )}
+                            <div className="flex justify-between pt-2 border-t border-slate-200 font-semibold">
+                              <span>Monthly Total</span>
+                              <span>${monthly.toFixed(2)}</span>
+                            </div>
+                            {annualSavings > 0 && (
+                              <div className="flex justify-between text-savings-600 text-xs">
+                                <span>Annual Savings vs Monthly</span>
+                                <span>${annualSavings.toFixed(2)}/yr</span>
+                              </div>
+                            )}
                           </div>
-                          {bd.annualSavings > 0 && (
-                            <p className="mt-2 text-xs text-savings-600 font-medium">
-                              Pay annually and save ${bd.annualSavings}/yr ({Math.round(bd.annualSavings / (monthly * 12) * 100)}% off)
-                            </p>
-                          )}
                         </div>
                       );
                     })()}
