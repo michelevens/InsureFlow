@@ -8,7 +8,6 @@ use App\Models\Application;
 use App\Models\LeadScenario;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
@@ -27,7 +26,6 @@ class PublicSigningController extends Controller
 
         $lead = $scenario->lead;
         $user = $request->user();
-        $agencyId = $request->attributes->get('agency_id');
 
         // Find or create consumer user account
         $consumer = User::where('email', $lead->email)->first();
@@ -46,13 +44,12 @@ class PublicSigningController extends Controller
             'reference' => 'APP-' . strtoupper(Str::random(8)),
             'user_id' => $consumer->id,
             'agent_id' => $user->id,
-            'agency_id' => $agencyId,
             'carrier_product_id' => $data['carrier_product_id'],
             'lead_scenario_id' => $scenario->id,
             'lead_id' => $lead->id,
             'insurance_type' => $scenario->product_type,
             'carrier_name' => $data['carrier_name'],
-            'monthly_premium' => $scenario->best_quoted_premium ?? 0,
+            'premium' => $scenario->best_quoted_premium ?? 0,
             'status' => 'draft',
             'signing_token' => $signingToken,
         ]);
@@ -107,7 +104,7 @@ class PublicSigningController extends Controller
     public function view(string $token)
     {
         $application = Application::where('signing_token', $token)
-            ->with(['insuredObjects', 'coverages', 'carrierProduct.carrier', 'agent:id,name', 'agency:id,name'])
+            ->with(['insuredObjects', 'coverages', 'carrierProduct.carrier', 'agent:id,name'])
             ->firstOrFail();
 
         return response()->json([
@@ -162,7 +159,7 @@ class PublicSigningController extends Controller
                 'consumer_id' => $application->user_id,
                 'carrier_name' => $application->carrier_name,
                 'insurance_type' => $application->insurance_type,
-                'premium' => $application->monthly_premium,
+                'premium' => $application->premium,
             ]);
         } catch (\Throwable $e) {
             // Don't fail
