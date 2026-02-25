@@ -3,7 +3,7 @@ import { Card, Badge, Button, Input, Select, Modal, Textarea } from '@/component
 import { crmService, scenarioService, ratingService, marketplaceService } from '@/services/api';
 import type { Lead } from '@/types';
 import type {
-  LeadScenario, Coverage,
+  LeadScenario, Coverage, ScenarioQuote,
   CreateScenarioPayload, ScenarioStatus, ObjectType, ProductTypeMap,
   SuggestedCoverageInfo,
 } from '@/services/api/leadScenarios';
@@ -14,7 +14,7 @@ import {
   Search, Phone, Mail, Plus, ChevronRight, ChevronDown,
   User, Car, Home, Building2, HelpCircle, Shield, Trash2, FileText, ArrowRight,
   Layers, Target, ClipboardList, Calculator, DollarSign, History, CheckCircle2,
-  XCircle, TrendingUp, ToggleLeft, ToggleRight, RefreshCw, ShoppingCart, FileDown,
+  XCircle, TrendingUp, ToggleLeft, ToggleRight, RefreshCw, ShoppingCart, FileDown, Star, Award,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -405,6 +405,145 @@ export default function Leads() {
                           <p className="text-sm text-slate-600 whitespace-pre-wrap">{scenario.notes}</p>
                         </div>
                       )}
+
+                      {/* Carrier Quotes Comparison */}
+                      <div>
+                        <div className="flex items-center justify-between mb-3">
+                          <h3 className="text-sm font-bold text-slate-700 flex items-center gap-1.5">
+                            <DollarSign className="w-4 h-4" /> Carrier Quotes ({scenario.quotes?.length ?? 0})
+                          </h3>
+                          <Button variant="outline" size="sm" onClick={() => {
+                            const carrier = prompt('Carrier name:');
+                            if (!carrier) return;
+                            const premium = prompt('Monthly premium:');
+                            if (!premium) return;
+                            scenarioService.addQuote(selectedLead!.id, scenario.id, {
+                              carrier_name: carrier,
+                              premium_monthly: parseFloat(premium),
+                              status: 'quoted',
+                            }).then(() => { toast.success('Quote added'); refreshScenarios(); })
+                              .catch(() => toast.error('Failed to add quote'));
+                          }}>
+                            <Plus className="w-3 h-3 mr-1" /> Add Quote
+                          </Button>
+                        </div>
+                        {(!scenario.quotes || scenario.quotes.length === 0) ? (
+                          <p className="text-sm text-slate-400 italic">No carrier quotes yet. Add quotes to compare options.</p>
+                        ) : (
+                          <div className="overflow-x-auto">
+                            <table className="w-full text-sm">
+                              <thead>
+                                <tr className="text-left text-xs text-slate-500 border-b border-slate-100">
+                                  <th className="pb-2 pr-4">Carrier</th>
+                                  <th className="pb-2 pr-4">AM Best</th>
+                                  <th className="pb-2 pr-4 text-right">Monthly</th>
+                                  <th className="pb-2 pr-4 text-right">Annual</th>
+                                  <th className="pb-2 pr-4">Status</th>
+                                  <th className="pb-2 pr-4 text-center">Rec.</th>
+                                  <th className="pb-2"></th>
+                                </tr>
+                              </thead>
+                              <tbody className="divide-y divide-slate-50">
+                                {scenario.quotes.map((q: ScenarioQuote) => (
+                                  <tr key={q.id} className={q.is_recommended ? 'bg-savings-50/50' : ''}>
+                                    <td className="py-2.5 pr-4">
+                                      <div>
+                                        <span className="font-medium text-slate-900">{q.carrier_name}</span>
+                                        {q.product_name && <span className="block text-xs text-slate-400">{q.product_name}</span>}
+                                      </div>
+                                    </td>
+                                    <td className="py-2.5 pr-4">
+                                      {q.am_best_rating ? (
+                                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-shield-50 text-shield-700 text-xs font-medium">
+                                          <Award className="w-3 h-3" /> {q.am_best_rating}
+                                        </span>
+                                      ) : <span className="text-slate-400">—</span>}
+                                    </td>
+                                    <td className="py-2.5 pr-4 text-right font-medium text-slate-900">
+                                      {q.premium_monthly ? formatCurrency(q.premium_monthly) : '—'}
+                                    </td>
+                                    <td className="py-2.5 pr-4 text-right text-slate-600">
+                                      {q.premium_annual ? formatCurrency(q.premium_annual) : '—'}
+                                    </td>
+                                    <td className="py-2.5 pr-4">
+                                      <Badge variant={q.status === 'selected' ? 'success' : q.status === 'quoted' ? 'info' : q.status === 'declined' ? 'danger' : 'default'}>
+                                        {q.status}
+                                      </Badge>
+                                    </td>
+                                    <td className="py-2.5 pr-4 text-center">
+                                      {q.is_recommended ? (
+                                        <Star className="w-4 h-4 text-amber-400 fill-amber-400 mx-auto" />
+                                      ) : (
+                                        <button
+                                          className="text-slate-300 hover:text-amber-400 mx-auto block"
+                                          title="Set as recommended"
+                                          onClick={async () => {
+                                            try {
+                                              await scenarioService.updateQuote(selectedLead!.id, scenario.id, q.id, { is_recommended: true });
+                                              toast.success(`${q.carrier_name} set as recommended`);
+                                              refreshScenarios();
+                                            } catch { toast.error('Failed to update'); }
+                                          }}
+                                        >
+                                          <Star className="w-4 h-4" />
+                                        </button>
+                                      )}
+                                    </td>
+                                    <td className="py-2.5 text-right">
+                                      <div className="flex items-center gap-1">
+                                        {q.status === 'quoted' && (
+                                          <button
+                                            className="p-1 rounded text-slate-400 hover:text-savings-600 hover:bg-savings-50"
+                                            title="Select this quote"
+                                            onClick={async () => {
+                                              try {
+                                                await scenarioService.selectQuote(selectedLead!.id, scenario.id, q.id);
+                                                toast.success(`${q.carrier_name} selected`);
+                                                refreshScenarios();
+                                              } catch { toast.error('Failed to select quote'); }
+                                            }}
+                                          >
+                                            <CheckCircle2 className="w-4 h-4" />
+                                          </button>
+                                        )}
+                                        <button
+                                          className="p-1 rounded text-slate-400 hover:text-red-500 hover:bg-red-50"
+                                          title="Delete quote"
+                                          onClick={async () => {
+                                            try {
+                                              await scenarioService.removeQuote(selectedLead!.id, scenario.id, q.id);
+                                              toast.success('Quote removed');
+                                              refreshScenarios();
+                                            } catch { toast.error('Failed to delete'); }
+                                          }}
+                                        >
+                                          <Trash2 className="w-3.5 h-3.5" />
+                                        </button>
+                                      </div>
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                            {/* Savings summary */}
+                            {scenario.quotes.length >= 2 && (() => {
+                              const quoted = scenario.quotes.filter((q: ScenarioQuote) => q.premium_monthly && q.status !== 'declined');
+                              if (quoted.length < 2) return null;
+                              const premiums = quoted.map((q: ScenarioQuote) => q.premium_monthly!);
+                              const lowest = Math.min(...premiums);
+                              const highest = Math.max(...premiums);
+                              const diff = highest - lowest;
+                              return (
+                                <div className="mt-3 p-3 rounded-lg bg-slate-50 flex items-center gap-6 text-sm">
+                                  <div><span className="text-slate-500">Lowest:</span> <span className="font-bold text-savings-600">{formatCurrency(lowest)}/mo</span></div>
+                                  <div><span className="text-slate-500">Highest:</span> <span className="font-medium text-slate-900">{formatCurrency(highest)}/mo</span></div>
+                                  <div><span className="text-slate-500">Spread:</span> <span className="font-medium text-amber-600">{formatCurrency(diff)}/mo</span></div>
+                                </div>
+                              );
+                            })()}
+                          </div>
+                        )}
+                      </div>
 
                       {/* Applications */}
                       {scenario.applications && scenario.applications.length > 0 && (
