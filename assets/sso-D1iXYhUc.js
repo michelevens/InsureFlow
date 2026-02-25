@@ -1,0 +1,1 @@
+import{b as o}from"./index-8sQqf4Gi.js";const e={async login(s){return o.get(`/sso/login/${s}`)},async configure(s){return o.post("/sso/configure",s)},async disable(s){return o.post(`/sso/disable/${s}`)}};export{e as s};
