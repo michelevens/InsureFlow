@@ -11,6 +11,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withSchedule(function (Schedule $schedule) {
         $schedule->command('leads:check-aging')->hourly();
+        $schedule->command('compliance:check-overdue')->daily();
     })
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
