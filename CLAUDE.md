@@ -188,7 +188,7 @@ php artisan serve
 
 ## Current Status (as of 2026-02-25)
 - **Frontend:** 50+ pages built, TypeScript passes, Vite build succeeds, **GitHub Pages deployment working** (auto-deploys on push)
-- **Backend:** Laravel 12 on Railway — **Phase 5-10 deployed**, marketplace tables migrated, all endpoints live
+- **Backend:** Laravel 12 on Railway — **Phase 5-12 deployed**, marketplace tables migrated, all endpoints live
 - **API Domain:** api.insurons.com — WORKING, CORS fixed for ennhealth.github.io
 - **Database:** All migrations run (including compliance_pack_tables batch 16), 39 compliance requirements seeded
 - **Seed Data:** 5 subscription plans, 10 carriers with products, 6 demo users, 35+ platform products, 10 agencies (50 agents), 70 leads, 3 rate tables (DI LTD, Term Life, LTC) — 180 rate entries + PipelineSeeder (25 applications, 15 policies, 15 commissions, 6 claims, 12 appointments, 20 routing rules) + 39 compliance requirements
@@ -215,6 +215,14 @@ php artisan serve
 - **Railway Scheduler:** Procfile updated with scheduler process for cron commands
 
 ## Recent Work
+
+### Phase 13 (2026-02-25) — Workflow Automation, Commission Splits, Bulk CRM, UX Polish
+- **Styled ConfirmDialog component:** Replaced all 13 native `confirm()` dialogs across 8 pages with a React Context-based ConfirmDialog. Supports danger/warning/info variants with matching icons (Trash2/AlertTriangle/HelpCircle). Promise-based `useConfirm()` hook. Files: `ConfirmDialog.tsx` (new), `App.tsx`, `LeadMarketplace.tsx`, `AgencySettings.tsx`, `Commissions.tsx`, `SuperAdminSettings.tsx`, `Documents.tsx`, `AdminPlans.tsx`, `AdminRateTables.tsx`, `AdminRateTableDetail.tsx`.
+- **Workflow Automation Engine (backend):** Event-driven rule engine with 22 trigger events (lead_created, application_signed, policy_bound, etc.), JSON conditions with operators (equals, contains, greater_than, etc.), 8 action types (send_notification, update_status, assign_agent, create_task, add_tag, fire_webhook, send_email). `WorkflowRule` model with `conditionsMatch()`, `WorkflowExecution` audit log, `WorkflowEngine` service with `fire()` method. `WorkflowRuleController` with CRUD, toggle, test, execution history. Integrated into `LeadIntakeController` and `PublicSigningController`.
+- **Commission Splits:** `CommissionSplit` model for multi-agent commission sharing with percentage validation (<=100%). CRUD endpoints on `CommissionController`. Migration adds `commission_splits` table + `agency_id` on `commissions`.
+- **WorkflowBuilder frontend page:** Full page with rules tab and executions tab. Stats cards, rule cards with toggle/expand/test/delete, condition/action builder in create modal. New `workflows.ts` API service. Route at `/workflows`, nav item in Integration section.
+- **Bulk CRM Operations:** Checkbox selection in lead table with select-all, bulk action bar with status change dropdown and CSV export. Backend `bulkUpdateStatus` endpoint with agency scoping. Frontend exports selected or all leads as CSV.
+- **Files changed:** 15+ files (8 new, 10+ modified) across frontend + backend
 
 ### Phase 12 (2026-02-25) — Payments, Emails, E-Signature (complete)
 - **Stripe marketplace payments:** Full Stripe Checkout + PaymentIntent flow for lead purchases. `createCheckoutForLead()` creates Stripe Checkout in payment mode, `createPaymentIntent()` for in-app payment. Pending transaction records with `stripe_payment_intent_id`, `stripe_checkout_session_id`, `payment_status`. Webhook handlers in SubscriptionController route marketplace events. Falls back to free transfer when Stripe not configured. Frontend: "Buy Now" redirects to Stripe, handles `?purchased=true`/`?canceled=true` return params.
@@ -438,8 +446,9 @@ All 4 core flows tested against production and **PASSING**:
 ## Next Tasks
 
 ### Immediate
-- **Deploy Phase 12:** Push + redeploy on Railway — migrations pending: marketplace payment columns (`2026_02_25_300001`), signatures table (`2026_02_21_400005`), signing fields on applications (`2026_02_24_100004`). Run `ZipCodeSeeder` after deploy.
+- **Deploy Phase 12+13:** Push + redeploy on Railway — migrations pending: marketplace payment columns (`2026_02_25_300001`), signatures table (`2026_02_21_400005`), signing fields on applications (`2026_02_24_100004`), workflow rules + commission splits (`2026_02_25_400001`). Run `ZipCodeSeeder` after deploy.
 - **Test e-signature flow end-to-end:** Agent creates application from scenario → consumer receives signing email → opens `/applications/:token/sign` → draws signature → submits → agent gets notification.
+- **Test workflow automation:** Create rule (e.g., on lead_created → send notification) → submit intake form → verify execution log.
 
 ### Infrastructure & Config
 - **Add Stripe keys to Railway:** Set `STRIPE_SECRET_KEY`, `STRIPE_PUBLISHABLE_KEY`, `STRIPE_WEBHOOK_SECRET` env vars. Then run `php artisan stripe:sync-plans` to create products/prices in Stripe.
