@@ -4,12 +4,46 @@ namespace App\Http\Controllers;
 
 use App\Models\AgentLicense;
 use App\Models\CeCredit;
+use App\Models\CompliancePackItem;
 use App\Models\EoPolicy;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class ComplianceController extends Controller
 {
+    // --- Alerts (lightweight endpoint for dashboard banner) ---
+
+    public function alerts(Request $request): JsonResponse
+    {
+        $userId = $request->user()->id;
+
+        // Overdue compliance pack items
+        $overdue = CompliancePackItem::where('user_id', $userId)
+            ->whereNotNull('due_date')
+            ->where('due_date', '<', now())
+            ->whereNotIn('status', ['completed', 'waived'])
+            ->with('requirement:id,title,category')
+            ->get()
+            ->map(fn($item) => [
+                'id' => $item->id,
+                'title' => $item->requirement?->title ?? 'Compliance Item',
+                'category' => $item->requirement?->category,
+                'due_date' => $item->due_date->toDateString(),
+                'days_overdue' => (int) now()->diffInDays($item->due_date),
+            ]);
+
+        // Expiring soon (within 14 days)
+        $expiringSoon = $this->getExpiringItems($userId);
+        $expiringSoon = array_filter($expiringSoon, fn($item) => $item['days_left'] <= 14);
+
+        return response()->json([
+            'overdue' => array_values($overdue->toArray()),
+            'expiring_soon' => array_values($expiringSoon),
+            'overdue_count' => $overdue->count(),
+            'expiring_count' => count($expiringSoon),
+        ]);
+    }
+
     // --- Dashboard ---
 
     public function dashboard(Request $request): JsonResponse

@@ -121,7 +121,24 @@ export interface ComplianceOverview {
   by_category: Array<{ category: string; total: number; completed_count: number }>;
 }
 
+export interface ComplianceAlerts {
+  overdue: Array<{
+    id: number;
+    title: string;
+    category: string | null;
+    due_date: string;
+    days_overdue: number;
+  }>;
+  expiring_soon: ExpiringItem[];
+  overdue_count: number;
+  expiring_count: number;
+}
+
 export const complianceService = {
+  async getAlerts(): Promise<ComplianceAlerts> {
+    return api.get<ComplianceAlerts>('/compliance/alerts');
+  },
+
   async dashboard(userId?: number): Promise<ComplianceDashboard> {
     const query = userId ? `?user_id=${userId}` : '';
     return api.get<ComplianceDashboard>(`/compliance/dashboard${query}`);

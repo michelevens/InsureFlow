@@ -4,6 +4,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
 import { NotificationBell } from '@/components/notifications/NotificationBell';
 import { AiChatWidget } from '@/components/ai/AiChatWidget';
+import { ComplianceAlertBanner } from '@/components/compliance/ComplianceAlertBanner';
 import {
   LayoutDashboard, Calculator, Users, FileText, Briefcase,
   Building2, BarChart3, UserCircle, Settings, LogOut, Menu, X,
@@ -504,6 +505,7 @@ export function DashboardLayout() {
           </div>
         </div>
         <div className="p-6 lg:p-8">
+          <ComplianceAlertBanner />
           <Outlet />
         </div>
       </main>

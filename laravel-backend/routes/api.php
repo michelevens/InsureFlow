@@ -498,6 +498,7 @@ Route::middleware(['auth:sanctum', 'agency.scope'])->group(function () {
     Route::delete('/documents/generated/{document}', [DocumentGenerationController::class, 'destroy']);
 
     // Compliance Tracking
+    Route::get('/compliance/alerts', [ComplianceController::class, 'alerts']);
     Route::get('/compliance/dashboard', [ComplianceController::class, 'dashboard']);
     Route::get('/compliance/licenses', [ComplianceController::class, 'licenses']);
     Route::post('/compliance/licenses', [ComplianceController::class, 'storeLicense']);
