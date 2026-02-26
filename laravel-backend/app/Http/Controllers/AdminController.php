@@ -134,6 +134,8 @@ class AdminController extends Controller
             'limits' => 'nullable|array',
             'is_active' => 'sometimes|boolean',
             'sort_order' => 'sometimes|integer',
+            'lead_credits_per_month' => 'sometimes|integer|min:-1',
+            'can_access_marketplace' => 'sometimes|boolean',
         ]);
 
         $plan = SubscriptionPlan::create($data);
@@ -151,6 +153,8 @@ class AdminController extends Controller
             'limits' => 'nullable|array',
             'is_active' => 'sometimes|boolean',
             'sort_order' => 'sometimes|integer',
+            'lead_credits_per_month' => 'sometimes|integer|min:-1',
+            'can_access_marketplace' => 'sometimes|boolean',
         ]);
 
         $plan->update($data);

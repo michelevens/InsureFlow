@@ -5,10 +5,12 @@ namespace App\Http\Controllers;
 use App\Models\Agency;
 use App\Models\InsuranceProfile;
 use App\Models\Lead;
+use App\Models\LeadCredit;
 use App\Models\LeadEngagementEvent;
 use App\Models\LeadMarketplaceBid;
 use App\Models\LeadMarketplaceListing;
 use App\Models\LeadMarketplaceTransaction;
+use App\Models\Subscription;
 use App\Services\LeadScoringService;
 use App\Services\NotificationService;
 use App\Services\RoutingEngine;
@@ -35,6 +37,16 @@ class LeadMarketplaceController extends Controller
     public function browse(Request $request)
     {
         $user = $request->user();
+
+        // Check marketplace access based on subscription plan
+        $subscription = Subscription::where('user_id', $user->id)->with('plan')->latest()->first();
+        $plan = $subscription?->plan;
+        if (!$plan || !$plan->can_access_marketplace) {
+            return response()->json([
+                'message' => 'Your plan does not include marketplace access. Upgrade to Agent Pro or higher.',
+                'requires_upgrade' => true,
+            ], 403);
+        }
 
         $query = LeadMarketplaceListing::active()
             ->where('seller_agency_id', '!=', $user->agency_id) // can't buy own listings
@@ -114,6 +126,20 @@ class LeadMarketplaceController extends Controller
         if ($listing->expires_at && $listing->expires_at->isPast()) {
             $listing->update(['status' => 'expired']);
             return response()->json(['message' => 'This listing has expired'], 410);
+        }
+
+        // Check marketplace credits
+        $subscription = Subscription::where('user_id', $user->id)->with('plan')->latest()->first();
+        $planCredits = $subscription?->plan?->lead_credits_per_month ?? 0;
+        if ($planCredits !== -1) {
+            $credit = LeadCredit::where('user_id', $user->id)->first();
+            if (!$credit || $credit->credits_balance <= 0) {
+                return response()->json([
+                    'message' => 'No marketplace credits remaining. Upgrade your plan for more credits.',
+                    'credits_remaining' => 0,
+                    'requires_credits' => true,
+                ], 402);
+            }
         }
 
         // If Stripe is configured, require payment first
@@ -446,6 +472,18 @@ class LeadMarketplaceController extends Controller
                 ));
             } catch (\Throwable $e) {
                 \Log::warning('Failed to send marketplace purchase email', ['error' => $e->getMessage()]);
+            }
+
+            // Deduct marketplace credit
+            $sub = Subscription::where('user_id', $user->id)->with('plan')->latest()->first();
+            $planCredits = $sub?->plan?->lead_credits_per_month ?? 0;
+            if ($planCredits !== -1) {
+                $credit = LeadCredit::firstOrCreate(
+                    ['user_id' => $user->id, 'agency_id' => $user->agency_id],
+                    ['credits_balance' => 0, 'credits_used' => 0]
+                );
+                $credit->deduct(1, "Marketplace lead purchase - listing #{$listing->id}",
+                    LeadMarketplaceListing::class, $listing->id);
             }
 
             return response()->json([

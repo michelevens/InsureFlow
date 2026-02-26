@@ -12,6 +12,7 @@ class SubscriptionPlan extends Model
     protected $fillable = [
         'name', 'slug', 'description', 'monthly_price', 'annual_price',
         'target_role', 'features', 'limits', 'is_active', 'sort_order',
+        'lead_credits_per_month', 'can_access_marketplace',
     ];
 
     protected function casts(): array
@@ -22,6 +23,7 @@ class SubscriptionPlan extends Model
             'monthly_price' => 'decimal:2',
             'annual_price' => 'decimal:2',
             'is_active' => 'boolean',
+            'can_access_marketplace' => 'boolean',
         ];
     }
 }

@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\Models\LeadCredit;
 use App\Models\LeadMarketplaceListing;
 use App\Models\LeadMarketplaceTransaction;
 use App\Models\Subscription;
@@ -158,6 +159,28 @@ class SubscriptionController extends Controller
         } catch (\Exception $e) {
             return response()->json(['error' => 'Failed to create billing portal session'], 503);
         }
+    }
+
+    public function billingOverview(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        $subscription = Subscription::where('user_id', $user->id)
+            ->with('plan')
+            ->latest()
+            ->first();
+
+        $credit = LeadCredit::where('user_id', $user->id)->first();
+
+        return response()->json([
+            'subscription' => $subscription,
+            'plan' => $subscription?->plan,
+            'credits' => $credit ? [
+                'balance' => $credit->credits_balance,
+                'used' => $credit->credits_used,
+                'plan_allowance' => $subscription?->plan?->lead_credits_per_month ?? 0,
+                'last_replenished' => $credit->last_replenished_at,
+            ] : null,
+        ]);
     }
 
     public function handleWebhook(Request $request): JsonResponse

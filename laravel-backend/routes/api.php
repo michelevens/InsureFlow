@@ -331,12 +331,13 @@ Route::middleware(['auth:sanctum', 'agency.scope'])->group(function () {
     Route::put('/carrier/products/{product}', [CarrierController::class, 'updateProduct']);
     Route::get('/carrier/production', [CarrierController::class, 'production']);
 
-    // Subscriptions
+    // Subscriptions & Billing
     Route::get('/subscriptions/current', [SubscriptionController::class, 'current']);
     Route::post('/subscriptions/checkout', [SubscriptionController::class, 'checkout']);
     Route::post('/subscriptions/cancel', [SubscriptionController::class, 'cancel']);
     Route::post('/subscriptions/resume', [SubscriptionController::class, 'resume']);
     Route::post('/subscriptions/portal', [SubscriptionController::class, 'portal']);
+    Route::get('/billing/overview', [SubscriptionController::class, 'billingOverview']);
 
     // Referrals
     Route::get('/referrals/dashboard', [ReferralController::class, 'dashboard']);
