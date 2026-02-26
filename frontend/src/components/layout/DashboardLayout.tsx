@@ -9,7 +9,7 @@ import {
   Building2, BarChart3, UserCircle, Settings, LogOut, Menu, X,
   ClipboardList, Target, DollarSign, Star, ShieldCheck, ChevronDown, MessageSquare, Activity, AlertTriangle, RefreshCw, TrendingUp, Key, Plug, Network, CalendarDays, Palette, Code, Award, Database, BookOpen, HelpCircle,
   MessagesSquare, Calendar, Handshake, Mail, FileBarChart, Video, ShoppingCart, Zap, ListChecks,
-  Moon, Sun,
+  Moon, Sun, MessageSquarePlus, Quote,
 } from 'lucide-react';
 import { useTheme } from '@/contexts/ThemeContext';
 import type { ReactNode } from 'react';
@@ -169,6 +169,7 @@ const navSections: NavSection[] = [
       { label: 'Analytics', href: '/admin/analytics', icon: <BarChart3 className="w-5 h-5" />, roles: ['admin', 'superadmin'] },
       { label: 'Plans', href: '/admin/plans', icon: <DollarSign className="w-5 h-5" />, roles: ['admin', 'superadmin'] },
       { label: 'Rate Tables', href: '/admin/rate-tables', icon: <Calculator className="w-5 h-5" />, roles: ['admin', 'superadmin'] },
+      { label: 'Testimonials', href: '/admin/testimonials', icon: <Quote className="w-5 h-5" />, roles: ['admin', 'superadmin'] },
       { label: 'Audit Log', href: '/admin/audit-log', icon: <Activity className="w-5 h-5" />, roles: ['admin', 'superadmin'] },
       { label: 'SSO Config', href: '/admin/sso', icon: <Key className="w-5 h-5" />, roles: ['admin', 'superadmin'] },
       { label: 'API Config', href: '/carrier/api-config', icon: <Plug className="w-5 h-5" />, roles: ['admin', 'superadmin'] },
@@ -308,6 +309,9 @@ export function DashboardLayout() {
           <Link to="/settings" onClick={() => setSidebarOpen(false)} className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-slate-800">
             <Settings className="w-5 h-5" /> Settings
           </Link>
+          <Link to="/feedback" onClick={() => setSidebarOpen(false)} className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-slate-800">
+            <MessageSquarePlus className="w-5 h-5" /> Share Feedback
+          </Link>
           <Link to="/help" onClick={() => setSidebarOpen(false)} className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-slate-800">
             <HelpCircle className="w-5 h-5" /> Help Center
           </Link>
@@ -426,6 +430,18 @@ export function DashboardLayout() {
               </>
             )}
           </div>
+          <Link
+            to="/feedback"
+            className={cn(
+              'p-2 rounded-lg transition-colors',
+              location.pathname === '/feedback'
+                ? 'bg-shield-50 text-shield-700 dark:bg-shield-900/40 dark:text-shield-300'
+                : 'text-slate-500 hover:bg-slate-100 hover:text-slate-700 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200'
+            )}
+            title="Share Feedback"
+          >
+            <MessageSquarePlus className="w-5 h-5" />
+          </Link>
           <Link
             to="/help"
             className={cn(
