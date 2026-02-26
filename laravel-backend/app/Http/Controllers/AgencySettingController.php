@@ -281,7 +281,7 @@ class AgencySettingController extends Controller
             'email_verified_at' => now(),
         ]);
 
-        $loginUrl = rtrim(config('app.frontend_url', 'https://ennhealth.github.io/InsureFlow'), '/') . '/login';
+        $loginUrl = rtrim(config('app.frontend_url', 'https://insurons.com'), '/') . '/login';
 
         try {
             Mail::to($data['email'])->send(new AgentWelcomeMail(
@@ -334,7 +334,7 @@ class AgencySettingController extends Controller
             return response()->json(['message' => 'No agency found'], 404);
         }
 
-        $baseUrl = config('app.frontend_url', 'https://ennhealth.github.io/InsureFlow');
+        $baseUrl = config('app.frontend_url', 'https://insurons.com');
 
         return response()->json([
             'agency_code' => $agency->agency_code,
