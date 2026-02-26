@@ -11,6 +11,7 @@ import {
   ClipboardCheck, TrendingUp, Shield,
 } from 'lucide-react';
 import { api } from '@/services/api';
+import { testimonialService, type Testimonial } from '@/services/api/testimonials';
 
 /* ─── animation helpers ─── */
 const ease = [0.22, 1, 0.36, 1] as const;
@@ -92,6 +93,8 @@ export default function Landing() {
   const [grouped, setGrouped] = useState<Record<string, VisibleProduct[]>>({});
   const [productCount, setProductCount] = useState(40);
   const [categoryCount, setCategoryCount] = useState(6);
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+  const [activeTestimonial, setActiveTestimonial] = useState(0);
 
   useEffect(() => {
     api.get<{ products: VisibleProduct[]; grouped: Record<string, VisibleProduct[]> }>('/products/visible')
@@ -101,6 +104,9 @@ export default function Landing() {
         setCategoryCount(Object.keys(res.grouped || {}).length || 6);
       })
       .catch(() => { /* keep defaults */ });
+    testimonialService.getPublished()
+      .then(setTestimonials)
+      .catch(() => { /* keep fallback */ });
   }, []);
 
   return (
@@ -614,26 +620,61 @@ export default function Landing() {
         </div>
       </Section>
 
-      {/* ═══ Testimonial / Trust ═══ */}
+      {/* ═══ Testimonials ═══ */}
       <Section className="py-20 bg-slate-50">
         <div className="max-w-4xl mx-auto px-6 text-center">
-          <motion.div variants={fadeUp}>
-            <div className="flex items-center justify-center gap-1 mb-6">
-              {[...Array(5)].map((_, i) => (
-                <Star key={i} className="w-6 h-6 text-amber-400 fill-amber-400" />
-              ))}
-            </div>
-            <blockquote className="text-2xl md:text-3xl font-medium text-slate-800 leading-relaxed mb-8">
-              &ldquo;We switched from three different tools to Insurons. Our agents close 40% more policies and our compliance tracking went from chaos to automatic.&rdquo;
-            </blockquote>
-            <div className="flex items-center justify-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-shield-100 text-shield-600 flex items-center justify-center font-bold text-lg">M</div>
-              <div className="text-left">
-                <div className="font-semibold text-slate-900">Maria Gonzalez</div>
-                <div className="text-sm text-slate-500">Agency Owner, Apex Insurance Group</div>
-              </div>
-            </div>
-          </motion.div>
+          {(() => {
+            const items = testimonials.length > 0
+              ? testimonials.map(t => ({
+                  name: t.name,
+                  role: [t.role, t.company].filter(Boolean).join(', '),
+                  content: t.content,
+                  rating: t.rating,
+                }))
+              : [{
+                  name: 'Maria Gonzalez',
+                  role: 'Agency Owner, Apex Insurance Group',
+                  content: 'We switched from three different tools to Insurons. Our agents close 40% more policies and our compliance tracking went from chaos to automatic.',
+                  rating: 5,
+                }];
+            const current = items[activeTestimonial % items.length];
+            return (
+              <motion.div variants={fadeUp} key={activeTestimonial}>
+                <div className="flex items-center justify-center gap-1 mb-6">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className={`w-6 h-6 ${i < current.rating ? 'text-amber-400 fill-amber-400' : 'text-slate-300'}`} />
+                  ))}
+                </div>
+                <blockquote className="text-2xl md:text-3xl font-medium text-slate-800 leading-relaxed mb-8">
+                  &ldquo;{current.content}&rdquo;
+                </blockquote>
+                <div className="flex items-center justify-center gap-3">
+                  <div className="w-12 h-12 rounded-full bg-shield-100 text-shield-600 flex items-center justify-center font-bold text-lg">
+                    {current.name.charAt(0)}
+                  </div>
+                  <div className="text-left">
+                    <div className="font-semibold text-slate-900">{current.name}</div>
+                    <div className="text-sm text-slate-500">{current.role}</div>
+                  </div>
+                </div>
+                {items.length > 1 && (
+                  <div className="flex items-center justify-center gap-2 mt-8">
+                    {items.map((_, i) => (
+                      <button
+                        key={i}
+                        onClick={() => setActiveTestimonial(i)}
+                        className={`w-2.5 h-2.5 rounded-full transition-colors ${
+                          i === activeTestimonial % items.length
+                            ? 'bg-shield-600'
+                            : 'bg-slate-300 hover:bg-slate-400'
+                        }`}
+                      />
+                    ))}
+                  </div>
+                )}
+              </motion.div>
+            );
+          })()}
         </div>
       </Section>
 

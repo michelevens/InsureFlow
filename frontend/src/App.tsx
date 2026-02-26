@@ -113,6 +113,7 @@ const AdminRateTableForm = lazyRetry(() => import('@/pages/admin/AdminRateTableF
 const SuperAdminDashboard = lazyRetry(() => import('@/pages/admin/SuperAdminDashboard'));
 const SuperAdminSettings = lazyRetry(() => import('@/pages/admin/SuperAdminSettings'));
 const SsoConfig = lazyRetry(() => import('@/pages/admin/SsoConfig'));
+const AdminTestimonials = lazyRetry(() => import('@/pages/admin/AdminTestimonials'));
 
 // Agency
 const AgencyProducts = lazyRetry(() => import('@/pages/agency/AgencyProducts'));
@@ -164,6 +165,9 @@ const MeetingRoom = lazyRetry(() => import('@/pages/meetings/MeetingRoom'));
 
 // Lead Intake (public)
 const LeadIntake = lazyRetry(() => import('@/pages/intake/LeadIntake'));
+
+// Feedback
+const SubmitFeedback = lazyRetry(() => import('@/pages/feedback/SubmitFeedback'));
 
 // Settings
 const Settings = lazyRetry(() => import('@/pages/public/Settings'));
@@ -314,11 +318,15 @@ export default function App() {
                 <Route path="/admin/rate-tables/:id" element={<AdminRateTableDetail />} />
                 <Route path="/admin/platform" element={<SuperAdminDashboard />} />
                 <Route path="/admin/platform-settings" element={<SuperAdminSettings />} />
+                <Route path="/admin/testimonials" element={<AdminTestimonials />} />
 
                 {/* Agency */}
                 <Route path="/agency/products" element={<AgencyProducts />} />
                 <Route path="/agency/appointments" element={<AgencyAppointments />} />
                 <Route path="/agency/settings" element={<AgencySettings />} />
+
+                {/* Feedback */}
+                <Route path="/feedback" element={<SubmitFeedback />} />
 
                 {/* Settings */}
                 <Route path="/settings" element={<Settings />} />

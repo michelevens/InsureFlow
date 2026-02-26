@@ -64,6 +64,7 @@ use App\Http\Controllers\AdminRateTableController;
 use App\Http\Controllers\ZipCodeController;
 use App\Http\Controllers\WorkflowRuleController;
 use App\Http\Controllers\TaskController;
+use App\Http\Controllers\TestimonialController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -100,6 +101,9 @@ Route::get('/referrals/leaderboard', [ReferralController::class, 'leaderboard'])
 
 // Subscription plans (public listing)
 Route::get('/subscription-plans', [SubscriptionController::class, 'plans']);
+
+// Testimonials (public)
+Route::get('/testimonials', [TestimonialController::class, 'published']);
 
 // Stripe webhook (no auth)
 Route::post('/webhooks/stripe', [SubscriptionController::class, 'handleWebhook']);
@@ -709,6 +713,12 @@ Route::middleware(['auth:sanctum', 'agency.scope'])->group(function () {
         Route::delete('/compliance/requirements/{requirement}', [CompliancePackController::class, 'deleteRequirement']);
         Route::get('/compliance/overview', [CompliancePackController::class, 'overview']);
 
+        // Testimonials (admin)
+        Route::get('/testimonials', [TestimonialController::class, 'index']);
+        Route::put('/testimonials/{testimonial}', [TestimonialController::class, 'update']);
+        Route::put('/testimonials/{testimonial}/toggle-publish', [TestimonialController::class, 'togglePublish']);
+        Route::delete('/testimonials/{testimonial}', [TestimonialController::class, 'destroy']);
+
         // Profile Import Stats & State Sources
         Route::get('/profiles/list', [ProfileClaimController::class, 'adminList']);
         Route::get('/profiles/stats', [ProfileClaimController::class, 'stats']);
@@ -755,6 +765,9 @@ Route::middleware(['auth:sanctum', 'agency.scope'])->group(function () {
         Route::get('/suggest-price', [LeadMarketplaceController::class, 'suggestPrice']);
         Route::post('/bulk-list', [LeadMarketplaceController::class, 'bulkList']);
     });
+
+    // Testimonials (authenticated - submit feedback)
+    Route::post('/testimonials', [TestimonialController::class, 'store']);
 
     // Agency Settings (agency_owner)
     Route::prefix('agency/settings')->group(function () {
