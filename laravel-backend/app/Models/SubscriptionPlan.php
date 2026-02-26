@@ -13,6 +13,7 @@ class SubscriptionPlan extends Model
         'name', 'slug', 'description', 'monthly_price', 'annual_price',
         'target_role', 'features', 'limits', 'is_active', 'sort_order',
         'lead_credits_per_month', 'can_access_marketplace',
+        'stripe_price_id_monthly', 'stripe_price_id_annual',
     ];
 
     protected function casts(): array
