@@ -1,10 +1,13 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { Button, Input, Card, Select, AddressAutocomplete } from '@/components/ui';
 import type { ZipCodeResult } from '@/components/ui';
-import { ShieldCheck, CheckCircle2, ArrowRight, Loader2 } from 'lucide-react';
+import { ShieldCheck, CheckCircle2, ArrowRight, Loader2, RotateCcw, X } from 'lucide-react';
 import { marketplaceService, type MarketplaceRequest } from '@/services/api';
 import { toast } from 'sonner';
+
+const DRAFT_KEY = 'insurons_request_draft';
+const SAVE_DELAY = 2000;
 
 const insuranceTypes = [
   { value: '', label: 'Select type...' },
@@ -50,21 +53,77 @@ const US_STATES = [
   { value: 'WI', label: 'Wisconsin' }, { value: 'WY', label: 'Wyoming' }, { value: 'DC', label: 'Washington DC' },
 ];
 
+const emptyForm: MarketplaceRequest = {
+  first_name: '',
+  last_name: '',
+  email: '',
+  phone: '',
+  insurance_type: '',
+  zip_code: '',
+  state: '',
+  coverage_level: 'standard',
+  description: '',
+};
+
+function loadDraft(): MarketplaceRequest | null {
+  try {
+    const raw = localStorage.getItem(DRAFT_KEY);
+    if (!raw) return null;
+    const saved = JSON.parse(raw) as { form: MarketplaceRequest; savedAt: number };
+    // Expire drafts older than 7 days
+    if (Date.now() - saved.savedAt > 7 * 24 * 60 * 60 * 1000) {
+      localStorage.removeItem(DRAFT_KEY);
+      return null;
+    }
+    // Only restore if user actually filled something meaningful
+    if (saved.form.first_name || saved.form.email || saved.form.insurance_type) {
+      return saved.form;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
 export default function InsuranceRequestForm() {
-  const [form, setForm] = useState<MarketplaceRequest>({
-    first_name: '',
-    last_name: '',
-    email: '',
-    phone: '',
-    insurance_type: '',
-    zip_code: '',
-    state: '',
-    coverage_level: 'standard',
-    description: '',
-  });
+  const [form, setForm] = useState<MarketplaceRequest>(emptyForm);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [agentsMatched, setAgentsMatched] = useState(0);
+  const [showResumeBanner, setShowResumeBanner] = useState(false);
+  const [draftData, setDraftData] = useState<MarketplaceRequest | null>(null);
+  const saveTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
+
+  // Check for existing draft on mount
+  useEffect(() => {
+    const draft = loadDraft();
+    if (draft) {
+      setDraftData(draft);
+      setShowResumeBanner(true);
+    }
+  }, []);
+
+  // Debounced auto-save to localStorage
+  const saveDraft = useCallback((data: MarketplaceRequest) => {
+    if (saveTimer.current) clearTimeout(saveTimer.current);
+    saveTimer.current = setTimeout(() => {
+      try {
+        localStorage.setItem(DRAFT_KEY, JSON.stringify({ form: data, savedAt: Date.now() }));
+      } catch { /* quota exceeded — ignore */ }
+    }, SAVE_DELAY);
+  }, []);
+
+  const handleResume = () => {
+    if (draftData) setForm(draftData);
+    setShowResumeBanner(false);
+    toast.success('Draft restored');
+  };
+
+  const handleDismissDraft = () => {
+    localStorage.removeItem(DRAFT_KEY);
+    setShowResumeBanner(false);
+    setDraftData(null);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -76,6 +135,7 @@ export default function InsuranceRequestForm() {
     setSubmitting(true);
     try {
       const res = await marketplaceService.submitRequest(form);
+      localStorage.removeItem(DRAFT_KEY);
       setAgentsMatched(res.agents_matched);
       setSubmitted(true);
     } catch {
@@ -86,7 +146,11 @@ export default function InsuranceRequestForm() {
   };
 
   const update = (field: keyof MarketplaceRequest, value: string) => {
-    setForm(prev => ({ ...prev, [field]: value }));
+    setForm(prev => {
+      const next = { ...prev, [field]: value };
+      saveDraft(next);
+      return next;
+    });
   };
 
   if (submitted) {
@@ -107,7 +171,7 @@ export default function InsuranceRequestForm() {
             <Link to="/auth/register">
               <Button variant="shield">Create Account to Track</Button>
             </Link>
-            <Button variant="outline" onClick={() => { setSubmitted(false); setForm({ first_name: '', last_name: '', email: '', phone: '', insurance_type: '', zip_code: '', state: '', coverage_level: 'standard', description: '' }); }}>
+            <Button variant="outline" onClick={() => { setSubmitted(false); setForm(emptyForm); localStorage.removeItem(DRAFT_KEY); }}>
               Submit Another
             </Button>
           </div>
@@ -136,6 +200,18 @@ export default function InsuranceRequestForm() {
           <h1 className="text-3xl font-bold text-slate-900 mb-2">Get Insurance Quotes from Licensed Agents</h1>
           <p className="text-lg text-slate-600">Tell us what you need and multiple agents will compete for your business.</p>
         </div>
+
+        {showResumeBanner && (
+          <div className="mb-4 flex items-center gap-3 rounded-xl border border-shield-200 bg-shield-50 p-4">
+            <RotateCcw className="w-5 h-5 text-shield-600 flex-shrink-0" />
+            <div className="flex-1">
+              <p className="text-sm font-medium text-slate-900">You have an unfinished request</p>
+              <p className="text-xs text-slate-500">Pick up where you left off?</p>
+            </div>
+            <Button variant="shield" size="sm" onClick={handleResume}>Resume</Button>
+            <button type="button" onClick={handleDismissDraft} className="text-slate-400 hover:text-slate-600"><X className="w-4 h-4" /></button>
+          </div>
+        )}
 
         <Card className="p-6">
           <form onSubmit={handleSubmit} className="space-y-5">
