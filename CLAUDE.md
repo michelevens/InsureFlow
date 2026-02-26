@@ -223,6 +223,13 @@ php artisan serve
 
 ## Recent Work
 
+### PWA + Embed + Carrier Session (2026-02-26) — Push Notifications, Widget Branding, Offline Caching
+- **Push Notifications (Web Push API):** Full stack — `push_subscriptions` table + PushSubscriptionController (subscribe/unsubscribe/vapid-key) + `minishlink/web-push` package. NotificationService auto-sends push with every in-app notification (when VAPID configured). Frontend: `usePushNotifications` hook, `sw-push.js` service worker, "Enable push notifications" prompt in NotificationBell dropdown. Needs `VAPID_PUBLIC_KEY` + `VAPID_PRIVATE_KEY` env vars on Railway.
+- **Embed Widget Branding:** Button gradient updated from blue to navy+gold (#102a43/#011434). Shield icon stroke: gold (#BC9C22). Modal header: navy text on light background.
+- **Offline Quote Caching:** Added StaleWhileRevalidate caching for quote drafts (7 days) and platform products (1 day) in Workbox config. Enables offline quote form resume.
+- **Carrier API Integration Guide:** Created `CARRIER_API_GUIDE.md` with instructions for adding carrier APIs, cost breakdown, custom adapter pattern, VAPID key generation.
+- **Deployed + verified:** push_subscriptions table exists, vapid-key/subscribe/unsubscribe endpoints tested, embed widget serving with navy gradient.
+
 ### Branding + Cleanup Session (2026-02-26) — New Logo, Favicon, PWA Icons
 - **New SVG logo:** Replaced old 2MB `logo.png` (green/blue gradient) with `logo.svg` (9KB, navy shield + gold molecular nodes + "Insurons" wordmark)
 - **Shield icon:** Created `shield.svg` (icon-only) for favicon and PWA use
@@ -491,9 +498,7 @@ All 4 core flows tested against production and **PASSING**:
 ## Next Tasks
 
 ### Immediate
-- **Deploy latest commits to Railway:** Logo removal + URL fixes from recent sessions
-- **Verify demo logins work:** `agent@insurons.com` / `password` returned "Invalid credentials" — may need to re-run `DemoUserSeeder` on Railway
-- **Test branding on live site:** Verify new SVG logo renders correctly on insurons.com (sidebar, login, landing, favicon)
+- **Generate VAPID keys:** `npx web-push generate-vapid-keys` → add `VAPID_PUBLIC_KEY` + `VAPID_PRIVATE_KEY` to Railway env vars to activate push notifications
 - **Test Kanban board** drag-and-drop on the live frontend (https://insurons.com)
 - **Test embed widget + webhook:** Create partner with webhook URL (use webhook.site) → complete embed flow → verify webhook fires with signed payload
 
@@ -502,8 +507,7 @@ All 4 core flows tested against production and **PASSING**:
 - **Verify Railway scheduler:** Check if the `scheduler` Procfile process starts. If not, create a separate Railway service with start command `php artisan schedule:work`.
 
 ### New Features
-- **Real carrier API credentials:** Add actual Progressive/Travelers API keys to `carrier_api_configs` table when available
-- **Mobile app / PWA enhancements:** Push notifications, offline quote caching
+- **Real carrier API credentials:** Add actual Progressive/Travelers API keys to `carrier_api_configs` table when available (see `CARRIER_API_GUIDE.md`)
 
 ### Testing
 - Test Stripe checkout: subscribe → verify webhook → check subscription status
