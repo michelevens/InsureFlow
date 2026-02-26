@@ -191,7 +191,7 @@ php artisan serve
 - **Backend:** Laravel 12 on Railway — **All 14 phases deployed**, all endpoints live
 - **API Domain:** api.insurons.com — WORKING, CORS configured for insurons.com
 - **Database:** All migrations run (100+ total including Phase 10-14), 39 compliance requirements seeded, 160+ ZIP codes seeded
-- **Seed Data:** 5 subscription plans, 10 carriers with products, 6 demo users, 35+ platform products, 10 agencies (50 agents), 70 leads, 3 rate tables (DI LTD, Term Life, LTC) — 180 rate entries + PipelineSeeder (25 applications, 15 policies, 15 commissions, 6 claims, 12 appointments, 20 routing rules) + 39 compliance requirements
+- **Seed Data:** 7 subscription plans (competitive tiers), 10 carriers with products, 6 demo users, 35+ platform products, 10 agencies (50 agents), 70 leads, 3 rate tables (DI LTD, Term Life, LTC) — 180 rate entries + PipelineSeeder (25 applications, 15 policies, 15 commissions, 6 claims, 12 appointments, 20 routing rules) + 39 compliance requirements
 - **Lead Pipeline:** Full InsuranceProfile → Lead → RoutingEngine → LeadScoring pipeline wired for intake submissions
 - **Lead Aging Alerts:** Hourly `leads:check-aging` command — 24h → remind agent, 48h → escalate to agency owner (email + in-app notification)
 - **UTM Attribution:** Frontend reads utm_source/utm_medium/utm_campaign from URL, backend stores in InsuranceProfile details
@@ -216,6 +216,7 @@ php artisan serve
 - **Compliance Overdue Notifications:** Daily check command with email + in-app notifications
 - **Push Notifications LIVE:** VAPID keys generated and set on Railway, `/push/vapid-key` returns public key, subscribe/unsubscribe tested
 - **Stripe Integration:** stripe:sync-plans command, customer portal, API-driven Pricing page
+- **Competitive Pricing:** 7-tier structure ($0-$499), marketplace credit system, billing management page, admin marketplace fields
 - **Railway Scheduler:** Procfile updated with scheduler process for cron commands
 - **Workflow Automation:** Tested end-to-end — rule creation, condition matching, notification sending, execution audit log
 - **Task Management:** CRUD, complete/reopen, priority filters — all tested on production
@@ -223,6 +224,27 @@ php artisan serve
 - **ZIP Code Autocomplete:** 160+ ZIP codes seeded and lookup working on production
 
 ## Recent Work
+
+### Competitive Pricing + Billing + Marketplace Gate (2026-02-26)
+- **Pricing Strategy:** Researched 11 competitors (HawkSoft, AgencyZoom, EZLynx, Applied Epic, etc.), restructured from 5 → 7 tiers:
+  - Consumer Free ($0), Agent Starter ($29), Agent Pro ($79), Agent Pro Plus ($129), Agency Standard ($149), Agency Enterprise ($299), Carrier Partner ($499)
+  - Annual pricing: true 20% discount (Monthly × 12 × 0.80)
+  - Marketplace credits per tier: 0/0/10/25/50/200/unlimited
+- **Backend:**
+  - SubscriptionPlan model: added `lead_credits_per_month`, `can_access_marketplace` to fillable + casts
+  - SubscriptionPlanSeeder: full rewrite with 7 competitive tiers (uses `updateOrCreate` on slug)
+  - AdminController: added validation for marketplace fields in storePlan/updatePlan
+  - SubscriptionController: new `billingOverview()` endpoint (plan + subscription + credit balance)
+  - LeadMarketplaceController: 403 access gate in browse(), 402 credit check in purchase(), credit deduction in completePurchase()
+  - New route: `GET /billing/overview`
+- **Frontend:**
+  - Pricing.tsx: full rewrite — 7 tiers, role filter tabs (All/Agents/Agencies/Carriers), feature comparison table, add-ons section, 6-item FAQ
+  - Billing.tsx (NEW): current plan card, marketplace credit meter with progress bar, Stripe portal links, success/past-due banners
+  - LeadMarketplace.tsx: upgrade gate UI (catches 403), credit balance card in stats, blocks purchase when credits depleted
+  - AdminPlans.tsx: credits/month input + marketplace access checkbox in plan modal, marketplace badge on cards
+  - DashboardLayout: Billing nav item for agent/agency_owner/carrier roles
+  - App.tsx: added `/billing` route
+  - Types + subscription service updated with marketplace fields and `billingOverview()` method
 
 ### PWA + Embed + Carrier Session (2026-02-26) — Push Notifications, Widget Branding, Offline Caching
 - **Push Notifications (Web Push API):** Full stack — `push_subscriptions` table + PushSubscriptionController (subscribe/unsubscribe/vapid-key) + `minishlink/web-push` package. NotificationService auto-sends push with every in-app notification. Frontend: `usePushNotifications` hook, `sw-push.js` service worker, "Enable push notifications" prompt in NotificationBell dropdown. **VAPID keys generated and configured on Railway — all 3 endpoints verified working in production.**
@@ -498,27 +520,24 @@ All 4 core flows tested against production and **PASSING**:
 
 ## Next Tasks
 
-### Immediate
-- ~~**Generate VAPID keys:**~~ DONE — keys generated, set on Railway, vapid-key endpoint verified
+### Immediate — Deploy Pricing Changes
+- **Redeploy Railway:** Push triggered auto-deploy. After deploy completes, run `php artisan db:seed --class=SubscriptionPlanSeeder` to update plans from 5 → 7 tiers
+- **Configure Stripe for new tiers:** Run `php artisan stripe:sync-plans` after adding Stripe keys to create products/prices for all 7 plans
+- **Test billing page:** Log in as agent → navigate to /billing → verify plan details + credit meter display
+- **Test marketplace access gate:** Log in as Agent Starter (no marketplace access) → navigate to /lead-marketplace → verify upgrade gate appears
+
+### Testing
 - **Test push notifications end-to-end:** Log in on insurons.com → enable push in NotificationBell → trigger a notification → verify browser push appears
 - **Test Kanban board** drag-and-drop on the live frontend (https://insurons.com)
 - **Test embed widget + webhook:** Create partner with webhook URL (use webhook.site) → complete embed flow → verify webhook fires with signed payload
+- Test Stripe checkout: subscribe → verify webhook → check subscription status
+- Test marketplace auction: create auction listing → place bids → verify min increment enforcement
+- Test `compliance:check-overdue` with overdue test items
+- Test `leads:check-aging` with stale test leads (needs scheduler running)
 
 ### Infrastructure & Config
-- **Add Stripe keys to Railway:** Set `STRIPE_SECRET_KEY`, `STRIPE_PUBLISHABLE_KEY`, `STRIPE_WEBHOOK_SECRET` env vars. Then run `php artisan stripe:sync-plans` to create products/prices in Stripe.
-- **Verify Railway scheduler:** Check if the `scheduler` Procfile process starts. If not, create a separate Railway service with start command `php artisan schedule:work`.
+- **Add Stripe keys to Railway:** Set `STRIPE_SECRET_KEY`, `STRIPE_PUBLISHABLE_KEY`, `STRIPE_WEBHOOK_SECRET` env vars
+- **Verify Railway scheduler:** Check if the `scheduler` Procfile process starts. If not, create a separate Railway service with start command `php artisan schedule:work`
 
 ### New Features
 - **Real carrier API credentials:** Add actual Progressive/Travelers API keys to `carrier_api_configs` table when available (see `CARRIER_API_GUIDE.md`)
-
-### Testing
-- Test Stripe checkout: subscribe → verify webhook → check subscription status
-- Test `stripe:sync-plans` output table
-- Test `compliance:check-overdue` with overdue test items
-- Test `leads:check-aging` with stale test leads (needs scheduler running)
-- Test carrier API test-connection endpoint
-- Test multi-quote comparison in consumer scenario view
-- Test server-side quote draft save/load for logged-in users
-- Test marketplace auction: create auction listing → place bids → verify min increment enforcement
-- Test ZIP code auto-complete: type ZIP → verify city/state auto-fill
-- Test product activation gate: deactivate product as admin → verify agent can't create scenario for it
