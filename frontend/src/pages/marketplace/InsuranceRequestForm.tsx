@@ -93,14 +93,14 @@ export default function InsuranceRequestForm() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-shield-50 via-white to-confidence-50 flex items-center justify-center p-4">
         <Card className="max-w-lg w-full p-8 text-center">
-          <div className="w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mx-auto mb-6">
-            <CheckCircle2 className="w-8 h-8 text-green-600 dark:text-green-400" />
+          <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-6">
+            <CheckCircle2 className="w-8 h-8 text-green-600" />
           </div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">Request Submitted!</h1>
-          <p className="text-slate-600 dark:text-slate-300 mb-4">
+          <h1 className="text-2xl font-bold text-slate-900 mb-2">Request Submitted!</h1>
+          <p className="text-slate-600 mb-4">
             Your insurance request has been sent to <strong>{agentsMatched} licensed agent{agentsMatched !== 1 ? 's' : ''}</strong> in your area.
           </p>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">
+          <p className="text-sm text-slate-500 mb-6">
             You'll receive quotes via email and can compare them in your dashboard. Agents typically respond within 24 hours.
           </p>
           <div className="flex gap-3 justify-center">
@@ -119,11 +119,11 @@ export default function InsuranceRequestForm() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-shield-50 via-white to-confidence-50">
       {/* Header */}
-      <div className="border-b bg-white dark:bg-slate-900/80 backdrop-blur-sm">
+      <div className="border-b bg-white/80 backdrop-blur-sm">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
-            <ShieldCheck className="w-7 h-7 text-shield-600 dark:text-shield-400" />
-            <span className="text-xl font-bold text-slate-900 dark:text-white">Insurons</span>
+            <ShieldCheck className="w-7 h-7 text-shield-600" />
+            <span className="text-xl font-bold text-slate-900">Insurons</span>
           </Link>
           <Link to="/auth/login">
             <Button variant="outline" size="sm">Sign In</Button>
@@ -133,15 +133,15 @@ export default function InsuranceRequestForm() {
 
       <div className="max-w-2xl mx-auto px-4 py-12">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">Get Insurance Quotes from Licensed Agents</h1>
-          <p className="text-lg text-slate-600 dark:text-slate-300">Tell us what you need and multiple agents will compete for your business.</p>
+          <h1 className="text-3xl font-bold text-slate-900 mb-2">Get Insurance Quotes from Licensed Agents</h1>
+          <p className="text-lg text-slate-600">Tell us what you need and multiple agents will compete for your business.</p>
         </div>
 
         <Card className="p-6">
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Insurance Type */}
             <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1">Insurance Type *</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Insurance Type *</label>
               <Select
                 value={form.insurance_type}
                 onChange={(e) => update('insurance_type', e.target.value)}
@@ -152,11 +152,11 @@ export default function InsuranceRequestForm() {
             {/* Name */}
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1">First Name *</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">First Name *</label>
                 <Input value={form.first_name} onChange={(e) => update('first_name', e.target.value)} placeholder="John" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1">Last Name *</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Last Name *</label>
                 <Input value={form.last_name} onChange={(e) => update('last_name', e.target.value)} placeholder="Doe" />
               </div>
             </div>
@@ -164,11 +164,11 @@ export default function InsuranceRequestForm() {
             {/* Contact */}
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1">Email *</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Email *</label>
                 <Input type="email" value={form.email} onChange={(e) => update('email', e.target.value)} placeholder="john@example.com" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1">Phone</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Phone</label>
                 <Input type="tel" value={form.phone ?? ''} onChange={(e) => update('phone', e.target.value)} placeholder="(555) 123-4567" />
               </div>
             </div>
@@ -176,7 +176,7 @@ export default function InsuranceRequestForm() {
             {/* Location */}
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1">State *</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">State *</label>
                 <Select value={form.state} onChange={(e) => update('state', e.target.value)} options={US_STATES} />
               </div>
               <div>
@@ -195,7 +195,7 @@ export default function InsuranceRequestForm() {
 
             {/* Coverage Level */}
             <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1">Desired Coverage Level</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Desired Coverage Level</label>
               <div className="flex gap-3">
                 {coverageLevels.map(level => (
                   <button
@@ -204,8 +204,8 @@ export default function InsuranceRequestForm() {
                     onClick={() => update('coverage_level', level.value)}
                     className={`flex-1 py-2.5 px-4 rounded-lg border text-sm font-medium transition-all ${
                       form.coverage_level === level.value
-                        ? 'border-shield-500 bg-shield-50 dark:bg-shield-900/30 text-shield-700 dark:text-shield-300'
-                        : 'border-slate-200 dark:border-slate-700/50 text-slate-600 dark:text-slate-300 hover:border-slate-300'
+                        ? 'border-shield-500 bg-shield-50 text-shield-700'
+                        : 'border-slate-200 text-slate-600 hover:border-slate-300'
                     }`}
                   >
                     {level.label}
@@ -216,9 +216,9 @@ export default function InsuranceRequestForm() {
 
             {/* Description */}
             <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1">Tell us more (optional)</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Tell us more (optional)</label>
               <textarea
-                className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700/50 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-shield-500 dark:focus:ring-shield-400 focus:border-transparent resize-none"
+                className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-shield-500 focus:border-transparent resize-none"
                 rows={3}
                 placeholder="Any specific needs, current coverage details, or questions for agents..."
                 value={form.description ?? ''}
@@ -230,7 +230,7 @@ export default function InsuranceRequestForm() {
               {submitting ? 'Submitting...' : 'Get Quotes from Agents'}
             </Button>
 
-            <p className="text-xs text-slate-400 dark:text-slate-500 text-center">
+            <p className="text-xs text-slate-400 text-center">
               By submitting, you agree to our <Link to="/terms" className="underline">Terms of Service</Link> and <Link to="/privacy" className="underline">Privacy Policy</Link>.
               Your information will be shared with matched licensed insurance agents.
             </p>

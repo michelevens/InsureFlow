@@ -147,12 +147,12 @@ export default function QuoteResults() {
 
   if (quotes.length === 0) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-800 flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <Card className="max-w-md mx-auto">
           <div className="p-8 text-center">
             <Shield className="w-12 h-12 text-shield-400 mx-auto mb-4" />
-            <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-2">No Quotes Available</h2>
-            <p className="text-slate-500 dark:text-slate-400 mb-6">We couldn't find matching quotes for your criteria. Try adjusting your search.</p>
+            <h2 className="text-xl font-bold text-slate-900 mb-2">No Quotes Available</h2>
+            <p className="text-slate-500 mb-6">We couldn't find matching quotes for your criteria. Try adjusting your search.</p>
             <Link to="/calculator">
               <Button variant="shield">Try Again</Button>
             </Link>
@@ -163,9 +163,9 @@ export default function QuoteResults() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-800">
+    <div className="min-h-screen bg-slate-50">
       {/* Header */}
-      <nav className="bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-700/50">
+      <nav className="bg-white border-b border-slate-100">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2.5">
             <img src="/logo.png" alt="Insurons" className="h-16 w-auto" />
@@ -190,60 +190,60 @@ export default function QuoteResults() {
       <div className="max-w-6xl mx-auto px-6 py-10">
         {/* Results header */}
         <div className="text-center mb-10">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-savings-50 dark:bg-savings-900/30 text-savings-700 dark:text-savings-300 text-sm font-medium mb-4">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-savings-50 text-savings-700 text-sm font-medium mb-4">
             <ShieldCheck className="w-4 h-4" />
             {sortedQuotes.length} quotes found — no account needed
           </div>
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Your Insurance Quotes</h1>
-          <p className="text-slate-500 dark:text-slate-400 mt-2">Compare rates side-by-side from top-rated carriers</p>
+          <h1 className="text-3xl font-bold text-slate-900">Your Insurance Quotes</h1>
+          <p className="text-slate-500 mt-2">Compare rates side-by-side from top-rated carriers</p>
         </div>
 
         {/* Summary bar */}
-        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/50 p-6 mb-8 flex flex-wrap items-center justify-between gap-4">
+        <div className="bg-white rounded-2xl border border-slate-200 p-6 mb-8 flex flex-wrap items-center justify-between gap-4">
           <div>
-            <p className="text-sm text-slate-500 dark:text-slate-400">Lowest Monthly Premium</p>
-            <p className="text-2xl font-bold text-savings-600 dark:text-savings-400">${lowestPremium.toFixed(0)}/mo</p>
+            <p className="text-sm text-slate-500">Lowest Monthly Premium</p>
+            <p className="text-2xl font-bold text-savings-600">${lowestPremium.toFixed(0)}/mo</p>
           </div>
           <div>
-            <p className="text-sm text-slate-500 dark:text-slate-400">Insurance Type</p>
-            <p className="text-lg font-semibold text-slate-900 dark:text-white capitalize">{insuranceType}</p>
+            <p className="text-sm text-slate-500">Insurance Type</p>
+            <p className="text-lg font-semibold text-slate-900 capitalize">{insuranceType}</p>
           </div>
           <div>
-            <p className="text-sm text-slate-500 dark:text-slate-400">Coverage Level</p>
-            <p className="text-lg font-semibold text-slate-900 dark:text-white capitalize">{coverageLevel}</p>
+            <p className="text-sm text-slate-500">Coverage Level</p>
+            <p className="text-lg font-semibold text-slate-900 capitalize">{coverageLevel}</p>
           </div>
           <div>
-            <p className="text-sm text-slate-500 dark:text-slate-400">ZIP Code</p>
-            <p className="text-lg font-semibold text-slate-900 dark:text-white">{zipCode}</p>
+            <p className="text-sm text-slate-500">ZIP Code</p>
+            <p className="text-lg font-semibold text-slate-900">{zipCode}</p>
           </div>
         </div>
 
         {/* Sort controls + view toggle */}
         <div className="flex items-center justify-between mb-4">
-          <p className="text-sm text-slate-500 dark:text-slate-400">{sortedQuotes.length} quote{sortedQuotes.length !== 1 ? 's' : ''}</p>
+          <p className="text-sm text-slate-500">{sortedQuotes.length} quote{sortedQuotes.length !== 1 ? 's' : ''}</p>
           <div className="flex items-center gap-3">
-            <div className="flex items-center border border-slate-200 dark:border-slate-700/50 rounded-lg overflow-hidden">
+            <div className="flex items-center border border-slate-200 rounded-lg overflow-hidden">
               <button
                 onClick={() => setViewMode('cards')}
-                className={`p-1.5 ${viewMode === 'cards' ? 'bg-shield-100 dark:bg-shield-900/30 text-shield-700 dark:text-shield-300' : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:text-slate-300'}`}
+                className={`p-1.5 ${viewMode === 'cards' ? 'bg-shield-100 text-shield-700' : 'text-slate-400 hover:text-slate-600'}`}
                 title="Card view"
               >
                 <LayoutGrid className="w-4 h-4" />
               </button>
               <button
                 onClick={() => setViewMode('compare')}
-                className={`p-1.5 ${viewMode === 'compare' ? 'bg-shield-100 dark:bg-shield-900/30 text-shield-700 dark:text-shield-300' : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:text-slate-300'}`}
+                className={`p-1.5 ${viewMode === 'compare' ? 'bg-shield-100 text-shield-700' : 'text-slate-400 hover:text-slate-600'}`}
                 title="Comparison table"
               >
                 <Table2 className="w-4 h-4" />
               </button>
             </div>
             <div className="flex items-center gap-2">
-              <ArrowUpDown className="w-4 h-4 text-slate-400 dark:text-slate-500" />
+              <ArrowUpDown className="w-4 h-4 text-slate-400" />
               <select
                 value={sortBy}
                 onChange={e => setSortBy(e.target.value as SortOption)}
-                className="text-sm border border-slate-200 dark:border-slate-700/50 rounded-lg px-3 py-1.5 text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-shield-500 dark:focus:ring-shield-400"
+                className="text-sm border border-slate-200 rounded-lg px-3 py-1.5 text-slate-700 focus:outline-none focus:ring-2 focus:ring-shield-500"
               >
                 <option value="recommended">Best Match</option>
                 <option value="price_asc">Price: Low to High</option>
@@ -257,17 +257,17 @@ export default function QuoteResults() {
 
         {/* Comparison table view */}
         {viewMode === 'compare' && (
-          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/50 overflow-x-auto mb-6">
+          <div className="bg-white rounded-2xl border border-slate-200 overflow-x-auto mb-6">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-slate-100 dark:border-slate-700/50">
-                  <th className="text-left p-4 font-semibold text-slate-700 dark:text-slate-200 sticky left-0 bg-white dark:bg-slate-900 min-w-[140px]">Carrier</th>
+                <tr className="border-b border-slate-100">
+                  <th className="text-left p-4 font-semibold text-slate-700 sticky left-0 bg-white min-w-[140px]">Carrier</th>
                   {sortedQuotes.map(q => {
                     const c = q.carrier_product?.carrier;
                     return (
-                      <th key={q.id} className={`p-4 text-center min-w-[150px] ${q.is_recommended ? 'bg-shield-50 dark:bg-shield-900/30/50' : ''}`}>
+                      <th key={q.id} className={`p-4 text-center min-w-[150px] ${q.is_recommended ? 'bg-shield-50/50' : ''}`}>
                         <div className="flex flex-col items-center gap-1">
-                          <span className="font-semibold text-slate-900 dark:text-white">{c?.name || 'Carrier'}</span>
+                          <span className="font-semibold text-slate-900">{c?.name || 'Carrier'}</span>
                           {q.is_recommended && <Badge variant="shield" className="text-xs">Best Value</Badge>}
                         </div>
                       </th>
@@ -277,55 +277,55 @@ export default function QuoteResults() {
               </thead>
               <tbody>
                 <tr className="border-b border-slate-50">
-                  <td className="p-4 font-medium text-slate-700 dark:text-slate-200 sticky left-0 bg-white dark:bg-slate-900">Monthly Premium</td>
+                  <td className="p-4 font-medium text-slate-700 sticky left-0 bg-white">Monthly Premium</td>
                   {sortedQuotes.map(q => (
-                    <td key={q.id} className={`p-4 text-center font-bold text-lg ${q.is_recommended ? 'bg-shield-50 dark:bg-shield-900/30/50 text-shield-700 dark:text-shield-300' : 'text-slate-900 dark:text-white'}`}>
+                    <td key={q.id} className={`p-4 text-center font-bold text-lg ${q.is_recommended ? 'bg-shield-50/50 text-shield-700' : 'text-slate-900'}`}>
                       ${parseFloat(q.monthly_premium).toFixed(0)}
                     </td>
                   ))}
                 </tr>
                 <tr className="border-b border-slate-50">
-                  <td className="p-4 font-medium text-slate-700 dark:text-slate-200 sticky left-0 bg-white dark:bg-slate-900">Annual Premium</td>
+                  <td className="p-4 font-medium text-slate-700 sticky left-0 bg-white">Annual Premium</td>
                   {sortedQuotes.map(q => (
-                    <td key={q.id} className={`p-4 text-center text-slate-600 dark:text-slate-300 ${q.is_recommended ? 'bg-shield-50 dark:bg-shield-900/30/50' : ''}`}>
+                    <td key={q.id} className={`p-4 text-center text-slate-600 ${q.is_recommended ? 'bg-shield-50/50' : ''}`}>
                       ${parseFloat(q.annual_premium).toFixed(0)}
                     </td>
                   ))}
                 </tr>
                 <tr className="border-b border-slate-50">
-                  <td className="p-4 font-medium text-slate-700 dark:text-slate-200 sticky left-0 bg-white dark:bg-slate-900">Deductible</td>
+                  <td className="p-4 font-medium text-slate-700 sticky left-0 bg-white">Deductible</td>
                   {sortedQuotes.map(q => (
-                    <td key={q.id} className={`p-4 text-center text-slate-600 dark:text-slate-300 ${q.is_recommended ? 'bg-shield-50 dark:bg-shield-900/30/50' : ''}`}>
+                    <td key={q.id} className={`p-4 text-center text-slate-600 ${q.is_recommended ? 'bg-shield-50/50' : ''}`}>
                       ${parseFloat(q.deductible).toFixed(0)}
                     </td>
                   ))}
                 </tr>
                 <tr className="border-b border-slate-50">
-                  <td className="p-4 font-medium text-slate-700 dark:text-slate-200 sticky left-0 bg-white dark:bg-slate-900">Coverage Limit</td>
+                  <td className="p-4 font-medium text-slate-700 sticky left-0 bg-white">Coverage Limit</td>
                   {sortedQuotes.map(q => (
-                    <td key={q.id} className={`p-4 text-center text-slate-600 dark:text-slate-300 ${q.is_recommended ? 'bg-shield-50 dark:bg-shield-900/30/50' : ''}`}>
+                    <td key={q.id} className={`p-4 text-center text-slate-600 ${q.is_recommended ? 'bg-shield-50/50' : ''}`}>
                       {q.coverage_limit}
                     </td>
                   ))}
                 </tr>
                 <tr className="border-b border-slate-50">
-                  <td className="p-4 font-medium text-slate-700 dark:text-slate-200 sticky left-0 bg-white dark:bg-slate-900">AM Best Rating</td>
+                  <td className="p-4 font-medium text-slate-700 sticky left-0 bg-white">AM Best Rating</td>
                   {sortedQuotes.map(q => (
-                    <td key={q.id} className={`p-4 text-center ${q.is_recommended ? 'bg-shield-50 dark:bg-shield-900/30/50' : ''}`}>
+                    <td key={q.id} className={`p-4 text-center ${q.is_recommended ? 'bg-shield-50/50' : ''}`}>
                       <div className="flex items-center justify-center gap-1">
                         <Award className="w-3.5 h-3.5 text-amber-500" />
-                        <span className="font-medium text-slate-700 dark:text-slate-200">{q.carrier_product?.carrier?.am_best_rating || '—'}</span>
+                        <span className="font-medium text-slate-700">{q.carrier_product?.carrier?.am_best_rating || '—'}</span>
                       </div>
                     </td>
                   ))}
                 </tr>
                 <tr className="border-b border-slate-50">
-                  <td className="p-4 font-medium text-slate-700 dark:text-slate-200 sticky left-0 bg-white dark:bg-slate-900 align-top">Features</td>
+                  <td className="p-4 font-medium text-slate-700 sticky left-0 bg-white align-top">Features</td>
                   {sortedQuotes.map(q => (
-                    <td key={q.id} className={`p-4 ${q.is_recommended ? 'bg-shield-50 dark:bg-shield-900/30/50' : ''}`}>
+                    <td key={q.id} className={`p-4 ${q.is_recommended ? 'bg-shield-50/50' : ''}`}>
                       <div className="space-y-1">
                         {(q.features || []).map((f, i) => (
-                          <div key={i} className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-300">
+                          <div key={i} className="flex items-center gap-1.5 text-xs text-slate-600">
                             <Check className="w-3 h-3 text-savings-500 flex-shrink-0" />
                             {f}
                           </div>
@@ -335,9 +335,9 @@ export default function QuoteResults() {
                   ))}
                 </tr>
                 <tr>
-                  <td className="p-4 sticky left-0 bg-white dark:bg-slate-900" />
+                  <td className="p-4 sticky left-0 bg-white" />
                   {sortedQuotes.map(q => (
-                    <td key={q.id} className={`p-4 text-center ${q.is_recommended ? 'bg-shield-50 dark:bg-shield-900/30/50' : ''}`}>
+                    <td key={q.id} className={`p-4 text-center ${q.is_recommended ? 'bg-shield-50/50' : ''}`}>
                       <Button
                         variant={selectedQuote === q.id ? 'shield' : 'outline'}
                         size="sm"
@@ -372,7 +372,7 @@ export default function QuoteResults() {
                   key={quote.id}
                   className={`transition-all duration-200 cursor-pointer ${
                     selectedQuote === quote.id ? 'ring-2 ring-shield-500' : ''
-                  } ${quote.is_recommended ? 'border-shield-200 bg-shield-50 dark:bg-shield-900/30/30' : ''}`}
+                  } ${quote.is_recommended ? 'border-shield-200 bg-shield-50/30' : ''}`}
                   onClick={() => setSelectedQuote(quote.id)}
                 >
                   <div className="p-6">
@@ -380,18 +380,18 @@ export default function QuoteResults() {
                       {/* Carrier info */}
                       <div className="flex items-center gap-4 lg:w-56">
                         {carrierLogo ? (
-                          <img src={carrierLogo} alt={carrierName} className="w-14 h-14 rounded-xl object-contain bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-700/50 p-1" />
+                          <img src={carrierLogo} alt={carrierName} className="w-14 h-14 rounded-xl object-contain bg-white border border-slate-100 p-1" />
                         ) : (
-                          <div className="w-14 h-14 rounded-xl bg-shield-100 dark:bg-shield-900/30 text-shield-700 dark:text-shield-300 flex items-center justify-center text-lg font-bold">
+                          <div className="w-14 h-14 rounded-xl bg-shield-100 text-shield-700 flex items-center justify-center text-lg font-bold">
                             {carrierInitials}
                           </div>
                         )}
                         <div>
-                          <h3 className="font-semibold text-slate-900 dark:text-white">{carrierName}</h3>
+                          <h3 className="font-semibold text-slate-900">{carrierName}</h3>
                           {rating && (
                             <div className="flex items-center gap-1">
                               <Award className="w-3.5 h-3.5 text-amber-500" />
-                              <span className="text-sm text-slate-600 dark:text-slate-300">AM Best: {rating}</span>
+                              <span className="text-sm text-slate-600">AM Best: {rating}</span>
                             </div>
                           )}
                         </div>
@@ -403,24 +403,24 @@ export default function QuoteResults() {
                       {/* Coverage details */}
                       <div className="flex-1 grid grid-cols-3 gap-4">
                         <div>
-                          <p className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider">Monthly</p>
-                          <p className="text-xl font-bold text-slate-900 dark:text-white">${monthly.toFixed(0)}</p>
-                          <p className="text-xs text-slate-400 dark:text-slate-500">${annual.toFixed(0)}/yr</p>
+                          <p className="text-xs text-slate-500 uppercase tracking-wider">Monthly</p>
+                          <p className="text-xl font-bold text-slate-900">${monthly.toFixed(0)}</p>
+                          <p className="text-xs text-slate-400">${annual.toFixed(0)}/yr</p>
                         </div>
                         <div>
-                          <p className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider">Deductible</p>
-                          <p className="text-xl font-bold text-slate-900 dark:text-white">${deductible.toFixed(0)}</p>
+                          <p className="text-xs text-slate-500 uppercase tracking-wider">Deductible</p>
+                          <p className="text-xl font-bold text-slate-900">${deductible.toFixed(0)}</p>
                         </div>
                         <div>
-                          <p className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider">Coverage</p>
-                          <p className="text-xl font-bold text-slate-900 dark:text-white">{quote.coverage_limit}</p>
+                          <p className="text-xs text-slate-500 uppercase tracking-wider">Coverage</p>
+                          <p className="text-xl font-bold text-slate-900">{quote.coverage_limit}</p>
                         </div>
                       </div>
 
                       {/* Features */}
                       <div className="lg:w-56">
                         {(quote.features || []).slice(0, 3).map((f, i) => (
-                          <div key={i} className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
+                          <div key={i} className="flex items-center gap-2 text-sm text-slate-600">
                             <Check className="w-3.5 h-3.5 text-savings-500 flex-shrink-0" />
                             {f}
                           </div>
@@ -443,7 +443,7 @@ export default function QuoteResults() {
                     {/* Premium breakdown toggle */}
                     <button
                       onClick={(e) => { e.stopPropagation(); setExpandedQuote(expandedQuote === quote.id ? null : quote.id); }}
-                      className="mt-4 flex items-center gap-1 text-xs text-shield-600 dark:text-shield-400 hover:text-shield-700 dark:text-shield-300 font-medium"
+                      className="mt-4 flex items-center gap-1 text-xs text-shield-600 hover:text-shield-700 font-medium"
                     >
                       <ChevronDown className={`w-3.5 h-3.5 transition-transform ${expandedQuote === quote.id ? 'rotate-180' : ''}`} />
                       Premium Breakdown
@@ -454,34 +454,34 @@ export default function QuoteResults() {
                       const bd = quote.breakdown || syntheticBreakdown(monthly);
                       const annualSavings = Math.round(monthly * 12 - annual);
                       return (
-                        <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-700/50">
+                        <div className="mt-3 pt-3 border-t border-slate-100">
                           <div className="space-y-2 text-sm">
                             <div className="flex justify-between">
-                              <span className="text-slate-500 dark:text-slate-400">Base Rate</span>
+                              <span className="text-slate-500">Base Rate</span>
                               <span className="font-medium">${bd.base_rate.toFixed(2)}</span>
                             </div>
                             {bd.coverage_factor !== 1 && (
                               <div className="flex justify-between">
-                                <span className="text-slate-500 dark:text-slate-400">Coverage Adjustment ({(bd.coverage_factor * 100).toFixed(0)}%)</span>
+                                <span className="text-slate-500">Coverage Adjustment ({(bd.coverage_factor * 100).toFixed(0)}%)</span>
                                 <span className="font-medium">&times;{bd.coverage_factor.toFixed(2)}</span>
                               </div>
                             )}
                             <div className="flex justify-between">
-                              <span className="text-slate-500 dark:text-slate-400">Policy Fee</span>
+                              <span className="text-slate-500">Policy Fee</span>
                               <span className="font-medium">${bd.policy_fee.toFixed(2)}</span>
                             </div>
                             {bd.discount > 0 && (
-                              <div className="flex justify-between text-savings-600 dark:text-savings-400">
+                              <div className="flex justify-between text-savings-600">
                                 <span>{bd.discount_label || 'Discount'}</span>
                                 <span className="font-medium">-${bd.discount.toFixed(2)}</span>
                               </div>
                             )}
-                            <div className="flex justify-between pt-2 border-t border-slate-200 dark:border-slate-700/50 font-semibold">
+                            <div className="flex justify-between pt-2 border-t border-slate-200 font-semibold">
                               <span>Monthly Total</span>
                               <span>${monthly.toFixed(2)}</span>
                             </div>
                             {annualSavings > 0 && (
-                              <div className="flex justify-between text-savings-600 dark:text-savings-400 text-xs">
+                              <div className="flex justify-between text-savings-600 text-xs">
                                 <span>Annual Savings vs Monthly</span>
                                 <span>${annualSavings.toFixed(2)}/yr</span>
                               </div>
@@ -506,8 +506,8 @@ export default function QuoteResults() {
                   /* STEP 3: Account created */
                   <div className="text-center">
                     <CheckCircle2 className="w-12 h-12 text-savings-500 mx-auto mb-3" />
-                    <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-1">You're all set!</h3>
-                    <p className="text-slate-500 dark:text-slate-400 mb-5">Your account is ready. Track your quotes, apply for policies, and connect with agents.</p>
+                    <h3 className="text-xl font-bold text-slate-900 mb-1">You're all set!</h3>
+                    <p className="text-slate-500 mb-5">Your account is ready. Track your quotes, apply for policies, and connect with agents.</p>
                     <div className="flex items-center justify-center gap-3">
                       <Link to="/dashboard">
                         <Button variant="shield" rightIcon={<ArrowRight className="w-4 h-4" />}>Go to Dashboard</Button>
@@ -521,8 +521,8 @@ export default function QuoteResults() {
                   /* STEP 2a: Contact saved — prompt account creation */
                   <div className="text-center">
                     <CheckCircle2 className="w-12 h-12 text-savings-500 mx-auto mb-3" />
-                    <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-1">Quotes Saved!</h3>
-                    <p className="text-slate-500 dark:text-slate-400 mb-5">Create a free account to track your quotes, apply for policies, and get matched with agents.</p>
+                    <h3 className="text-xl font-bold text-slate-900 mb-1">Quotes Saved!</h3>
+                    <p className="text-slate-500 mb-5">Create a free account to track your quotes, apply for policies, and get matched with agents.</p>
                     <div className="flex items-center justify-center gap-3">
                       <Button variant="shield" onClick={() => setShowSignup(true)} leftIcon={<User className="w-4 h-4" />}>
                         Create Free Account
@@ -535,14 +535,14 @@ export default function QuoteResults() {
                 ) : saved && showSignup ? (
                   /* STEP 2b: Account creation form */
                   <div>
-                    <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1 text-center">Create your free account</h3>
-                    <p className="text-sm text-slate-500 dark:text-slate-400 mb-4 text-center">Just pick a password — we already have your details from saving your quotes.</p>
+                    <h3 className="text-lg font-bold text-slate-900 mb-1 text-center">Create your free account</h3>
+                    <p className="text-sm text-slate-500 mb-4 text-center">Just pick a password — we already have your details from saving your quotes.</p>
                     <div className="max-w-sm mx-auto space-y-4">
-                      <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700/50 text-sm text-slate-600 dark:text-slate-300">
+                      <div className="p-3 rounded-lg bg-slate-50 border border-slate-200 text-sm text-slate-600">
                         <p><span className="font-medium">Name:</span> {contact.first_name} {contact.last_name}</p>
                         <p><span className="font-medium">Email:</span> {contact.email}</p>
                       </div>
-                      {signupError && <div className="p-3 rounded-lg bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 text-sm">{signupError}</div>}
+                      {signupError && <div className="p-3 rounded-lg bg-red-50 text-red-700 text-sm">{signupError}</div>}
                       <Input
                         label="Password"
                         type="password"
@@ -568,15 +568,15 @@ export default function QuoteResults() {
                       >
                         Create Account
                       </Button>
-                      <p className="text-xs text-slate-400 dark:text-slate-500 text-center">Free forever for consumers. No credit card required.</p>
+                      <p className="text-xs text-slate-400 text-center">Free forever for consumers. No credit card required.</p>
                     </div>
                   </div>
                 ) : !showSaveForm ? (
                   /* STEP 1a: Initial CTA */
                   <div className="text-center">
                     <Mail className="w-10 h-10 text-shield-500 mx-auto mb-3" />
-                    <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-1">Want to save these quotes?</h3>
-                    <p className="text-slate-500 dark:text-slate-400 mb-5">Get your quotes emailed to you — valid for 30 days. No account required.</p>
+                    <h3 className="text-xl font-bold text-slate-900 mb-1">Want to save these quotes?</h3>
+                    <p className="text-slate-500 mb-5">Get your quotes emailed to you — valid for 30 days. No account required.</p>
                     <Button variant="shield" onClick={() => setShowSaveForm(true)} leftIcon={<Mail className="w-4 h-4" />}>
                       Email My Quotes
                     </Button>
@@ -584,7 +584,7 @@ export default function QuoteResults() {
                 ) : (
                   /* STEP 1b: Contact form */
                   <div>
-                    <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4 text-center">Enter your details to save these quotes</h3>
+                    <h3 className="text-lg font-bold text-slate-900 mb-4 text-center">Enter your details to save these quotes</h3>
                     <div className="max-w-lg mx-auto space-y-4">
                       <div className="grid grid-cols-2 gap-3">
                         <Input
@@ -626,7 +626,7 @@ export default function QuoteResults() {
                           Save My Quotes
                         </Button>
                       </div>
-                      <p className="text-xs text-slate-400 dark:text-slate-500 text-center">We won't spam you. Your info is only used to save and email your quotes.</p>
+                      <p className="text-xs text-slate-400 text-center">We won't spam you. Your info is only used to save and email your quotes.</p>
                     </div>
                   </div>
                 )}
@@ -637,7 +637,7 @@ export default function QuoteResults() {
 
         {/* Bottom CTA */}
         <div className="mt-10 text-center">
-          <p className="text-slate-500 dark:text-slate-400 mb-4">Want help choosing the right policy? Connect with a licensed agent.</p>
+          <p className="text-slate-500 mb-4">Want help choosing the right policy? Connect with a licensed agent.</p>
           <div className="flex items-center justify-center gap-4">
             <Link to="/marketplace">
               <Button variant="shield" rightIcon={<ArrowRight className="w-4 h-4" />}>Find an Agent</Button>

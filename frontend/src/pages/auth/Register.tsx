@@ -99,17 +99,17 @@ export default function Register() {
   const showAgencyCode = form.role === 'agent';
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-800 flex items-center justify-center px-4 py-12">
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <img src="/logo.png" alt="Insurons" className="h-20 w-auto mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Create your account</h1>
-          <p className="text-slate-500 dark:text-slate-400 mt-1">Join Insurons and get started</p>
+          <h1 className="text-2xl font-bold text-slate-900">Create your account</h1>
+          <p className="text-slate-500 mt-1">Join Insurons and get started</p>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/50 p-8">
+        <div className="bg-white rounded-2xl border border-slate-200 p-8">
           <form onSubmit={handleSubmit} className="space-y-5">
-            {error && <div className="p-3 rounded-xl bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-sm">{error}</div>}
+            {error && <div className="p-3 rounded-xl bg-red-50 text-red-600 text-sm">{error}</div>}
             <Input
               label="Full Name"
               placeholder="John Smith"
@@ -132,15 +132,15 @@ export default function Register() {
                 required
               />
               {emailStatus === 'checking' && (
-                <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">Checking availability...</p>
+                <p className="text-xs text-slate-400 mt-1">Checking availability...</p>
               )}
               {emailStatus === 'available' && (
-                <p className="text-xs text-green-600 dark:text-green-400 mt-1 flex items-center gap-1">
+                <p className="text-xs text-green-600 mt-1 flex items-center gap-1">
                   <CheckCircle className="w-3.5 h-3.5" /> Email is available
                 </p>
               )}
               {emailStatus === 'taken' && (
-                <p className="text-xs text-red-600 dark:text-red-400 mt-1 flex items-center gap-1">
+                <p className="text-xs text-red-600 mt-1 flex items-center gap-1">
                   <XCircle className="w-3.5 h-3.5" /> Email is already registered.{' '}
                   <Link to="/login" className="underline">Sign in instead?</Link>
                 </p>
@@ -165,7 +165,7 @@ export default function Register() {
                   onChange={(e) => setForm(f => ({ ...f, agency_code: e.target.value.toUpperCase() }))}
                   leftIcon={<Building2 className="w-5 h-5" />}
                 />
-                <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
+                <p className="text-xs text-slate-400 mt-1">
                   Have an agency code? Enter it to join your agency automatically.
                 </p>
               </div>
@@ -174,7 +174,7 @@ export default function Register() {
             {/* Password with strength meter */}
             <div>
               <div className="flex items-center justify-between mb-1">
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">Password</label>
+                <label className="block text-sm font-medium text-slate-700">Password</label>
                 <button
                   type="button"
                   onClick={handleSuggestPassword}
@@ -195,7 +195,7 @@ export default function Register() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:text-slate-300"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -209,21 +209,21 @@ export default function Register() {
                       <div
                         key={i}
                         className={`h-1.5 flex-1 rounded-full transition-colors ${
-                          i <= strength.score ? strength.color : 'bg-slate-200 dark:bg-slate-700'
+                          i <= strength.score ? strength.color : 'bg-slate-200'
                         }`}
                       />
                     ))}
                   </div>
                   <p className={`text-xs font-medium ${
-                    strength.score <= 2 ? 'text-red-600 dark:text-red-400' :
-                    strength.score <= 3 ? 'text-amber-600 dark:text-amber-400' :
-                    'text-green-600 dark:text-green-400'
+                    strength.score <= 2 ? 'text-red-600' :
+                    strength.score <= 3 ? 'text-amber-600' :
+                    'text-green-600'
                   }`}>
                     {strength.label}
                   </p>
                   <div className="flex flex-wrap gap-x-3 gap-y-0.5 mt-1">
                     {strength.checks.map(c => (
-                      <span key={c.label} className={`text-xs flex items-center gap-0.5 ${c.met ? 'text-green-600 dark:text-green-400' : 'text-slate-400 dark:text-slate-500'}`}>
+                      <span key={c.label} className={`text-xs flex items-center gap-0.5 ${c.met ? 'text-green-600' : 'text-slate-400'}`}>
                         {c.met ? <CheckCircle className="w-3 h-3" /> : <AlertCircle className="w-3 h-3" />}
                         {c.label}
                       </span>
@@ -243,7 +243,7 @@ export default function Register() {
               required
             />
             {form.password_confirmation && form.password !== form.password_confirmation && (
-              <p className="text-xs text-red-600 dark:text-red-400 flex items-center gap-1 -mt-3">
+              <p className="text-xs text-red-600 flex items-center gap-1 -mt-3">
                 <XCircle className="w-3.5 h-3.5" /> Passwords do not match
               </p>
             )}
@@ -254,9 +254,9 @@ export default function Register() {
           </form>
         </div>
 
-        <p className="text-center text-sm text-slate-500 dark:text-slate-400 mt-6">
+        <p className="text-center text-sm text-slate-500 mt-6">
           Already have an account?{' '}
-          <Link to="/login" className="text-shield-600 dark:text-shield-400 font-medium hover:underline">Sign in</Link>
+          <Link to="/login" className="text-shield-600 font-medium hover:underline">Sign in</Link>
         </p>
       </div>
     </div>

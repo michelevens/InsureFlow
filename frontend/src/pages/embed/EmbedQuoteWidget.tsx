@@ -299,8 +299,8 @@ export default function EmbedQuoteWidget() {
         <Card className="max-w-sm w-full">
           <div className="p-6 text-center">
             <ShieldCheck className="w-10 h-10 text-red-400 mx-auto mb-3" />
-            <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-1">Invalid Widget Key</h2>
-            <p className="text-sm text-slate-500 dark:text-slate-400">This widget is not configured correctly. Please contact support.</p>
+            <h2 className="text-lg font-bold text-slate-900 mb-1">Invalid Widget Key</h2>
+            <p className="text-sm text-slate-500">This widget is not configured correctly. Please contact support.</p>
           </div>
         </Card>
       </div>
@@ -327,13 +327,13 @@ export default function EmbedQuoteWidget() {
             <img src={config.logo_url} alt={config.company_name || 'Partner'} className="h-8 w-auto" />
           ) : (
             <div className="flex items-center gap-2">
-              <ShieldCheck className="w-5 h-5 text-shield-600 dark:text-shield-400" />
-              <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">
+              <ShieldCheck className="w-5 h-5 text-shield-600" />
+              <span className="text-sm font-semibold text-slate-700">
                 {config.company_name || 'Insurons'}
               </span>
             </div>
           )}
-          <div className="flex items-center gap-1 text-xs text-slate-400 dark:text-slate-500">
+          <div className="flex items-center gap-1 text-xs text-slate-400">
             <Clock className="w-3 h-3" />
             60 seconds
           </div>
@@ -343,12 +343,12 @@ export default function EmbedQuoteWidget() {
         {step === 1 && (
           <Card>
             <div className="p-6">
-              <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-1">Get an Instant Quote</h2>
-              <p className="text-sm text-slate-500 dark:text-slate-400 mb-5">Compare rates from top carriers. No account required.</p>
+              <h2 className="text-lg font-bold text-slate-900 mb-1">Get an Instant Quote</h2>
+              <p className="text-sm text-slate-500 mb-5">Compare rates from top carriers. No account required.</p>
 
               <div className="space-y-4">
                 {loadingProducts ? (
-                  <div className="text-center py-3 text-slate-400 dark:text-slate-500 text-sm">Loading...</div>
+                  <div className="text-center py-3 text-slate-400 text-sm">Loading...</div>
                 ) : (
                   <Select
                     label="Insurance Type"
@@ -400,11 +400,11 @@ export default function EmbedQuoteWidget() {
             <div className="p-6">
               {totalSubSteps > 0 && (
                 <div className="space-y-1.5 mb-5">
-                  <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+                  <div className="flex items-center justify-between text-xs text-slate-500">
                     <span>{subStep + 1} of {totalSubSteps}</span>
                     <span>{Math.round(((subStep + 1) / totalSubSteps) * 100)}%</span>
                   </div>
-                  <div className="h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                  <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
                     <div className="h-full bg-shield-500 rounded-full transition-all duration-500" style={{ width: `${((subStep + 1) / totalSubSteps) * 100}%` }} />
                   </div>
                 </div>
@@ -435,7 +435,7 @@ export default function EmbedQuoteWidget() {
                 </div>
               )}
 
-              {error && <div className="mt-3 p-3 rounded-lg bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 text-sm">{error}</div>}
+              {error && <div className="mt-3 p-3 rounded-lg bg-red-50 text-red-700 text-sm">{error}</div>}
 
               <div className="flex gap-3 mt-5">
                 <Button variant="outline" className="flex-1" onClick={() => { if (subStep > 0) setSubStep(s => s - 1); else setStep(1); }}>
@@ -459,13 +459,13 @@ export default function EmbedQuoteWidget() {
         {step === 3 && (
           <div className="space-y-4">
             <div className="text-center mb-2">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-savings-50 dark:bg-savings-900/30 text-savings-700 dark:text-savings-300 text-xs font-medium mb-2">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-savings-50 text-savings-700 text-xs font-medium mb-2">
                 <CheckCircle2 className="w-3.5 h-3.5" />
                 {quotes.length} quote{quotes.length !== 1 ? 's' : ''} found
               </div>
-              <h2 className="text-lg font-bold text-slate-900 dark:text-white">Your Insurance Quotes</h2>
+              <h2 className="text-lg font-bold text-slate-900">Your Insurance Quotes</h2>
               {lowestPremium > 0 && (
-                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Starting at <span className="font-semibold text-savings-600 dark:text-savings-400">${lowestPremium.toFixed(0)}/mo</span></p>
+                <p className="text-sm text-slate-500 mt-1">Starting at <span className="font-semibold text-savings-600">${lowestPremium.toFixed(0)}/mo</span></p>
               )}
             </div>
 
@@ -477,18 +477,18 @@ export default function EmbedQuoteWidget() {
               const deductible = parseFloat(quote.deductible);
 
               return (
-                <Card key={quote.id} className={`transition-all ${quote.is_recommended ? 'border-shield-200 bg-shield-50 dark:bg-shield-900/30/30' : ''}`}>
+                <Card key={quote.id} className={`transition-all ${quote.is_recommended ? 'border-shield-200 bg-shield-50/30' : ''}`}>
                   <div className="p-4">
                     <div className="flex items-start gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-shield-100 dark:bg-shield-900/30 text-shield-700 dark:text-shield-300 flex items-center justify-center text-sm font-bold flex-shrink-0">
+                      <div className="w-10 h-10 rounded-lg bg-shield-100 text-shield-700 flex items-center justify-center text-sm font-bold flex-shrink-0">
                         {initials}
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
-                          <h3 className="font-semibold text-slate-900 dark:text-white text-sm truncate">{carrierName}</h3>
+                          <h3 className="font-semibold text-slate-900 text-sm truncate">{carrierName}</h3>
                           {quote.is_recommended && <Badge variant="shield" className="text-xs">Best</Badge>}
                           {carrier?.am_best_rating && (
-                            <div className="flex items-center gap-0.5 text-xs text-slate-500 dark:text-slate-400">
+                            <div className="flex items-center gap-0.5 text-xs text-slate-500">
                               <Award className="w-3 h-3 text-amber-500" />
                               {carrier.am_best_rating}
                             </div>
@@ -496,17 +496,17 @@ export default function EmbedQuoteWidget() {
                         </div>
                         <div className="flex items-center gap-4 text-sm">
                           <div>
-                            <span className="text-lg font-bold text-slate-900 dark:text-white">${monthly.toFixed(0)}</span>
-                            <span className="text-slate-400 dark:text-slate-500">/mo</span>
+                            <span className="text-lg font-bold text-slate-900">${monthly.toFixed(0)}</span>
+                            <span className="text-slate-400">/mo</span>
                           </div>
-                          <div className="text-slate-500 dark:text-slate-400">
+                          <div className="text-slate-500">
                             ${deductible.toFixed(0)} deductible
                           </div>
                         </div>
                         {(quote.features || []).length > 0 && (
                           <div className="flex flex-wrap gap-x-3 gap-y-0.5 mt-2">
                             {quote.features.slice(0, 3).map((f, i) => (
-                              <span key={i} className="flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400">
+                              <span key={i} className="flex items-center gap-1 text-xs text-slate-500">
                                 <Check className="w-3 h-3 text-savings-500" />{f}
                               </span>
                             ))}
@@ -523,7 +523,7 @@ export default function EmbedQuoteWidget() {
               <Button variant="shield" className="w-full" onClick={() => setStep(4)} rightIcon={<ArrowRight className="w-4 h-4" />}>
                 Save My Quotes
               </Button>
-              <button className="w-full text-center text-xs text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:text-slate-300" onClick={() => { setStep(1); setQuotes([]); }}>
+              <button className="w-full text-center text-xs text-slate-400 hover:text-slate-600" onClick={() => { setStep(1); setQuotes([]); }}>
                 <ArrowLeft className="w-3 h-3 inline mr-1" />Start over
               </button>
             </div>
@@ -536,8 +536,8 @@ export default function EmbedQuoteWidget() {
             <div className="p-6">
               <div className="text-center mb-5">
                 <Mail className="w-8 h-8 text-shield-500 mx-auto mb-2" />
-                <h2 className="text-lg font-bold text-slate-900 dark:text-white">Save Your Quotes</h2>
-                <p className="text-sm text-slate-500 dark:text-slate-400">We'll email your quotes so you can review them anytime.</p>
+                <h2 className="text-lg font-bold text-slate-900">Save Your Quotes</h2>
+                <p className="text-sm text-slate-500">We'll email your quotes so you can review them anytime.</p>
               </div>
 
               <div className="space-y-3">
@@ -585,7 +585,7 @@ export default function EmbedQuoteWidget() {
                     Save Quotes
                   </Button>
                 </div>
-                <p className="text-xs text-slate-400 dark:text-slate-500 text-center">No spam. Your info is only used to save and email your quotes.</p>
+                <p className="text-xs text-slate-400 text-center">No spam. Your info is only used to save and email your quotes.</p>
               </div>
             </div>
           </Card>
@@ -596,8 +596,8 @@ export default function EmbedQuoteWidget() {
           <Card>
             <div className="p-6 text-center">
               <CheckCircle2 className="w-12 h-12 text-savings-500 mx-auto mb-3" />
-              <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-1">Quotes Saved!</h2>
-              <p className="text-sm text-slate-500 dark:text-slate-400 mb-5">We've sent your {quotes.length} quote{quotes.length !== 1 ? 's' : ''} to <span className="font-medium text-slate-700 dark:text-slate-200">{contact.email}</span></p>
+              <h2 className="text-lg font-bold text-slate-900 mb-1">Quotes Saved!</h2>
+              <p className="text-sm text-slate-500 mb-5">We've sent your {quotes.length} quote{quotes.length !== 1 ? 's' : ''} to <span className="font-medium text-slate-700">{contact.email}</span></p>
 
               <div className="space-y-3">
                 <a
@@ -610,20 +610,20 @@ export default function EmbedQuoteWidget() {
                     Create Free Account
                   </Button>
                 </a>
-                <p className="text-xs text-slate-400 dark:text-slate-500">Track quotes, apply for policies, and connect with agents.</p>
+                <p className="text-xs text-slate-400">Track quotes, apply for policies, and connect with agents.</p>
               </div>
             </div>
           </Card>
         )}
 
         {/* Trust footer */}
-        <div className="flex items-center justify-center gap-4 mt-5 text-xs text-slate-400 dark:text-slate-500">
+        <div className="flex items-center justify-center gap-4 mt-5 text-xs text-slate-400">
           <span className="flex items-center gap-1"><ShieldCheck className="w-3 h-3" /> Secure</span>
           <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> No login</span>
           <span className="flex items-center gap-1"><CheckCircle2 className="w-3 h-3" /> No obligation</span>
         </div>
         {!config.hide_branding && (
-          <p className="text-center text-xs text-slate-400 dark:text-slate-500 mt-4">
+          <p className="text-center text-xs text-slate-400 mt-4">
             Powered by <a href="https://insurons.com" target="_blank" rel="noopener noreferrer" className="text-shield-500 hover:underline">Insurons</a>
           </p>
         )}

@@ -110,18 +110,18 @@ export default function Landing() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-white dark:bg-slate-900 overflow-x-hidden">
+    <div className="min-h-screen bg-white overflow-x-hidden">
       {/* ═══ Navbar ═══ */}
-      <nav className="border-b border-slate-100 dark:border-slate-700/50 sticky top-0 bg-white dark:bg-slate-900/95 backdrop-blur z-50">
+      <nav className="border-b border-slate-100 sticky top-0 bg-white/95 backdrop-blur z-50">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2.5">
             <img src="/logo.png" alt="Insurons" className="h-16 w-auto" />
           </Link>
           <div className="hidden md:flex items-center gap-6">
-            <a href="#consumers" className="text-sm text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:text-white transition-colors">For Consumers</a>
-            <a href="#agents" className="text-sm text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:text-white transition-colors">For Agents</a>
-            <a href="#agencies" className="text-sm text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:text-white transition-colors">For Agencies</a>
-            <Link to="/pricing" className="text-sm text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:text-white transition-colors">Pricing</Link>
+            <a href="#consumers" className="text-sm text-slate-600 hover:text-slate-900 transition-colors">For Consumers</a>
+            <a href="#agents" className="text-sm text-slate-600 hover:text-slate-900 transition-colors">For Agents</a>
+            <a href="#agencies" className="text-sm text-slate-600 hover:text-slate-900 transition-colors">For Agencies</a>
+            <Link to="/pricing" className="text-sm text-slate-600 hover:text-slate-900 transition-colors">Pricing</Link>
           </div>
           <div className="flex items-center gap-3">
             <Link to="/login"><Button variant="ghost" size="sm">Sign In</Button></Link>
@@ -152,7 +152,7 @@ export default function Landing() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white dark:bg-slate-900/10 backdrop-blur-sm text-shield-300 text-sm font-medium mb-8 border border-white/10"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm text-shield-300 text-sm font-medium mb-8 border border-white/10"
           >
             <ShieldCheck className="w-4 h-4" />
             The Complete Insurance Distribution Platform
@@ -190,7 +190,7 @@ export default function Landing() {
                 </Button>
               </motion.div>
             </Link>
-            <p className="text-sm text-slate-500 dark:text-slate-400 mt-4">
+            <p className="text-sm text-slate-500 mt-4">
               No signup required &middot; 60-second quotes &middot; 50+ carriers
             </p>
           </motion.div>
@@ -212,12 +212,12 @@ export default function Landing() {
                 key={i}
                 variants={scaleIn}
                 whileHover={{ scale: 1.05, borderColor: 'rgba(255,255,255,0.2)' }}
-                className="text-center p-5 rounded-2xl bg-white dark:bg-slate-900/5 backdrop-blur-sm border border-white/10 transition-colors"
+                className="text-center p-5 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 transition-colors"
               >
                 <div className="text-3xl font-bold bg-gradient-to-r from-shield-400 to-emerald-400 bg-clip-text text-transparent">
                   {stat.prefix || ''}<AnimatedCounter target={stat.value} suffix={stat.suffix} />
                 </div>
-                <div className="text-sm text-slate-400 dark:text-slate-500 mt-1">{stat.label}</div>
+                <div className="text-sm text-slate-400 mt-1">{stat.label}</div>
               </motion.div>
             ))}
           </motion.div>
@@ -225,10 +225,10 @@ export default function Landing() {
       </section>
 
       {/* ═══ How it works ═══ */}
-      <Section className="py-20 bg-slate-50 dark:bg-slate-800">
+      <Section className="py-20 bg-slate-50">
         <div className="max-w-7xl mx-auto px-6">
-          <motion.h2 variants={fadeUp} className="text-3xl font-bold text-slate-900 dark:text-white text-center mb-4">How Insurons Works</motion.h2>
-          <motion.p variants={fadeUp} className="text-lg text-slate-500 dark:text-slate-400 text-center max-w-2xl mx-auto mb-14">From quote to coverage in four simple steps</motion.p>
+          <motion.h2 variants={fadeUp} className="text-3xl font-bold text-slate-900 text-center mb-4">How Insurons Works</motion.h2>
+          <motion.p variants={fadeUp} className="text-lg text-slate-500 text-center max-w-2xl mx-auto mb-14">From quote to coverage in four simple steps</motion.p>
           <motion.div variants={stagger} className="grid md:grid-cols-4 gap-8">
             {[
               { icon: <Calculator className="w-6 h-6" />, title: 'Get Instant Quotes', desc: 'Enter your info once and compare quotes from multiple top carriers side-by-side' },
@@ -239,15 +239,15 @@ export default function Landing() {
               <motion.div key={i} variants={fadeUp} className="text-center relative group">
                 <motion.div
                   whileHover={{ scale: 1.1, rotate: 5 }}
-                  className="w-14 h-14 rounded-2xl bg-shield-100 dark:bg-shield-900/30 text-shield-600 dark:text-shield-400 flex items-center justify-center mx-auto mb-4 transition-shadow group-hover:shadow-lg group-hover:shadow-shield-200/50"
+                  className="w-14 h-14 rounded-2xl bg-shield-100 text-shield-600 flex items-center justify-center mx-auto mb-4 transition-shadow group-hover:shadow-lg group-hover:shadow-shield-200/50"
                 >
                   {step.icon}
                 </motion.div>
                 <div className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-shield-600 text-white text-xs font-bold flex items-center justify-center md:block hidden">
                   {i + 1}
                 </div>
-                <h3 className="font-semibold text-slate-900 dark:text-white mb-2">{step.title}</h3>
-                <p className="text-sm text-slate-500 dark:text-slate-400">{step.desc}</p>
+                <h3 className="font-semibold text-slate-900 mb-2">{step.title}</h3>
+                <p className="text-sm text-slate-500">{step.desc}</p>
               </motion.div>
             ))}
           </motion.div>
@@ -258,8 +258,8 @@ export default function Landing() {
       {Object.keys(grouped).length > 0 && (
         <Section className="py-20">
           <div className="max-w-7xl mx-auto px-6">
-            <motion.h2 variants={fadeUp} className="text-3xl font-bold text-slate-900 dark:text-white text-center mb-4">Insurance Products We Cover</motion.h2>
-            <motion.p variants={fadeUp} className="text-lg text-slate-500 dark:text-slate-400 text-center max-w-2xl mx-auto mb-12">
+            <motion.h2 variants={fadeUp} className="text-3xl font-bold text-slate-900 text-center mb-4">Insurance Products We Cover</motion.h2>
+            <motion.p variants={fadeUp} className="text-lg text-slate-500 text-center max-w-2xl mx-auto mb-12">
               {productCount} products across {categoryCount} categories — all managed by our platform
             </motion.p>
             <motion.div variants={stagger} className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -268,20 +268,20 @@ export default function Landing() {
                   key={category}
                   variants={fadeUp}
                   whileHover={{ y: -4, borderColor: 'rgb(var(--shield-200))' }}
-                  className="p-6 rounded-2xl border border-slate-200 dark:border-slate-700/50 hover:shadow-lg transition-shadow"
+                  className="p-6 rounded-2xl border border-slate-200 hover:shadow-lg transition-shadow"
                 >
                   <div className="flex items-center gap-3 mb-4">
-                    <div className="w-10 h-10 rounded-xl bg-shield-50 dark:bg-shield-900/30 text-shield-600 dark:text-shield-400 flex items-center justify-center">
+                    <div className="w-10 h-10 rounded-xl bg-shield-50 text-shield-600 flex items-center justify-center">
                       {categoryIcons[category] || <ShieldCheck className="w-5 h-5" />}
                     </div>
                     <div>
-                      <h3 className="font-semibold text-slate-900 dark:text-white">{category}</h3>
-                      <span className="text-xs text-slate-400 dark:text-slate-500">{products.length} product{products.length !== 1 ? 's' : ''}</span>
+                      <h3 className="font-semibold text-slate-900">{category}</h3>
+                      <span className="text-xs text-slate-400">{products.length} product{products.length !== 1 ? 's' : ''}</span>
                     </div>
                   </div>
                   <div className="flex flex-wrap gap-1.5">
                     {products.map(p => (
-                      <span key={p.id} className="inline-block px-2.5 py-1 rounded-full bg-slate-50 dark:bg-slate-800 text-xs text-slate-600 dark:text-slate-300 border border-slate-100 dark:border-slate-700/50">
+                      <span key={p.id} className="inline-block px-2.5 py-1 rounded-full bg-slate-50 text-xs text-slate-600 border border-slate-100">
                         {p.name}
                       </span>
                     ))}
@@ -307,11 +307,11 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <motion.div variants={fadeUp}>
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-sky-50 dark:bg-sky-900/30 text-sky-700 dark:text-sky-300 text-xs font-semibold mb-4">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-sky-50 text-sky-700 text-xs font-semibold mb-4">
                 <UserCheck className="w-3.5 h-3.5" /> FOR CONSUMERS
               </div>
-              <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-4">Stop overpaying for insurance</h2>
-              <p className="text-lg text-slate-600 dark:text-slate-300 mb-8">
+              <h2 className="text-3xl font-bold text-slate-900 mb-4">Stop overpaying for insurance</h2>
+              <p className="text-lg text-slate-600 mb-8">
                 Compare quotes from top carriers in seconds. No phone calls, no spam — just transparent pricing and expert agents when you need them.
               </p>
               <motion.div variants={stagger} className="space-y-4">
@@ -323,7 +323,7 @@ export default function Landing() {
                 ].map((item, i) => (
                   <motion.div key={i} variants={fadeUp} className="flex items-start gap-3">
                     <CheckCircle2 className="w-5 h-5 text-savings-500 flex-shrink-0 mt-0.5" />
-                    <span className="text-slate-700 dark:text-slate-200">{item}</span>
+                    <span className="text-slate-700">{item}</span>
                   </motion.div>
                 ))}
               </motion.div>
@@ -349,20 +349,20 @@ export default function Landing() {
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.15, duration: 0.5 }}
                   whileHover={{ scale: 1.02 }}
-                  className={`bg-white dark:bg-slate-900 rounded-xl p-4 shadow-sm dark:shadow-none border cursor-pointer transition-shadow hover:shadow-md ${q.rec ? 'border-shield-300 ring-1 ring-shield-100' : 'border-slate-100 dark:border-slate-700/50'}`}
+                  className={`bg-white rounded-xl p-4 shadow-sm border cursor-pointer transition-shadow hover:shadow-md ${q.rec ? 'border-shield-300 ring-1 ring-shield-100' : 'border-slate-100'}`}
                 >
                   <div className="flex items-center justify-between">
                     <div>
-                      <div className="font-semibold text-slate-900 dark:text-white text-sm">{q.carrier}</div>
-                      <div className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">{q.type} Insurance</div>
+                      <div className="font-semibold text-slate-900 text-sm">{q.carrier}</div>
+                      <div className="text-xs text-slate-400 mt-0.5">{q.type} Insurance</div>
                     </div>
                     <div className="text-right">
-                      <div className="font-bold text-lg text-slate-900 dark:text-white">{q.premium}</div>
-                      {q.savings && <div className="text-xs font-medium text-savings-600 dark:text-savings-400">{q.savings}</div>}
+                      <div className="font-bold text-lg text-slate-900">{q.premium}</div>
+                      {q.savings && <div className="text-xs font-medium text-savings-600">{q.savings}</div>}
                     </div>
                   </div>
                   {q.rec && (
-                    <div className="mt-2 inline-flex items-center gap-1 px-2 py-0.5 bg-shield-50 dark:bg-shield-900/30 text-shield-700 dark:text-shield-300 text-xs font-medium rounded-full">
+                    <div className="mt-2 inline-flex items-center gap-1 px-2 py-0.5 bg-shield-50 text-shield-700 text-xs font-medium rounded-full">
                       <Star className="w-3 h-3 fill-shield-600" /> Best Match
                     </div>
                   )}
@@ -374,7 +374,7 @@ export default function Landing() {
       </Section>
 
       {/* ═══ For Agents ═══ */}
-      <Section id="agents" className="py-20 bg-slate-50 dark:bg-slate-800">
+      <Section id="agents" className="py-20 bg-slate-50">
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <motion.div variants={scaleIn} className="order-2 lg:order-1 bg-gradient-to-br from-shield-50 to-white rounded-2xl p-8">
@@ -390,14 +390,14 @@ export default function Landing() {
                     key={i}
                     variants={fadeUp}
                     whileHover={{ x: 4 }}
-                    className="bg-white dark:bg-slate-900 rounded-lg p-3 shadow-sm dark:shadow-none border border-slate-100 dark:border-slate-700/50 flex items-center justify-between cursor-default"
+                    className="bg-white rounded-lg p-3 shadow-sm border border-slate-100 flex items-center justify-between cursor-default"
                   >
                     <div className="flex items-center gap-3">
                       <div className={`w-2.5 h-2.5 rounded-full ${s.color}`} />
-                      <span className="text-sm font-medium text-slate-700 dark:text-slate-200">{s.stage}</span>
+                      <span className="text-sm font-medium text-slate-700">{s.stage}</span>
                     </div>
                     <div className="flex items-center gap-3">
-                      <div className="w-20 h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden hidden sm:block">
+                      <div className="w-20 h-1.5 bg-slate-100 rounded-full overflow-hidden hidden sm:block">
                         <motion.div
                           className={`h-full rounded-full ${s.color}`}
                           initial={{ width: 0 }}
@@ -406,23 +406,23 @@ export default function Landing() {
                           transition={{ duration: 0.8, delay: i * 0.1 }}
                         />
                       </div>
-                      <span className="text-sm font-bold text-slate-900 dark:text-white w-6 text-right">{s.count}</span>
+                      <span className="text-sm font-bold text-slate-900 w-6 text-right">{s.count}</span>
                     </div>
                   </motion.div>
                 ))}
               </motion.div>
-              <motion.div variants={fadeUp} className="mt-4 p-3 bg-shield-50 dark:bg-shield-900/30 rounded-lg text-center">
-                <div className="text-xs text-shield-600 dark:text-shield-400 font-medium">Monthly Pipeline Value</div>
-                <div className="text-xl font-bold text-shield-700 dark:text-shield-300 mt-1">$<AnimatedCounter target={34200} duration={1.5} /></div>
+              <motion.div variants={fadeUp} className="mt-4 p-3 bg-shield-50 rounded-lg text-center">
+                <div className="text-xs text-shield-600 font-medium">Monthly Pipeline Value</div>
+                <div className="text-xl font-bold text-shield-700 mt-1">$<AnimatedCounter target={34200} duration={1.5} /></div>
               </motion.div>
             </motion.div>
 
             <motion.div variants={fadeUp} className="order-1 lg:order-2">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-shield-50 dark:bg-shield-900/30 text-shield-700 dark:text-shield-300 text-xs font-semibold mb-4">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-shield-50 text-shield-700 text-xs font-semibold mb-4">
                 <BarChart3 className="w-3.5 h-3.5" /> FOR AGENTS
               </div>
-              <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-4">Your complete insurance CRM</h2>
-              <p className="text-lg text-slate-600 dark:text-slate-300 mb-8">
+              <h2 className="text-3xl font-bold text-slate-900 mb-4">Your complete insurance CRM</h2>
+              <p className="text-lg text-slate-600 mb-8">
                 Stop juggling spreadsheets. Insurons delivers qualified leads directly to your pipeline with full CRM, commission tracking, and performance analytics.
               </p>
               <motion.div variants={stagger} className="space-y-4">
@@ -436,7 +436,7 @@ export default function Landing() {
                 ].map((item, i) => (
                   <motion.div key={i} variants={fadeUp} className="flex items-start gap-3">
                     <CheckCircle2 className="w-5 h-5 text-savings-500 flex-shrink-0 mt-0.5" />
-                    <span className="text-slate-700 dark:text-slate-200">{item}</span>
+                    <span className="text-slate-700">{item}</span>
                   </motion.div>
                 ))}
               </motion.div>
@@ -457,11 +457,11 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <motion.div variants={fadeUp}>
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-xs font-semibold mb-4">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-50 text-purple-700 text-xs font-semibold mb-4">
                 <Building2 className="w-3.5 h-3.5" /> FOR AGENCIES
               </div>
-              <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-4">The broker operating system</h2>
-              <p className="text-lg text-slate-600 dark:text-slate-300 mb-8">
+              <h2 className="text-3xl font-bold text-slate-900 mb-4">The broker operating system</h2>
+              <p className="text-lg text-slate-600 mb-8">
                 Run your entire agency on Insurons. Multi-tenant team management, intelligent lead routing, embeddable widgets, and complete pipeline visibility across your organization.
               </p>
               <motion.div variants={stagger} className="space-y-4">
@@ -475,7 +475,7 @@ export default function Landing() {
                 ].map((item, i) => (
                   <motion.div key={i} variants={fadeUp} className="flex items-start gap-3">
                     <CheckCircle2 className="w-5 h-5 text-purple-500 flex-shrink-0 mt-0.5" />
-                    <span className="text-slate-700 dark:text-slate-200">{item}</span>
+                    <span className="text-slate-700">{item}</span>
                   </motion.div>
                 ))}
               </motion.div>
@@ -489,7 +489,7 @@ export default function Landing() {
             </motion.div>
 
             <motion.div variants={scaleIn} className="bg-gradient-to-br from-purple-50 to-shield-50 rounded-2xl p-8">
-              <div className="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-4">Agency Dashboard</div>
+              <div className="text-sm font-semibold text-slate-700 mb-4">Agency Dashboard</div>
               <motion.div variants={stagger} className="grid grid-cols-2 gap-3 mb-4">
                 {[
                   { label: 'Active Leads', value: 127, icon: <Users className="w-4 h-4" /> },
@@ -501,22 +501,22 @@ export default function Landing() {
                     key={i}
                     variants={scaleIn}
                     whileHover={{ scale: 1.05 }}
-                    className="bg-white dark:bg-slate-900 rounded-lg p-3 shadow-sm dark:shadow-none border border-slate-100 dark:border-slate-700/50 cursor-default"
+                    className="bg-white rounded-lg p-3 shadow-sm border border-slate-100 cursor-default"
                   >
-                    <div className="flex items-center gap-2 text-slate-400 dark:text-slate-500 mb-1">{m.icon}<span className="text-xs">{m.label}</span></div>
-                    <div className="text-lg font-bold text-slate-900 dark:text-white">
+                    <div className="flex items-center gap-2 text-slate-400 mb-1">{m.icon}<span className="text-xs">{m.label}</span></div>
+                    <div className="text-lg font-bold text-slate-900">
                       <AnimatedCounter target={m.value} suffix={m.suffix || ''} duration={1.2} />
                     </div>
                   </motion.div>
                 ))}
               </motion.div>
-              <motion.div variants={fadeUp} className="bg-white dark:bg-slate-900 rounded-lg p-3 shadow-sm dark:shadow-none border border-slate-100 dark:border-slate-700/50">
-                <div className="text-xs text-slate-400 dark:text-slate-500 mb-2">Routing Rules</div>
+              <motion.div variants={fadeUp} className="bg-white rounded-lg p-3 shadow-sm border border-slate-100">
+                <div className="text-xs text-slate-400 mb-2">Routing Rules</div>
                 <div className="space-y-2">
                   {[
-                    { name: 'Auto leads → Round Robin', status: 'Active', color: 'text-savings-600 dark:text-savings-400 bg-savings-50 dark:bg-savings-900/30' },
-                    { name: 'Home leads (90xxx) → J. Smith', status: 'Active', color: 'text-savings-600 dark:text-savings-400 bg-savings-50 dark:bg-savings-900/30' },
-                    { name: 'Life leads → Capacity-based', status: 'Active', color: 'text-savings-600 dark:text-savings-400 bg-savings-50 dark:bg-savings-900/30' },
+                    { name: 'Auto leads → Round Robin', status: 'Active', color: 'text-savings-600 bg-savings-50' },
+                    { name: 'Home leads (90xxx) → J. Smith', status: 'Active', color: 'text-savings-600 bg-savings-50' },
+                    { name: 'Life leads → Capacity-based', status: 'Active', color: 'text-savings-600 bg-savings-50' },
                   ].map((r, i) => (
                     <motion.div
                       key={i}
@@ -526,7 +526,7 @@ export default function Landing() {
                       transition={{ delay: i * 0.1 }}
                       className="flex items-center justify-between text-xs"
                     >
-                      <span className="text-slate-600 dark:text-slate-300">{r.name}</span>
+                      <span className="text-slate-600">{r.name}</span>
                       <span className={`px-2 py-0.5 rounded-full font-medium ${r.color}`}>{r.status}</span>
                     </motion.div>
                   ))}
@@ -547,11 +547,11 @@ export default function Landing() {
         />
         <div className="max-w-7xl mx-auto px-6 relative">
           <motion.div variants={fadeUp} className="text-center mb-14">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white dark:bg-slate-900/10 text-shield-300 text-sm font-medium mb-6">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 text-shield-300 text-sm font-medium mb-6">
               <Zap className="w-4 h-4" /> 14 Phases Built &amp; Deployed
             </div>
             <h2 className="text-3xl md:text-4xl font-bold mb-4">Everything you need. Nothing you don&apos;t.</h2>
-            <p className="text-lg text-slate-400 dark:text-slate-500 max-w-2xl mx-auto">
+            <p className="text-lg text-slate-400 max-w-2xl mx-auto">
               From instant quotes to policy management — a complete insurance operating system in one platform.
             </p>
           </motion.div>
@@ -578,7 +578,7 @@ export default function Landing() {
                 key={i}
                 variants={fadeUp}
                 whileHover={{ y: -6, borderColor: 'rgba(var(--shield-500), 0.4)' }}
-                className="p-5 rounded-2xl bg-white dark:bg-slate-900/5 border border-white/10 transition-all duration-300 group cursor-default"
+                className="p-5 rounded-2xl bg-white/5 border border-white/10 transition-all duration-300 group cursor-default"
               >
                 <motion.div
                   whileHover={{ rotate: 10, scale: 1.1 }}
@@ -587,7 +587,7 @@ export default function Landing() {
                   {f.icon}
                 </motion.div>
                 <h3 className="font-semibold text-white text-sm mb-1.5">{f.title}</h3>
-                <p className="text-xs text-slate-400 dark:text-slate-500 leading-relaxed">{f.desc}</p>
+                <p className="text-xs text-slate-400 leading-relaxed">{f.desc}</p>
               </motion.div>
             ))}
           </motion.div>
@@ -621,7 +621,7 @@ export default function Landing() {
       </Section>
 
       {/* ═══ Testimonials ═══ */}
-      <Section className="py-20 bg-slate-50 dark:bg-slate-800">
+      <Section className="py-20 bg-slate-50">
         <div className="max-w-4xl mx-auto px-6 text-center">
           {(() => {
             const items = testimonials.length > 0
@@ -649,12 +649,12 @@ export default function Landing() {
                   &ldquo;{current.content}&rdquo;
                 </blockquote>
                 <div className="flex items-center justify-center gap-3">
-                  <div className="w-12 h-12 rounded-full bg-shield-100 dark:bg-shield-900/30 text-shield-600 dark:text-shield-400 flex items-center justify-center font-bold text-lg">
+                  <div className="w-12 h-12 rounded-full bg-shield-100 text-shield-600 flex items-center justify-center font-bold text-lg">
                     {current.name.charAt(0)}
                   </div>
                   <div className="text-left">
-                    <div className="font-semibold text-slate-900 dark:text-white">{current.name}</div>
-                    <div className="text-sm text-slate-500 dark:text-slate-400">{current.role}</div>
+                    <div className="font-semibold text-slate-900">{current.name}</div>
+                    <div className="text-sm text-slate-500">{current.role}</div>
                   </div>
                 </div>
                 {items.length > 1 && (
@@ -704,13 +704,13 @@ export default function Landing() {
               </Link>
               <Link to="/register">
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}>
-                  <Button variant="ghost" size="xl" className="text-white border-white/20 hover:bg-white dark:bg-slate-900/10">
+                  <Button variant="ghost" size="xl" className="text-white border-white/20 hover:bg-white/10">
                     Create Professional Account
                   </Button>
                 </motion.div>
               </Link>
             </div>
-            <div className="flex items-center justify-center gap-6 mt-8 text-sm text-slate-400 dark:text-slate-500">
+            <div className="flex items-center justify-center gap-6 mt-8 text-sm text-slate-400">
               <span className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-emerald-400" /> Free to start</span>
               <span className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-emerald-400" /> No credit card</span>
               <span className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-emerald-400" /> Cancel anytime</span>
@@ -720,41 +720,41 @@ export default function Landing() {
       </Section>
 
       {/* ═══ Footer ═══ */}
-      <footer className="border-t border-slate-200 dark:border-slate-700/50 py-12 bg-slate-50 dark:bg-slate-800">
+      <footer className="border-t border-slate-200 py-12 bg-slate-50">
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid md:grid-cols-4 gap-8 mb-8">
             <div>
               <div className="flex items-center gap-2 mb-3">
                 <img src="/logo.png" alt="Insurons" className="h-14 w-auto" />
               </div>
-              <p className="text-sm text-slate-500 dark:text-slate-400">The unified insurance distribution platform for consumers, agents, and agencies.</p>
+              <p className="text-sm text-slate-500">The unified insurance distribution platform for consumers, agents, and agencies.</p>
             </div>
             <div>
-              <h4 className="font-semibold text-slate-900 dark:text-white text-sm mb-3">Consumers</h4>
+              <h4 className="font-semibold text-slate-900 text-sm mb-3">Consumers</h4>
               <div className="space-y-2">
-                <Link to="/calculator" className="block text-sm text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:text-slate-200 transition-colors">Get Quotes</Link>
-                <Link to="/marketplace" className="block text-sm text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:text-slate-200 transition-colors">Find an Agent</Link>
+                <Link to="/calculator" className="block text-sm text-slate-500 hover:text-slate-700 transition-colors">Get Quotes</Link>
+                <Link to="/marketplace" className="block text-sm text-slate-500 hover:text-slate-700 transition-colors">Find an Agent</Link>
               </div>
             </div>
             <div>
-              <h4 className="font-semibold text-slate-900 dark:text-white text-sm mb-3">Professionals</h4>
+              <h4 className="font-semibold text-slate-900 text-sm mb-3">Professionals</h4>
               <div className="space-y-2">
-                <Link to="/register" className="block text-sm text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:text-slate-200 transition-colors">Join as Agent</Link>
-                <Link to="/register" className="block text-sm text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:text-slate-200 transition-colors">Start an Agency</Link>
-                <Link to="/pricing" className="block text-sm text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:text-slate-200 transition-colors">Pricing</Link>
+                <Link to="/register" className="block text-sm text-slate-500 hover:text-slate-700 transition-colors">Join as Agent</Link>
+                <Link to="/register" className="block text-sm text-slate-500 hover:text-slate-700 transition-colors">Start an Agency</Link>
+                <Link to="/pricing" className="block text-sm text-slate-500 hover:text-slate-700 transition-colors">Pricing</Link>
               </div>
             </div>
             <div>
-              <h4 className="font-semibold text-slate-900 dark:text-white text-sm mb-3">Company</h4>
+              <h4 className="font-semibold text-slate-900 text-sm mb-3">Company</h4>
               <div className="space-y-2">
-                <Link to="/privacy" className="block text-sm text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:text-slate-200 transition-colors">Privacy Policy</Link>
-                <Link to="/terms" className="block text-sm text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:text-slate-200 transition-colors">Terms of Service</Link>
+                <Link to="/privacy" className="block text-sm text-slate-500 hover:text-slate-700 transition-colors">Privacy Policy</Link>
+                <Link to="/terms" className="block text-sm text-slate-500 hover:text-slate-700 transition-colors">Terms of Service</Link>
               </div>
             </div>
           </div>
-          <div className="border-t border-slate-200 dark:border-slate-700/50 pt-6 flex flex-col md:flex-row items-center justify-between gap-4">
-            <span className="text-sm text-slate-400 dark:text-slate-500">&copy; {new Date().getFullYear()} Insurons. All rights reserved.</span>
-            <span className="text-xs text-slate-400 dark:text-slate-500">Insurons is a technology platform, not a licensed insurance agency.</span>
+          <div className="border-t border-slate-200 pt-6 flex flex-col md:flex-row items-center justify-between gap-4">
+            <span className="text-sm text-slate-400">&copy; {new Date().getFullYear()} Insurons. All rights reserved.</span>
+            <span className="text-xs text-slate-400">Insurons is a technology platform, not a licensed insurance agency.</span>
           </div>
         </div>
       </footer>

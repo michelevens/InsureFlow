@@ -136,9 +136,9 @@ export default function Pricing() {
   };
 
   return (
-    <div className="min-h-screen bg-white dark:bg-slate-900">
+    <div className="min-h-screen bg-white">
       {/* Navbar */}
-      <nav className="border-b border-slate-100 dark:border-slate-700/50">
+      <nav className="border-b border-slate-100">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2.5">
             <img src="/logo.png" alt="Insurons" className="h-16 w-auto" />
@@ -159,28 +159,28 @@ export default function Pricing() {
       <div className="max-w-7xl mx-auto px-6 py-20">
         {/* Canceled banner */}
         {canceled && (
-          <div className="mb-8 p-4 bg-amber-50 dark:bg-amber-900/30 border border-amber-200 rounded-xl flex items-center gap-3 text-amber-800">
+          <div className="mb-8 p-4 bg-amber-50 border border-amber-200 rounded-xl flex items-center gap-3 text-amber-800">
             <AlertCircle className="w-5 h-5 flex-shrink-0" />
             <p className="text-sm">Checkout was canceled. No charges were made. You can try again below.</p>
           </div>
         )}
 
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-slate-900 dark:text-white mb-3">Simple, transparent pricing</h1>
-          <p className="text-lg text-slate-500 dark:text-slate-400 max-w-2xl mx-auto">
+          <h1 className="text-4xl font-bold text-slate-900 mb-3">Simple, transparent pricing</h1>
+          <p className="text-lg text-slate-500 max-w-2xl mx-auto">
             Choose the plan that fits your needs. Consumers always use Insurons for free.
           </p>
 
           {/* Annual toggle */}
           <div className="flex items-center justify-center gap-3 mt-8">
-            <span className={`text-sm ${!annual ? 'font-medium text-slate-900 dark:text-white' : 'text-slate-500 dark:text-slate-400'}`}>Monthly</span>
+            <span className={`text-sm ${!annual ? 'font-medium text-slate-900' : 'text-slate-500'}`}>Monthly</span>
             <button
               onClick={() => setAnnual(!annual)}
               className={`w-11 h-6 rounded-full relative transition-colors ${annual ? 'bg-shield-500' : 'bg-slate-300'}`}
             >
-              <div className={`w-5 h-5 rounded-full bg-white dark:bg-slate-900 absolute top-0.5 shadow-sm dark:shadow-none transition-all ${annual ? 'right-0.5' : 'left-0.5'}`} />
+              <div className={`w-5 h-5 rounded-full bg-white absolute top-0.5 shadow-sm transition-all ${annual ? 'right-0.5' : 'left-0.5'}`} />
             </button>
-            <span className={`text-sm ${annual ? 'font-medium text-slate-900 dark:text-white' : 'text-slate-500 dark:text-slate-400'}`}>
+            <span className={`text-sm ${annual ? 'font-medium text-slate-900' : 'text-slate-500'}`}>
               Annual <Badge variant="success" className="ml-1">Save 20%</Badge>
             </span>
           </div>
@@ -190,7 +190,7 @@ export default function Pricing() {
         {loading ? (
           <div className="flex items-center justify-center py-20">
             <Loader2 className="w-8 h-8 animate-spin text-shield-500" />
-            <span className="ml-3 text-slate-500 dark:text-slate-400">Loading plans...</span>
+            <span className="ml-3 text-slate-500">Loading plans...</span>
           </div>
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -203,7 +203,7 @@ export default function Pricing() {
               return (
                 <Card
                   key={plan.slug}
-                  className={`flex flex-col ${popular ? 'border-shield-500 ring-1 ring-shield-500 relative' : ''} ${current ? 'bg-shield-50 dark:bg-shield-900/30/50' : ''}`}
+                  className={`flex flex-col ${popular ? 'border-shield-500 ring-1 ring-shield-500 relative' : ''} ${current ? 'bg-shield-50/50' : ''}`}
                 >
                   {popular && (
                     <div className="absolute -top-3 left-1/2 -translate-x-1/2">
@@ -218,16 +218,16 @@ export default function Pricing() {
                     </div>
                   )}
                   <div className="p-6 flex-1">
-                    <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">{plan.name}</h3>
+                    <h3 className="text-lg font-bold text-slate-900 mb-2">{plan.name}</h3>
                     <div className="flex items-baseline gap-1 mb-2">
-                      <span className="text-3xl font-bold text-slate-900 dark:text-white">{getPrice(plan)}</span>
-                      {getPeriod(plan) && <span className="text-slate-500 dark:text-slate-400">{getPeriod(plan)}</span>}
+                      <span className="text-3xl font-bold text-slate-900">{getPrice(plan)}</span>
+                      {getPeriod(plan) && <span className="text-slate-500">{getPeriod(plan)}</span>}
                     </div>
-                    <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">{plan.description}</p>
+                    <p className="text-sm text-slate-500 mb-6">{plan.description}</p>
 
                     <div className="space-y-3">
                       {(plan.features ?? []).map((feature, i) => (
-                        <div key={i} className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
+                        <div key={i} className="flex items-center gap-2 text-sm text-slate-600">
                           <CheckCircle2 className="w-4 h-4 text-savings-500 flex-shrink-0" />
                           {feature}
                         </div>
@@ -280,7 +280,7 @@ export default function Pricing() {
         {/* Manage billing link for subscribed users */}
         {isAuthenticated && currentSub && (
           <div className="mt-12 text-center">
-            <p className="text-sm text-slate-500 dark:text-slate-400 mb-2">
+            <p className="text-sm text-slate-500 mb-2">
               Need to update payment method, view invoices, or cancel?
             </p>
             <ManageBillingButton />

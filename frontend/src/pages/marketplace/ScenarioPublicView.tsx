@@ -59,8 +59,8 @@ export default function ScenarioPublicView() {
       <div className="min-h-screen bg-gradient-to-br from-shield-50 via-white to-confidence-50 flex items-center justify-center p-4">
         <Card className="max-w-md w-full p-8 text-center">
           <AlertCircle className="w-12 h-12 text-red-400 mx-auto mb-4" />
-          <h1 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Quote Not Found</h1>
-          <p className="text-slate-500 dark:text-slate-400">This quote link may have expired or is invalid.</p>
+          <h1 className="text-xl font-bold text-slate-900 mb-2">Quote Not Found</h1>
+          <p className="text-slate-500">This quote link may have expired or is invalid.</p>
         </Card>
       </div>
     );
@@ -69,11 +69,11 @@ export default function ScenarioPublicView() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-shield-50 via-white to-confidence-50">
       {/* Header */}
-      <div className="border-b bg-white dark:bg-slate-900/80 backdrop-blur-sm">
+      <div className="border-b bg-white/80 backdrop-blur-sm">
         <div className="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
-            <ShieldCheck className="w-7 h-7 text-shield-600 dark:text-shield-400" />
-            <span className="text-xl font-bold text-slate-900 dark:text-white">Insurons</span>
+            <ShieldCheck className="w-7 h-7 text-shield-600" />
+            <span className="text-xl font-bold text-slate-900">Insurons</span>
           </Link>
         </div>
       </div>
@@ -81,18 +81,18 @@ export default function ScenarioPublicView() {
       <div className="max-w-3xl mx-auto px-4 py-8 space-y-6">
         {/* Responded banner */}
         {responded && (
-          <Card className={`p-4 ${responded === 'accepted' ? 'bg-green-50 dark:bg-green-900/30 border-green-200' : 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700/50'}`}>
+          <Card className={`p-4 ${responded === 'accepted' ? 'bg-green-50 border-green-200' : 'bg-slate-50 border-slate-200'}`}>
             <div className="flex items-center gap-3">
               {responded === 'accepted' ? (
-                <CheckCircle2 className="w-6 h-6 text-green-600 dark:text-green-400" />
+                <CheckCircle2 className="w-6 h-6 text-green-600" />
               ) : (
-                <XCircle className="w-6 h-6 text-slate-500 dark:text-slate-400" />
+                <XCircle className="w-6 h-6 text-slate-500" />
               )}
               <div>
-                <p className="font-semibold text-slate-900 dark:text-white">
+                <p className="font-semibold text-slate-900">
                   {responded === 'accepted' ? 'You accepted this quote' : 'You declined this quote'}
                 </p>
-                <p className="text-sm text-slate-500 dark:text-slate-400">
+                <p className="text-sm text-slate-500">
                   {responded === 'accepted'
                     ? 'Your agent will prepare the application for signing. Check your email.'
                     : 'This quote has been declined. You can continue reviewing other options.'}
@@ -106,8 +106,8 @@ export default function ScenarioPublicView() {
         <Card className="p-6">
           <div className="flex items-start justify-between mb-4">
             <div>
-              <h1 className="text-2xl font-bold text-slate-900 dark:text-white">{scenario.scenario_name}</h1>
-              <p className="text-slate-500 dark:text-slate-400 mt-1">
+              <h1 className="text-2xl font-bold text-slate-900">{scenario.scenario_name}</h1>
+              <p className="text-slate-500 mt-1">
                 {scenario.product_type.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())} Quote
               </p>
             </div>
@@ -117,19 +117,19 @@ export default function ScenarioPublicView() {
           </div>
 
           {/* Agent/Agency info */}
-          <div className="flex items-center gap-6 p-4 bg-slate-50 dark:bg-slate-800 rounded-lg">
+          <div className="flex items-center gap-6 p-4 bg-slate-50 rounded-lg">
             {scenario.agent && (
               <div className="flex items-center gap-2">
-                <User className="w-4 h-4 text-slate-400 dark:text-slate-500" />
-                <span className="text-sm font-medium text-slate-900 dark:text-white">{scenario.agent.name}</span>
+                <User className="w-4 h-4 text-slate-400" />
+                <span className="text-sm font-medium text-slate-900">{scenario.agent.name}</span>
               </div>
             )}
             {scenario.lead?.agency && (
               <div className="flex items-center gap-2">
-                <Building2 className="w-4 h-4 text-slate-400 dark:text-slate-500" />
-                <span className="text-sm text-slate-600 dark:text-slate-300">{scenario.lead.agency.name}</span>
+                <Building2 className="w-4 h-4 text-slate-400" />
+                <span className="text-sm text-slate-600">{scenario.lead.agency.name}</span>
                 {scenario.lead.agency.city && scenario.lead.agency.state && (
-                  <span className="text-xs text-slate-400 dark:text-slate-500">({scenario.lead.agency.city}, {scenario.lead.agency.state})</span>
+                  <span className="text-xs text-slate-400">({scenario.lead.agency.city}, {scenario.lead.agency.state})</span>
                 )}
               </div>
             )}
@@ -137,9 +137,9 @@ export default function ScenarioPublicView() {
 
           {/* Premium */}
           {(scenario.best_quoted_premium || scenario.target_premium_monthly) && (
-            <div className="mt-4 p-4 bg-savings-50 dark:bg-savings-900/30 rounded-lg text-center">
-              <p className="text-sm text-savings-600 dark:text-savings-400 font-medium">Estimated Monthly Premium</p>
-              <p className="text-3xl font-bold text-savings-700 dark:text-savings-300 mt-1">
+            <div className="mt-4 p-4 bg-savings-50 rounded-lg text-center">
+              <p className="text-sm text-savings-600 font-medium">Estimated Monthly Premium</p>
+              <p className="text-3xl font-bold text-savings-700 mt-1">
                 {formatCurrency(scenario.best_quoted_premium || scenario.target_premium_monthly)}<span className="text-lg font-normal">/mo</span>
               </p>
             </div>
@@ -150,31 +150,31 @@ export default function ScenarioPublicView() {
         {scenario.quotes && scenario.quotes.length > 0 && (
           <Card className="p-6">
             <div className="flex items-center gap-2 mb-4">
-              <BarChart3 className="w-5 h-5 text-shield-600 dark:text-shield-400" />
-              <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Carrier Comparison</h2>
+              <BarChart3 className="w-5 h-5 text-shield-600" />
+              <h2 className="text-lg font-semibold text-slate-900">Carrier Comparison</h2>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-slate-200 dark:border-slate-700/50">
-                    <th className="text-left py-2 font-medium text-slate-500 dark:text-slate-400">Carrier</th>
-                    <th className="text-center py-2 font-medium text-slate-500 dark:text-slate-400">AM Best</th>
-                    <th className="text-right py-2 font-medium text-slate-500 dark:text-slate-400">Monthly</th>
-                    <th className="text-right py-2 font-medium text-slate-500 dark:text-slate-400">Annual</th>
+                  <tr className="border-b border-slate-200">
+                    <th className="text-left py-2 font-medium text-slate-500">Carrier</th>
+                    <th className="text-center py-2 font-medium text-slate-500">AM Best</th>
+                    <th className="text-right py-2 font-medium text-slate-500">Monthly</th>
+                    <th className="text-right py-2 font-medium text-slate-500">Annual</th>
                   </tr>
                 </thead>
                 <tbody>
                   {scenario.quotes.map(q => (
-                    <tr key={q.id} className={`border-b border-slate-100 dark:border-slate-700/50 ${q.is_recommended ? 'bg-savings-50 dark:bg-savings-900/30/50' : ''}`}>
+                    <tr key={q.id} className={`border-b border-slate-100 ${q.is_recommended ? 'bg-savings-50/50' : ''}`}>
                       <td className="py-3">
                         <div className="flex items-center gap-2">
-                          <span className="font-medium text-slate-900 dark:text-white">{q.carrier_name}</span>
+                          <span className="font-medium text-slate-900">{q.carrier_name}</span>
                           {q.is_recommended && <Badge variant="success" className="text-xs">Recommended</Badge>}
                         </div>
                       </td>
-                      <td className="text-center py-3 text-slate-600 dark:text-slate-300">{q.am_best_rating || '\u2014'}</td>
-                      <td className="text-right py-3 font-semibold text-slate-900 dark:text-white">{formatCurrency(q.premium_monthly)}/mo</td>
-                      <td className="text-right py-3 text-slate-600 dark:text-slate-300">{formatCurrency(q.premium_annual)}/yr</td>
+                      <td className="text-center py-3 text-slate-600">{q.am_best_rating || '\u2014'}</td>
+                      <td className="text-right py-3 font-semibold text-slate-900">{formatCurrency(q.premium_monthly)}/mo</td>
+                      <td className="text-right py-3 text-slate-600">{formatCurrency(q.premium_annual)}/yr</td>
                     </tr>
                   ))}
                 </tbody>
@@ -185,7 +185,7 @@ export default function ScenarioPublicView() {
               const premiums = scenario.quotes.map(q => Number(q.premium_monthly)).filter(p => p > 0);
               const savings = Math.max(...premiums) - Math.min(...premiums);
               return savings > 0 ? (
-                <div className="mt-3 text-center text-sm text-savings-600 dark:text-savings-400 font-medium">
+                <div className="mt-3 text-center text-sm text-savings-600 font-medium">
                   Save up to ${savings.toLocaleString()}/mo by choosing the right carrier
                 </div>
               ) : null;
@@ -197,20 +197,20 @@ export default function ScenarioPublicView() {
         {scenario.coverages.length > 0 && (
           <Card className="p-6">
             <div className="flex items-center gap-2 mb-4">
-              <Shield className="w-5 h-5 text-shield-600 dark:text-shield-400" />
-              <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Coverage Details</h2>
+              <Shield className="w-5 h-5 text-shield-600" />
+              <h2 className="text-lg font-semibold text-slate-900">Coverage Details</h2>
             </div>
             <div className="space-y-2">
               {scenario.coverages.filter(c => c.is_included).map(cov => (
-                <div key={cov.id} className="flex items-center justify-between py-2.5 border-b border-slate-100 dark:border-slate-700/50 last:border-0">
+                <div key={cov.id} className="flex items-center justify-between py-2.5 border-b border-slate-100 last:border-0">
                   <div>
-                    <p className="text-sm font-medium text-slate-900 dark:text-white">{coverageLabel(cov.coverage_type)}</p>
-                    <p className="text-xs text-slate-400 dark:text-slate-500">{cov.coverage_category}</p>
+                    <p className="text-sm font-medium text-slate-900">{coverageLabel(cov.coverage_type)}</p>
+                    <p className="text-xs text-slate-400">{cov.coverage_category}</p>
                   </div>
                   <div className="text-right">
-                    {cov.limit_amount && <p className="text-sm font-medium text-slate-900 dark:text-white">{formatCurrency(cov.limit_amount)} limit</p>}
-                    {cov.deductible_amount && <p className="text-xs text-slate-500 dark:text-slate-400">{formatCurrency(cov.deductible_amount)} deductible</p>}
-                    {cov.benefit_amount && <p className="text-sm font-medium text-slate-900 dark:text-white">{formatCurrency(cov.benefit_amount)} benefit</p>}
+                    {cov.limit_amount && <p className="text-sm font-medium text-slate-900">{formatCurrency(cov.limit_amount)} limit</p>}
+                    {cov.deductible_amount && <p className="text-xs text-slate-500">{formatCurrency(cov.deductible_amount)} deductible</p>}
+                    {cov.benefit_amount && <p className="text-sm font-medium text-slate-900">{formatCurrency(cov.benefit_amount)} benefit</p>}
                   </div>
                 </div>
               ))}
@@ -222,14 +222,14 @@ export default function ScenarioPublicView() {
         {scenario.insured_objects && scenario.insured_objects.length > 0 && (
           <Card className="p-6">
             <div className="flex items-center gap-2 mb-4">
-              <FileText className="w-5 h-5 text-shield-600 dark:text-shield-400" />
-              <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Insured Items</h2>
+              <FileText className="w-5 h-5 text-shield-600" />
+              <h2 className="text-lg font-semibold text-slate-900">Insured Items</h2>
             </div>
             <div className="space-y-2">
               {scenario.insured_objects.map(obj => (
-                <div key={obj.id} className="flex items-center justify-between py-2 border-b border-slate-100 dark:border-slate-700/50 last:border-0">
-                  <span className="text-sm font-medium text-slate-900 dark:text-white">{obj.name}</span>
-                  <span className="text-xs text-slate-500 dark:text-slate-400">{obj.object_type} {obj.relationship ? `(${obj.relationship})` : ''}</span>
+                <div key={obj.id} className="flex items-center justify-between py-2 border-b border-slate-100 last:border-0">
+                  <span className="text-sm font-medium text-slate-900">{obj.name}</span>
+                  <span className="text-xs text-slate-500">{obj.object_type} {obj.relationship ? `(${obj.relationship})` : ''}</span>
                 </div>
               ))}
             </div>
@@ -239,8 +239,8 @@ export default function ScenarioPublicView() {
         {/* Notes */}
         {scenario.notes && (
           <Card className="p-6">
-            <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">Agent Notes</h2>
-            <p className="text-sm text-slate-600 dark:text-slate-300 whitespace-pre-wrap">{scenario.notes}</p>
+            <h2 className="text-lg font-semibold text-slate-900 mb-2">Agent Notes</h2>
+            <p className="text-sm text-slate-600 whitespace-pre-wrap">{scenario.notes}</p>
           </Card>
         )}
 

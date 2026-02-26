@@ -101,7 +101,7 @@ export default function AcceptInvite() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-800 flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="w-8 h-8 border-4 border-teal-200 border-t-teal-600 rounded-full animate-spin" />
       </div>
     );
@@ -109,14 +109,14 @@ export default function AcceptInvite() {
 
   if (!invite) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-800 flex items-center justify-center px-4">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4">
         <div className="w-full max-w-md text-center">
-          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/50 p-8">
-            <div className="w-12 h-12 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+          <div className="bg-white rounded-2xl border border-slate-200 p-8">
+            <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <Mail className="w-6 h-6 text-red-500" />
             </div>
-            <h1 className="text-xl font-bold text-slate-900 dark:text-white">Invalid Invitation</h1>
-            <p className="text-red-600 dark:text-red-400 mt-2">{error}</p>
+            <h1 className="text-xl font-bold text-slate-900">Invalid Invitation</h1>
+            <p className="text-red-600 mt-2">{error}</p>
             <Button variant="shield" className="mt-6" onClick={() => navigate('/login')}>
               Go to Login
             </Button>
@@ -127,19 +127,19 @@ export default function AcceptInvite() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-800 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <img src="/logo.png" alt="Insurons" className="h-20 w-auto mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Join {invite.agency_name}</h1>
-          <p className="text-slate-500 dark:text-slate-400 mt-1">
+          <h1 className="text-2xl font-bold text-slate-900">Join {invite.agency_name}</h1>
+          <p className="text-slate-500 mt-1">
             You've been invited as <span className="font-semibold text-teal-700">{invite.role}</span>
           </p>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/50 p-8">
+        <div className="bg-white rounded-2xl border border-slate-200 p-8">
           {/* Invite info card */}
-          <div className="flex items-center gap-3 p-4 bg-teal-50 dark:bg-teal-900/30 rounded-xl border border-teal-100 mb-6">
+          <div className="flex items-center gap-3 p-4 bg-teal-50 rounded-xl border border-teal-100 mb-6">
             <Users className="w-5 h-5 text-teal-600 shrink-0" />
             <div>
               <p className="text-sm font-medium text-teal-900">{invite.inviter_name} invited you</p>
@@ -149,7 +149,7 @@ export default function AcceptInvite() {
 
           <form onSubmit={handleSubmit} className="space-y-5">
             {error && (
-              <div className="p-3 rounded-xl bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-sm">{error}</div>
+              <div className="p-3 rounded-xl bg-red-50 text-red-600 text-sm">{error}</div>
             )}
 
             <Input
@@ -173,7 +173,7 @@ export default function AcceptInvite() {
             {/* Password with strength meter + generator */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-200">Password</label>
+                <label className="block text-sm font-medium text-slate-700">Password</label>
                 <button
                   type="button"
                   onClick={() => {
@@ -202,11 +202,11 @@ export default function AcceptInvite() {
                 />
                 <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
                   {password && (
-                    <button type="button" onClick={() => { navigator.clipboard.writeText(password); setCopied(true); setTimeout(() => setCopied(false), 2000); }} className="p-1 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:text-slate-300" title="Copy">
+                    <button type="button" onClick={() => { navigator.clipboard.writeText(password); setCopied(true); setTimeout(() => setCopied(false), 2000); }} className="p-1 text-slate-400 hover:text-slate-600" title="Copy">
                       {copied ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
                     </button>
                   )}
-                  <button type="button" onClick={() => setShowPassword(!showPassword)} className="p-1 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:text-slate-300">
+                  <button type="button" onClick={() => setShowPassword(!showPassword)} className="p-1 text-slate-400 hover:text-slate-600">
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
@@ -220,16 +220,16 @@ export default function AcceptInvite() {
                     <div className="flex items-center gap-2">
                       <div className="flex-1 flex gap-1">
                         {Array.from({ length: 5 }).map((_, i) => (
-                          <div key={i} className={`h-1.5 flex-1 rounded-full transition-colors ${i < strength.score ? strength.color : 'bg-slate-200 dark:bg-slate-700'}`} />
+                          <div key={i} className={`h-1.5 flex-1 rounded-full transition-colors ${i < strength.score ? strength.color : 'bg-slate-200'}`} />
                         ))}
                       </div>
-                      <span className={`text-xs font-medium ${strength.score >= 4 ? 'text-green-600 dark:text-green-400' : strength.score >= 3 ? 'text-amber-600 dark:text-amber-400' : 'text-red-600 dark:text-red-400'}`}>
+                      <span className={`text-xs font-medium ${strength.score >= 4 ? 'text-green-600' : strength.score >= 3 ? 'text-amber-600' : 'text-red-600'}`}>
                         {strength.label}
                       </span>
                     </div>
                     <div className="flex flex-wrap gap-x-3 gap-y-1">
                       {strength.checks.map(c => (
-                        <span key={c.label} className={`text-[11px] flex items-center gap-1 ${c.met ? 'text-green-600 dark:text-green-400' : 'text-slate-400 dark:text-slate-500'}`}>
+                        <span key={c.label} className={`text-[11px] flex items-center gap-1 ${c.met ? 'text-green-600' : 'text-slate-400'}`}>
                           {c.met ? <Check className="w-3 h-3" /> : <span className="w-3 h-3 rounded-full border border-slate-300 inline-block" />}
                           {c.label}
                         </span>

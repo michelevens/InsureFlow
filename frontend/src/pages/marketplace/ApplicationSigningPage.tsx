@@ -118,8 +118,8 @@ export default function ApplicationSigningPage() {
       <div className="min-h-screen bg-gradient-to-br from-shield-50 via-white to-confidence-50 flex items-center justify-center p-4">
         <Card className="max-w-md w-full p-8 text-center">
           <AlertCircle className="w-12 h-12 text-red-400 mx-auto mb-4" />
-          <h1 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Application Not Found</h1>
-          <p className="text-slate-500 dark:text-slate-400">This signing link may have expired or is invalid.</p>
+          <h1 className="text-xl font-bold text-slate-900 mb-2">Application Not Found</h1>
+          <p className="text-slate-500">This signing link may have expired or is invalid.</p>
         </Card>
       </div>
     );
@@ -131,14 +131,14 @@ export default function ApplicationSigningPage() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-shield-50 via-white to-confidence-50 flex items-center justify-center p-4">
         <Card className="max-w-lg w-full p-8 text-center">
-          <div className="w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mx-auto mb-6">
-            <CheckCircle2 className="w-8 h-8 text-green-600 dark:text-green-400" />
+          <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-6">
+            <CheckCircle2 className="w-8 h-8 text-green-600" />
           </div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">Application Signed!</h1>
-          <p className="text-slate-600 dark:text-slate-300 mb-2">
+          <h1 className="text-2xl font-bold text-slate-900 mb-2">Application Signed!</h1>
+          <p className="text-slate-600 mb-2">
             Your application <strong>{app.reference}</strong> with <strong>{app.carrier_name}</strong> has been signed and submitted.
           </p>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">
+          <p className="text-sm text-slate-500 mb-6">
             Your agent will submit this to the carrier for underwriting. You'll be notified when your policy is issued.
           </p>
           <Link to="/auth/login">
@@ -152,11 +152,11 @@ export default function ApplicationSigningPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-shield-50 via-white to-confidence-50">
       {/* Header */}
-      <div className="border-b bg-white dark:bg-slate-900/80 backdrop-blur-sm">
+      <div className="border-b bg-white/80 backdrop-blur-sm">
         <div className="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
-            <ShieldCheck className="w-7 h-7 text-shield-600 dark:text-shield-400" />
-            <span className="text-xl font-bold text-slate-900 dark:text-white">Insurons</span>
+            <ShieldCheck className="w-7 h-7 text-shield-600" />
+            <span className="text-xl font-bold text-slate-900">Insurons</span>
           </Link>
           <Badge variant="warning">Pending Signature</Badge>
         </div>
@@ -165,48 +165,48 @@ export default function ApplicationSigningPage() {
       <div className="max-w-3xl mx-auto px-4 py-8 space-y-6">
         {/* Application Details */}
         <Card className="p-6">
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-1">Insurance Application</h1>
-          <p className="text-slate-500 dark:text-slate-400 mb-4">Reference: {app.reference}</p>
+          <h1 className="text-2xl font-bold text-slate-900 mb-1">Insurance Application</h1>
+          <p className="text-slate-500 mb-4">Reference: {app.reference}</p>
 
-          <div className="grid grid-cols-2 gap-4 p-4 bg-slate-50 dark:bg-slate-800 rounded-lg">
+          <div className="grid grid-cols-2 gap-4 p-4 bg-slate-50 rounded-lg">
             <div className="flex items-center gap-2">
               <Shield className="w-4 h-4 text-shield-500" />
               <div>
-                <p className="text-xs text-slate-400 dark:text-slate-500">Carrier</p>
-                <p className="text-sm font-medium text-slate-900 dark:text-white">{app.carrier_name}</p>
+                <p className="text-xs text-slate-400">Carrier</p>
+                <p className="text-sm font-medium text-slate-900">{app.carrier_name}</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
               <ShieldCheck className="w-4 h-4 text-shield-500" />
               <div>
-                <p className="text-xs text-slate-400 dark:text-slate-500">Type</p>
-                <p className="text-sm font-medium text-slate-900 dark:text-white">{app.insurance_type?.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}</p>
+                <p className="text-xs text-slate-400">Type</p>
+                <p className="text-sm font-medium text-slate-900">{app.insurance_type?.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}</p>
               </div>
             </div>
             {app.agent && (
               <div className="flex items-center gap-2">
-                <User className="w-4 h-4 text-slate-400 dark:text-slate-500" />
+                <User className="w-4 h-4 text-slate-400" />
                 <div>
-                  <p className="text-xs text-slate-400 dark:text-slate-500">Agent</p>
-                  <p className="text-sm font-medium text-slate-900 dark:text-white">{app.agent.name}</p>
+                  <p className="text-xs text-slate-400">Agent</p>
+                  <p className="text-sm font-medium text-slate-900">{app.agent.name}</p>
                 </div>
               </div>
             )}
             {app.agency && (
               <div className="flex items-center gap-2">
-                <Building2 className="w-4 h-4 text-slate-400 dark:text-slate-500" />
+                <Building2 className="w-4 h-4 text-slate-400" />
                 <div>
-                  <p className="text-xs text-slate-400 dark:text-slate-500">Agency</p>
-                  <p className="text-sm font-medium text-slate-900 dark:text-white">{app.agency.name}</p>
+                  <p className="text-xs text-slate-400">Agency</p>
+                  <p className="text-sm font-medium text-slate-900">{app.agency.name}</p>
                 </div>
               </div>
             )}
           </div>
 
           {app.monthly_premium && Number(app.monthly_premium) > 0 && (
-            <div className="mt-4 p-4 bg-savings-50 dark:bg-savings-900/30 rounded-lg text-center">
-              <p className="text-sm text-savings-600 dark:text-savings-400 font-medium">Monthly Premium</p>
-              <p className="text-3xl font-bold text-savings-700 dark:text-savings-300">{formatCurrency(app.monthly_premium)}<span className="text-lg font-normal">/mo</span></p>
+            <div className="mt-4 p-4 bg-savings-50 rounded-lg text-center">
+              <p className="text-sm text-savings-600 font-medium">Monthly Premium</p>
+              <p className="text-3xl font-bold text-savings-700">{formatCurrency(app.monthly_premium)}<span className="text-lg font-normal">/mo</span></p>
             </div>
           )}
         </Card>
@@ -214,12 +214,12 @@ export default function ApplicationSigningPage() {
         {/* Coverages */}
         {app.coverages.length > 0 && (
           <Card className="p-6">
-            <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-3">Coverage Summary</h2>
+            <h2 className="text-lg font-semibold text-slate-900 mb-3">Coverage Summary</h2>
             <div className="space-y-2">
               {app.coverages.map(cov => (
-                <div key={cov.id} className="flex items-center justify-between py-2 border-b border-slate-100 dark:border-slate-700/50 last:border-0">
-                  <span className="text-sm text-slate-900 dark:text-white">{coverageLabel(cov.coverage_type)}</span>
-                  <span className="text-sm font-medium text-slate-900 dark:text-white">
+                <div key={cov.id} className="flex items-center justify-between py-2 border-b border-slate-100 last:border-0">
+                  <span className="text-sm text-slate-900">{coverageLabel(cov.coverage_type)}</span>
+                  <span className="text-sm font-medium text-slate-900">
                     {cov.limit_amount ? `${formatCurrency(cov.limit_amount)} limit` : ''}
                     {cov.deductible_amount ? ` / ${formatCurrency(cov.deductible_amount)} ded.` : ''}
                   </span>
@@ -232,13 +232,13 @@ export default function ApplicationSigningPage() {
         {/* Signature */}
         <Card className="p-6">
           <div className="flex items-center gap-2 mb-4">
-            <PenTool className="w-5 h-5 text-shield-600 dark:text-shield-400" />
-            <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Sign Application</h2>
+            <PenTool className="w-5 h-5 text-shield-600" />
+            <h2 className="text-lg font-semibold text-slate-900">Sign Application</h2>
           </div>
 
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1">Full Legal Name *</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Full Legal Name *</label>
               <Input
                 value={signerName}
                 onChange={(e) => setSignerName(e.target.value)}
@@ -247,8 +247,8 @@ export default function ApplicationSigningPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-2">Signature *</label>
-              <div className="border-2 border-dashed border-slate-300 rounded-lg overflow-hidden bg-white dark:bg-slate-900">
+              <label className="block text-sm font-medium text-slate-700 mb-2">Signature *</label>
+              <div className="border-2 border-dashed border-slate-300 rounded-lg overflow-hidden bg-white">
                 <canvas
                   ref={canvasRef}
                   width={600}
@@ -264,12 +264,12 @@ export default function ApplicationSigningPage() {
                 />
               </div>
               <div className="flex justify-between items-center mt-2">
-                <p className="text-xs text-slate-400 dark:text-slate-500">Draw your signature above</p>
-                <button type="button" onClick={clearCanvas} className="text-xs text-shield-600 dark:text-shield-400 hover:underline">Clear</button>
+                <p className="text-xs text-slate-400">Draw your signature above</p>
+                <button type="button" onClick={clearCanvas} className="text-xs text-shield-600 hover:underline">Clear</button>
               </div>
             </div>
 
-            <p className="text-xs text-slate-500 dark:text-slate-400">
+            <p className="text-xs text-slate-500">
               By signing, I confirm that I have reviewed this application, all information is accurate, and I authorize
               its submission to <strong>{app.carrier_name}</strong> for underwriting. I understand this is a legally binding electronic signature.
             </p>

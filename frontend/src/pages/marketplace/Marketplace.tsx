@@ -47,22 +47,22 @@ export default function Marketplace() {
   });
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-800">
+    <div className="min-h-screen bg-slate-50">
       {/* Hero */}
-      <div className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700/50">
+      <div className="bg-white border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-6 py-12 text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-shield-50 dark:bg-shield-900/30 text-shield-700 dark:text-shield-300 text-sm font-medium mb-4">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-shield-50 text-shield-700 text-sm font-medium mb-4">
             <Users className="w-4 h-4" />
             500+ Licensed Agents Nationwide
           </div>
-          <h1 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-3">Find Your Perfect Insurance Agent</h1>
-          <p className="text-lg text-slate-500 dark:text-slate-400 max-w-2xl mx-auto">Browse verified agents, read reviews, and get matched with the right expert for your coverage needs.</p>
+          <h1 className="text-3xl md:text-4xl font-bold text-slate-900 mb-3">Find Your Perfect Insurance Agent</h1>
+          <p className="text-lg text-slate-500 max-w-2xl mx-auto">Browse verified agents, read reviews, and get matched with the right expert for your coverage needs.</p>
         </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-6 py-8">
         {/* Filters */}
-        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/50 p-6 mb-8">
+        <div className="bg-white rounded-2xl border border-slate-200 p-6 mb-8">
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1">
               <Input
@@ -94,10 +94,10 @@ export default function Marketplace() {
 
         {/* Results count */}
         <div className="flex items-center justify-between mb-6">
-          <p className="text-sm text-slate-500 dark:text-slate-400">{filtered.length} agents found</p>
-          <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
+          <p className="text-sm text-slate-500">{filtered.length} agents found</p>
+          <div className="flex items-center gap-2 text-sm text-slate-500">
             <Filter className="w-4 h-4" />
-            Sort by: <span className="font-medium text-slate-700 dark:text-slate-200">Highest Rated</span>
+            Sort by: <span className="font-medium text-slate-700">Highest Rated</span>
           </div>
         </div>
 
@@ -113,28 +113,28 @@ export default function Marketplace() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <h3 className="font-semibold text-slate-900 dark:text-white truncate">{agent.name}</h3>
-                      {agent.verified && <ShieldCheck className="w-4 h-4 text-shield-600 dark:text-shield-400 flex-shrink-0" />}
+                      <h3 className="font-semibold text-slate-900 truncate">{agent.name}</h3>
+                      {agent.verified && <ShieldCheck className="w-4 h-4 text-shield-600 flex-shrink-0" />}
                     </div>
-                    <p className="text-sm text-slate-500 dark:text-slate-400 truncate">{agent.agency}</p>
+                    <p className="text-sm text-slate-500 truncate">{agent.agency}</p>
                     <div className="flex items-center gap-2 mt-1">
                       <div className="flex items-center gap-1">
                         <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
-                        <span className="text-sm font-medium text-slate-700 dark:text-slate-200">{agent.rating}</span>
+                        <span className="text-sm font-medium text-slate-700">{agent.rating}</span>
                       </div>
-                      <span className="text-xs text-slate-400 dark:text-slate-500">({agent.review_count} reviews)</span>
+                      <span className="text-xs text-slate-400">({agent.review_count} reviews)</span>
                     </div>
                   </div>
                 </div>
 
                 {/* Details */}
                 <div className="space-y-2 mb-4">
-                  <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
-                    <MapPin className="w-4 h-4 text-slate-400 dark:text-slate-500" />
+                  <div className="flex items-center gap-2 text-sm text-slate-600">
+                    <MapPin className="w-4 h-4 text-slate-400" />
                     {agent.city}, {agent.state}
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
-                    <Shield className="w-4 h-4 text-slate-400 dark:text-slate-500" />
+                  <div className="flex items-center gap-2 text-sm text-slate-600">
+                    <Shield className="w-4 h-4 text-slate-400" />
                     {agent.years_experience} years experience · {agent.carriers} carriers
                   </div>
                 </div>

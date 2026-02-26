@@ -48,12 +48,12 @@ export default function ResetPassword() {
 
   if (!token || !email) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-800 flex items-center justify-center px-4 py-12">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4 py-12">
         <div className="w-full max-w-md text-center">
           <img src="/logo.png" alt="Insurons" className="h-20 w-auto mx-auto mb-4" />
-          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/50 p-8">
-            <p className="text-slate-700 dark:text-slate-200 mb-4">Invalid or missing reset link.</p>
-            <Link to="/forgot-password" className="text-shield-600 dark:text-shield-400 font-medium hover:underline">
+          <div className="bg-white rounded-2xl border border-slate-200 p-8">
+            <p className="text-slate-700 mb-4">Invalid or missing reset link.</p>
+            <Link to="/forgot-password" className="text-shield-600 font-medium hover:underline">
               Request a new reset link
             </Link>
           </div>
@@ -63,19 +63,19 @@ export default function ResetPassword() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-800 flex items-center justify-center px-4 py-12">
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <img src="/logo.png" alt="Insurons" className="h-20 w-auto mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Set new password</h1>
-          <p className="text-slate-500 dark:text-slate-400 mt-1">Enter your new password below</p>
+          <h1 className="text-2xl font-bold text-slate-900">Set new password</h1>
+          <p className="text-slate-500 mt-1">Enter your new password below</p>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/50 p-8">
+        <div className="bg-white rounded-2xl border border-slate-200 p-8">
           {success ? (
             <div className="text-center space-y-4">
               <CheckCircle className="w-12 h-12 text-green-500 mx-auto" />
-              <p className="text-slate-700 dark:text-slate-200">Your password has been reset successfully.</p>
+              <p className="text-slate-700">Your password has been reset successfully.</p>
               <Button variant="shield" onClick={() => navigate('/login')} className="mt-2">
                 Go to Login
               </Button>
@@ -83,7 +83,7 @@ export default function ResetPassword() {
           ) : (
             <form onSubmit={handleSubmit} className="space-y-5">
               {error && (
-                <div className="p-3 rounded-xl bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-sm">{error}</div>
+                <div className="p-3 rounded-xl bg-red-50 text-red-600 text-sm">{error}</div>
               )}
               <Input
                 label="New Password"
@@ -111,7 +111,7 @@ export default function ResetPassword() {
         </div>
 
         <p className="text-center mt-6">
-          <Link to="/login" className="text-sm text-shield-600 dark:text-shield-400 font-medium hover:underline inline-flex items-center gap-1">
+          <Link to="/login" className="text-sm text-shield-600 font-medium hover:underline inline-flex items-center gap-1">
             <ArrowLeft className="w-4 h-4" /> Back to login
           </Link>
         </p>
