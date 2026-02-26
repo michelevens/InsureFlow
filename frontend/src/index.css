@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Class-based dark mode (Tailwind v4) */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* ============================================
    INSUREFLOW DESIGN SYSTEM
    Insurance Marketplace Platform
@@ -81,6 +84,21 @@
   border: 1px solid rgba(16, 42, 67, 0.12);
 }
 
+/* Dark mode glass overrides */
+.dark .glass {
+  background: rgba(15, 23, 42, 0.8);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.dark .glass-shield {
+  background: linear-gradient(135deg, rgba(16, 42, 67, 0.4), rgba(20, 125, 100, 0.15));
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.dark .hover-lift:hover {
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+}
+
 .hover-lift {
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
@@ -100,6 +118,11 @@
 
 html {
   scroll-behavior: smooth;
+  color-scheme: light;
+}
+
+html.dark {
+  color-scheme: dark;
 }
 
 body {

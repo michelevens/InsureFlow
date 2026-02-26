@@ -105,9 +105,9 @@ export function NotificationBell() {
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setOpen(!open)}
-        className="relative p-2 rounded-lg hover:bg-slate-100 transition-colors"
+        className="relative p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
       >
-        <Bell className="w-5 h-5 text-slate-600" />
+        <Bell className="w-5 h-5 text-slate-600 dark:text-slate-400" />
         {unreadCount > 0 && (
           <span className="absolute -top-0.5 -right-0.5 w-5 h-5 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
             {unreadCount > 9 ? '9+' : unreadCount}
@@ -116,20 +116,20 @@ export function NotificationBell() {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-2 w-80 sm:w-96 bg-white rounded-xl border border-slate-200 shadow-xl z-50">
+        <div className="absolute right-0 top-full mt-2 w-80 sm:w-96 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 shadow-xl z-50">
           {/* Header */}
-          <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100">
-            <h3 className="font-semibold text-slate-900 text-sm">Notifications</h3>
+          <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 dark:border-slate-700/50">
+            <h3 className="font-semibold text-slate-900 dark:text-white text-sm">Notifications</h3>
             <div className="flex items-center gap-2">
               {unreadCount > 0 && (
                 <button
                   onClick={handleMarkAllRead}
-                  className="text-xs text-teal-600 hover:text-teal-700 font-medium flex items-center gap-1"
+                  className="text-xs text-teal-600 hover:text-teal-700 dark:text-teal-400 dark:hover:text-teal-300 font-medium flex items-center gap-1"
                 >
                   <CheckCheck className="w-3.5 h-3.5" /> Mark all read
                 </button>
               )}
-              <button onClick={() => setOpen(false)} className="p-1 hover:bg-slate-100 rounded">
+              <button onClick={() => setOpen(false)} className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded">
                 <X className="w-4 h-4 text-slate-400" />
               </button>
             </div>
@@ -143,8 +143,8 @@ export function NotificationBell() {
               </div>
             ) : notifications.length === 0 ? (
               <div className="py-8 text-center">
-                <Bell className="w-8 h-8 text-slate-300 mx-auto mb-2" />
-                <p className="text-sm text-slate-400">No notifications yet</p>
+                <Bell className="w-8 h-8 text-slate-300 dark:text-slate-600 mx-auto mb-2" />
+                <p className="text-sm text-slate-400 dark:text-slate-500">No notifications yet</p>
               </div>
             ) : (
               notifications.map((notif) => {
@@ -153,21 +153,21 @@ export function NotificationBell() {
                   <button
                     key={notif.id}
                     onClick={() => handleClick(notif)}
-                    className={`w-full flex items-start gap-3 px-4 py-3 text-left hover:bg-slate-50 transition-colors border-b border-slate-50 ${
-                      !notif.read ? 'bg-teal-50/50' : ''
+                    className={`w-full flex items-start gap-3 px-4 py-3 text-left hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors border-b border-slate-50 dark:border-slate-800 ${
+                      !notif.read ? 'bg-teal-50/50 dark:bg-teal-900/20' : ''
                     }`}
                   >
                     <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
-                      !notif.read ? 'bg-teal-100 text-teal-600' : 'bg-slate-100 text-slate-400'
+                      !notif.read ? 'bg-teal-100 text-teal-600 dark:bg-teal-900/40 dark:text-teal-400' : 'bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500'
                     }`}>
                       <IconComponent className="w-4 h-4" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className={`text-sm ${!notif.read ? 'font-semibold text-slate-900' : 'text-slate-700'}`}>
+                      <p className={`text-sm ${!notif.read ? 'font-semibold text-slate-900 dark:text-white' : 'text-slate-700 dark:text-slate-300'}`}>
                         {notif.title}
                       </p>
-                      <p className="text-xs text-slate-500 truncate mt-0.5">{notif.body}</p>
-                      <p className="text-[10px] text-slate-400 mt-1">{timeAgo(notif.created_at)}</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5">{notif.body}</p>
+                      <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-1">{timeAgo(notif.created_at)}</p>
                     </div>
                     {!notif.read && (
                       <div className="w-2 h-2 bg-teal-500 rounded-full shrink-0 mt-2" />
@@ -180,10 +180,10 @@ export function NotificationBell() {
 
           {/* Footer */}
           {notifications.length > 0 && (
-            <div className="border-t border-slate-100 p-2">
+            <div className="border-t border-slate-100 dark:border-slate-700/50 p-2">
               <button
                 onClick={() => { navigate('/notifications'); setOpen(false); }}
-                className="w-full py-2 text-center text-sm font-medium text-teal-600 hover:bg-teal-50 rounded-lg transition-colors"
+                className="w-full py-2 text-center text-sm font-medium text-teal-600 hover:bg-teal-50 dark:text-teal-400 dark:hover:bg-teal-900/20 rounded-lg transition-colors"
               >
                 View all notifications
               </button>

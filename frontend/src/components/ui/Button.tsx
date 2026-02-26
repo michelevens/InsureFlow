@@ -16,12 +16,12 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     const baseStyles = `inline-flex items-center justify-center font-semibold rounded-xl transition-all duration-300 ease-out focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]`;
 
     const variants = {
-      primary: 'bg-slate-900 text-white hover:bg-slate-800 hover:shadow-lg focus:ring-slate-500',
-      secondary: 'bg-slate-100 text-slate-900 hover:bg-slate-200 hover:shadow-md focus:ring-slate-400',
-      outline: 'border-2 border-slate-300 text-slate-700 bg-transparent hover:border-slate-400 hover:bg-slate-50 focus:ring-slate-400',
-      ghost: 'text-slate-700 bg-transparent hover:bg-slate-100 focus:ring-slate-400',
+      primary: 'bg-slate-900 text-white hover:bg-slate-800 hover:shadow-lg focus:ring-slate-500 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100 dark:focus:ring-slate-400',
+      secondary: 'bg-slate-100 text-slate-900 hover:bg-slate-200 hover:shadow-md focus:ring-slate-400 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700',
+      outline: 'border-2 border-slate-300 text-slate-700 bg-transparent hover:border-slate-400 hover:bg-slate-50 focus:ring-slate-400 dark:border-slate-600 dark:text-slate-300 dark:hover:border-slate-500 dark:hover:bg-slate-800',
+      ghost: 'text-slate-700 bg-transparent hover:bg-slate-100 focus:ring-slate-400 dark:text-slate-300 dark:hover:bg-slate-800',
       shield: 'bg-gradient-to-r from-shield-600 to-confidence-600 text-white hover:from-shield-700 hover:to-confidence-700 hover:shadow-shield-lg focus:ring-shield-500 shadow-shield',
-      danger: 'bg-red-600 text-white hover:bg-red-700 hover:shadow-lg focus:ring-red-500',
+      danger: 'bg-red-600 text-white hover:bg-red-700 hover:shadow-lg focus:ring-red-500 dark:bg-red-700 dark:hover:bg-red-600',
     };
 
     const sizes = {

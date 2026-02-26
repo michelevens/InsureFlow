@@ -121,7 +121,7 @@ export function AiChatWidget() {
   }
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 w-[400px] h-[560px] bg-white rounded-2xl shadow-2xl border border-slate-200 flex flex-col overflow-hidden">
+    <div className="fixed bottom-6 right-6 z-50 w-[400px] h-[560px] bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 flex flex-col overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-shield-600 to-confidence-600 text-white">
         <div className="flex items-center gap-2">
@@ -160,22 +160,22 @@ export function AiChatWidget() {
       {view === 'history' ? (
         <div className="flex-1 overflow-y-auto p-3 space-y-2">
           {conversations.length === 0 ? (
-            <p className="text-sm text-slate-400 text-center mt-8">No conversations yet</p>
+            <p className="text-sm text-slate-400 dark:text-slate-500 text-center mt-8">No conversations yet</p>
           ) : (
             conversations.map((c) => (
               <div
                 key={c.id}
-                className="flex items-center gap-2 p-3 rounded-xl hover:bg-slate-50 cursor-pointer group"
+                className="flex items-center gap-2 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer group"
                 onClick={() => loadConversation(c.id)}
               >
                 <MessageSquare className="w-4 h-4 text-slate-400 shrink-0" />
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-slate-700 truncate">{c.title || 'Untitled'}</p>
-                  <p className="text-xs text-slate-400">{c.message_count} messages</p>
+                  <p className="text-sm font-medium text-slate-700 dark:text-slate-300 truncate">{c.title || 'Untitled'}</p>
+                  <p className="text-xs text-slate-400 dark:text-slate-500">{c.message_count} messages</p>
                 </div>
                 <button
                   onClick={(e) => { e.stopPropagation(); handleDelete(c.id); }}
-                  className="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-50 rounded text-slate-400 hover:text-red-500"
+                  className="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-50 dark:hover:bg-red-900/20 rounded text-slate-400 hover:text-red-500"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
                 </button>
@@ -189,11 +189,11 @@ export function AiChatWidget() {
             {messages.length === 0 ? (
               <div className="space-y-4 mt-4">
                 <div className="text-center">
-                  <div className="w-12 h-12 rounded-2xl bg-shield-50 flex items-center justify-center mx-auto mb-3">
-                    <Sparkles className="w-6 h-6 text-shield-600" />
+                  <div className="w-12 h-12 rounded-2xl bg-shield-50 dark:bg-shield-900/40 flex items-center justify-center mx-auto mb-3">
+                    <Sparkles className="w-6 h-6 text-shield-600 dark:text-shield-400" />
                   </div>
-                  <p className="text-sm font-medium text-slate-700">How can I help you today?</p>
-                  <p className="text-xs text-slate-400 mt-1">Ask me anything about insurance</p>
+                  <p className="text-sm font-medium text-slate-700 dark:text-slate-300">How can I help you today?</p>
+                  <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">Ask me anything about insurance</p>
                 </div>
                 {suggestions.length > 0 && (
                   <div className="space-y-2">
@@ -201,7 +201,7 @@ export function AiChatWidget() {
                       <button
                         key={s}
                         onClick={() => handleSend(s)}
-                        className="w-full text-left text-sm px-3 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 hover:border-shield-200 transition-colors"
+                        className="w-full text-left text-sm px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-shield-200 dark:hover:border-shield-700 transition-colors"
                       >
                         {s}
                       </button>
@@ -219,7 +219,7 @@ export function AiChatWidget() {
                     className={`max-w-[85%] px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed ${
                       msg.role === 'user'
                         ? 'bg-shield-600 text-white rounded-br-md'
-                        : 'bg-slate-100 text-slate-700 rounded-bl-md'
+                        : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200 rounded-bl-md'
                     }`}
                   >
                     <div className="whitespace-pre-wrap">{msg.content}</div>
@@ -229,8 +229,8 @@ export function AiChatWidget() {
             )}
             {sending && (
               <div className="flex justify-start">
-                <div className="bg-slate-100 rounded-2xl rounded-bl-md px-4 py-3">
-                  <div className="flex items-center gap-2 text-slate-400">
+                <div className="bg-slate-100 dark:bg-slate-800 rounded-2xl rounded-bl-md px-4 py-3">
+                  <div className="flex items-center gap-2 text-slate-400 dark:text-slate-500">
                     <Loader2 className="w-4 h-4 animate-spin" />
                     <span className="text-sm">Thinking...</span>
                   </div>
@@ -241,9 +241,9 @@ export function AiChatWidget() {
           </div>
 
           {/* Input */}
-          <div className="border-t border-slate-200 p-3">
+          <div className="border-t border-slate-200 dark:border-slate-700 p-3">
             {dailyInfo && (
-              <p className="text-xs text-slate-400 mb-2 text-center">
+              <p className="text-xs text-slate-400 dark:text-slate-500 mb-2 text-center">
                 {dailyInfo.count}/{dailyInfo.limit} messages today
               </p>
             )}
@@ -254,7 +254,7 @@ export function AiChatWidget() {
                 onKeyDown={handleKeyDown}
                 placeholder="Ask anything about insurance..."
                 rows={1}
-                className="flex-1 resize-none rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-shield-500 focus:border-transparent"
+                className="flex-1 resize-none rounded-xl border border-slate-200 dark:border-slate-600 dark:bg-slate-800 dark:text-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-shield-500 dark:focus:ring-shield-400 focus:border-transparent"
               />
               <button
                 onClick={() => handleSend()}

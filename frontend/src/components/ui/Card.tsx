@@ -10,10 +10,10 @@ interface CardProps extends HTMLAttributes<HTMLDivElement> {
 const Card = forwardRef<HTMLDivElement, CardProps>(
   ({ className, variant = 'default', hover = false, ...props }, ref) => {
     const variants = {
-      default: 'bg-white border border-slate-200',
+      default: 'bg-white border border-slate-200 dark:bg-slate-900 dark:border-slate-700/50',
       glass: 'glass shadow-glass',
       shield: 'glass-shield shadow-shield',
-      elevated: 'bg-white shadow-premium',
+      elevated: 'bg-white shadow-premium dark:bg-slate-900 dark:shadow-none dark:border dark:border-slate-700/50',
     };
 
     return (
@@ -29,21 +29,21 @@ Card.displayName = 'Card';
 
 const CardHeader = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => (
-    <div ref={ref} className={cn('px-6 py-5 border-b border-slate-100', className)} {...props} />
+    <div ref={ref} className={cn('px-6 py-5 border-b border-slate-100 dark:border-slate-700/50', className)} {...props} />
   )
 );
 CardHeader.displayName = 'CardHeader';
 
 const CardTitle = forwardRef<HTMLHeadingElement, HTMLAttributes<HTMLHeadingElement>>(
   ({ className, ...props }, ref) => (
-    <h3 ref={ref} className={cn('text-xl font-bold text-slate-900', className)} {...props} />
+    <h3 ref={ref} className={cn('text-xl font-bold text-slate-900 dark:text-white', className)} {...props} />
   )
 );
 CardTitle.displayName = 'CardTitle';
 
 const CardDescription = forwardRef<HTMLParagraphElement, HTMLAttributes<HTMLParagraphElement>>(
   ({ className, ...props }, ref) => (
-    <p ref={ref} className={cn('text-sm text-slate-500 mt-1', className)} {...props} />
+    <p ref={ref} className={cn('text-sm text-slate-500 dark:text-slate-400 mt-1', className)} {...props} />
   )
 );
 CardDescription.displayName = 'CardDescription';
@@ -57,7 +57,7 @@ CardContent.displayName = 'CardContent';
 
 const CardFooter = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => (
-    <div ref={ref} className={cn('px-6 py-4 border-t border-slate-100 bg-slate-50/50 rounded-b-2xl', className)} {...props} />
+    <div ref={ref} className={cn('px-6 py-4 border-t border-slate-100 dark:border-slate-700/50 bg-slate-50/50 dark:bg-slate-800/50 rounded-b-2xl', className)} {...props} />
   )
 );
 CardFooter.displayName = 'CardFooter';

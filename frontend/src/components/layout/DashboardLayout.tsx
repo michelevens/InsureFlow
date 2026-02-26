@@ -9,7 +9,9 @@ import {
   Building2, BarChart3, UserCircle, Settings, LogOut, Menu, X,
   ClipboardList, Target, DollarSign, Star, ShieldCheck, ChevronDown, MessageSquare, Activity, AlertTriangle, RefreshCw, TrendingUp, Key, Plug, Network, CalendarDays, Palette, Code, Award, Database, BookOpen, HelpCircle,
   MessagesSquare, Calendar, Handshake, Mail, FileBarChart, Video, ShoppingCart, Zap, ListChecks,
+  Moon, Sun,
 } from 'lucide-react';
+import { useTheme } from '@/contexts/ThemeContext';
 import type { ReactNode } from 'react';
 import type { UserRole } from '@/types';
 
@@ -176,6 +178,7 @@ const navSections: NavSection[] = [
 
 export function DashboardLayout() {
   const { user, logout } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const location = useLocation();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -195,18 +198,25 @@ export function DashboardLayout() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
       {/* Mobile header */}
-      <div className="lg:hidden sticky top-0 z-30 bg-white border-b border-slate-200">
+      <div className="lg:hidden sticky top-0 z-30 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700/50">
         <div className="flex items-center justify-between px-4 py-3">
-          <button onClick={() => setSidebarOpen(true)} className="p-2 rounded-lg hover:bg-slate-100">
-            <Menu className="w-6 h-6 text-slate-600" />
+          <button onClick={() => setSidebarOpen(true)} className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+            <Menu className="w-6 h-6 text-slate-600 dark:text-slate-400" />
           </button>
           <div className="flex items-center gap-2">
             <img src="/logo.png" alt="Insurons" className="h-16 w-auto" />
           </div>
           <div className="flex items-center gap-1">
-            <Link to="/messages" className="p-2 rounded-lg text-slate-500 hover:bg-slate-100">
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-lg text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 transition-colors"
+              title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+            >
+              {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            </button>
+            <Link to="/messages" className="p-2 rounded-lg text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800">
               <MessageSquare className="w-5 h-5" />
             </Link>
             <NotificationBell />
@@ -224,8 +234,8 @@ export function DashboardLayout() {
                   className={cn(
                     'flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors',
                     isActive
-                      ? 'bg-shield-50 text-shield-700'
-                      : 'text-slate-500 hover:bg-slate-100 hover:text-slate-700'
+                      ? 'bg-shield-50 text-shield-700 dark:bg-shield-900/40 dark:text-shield-300'
+                      : 'text-slate-500 hover:bg-slate-100 hover:text-slate-700 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200'
                   )}
                 >
                   {item.icon}
@@ -246,15 +256,15 @@ export function DashboardLayout() {
 
       {/* Sidebar */}
       <aside className={cn(
-        'fixed top-0 left-0 z-50 h-full w-64 bg-white border-r border-slate-200 flex flex-col transition-transform duration-300 lg:translate-x-0',
+        'fixed top-0 left-0 z-50 h-full w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-700/50 flex flex-col transition-transform duration-300 lg:translate-x-0',
         sidebarOpen ? 'translate-x-0' : '-translate-x-full'
       )}>
         {/* Logo */}
-        <div className="flex items-center justify-between px-6 py-3 border-b border-slate-100">
+        <div className="flex items-center justify-between px-6 py-3 border-b border-slate-100 dark:border-slate-700/50">
           <Link to="/dashboard" className="flex items-center gap-2.5">
             <img src="/logo.png" alt="Insurons" className="h-10 w-auto" />
           </Link>
-          <button onClick={() => setSidebarOpen(false)} className="lg:hidden p-1 rounded hover:bg-slate-100">
+          <button onClick={() => setSidebarOpen(false)} className="lg:hidden p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800">
             <X className="w-5 h-5 text-slate-400" />
           </button>
         </div>
@@ -264,7 +274,7 @@ export function DashboardLayout() {
           {filteredSections.map((section, idx) => (
             <div key={section.title || idx} className={idx > 0 ? 'mt-4' : ''}>
               {section.title && (
-                <p className="px-3 mb-1 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+                <p className="px-3 mb-1 text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
                   {section.title}
                 </p>
               )}
@@ -279,8 +289,8 @@ export function DashboardLayout() {
                       className={cn(
                         'flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200',
                         isActive
-                          ? 'bg-shield-50 text-shield-700'
-                          : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                          ? 'bg-shield-50 text-shield-700 dark:bg-shield-900/40 dark:text-shield-300'
+                          : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200'
                       )}
                     >
                       {item.icon}
@@ -294,14 +304,14 @@ export function DashboardLayout() {
         </nav>
 
         {/* User menu (mobile only — desktop uses top bar) */}
-        <div className="border-t border-slate-100 p-3 lg:hidden">
-          <Link to="/settings" onClick={() => setSidebarOpen(false)} className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50">
+        <div className="border-t border-slate-100 dark:border-slate-700/50 p-3 lg:hidden">
+          <Link to="/settings" onClick={() => setSidebarOpen(false)} className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-slate-800">
             <Settings className="w-5 h-5" /> Settings
           </Link>
-          <Link to="/help" onClick={() => setSidebarOpen(false)} className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50">
+          <Link to="/help" onClick={() => setSidebarOpen(false)} className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-slate-800">
             <HelpCircle className="w-5 h-5" /> Help Center
           </Link>
-          <button onClick={handleLogout} className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm font-medium text-red-600 hover:bg-red-50">
+          <button onClick={handleLogout} className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm font-medium text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20">
             <LogOut className="w-5 h-5" /> Sign Out
           </button>
         </div>
@@ -310,7 +320,7 @@ export function DashboardLayout() {
       {/* Main content */}
       <main className="lg:ml-64 min-h-screen">
         {/* Desktop top bar */}
-        <div className="hidden lg:flex items-center justify-between px-8 py-3 border-b border-slate-200 bg-white sticky top-0 z-30">
+        <div className="hidden lg:flex items-center justify-between px-8 py-3 border-b border-slate-200 dark:border-slate-700/50 bg-white dark:bg-slate-900 sticky top-0 z-30 transition-colors">
           {/* Quick nav links (left side) */}
           <div className="flex items-center gap-1">
             {user && quickNavLinks[user.role]?.map(item => {
@@ -322,8 +332,8 @@ export function DashboardLayout() {
                   className={cn(
                     'flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-colors',
                     isActive
-                      ? 'bg-shield-50 text-shield-700'
-                      : 'text-slate-500 hover:bg-slate-100 hover:text-slate-700'
+                      ? 'bg-shield-50 text-shield-700 dark:bg-shield-900/40 dark:text-shield-300'
+                      : 'text-slate-500 hover:bg-slate-100 hover:text-slate-700 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200'
                   )}
                 >
                   {item.icon}
@@ -338,7 +348,9 @@ export function DashboardLayout() {
             to="/messages"
             className={cn(
               'p-2 rounded-lg transition-colors relative',
-              location.pathname === '/messages' ? 'bg-shield-50 text-shield-700' : 'text-slate-500 hover:bg-slate-100 hover:text-slate-700'
+              location.pathname === '/messages'
+                ? 'bg-shield-50 text-shield-700 dark:bg-shield-900/40 dark:text-shield-300'
+                : 'text-slate-500 hover:bg-slate-100 hover:text-slate-700 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200'
             )}
             title="Messages"
           >
@@ -351,7 +363,9 @@ export function DashboardLayout() {
                 to="/calendar"
                 className={cn(
                   'p-2 rounded-lg transition-colors',
-                  location.pathname === '/calendar' ? 'bg-shield-50 text-shield-700' : 'text-slate-500 hover:bg-slate-100 hover:text-slate-700'
+                  location.pathname === '/calendar'
+                    ? 'bg-shield-50 text-shield-700 dark:bg-shield-900/40 dark:text-shield-300'
+                    : 'text-slate-500 hover:bg-slate-100 hover:text-slate-700 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200'
                 )}
                 title="Calendar"
               >
@@ -361,7 +375,9 @@ export function DashboardLayout() {
                 to="/meetings"
                 className={cn(
                   'p-2 rounded-lg transition-colors',
-                  location.pathname === '/meetings' ? 'bg-shield-50 text-shield-700' : 'text-slate-500 hover:bg-slate-100 hover:text-slate-700'
+                  location.pathname === '/meetings'
+                    ? 'bg-shield-50 text-shield-700 dark:bg-shield-900/40 dark:text-shield-300'
+                    : 'text-slate-500 hover:bg-slate-100 hover:text-slate-700 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200'
                 )}
                 title="Meetings"
               >
@@ -376,8 +392,8 @@ export function DashboardLayout() {
               className={cn(
                 'p-2 rounded-lg transition-colors',
                 learningOpen || ['/training', '/forum', '/events', '/partners'].some(p => location.pathname.startsWith(p))
-                  ? 'bg-shield-50 text-shield-700'
-                  : 'text-slate-500 hover:bg-slate-100 hover:text-slate-700'
+                  ? 'bg-shield-50 text-shield-700 dark:bg-shield-900/40 dark:text-shield-300'
+                  : 'text-slate-500 hover:bg-slate-100 hover:text-slate-700 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200'
               )}
               title="Learning & Community"
             >
@@ -386,23 +402,23 @@ export function DashboardLayout() {
             {learningOpen && (
               <>
                 <div className="fixed inset-0 z-40" onClick={() => setLearningOpen(false)} />
-                <div className="absolute right-0 top-full mt-1 w-52 bg-white border border-slate-200 rounded-xl shadow-lg overflow-hidden z-50">
-                  <div className="px-3 py-2 border-b border-slate-100">
-                    <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Learning & Community</p>
+                <div className="absolute right-0 top-full mt-1 w-52 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-lg overflow-hidden z-50">
+                  <div className="px-3 py-2 border-b border-slate-100 dark:border-slate-700/50">
+                    <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">Learning & Community</p>
                   </div>
                   {user && ['agent', 'agency_owner'].includes(user.role) && (
-                    <Link to="/training" onClick={() => setLearningOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm text-slate-600 hover:bg-slate-50">
+                    <Link to="/training" onClick={() => setLearningOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800">
                       <BookOpen className="w-4 h-4" /> Training
                     </Link>
                   )}
-                  <Link to="/forum" onClick={() => setLearningOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm text-slate-600 hover:bg-slate-50">
+                  <Link to="/forum" onClick={() => setLearningOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800">
                     <MessagesSquare className="w-4 h-4" /> Forum
                   </Link>
-                  <Link to="/events" onClick={() => setLearningOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm text-slate-600 hover:bg-slate-50">
+                  <Link to="/events" onClick={() => setLearningOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800">
                     <Calendar className="w-4 h-4" /> Events
                   </Link>
                   {user && ['agent', 'agency_owner'].includes(user.role) && (
-                    <Link to="/partners" onClick={() => setLearningOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm text-slate-600 hover:bg-slate-50">
+                    <Link to="/partners" onClick={() => setLearningOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800">
                       <Handshake className="w-4 h-4" /> Partners
                     </Link>
                   )}
@@ -414,7 +430,9 @@ export function DashboardLayout() {
             to="/help"
             className={cn(
               'p-2 rounded-lg transition-colors',
-              location.pathname === '/help' ? 'bg-shield-50 text-shield-700' : 'text-slate-500 hover:bg-slate-100 hover:text-slate-700'
+              location.pathname === '/help'
+                ? 'bg-shield-50 text-shield-700 dark:bg-shield-900/40 dark:text-shield-300'
+                : 'text-slate-500 hover:bg-slate-100 hover:text-slate-700 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200'
             )}
             title="Help Center"
           >
@@ -424,34 +442,44 @@ export function DashboardLayout() {
             to="/settings"
             className={cn(
               'p-2 rounded-lg transition-colors',
-              location.pathname === '/settings' ? 'bg-shield-50 text-shield-700' : 'text-slate-500 hover:bg-slate-100 hover:text-slate-700'
+              location.pathname === '/settings'
+                ? 'bg-shield-50 text-shield-700 dark:bg-shield-900/40 dark:text-shield-300'
+                : 'text-slate-500 hover:bg-slate-100 hover:text-slate-700 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200'
             )}
             title="Settings"
           >
             <Settings className="w-5 h-5" />
           </Link>
-          <div className="w-px h-6 bg-slate-200 mx-2" />
+          {/* Dark mode toggle */}
+          <button
+            onClick={toggleTheme}
+            className="p-2 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-700 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200 transition-colors"
+            title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+          >
+            {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+          </button>
+          <div className="w-px h-6 bg-slate-200 dark:bg-slate-700 mx-2" />
           <div className="relative">
             <button
               onClick={() => setProfileOpen(!profileOpen)}
-              className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-slate-50 transition-colors"
+              className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
             >
               <div className="w-8 h-8 rounded-full gradient-shield flex items-center justify-center text-white text-sm font-bold">
                 {user?.name?.charAt(0) || 'U'}
               </div>
               <div className="text-left hidden xl:block">
-                <p className="text-sm font-medium text-slate-900 truncate max-w-[120px]">{user?.name}</p>
-                <p className="text-xs text-slate-500 capitalize">{user?.role?.replace('_', ' ')}</p>
+                <p className="text-sm font-medium text-slate-900 dark:text-white truncate max-w-[120px]">{user?.name}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 capitalize">{user?.role?.replace('_', ' ')}</p>
               </div>
               <ChevronDown className={cn('w-4 h-4 text-slate-400 transition-transform', profileOpen && 'rotate-180')} />
             </button>
 
             {profileOpen && (
-              <div className="absolute right-0 top-full mt-1 w-48 bg-white border border-slate-200 rounded-xl shadow-lg overflow-hidden z-50">
-                <Link to="/settings" onClick={() => setProfileOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm text-slate-600 hover:bg-slate-50">
+              <div className="absolute right-0 top-full mt-1 w-48 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-lg overflow-hidden z-50">
+                <Link to="/settings" onClick={() => setProfileOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800">
                   <UserCircle className="w-4 h-4" /> Profile
                 </Link>
-                <button onClick={handleLogout} className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-red-600 hover:bg-red-50">
+                <button onClick={handleLogout} className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20">
                   <LogOut className="w-4 h-4" /> Sign Out
                 </button>
               </div>
