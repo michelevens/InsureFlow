@@ -214,6 +214,7 @@ php artisan serve
 - **Consumer Multi-Quote Comparison:** ScenarioPublicView shows all carrier quotes in comparison table
 - **Server-Side Quote Drafts:** Authenticated users can save/resume calculator progress server-side
 - **Compliance Overdue Notifications:** Daily check command with email + in-app notifications
+- **Push Notifications LIVE:** VAPID keys generated and set on Railway, `/push/vapid-key` returns public key, subscribe/unsubscribe tested
 - **Stripe Integration:** stripe:sync-plans command, customer portal, API-driven Pricing page
 - **Railway Scheduler:** Procfile updated with scheduler process for cron commands
 - **Workflow Automation:** Tested end-to-end — rule creation, condition matching, notification sending, execution audit log
@@ -224,7 +225,7 @@ php artisan serve
 ## Recent Work
 
 ### PWA + Embed + Carrier Session (2026-02-26) — Push Notifications, Widget Branding, Offline Caching
-- **Push Notifications (Web Push API):** Full stack — `push_subscriptions` table + PushSubscriptionController (subscribe/unsubscribe/vapid-key) + `minishlink/web-push` package. NotificationService auto-sends push with every in-app notification (when VAPID configured). Frontend: `usePushNotifications` hook, `sw-push.js` service worker, "Enable push notifications" prompt in NotificationBell dropdown. Needs `VAPID_PUBLIC_KEY` + `VAPID_PRIVATE_KEY` env vars on Railway.
+- **Push Notifications (Web Push API):** Full stack — `push_subscriptions` table + PushSubscriptionController (subscribe/unsubscribe/vapid-key) + `minishlink/web-push` package. NotificationService auto-sends push with every in-app notification. Frontend: `usePushNotifications` hook, `sw-push.js` service worker, "Enable push notifications" prompt in NotificationBell dropdown. **VAPID keys generated and configured on Railway — all 3 endpoints verified working in production.**
 - **Embed Widget Branding:** Button gradient updated from blue to navy+gold (#102a43/#011434). Shield icon stroke: gold (#BC9C22). Modal header: navy text on light background.
 - **Offline Quote Caching:** Added StaleWhileRevalidate caching for quote drafts (7 days) and platform products (1 day) in Workbox config. Enables offline quote form resume.
 - **Carrier API Integration Guide:** Created `CARRIER_API_GUIDE.md` with instructions for adding carrier APIs, cost breakdown, custom adapter pattern, VAPID key generation.
@@ -498,7 +499,8 @@ All 4 core flows tested against production and **PASSING**:
 ## Next Tasks
 
 ### Immediate
-- **Generate VAPID keys:** `npx web-push generate-vapid-keys` → add `VAPID_PUBLIC_KEY` + `VAPID_PRIVATE_KEY` to Railway env vars to activate push notifications
+- ~~**Generate VAPID keys:**~~ DONE — keys generated, set on Railway, vapid-key endpoint verified
+- **Test push notifications end-to-end:** Log in on insurons.com → enable push in NotificationBell → trigger a notification → verify browser push appears
 - **Test Kanban board** drag-and-drop on the live frontend (https://insurons.com)
 - **Test embed widget + webhook:** Create partner with webhook URL (use webhook.site) → complete embed flow → verify webhook fires with signed payload
 
