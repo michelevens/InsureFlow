@@ -10,6 +10,8 @@ export interface EmbedPartner {
   contact_name: string | null;
   is_active: boolean;
   widget_config: Record<string, unknown> | null;
+  webhook_url?: string | null;
+  webhook_secret?: string | null; // only returned on creation
   sessions_count?: number;
   converted_count?: number;
   created_at: string;
@@ -46,6 +48,7 @@ export const embedService = {
     contact_email?: string;
     contact_name?: string;
     widget_config?: Record<string, unknown>;
+    webhook_url?: string;
   }): Promise<EmbedPartner> {
     return api.post<EmbedPartner>('/embed/partners', data);
   },
@@ -76,5 +79,9 @@ export const embedService = {
 
   async widgetCode(id: number): Promise<{ embed_code: string; api_key: string }> {
     return api.get(`/embed/partners/${id}/widget-code`);
+  },
+
+  async testWebhook(id: number): Promise<{ success: boolean; status_code?: number; error?: string }> {
+    return api.post(`/embed/partners/${id}/test-webhook`, {});
   },
 };

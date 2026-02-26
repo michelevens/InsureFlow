@@ -488,6 +488,7 @@ Route::middleware(['auth:sanctum', 'agency.scope'])->group(function () {
     Route::get('/embed/partners/{partner}/sessions', [EmbedController::class, 'sessions']);
     Route::get('/embed/partners/{partner}/analytics', [EmbedController::class, 'analytics']);
     Route::get('/embed/partners/{partner}/widget-code', [EmbedController::class, 'widgetCode']);
+    Route::post('/embed/partners/{partner}/test-webhook', [EmbedController::class, 'testWebhook']);
 
     // Document Generation
     Route::get('/documents/generate/templates', [DocumentGenerationController::class, 'templates']);

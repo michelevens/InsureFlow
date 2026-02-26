@@ -6,6 +6,8 @@ use App\Models\EmbedPartner;
 use App\Models\EmbedSession;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class EmbedController extends Controller
@@ -31,14 +33,21 @@ class EmbedController extends Controller
             'contact_email' => 'nullable|email|max:255',
             'contact_name' => 'nullable|string|max:255',
             'widget_config' => 'nullable|array',
+            'webhook_url' => 'nullable|url|max:500',
         ]);
+
+        // Auto-generate webhook secret if webhook_url is provided
+        if (!empty($data['webhook_url'])) {
+            $data['webhook_secret'] = Str::random(64);
+        }
 
         $partner = EmbedPartner::create($data);
 
-        // Return with the api_key visible (only on creation)
+        // Return with api_key and webhook_secret visible (only on creation)
         return response()->json([
             ...$partner->toArray(),
             'api_key' => $partner->api_key,
+            'webhook_secret' => $partner->webhook_secret,
         ], 201);
     }
 
@@ -60,7 +69,13 @@ class EmbedController extends Controller
             'contact_name' => 'nullable|string|max:255',
             'is_active' => 'sometimes|boolean',
             'widget_config' => 'nullable|array',
+            'webhook_url' => 'nullable|url|max:500',
         ]);
+
+        // Generate new secret if webhook_url changed and partner doesn't have one
+        if (!empty($data['webhook_url']) && !$partner->webhook_secret) {
+            $data['webhook_secret'] = Str::random(64);
+        }
 
         $partner->update($data);
         return response()->json($partner);
@@ -176,8 +191,81 @@ class EmbedController extends Controller
 
         if ($session && !$session->converted_at) {
             $session->update(['converted_at' => now()]);
+
+            // Fire webhook if partner has one configured
+            $this->dispatchWebhook($session);
         }
 
         return response()->json(['ok' => true]);
+    }
+
+    public function testWebhook(EmbedPartner $partner): JsonResponse
+    {
+        if (!$partner->webhook_url) {
+            return response()->json(['error' => 'No webhook URL configured'], 422);
+        }
+
+        $payload = [
+            'event' => 'embed.test',
+            'data' => [
+                'partner_id' => $partner->id,
+                'partner_name' => $partner->name,
+                'message' => 'This is a test webhook from Insurons.',
+            ],
+            'timestamp' => now()->toIso8601String(),
+        ];
+
+        try {
+            $signature = hash_hmac('sha256', json_encode($payload), $partner->webhook_secret ?? '');
+
+            $response = Http::timeout(10)
+                ->withHeaders(['X-Webhook-Signature' => $signature])
+                ->post($partner->webhook_url, $payload);
+
+            return response()->json([
+                'success' => $response->successful(),
+                'status_code' => $response->status(),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage(),
+            ], 502);
+        }
+    }
+
+    private function dispatchWebhook(EmbedSession $session): void
+    {
+        $partner = $session->partner;
+        if (!$partner || !$partner->webhook_url) {
+            return;
+        }
+
+        $payload = [
+            'event' => 'embed.session.converted',
+            'data' => [
+                'session_token' => $session->session_token,
+                'insurance_type' => $session->insurance_type,
+                'source_domain' => $session->source_domain,
+                'converted_at' => $session->converted_at->toIso8601String(),
+                'partner_id' => $partner->id,
+            ],
+            'timestamp' => now()->toIso8601String(),
+        ];
+
+        $signature = hash_hmac('sha256', json_encode($payload), $partner->webhook_secret ?? '');
+
+        // Fire-and-forget via async HTTP (non-blocking)
+        try {
+            Http::timeout(10)
+                ->withHeaders(['X-Webhook-Signature' => $signature])
+                ->post($partner->webhook_url, $payload);
+        } catch (\Throwable $e) {
+            Log::warning('Embed webhook failed', [
+                'partner_id' => $partner->id,
+                'url' => $partner->webhook_url,
+                'error' => $e->getMessage(),
+            ]);
+        }
     }
 }

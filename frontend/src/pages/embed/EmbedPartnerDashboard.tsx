@@ -3,8 +3,9 @@ import { Card, Badge, Button, Input, Modal } from '@/components/ui';
 import { embedService } from '@/services/api';
 import type { EmbedPartner, EmbedAnalytics } from '@/services/api/embed';
 import {
-  Code, Plus, Trash2, BarChart3, Globe, Copy, Key, Pencil,
+  Code, Plus, Trash2, BarChart3, Globe, Copy, Key, Pencil, Webhook, Send,
 } from 'lucide-react';
+import { toast } from 'sonner';
 
 export default function EmbedPartnerDashboard() {
   const [partners, setPartners] = useState<EmbedPartner[]>([]);
@@ -134,6 +135,20 @@ export default function EmbedPartnerDashboard() {
                     <Button variant="ghost" size="sm" onClick={() => regenerateKey(selectedPartner.id)}>
                       <Key className="w-4 h-4 mr-1" /> New Key
                     </Button>
+                    {selectedPartner.webhook_url && (
+                      <Button variant="ghost" size="sm" onClick={async () => {
+                        try {
+                          const res = await embedService.testWebhook(selectedPartner.id);
+                          if (res.success) {
+                            toast.success(`Webhook test sent (HTTP ${res.status_code})`);
+                          } else {
+                            toast.error(`Webhook failed: ${res.error || 'Unknown error'}`);
+                          }
+                        } catch { toast.error('Failed to send test webhook'); }
+                      }}>
+                        <Send className="w-4 h-4 mr-1" /> Test Webhook
+                      </Button>
+                    )}
                     <Button variant="ghost" size="sm" onClick={() => toggleActive(selectedPartner)}>
                       {selectedPartner.is_active ? 'Disable' : 'Enable'}
                     </Button>
@@ -267,6 +282,7 @@ function PartnerFormModal({ partner, onClose, onSaved }: {
   const [contactName, setContactName] = useState(partner?.contact_name || '');
   const [domains, setDomains] = useState(partner?.allowed_domains?.join(', ') || '');
   const [commission, setCommission] = useState(String(partner?.commission_share_percent ?? 10));
+  const [webhookUrl, setWebhookUrl] = useState(partner?.webhook_url || '');
   const [saving, setSaving] = useState(false);
 
   // Widget customization fields
@@ -298,6 +314,7 @@ function PartnerFormModal({ partner, onClose, onSaved }: {
         allowed_domains: domains ? domains.split(',').map(d => d.trim()).filter(Boolean) : undefined,
         commission_share_percent: parseFloat(commission) || 10,
         widget_config: buildWidgetConfig(),
+        webhook_url: webhookUrl || undefined,
       };
 
       const result = isEdit
@@ -321,6 +338,22 @@ function PartnerFormModal({ partner, onClose, onSaved }: {
         </div>
         <Input label="Allowed Domains" placeholder="dealer.com, mortgage.co (comma-separated)" value={domains} onChange={e => setDomains(e.target.value)} />
         <Input label="Commission Share %" type="number" value={commission} onChange={e => setCommission(e.target.value)} />
+
+        {/* Webhook */}
+        <div className="border-t border-slate-200 dark:border-slate-700/50 pt-4 mt-4">
+          <h3 className="text-sm font-bold text-slate-700 dark:text-slate-200 mb-3 flex items-center gap-2">
+            <Webhook className="w-4 h-4" /> Webhook Notifications
+          </h3>
+          <Input
+            label="Webhook URL"
+            placeholder="https://partner.com/webhooks/insurons"
+            value={webhookUrl}
+            onChange={e => setWebhookUrl(e.target.value)}
+          />
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+            We'll POST conversion events to this URL with an HMAC-SHA256 signature.
+          </p>
+        </div>
 
         {/* Widget Customization */}
         <div className="border-t border-slate-200 dark:border-slate-700/50 pt-4 mt-4">

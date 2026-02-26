@@ -13,6 +13,7 @@ class EmbedPartner extends Model
     protected $fillable = [
         'name', 'api_key', 'allowed_domains', 'commission_share_percent',
         'contact_email', 'contact_name', 'is_active', 'widget_config',
+        'webhook_url', 'webhook_secret',
     ];
 
     protected $casts = [
@@ -22,7 +23,7 @@ class EmbedPartner extends Model
         'commission_share_percent' => 'decimal:2',
     ];
 
-    protected $hidden = ['api_key'];
+    protected $hidden = ['api_key', 'webhook_secret'];
 
     public function sessions(): HasMany
     {
