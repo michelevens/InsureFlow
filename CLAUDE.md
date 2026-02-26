@@ -203,6 +203,9 @@ php artisan serve
 - **Auto-Commission:** Creating/binding a policy automatically generates a commission record (10% default)
 - **Design System:** Premium Navy + Teal + Amber palette (refreshed from original bright blue)
 - **Quote UX:** Save & resume (localStorage), comparison matrix, premium breakdown, Lemonade-style progressive disclosure
+- **Testing:** Frontend — Vitest + testing-library (15 tests passing), Backend — PHPUnit with SQLite :memory: (10 tests)
+- **Embed Webhooks:** Partner webhook notifications with HMAC-SHA256 signing on conversion + test ping endpoint
+- **Compliance Alert Banner:** Real-time overdue/expiring alerts on agent dashboard, dismissible per session
 - **Chunk Error Recovery:** ChunkErrorBoundary + lazyRetry prevent blank pages after deploys
 - **Agency Team Page:** Wired to real API — invite agents, toggle active status, cancel invites
 - **CRM Carrier Quotes:** Full comparison table in scenario detail with recommend/select/delete actions
@@ -219,6 +222,17 @@ php artisan serve
 - **ZIP Code Autocomplete:** 160+ ZIP codes seeded and lookup working on production
 
 ## Recent Work
+
+### Testing + Features Session (2026-02-25) — Test Infrastructure + Webhooks + Compliance Alerts
+- **Frontend test infrastructure:** Installed vitest + @testing-library/react + jest-dom + user-event + jsdom. Created vitest.config.ts, setup.ts (ResizeObserver/matchMedia mocks), test-utils.tsx (MemoryRouter render, makeQuote factory). 15 tests passing.
+- **QuoteComparisonMatrix tests (7):** Empty renders null, sorting (recommended first), savings callout, onSelect callback, lowest label, recommended badge
+- **PremiumBreakdownChart tests (8):** Empty/zero renders null, chart container, agent recommended legend, calculator total, discount label
+- **Backend test infrastructure:** PHPUnit with SQLite :memory:, TestCase base class (LazilyRefreshDatabase, createUser/Agent/Admin helpers), UserFactory + EmbedPartnerFactory
+- **EmbedControllerTest (6):** Config valid/invalid/inactive key, quote creates session, markConverted, domain rejection
+- **ConsumerMarketplaceTest (4):** Submit creates quote_request, matches agencies by state, view scenario by token, respond accept
+- **Feature A — Embed Webhooks:** Migration adds webhook_url + webhook_secret to embed_partners. HMAC-SHA256 signed POST on conversion. Test webhook ping endpoint. Frontend: webhook URL field + test button in partner dashboard.
+- **Feature B — Compliance Alert Banner:** Backend GET /compliance/alerts (overdue pack items + expiring licenses/E&O within 14 days). ComplianceAlertBanner component shows red (overdue) or amber (expiring) dismissible banner above dashboard content. SessionStorage dismissal.
+- **Files:** 20+ new/modified across frontend + backend
 
 ### Deploy + Test Session (2026-02-25) — Production Deployment & Bug Fixes
 - **Deployed Phase 10-14 to Railway:** 9 pending migrations ran successfully (carrier API adapters, quote drafts, marketplace auction, ZIP codes, Stripe payment columns, workflow rules, task support)
@@ -467,7 +481,10 @@ All 4 core flows tested against production and **PASSING**:
 ## Next Tasks
 
 ### Immediate
-- **Test embed widget:** Create partner → get embed code → put on test page → verify quote flow + conversion tracking
+- **Deploy new migrations:** Webhook columns (embed_partners) need `php artisan migrate` on Railway
+- **Run backend tests on Railway:** `php artisan test` to verify 10 tests pass on production environment
+- **Test embed widget + webhook:** Create partner with webhook URL (use webhook.site) → complete embed flow → verify webhook fires with signed payload
+- **Test compliance alert banner:** Create overdue compliance_pack_item → log in as agent → verify red banner appears → dismiss → verify sessionStorage persistence
 - **Test Kanban board** drag-and-drop on the live frontend (https://ennhealth.github.io/InsureFlow)
 
 ### Infrastructure & Config
