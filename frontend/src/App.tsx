@@ -40,6 +40,7 @@ const Onboarding = lazyRetry(() => import('@/pages/onboarding/Onboarding'));
 // Public
 const Landing = lazyRetry(() => import('@/pages/public/Landing'));
 const Pricing = lazyRetry(() => import('@/pages/public/Pricing'));
+const Billing = lazyRetry(() => import('@/pages/public/Billing'));
 const Privacy = lazyRetry(() => import('@/pages/public/Privacy'));
 const Terms = lazyRetry(() => import('@/pages/public/Terms'));
 
@@ -328,8 +329,9 @@ export default function App() {
                 {/* Feedback */}
                 <Route path="/feedback" element={<SubmitFeedback />} />
 
-                {/* Settings */}
+                {/* Settings & Billing */}
                 <Route path="/settings" element={<Settings />} />
+                <Route path="/billing" element={<Billing />} />
               </Route>
               </Route>
 

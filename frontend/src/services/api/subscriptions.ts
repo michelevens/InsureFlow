@@ -14,6 +14,8 @@ export interface SubscriptionPlan {
   sort_order: number;
   stripe_price_id_monthly: string | null;
   stripe_price_id_annual: string | null;
+  lead_credits_per_month: number;
+  can_access_marketplace: boolean;
 }
 
 export interface SubscriptionCurrent {
@@ -29,6 +31,17 @@ export interface SubscriptionCurrent {
     current_period_end: string | null;
     canceled_at: string | null;
     plan?: SubscriptionPlan;
+  } | null;
+}
+
+export interface BillingOverview {
+  subscription: SubscriptionCurrent['subscription'];
+  plan: SubscriptionPlan | null;
+  credits: {
+    balance: number;
+    used: number;
+    plan_allowance: number;
+    last_replenished: string | null;
   } | null;
 }
 
@@ -66,5 +79,9 @@ export const subscriptionService = {
 
   async portal(): Promise<PortalResponse> {
     return api.post<PortalResponse>('/subscriptions/portal', {});
+  },
+
+  async billingOverview(): Promise<BillingOverview> {
+    return api.get<BillingOverview>('/billing/overview');
   },
 };

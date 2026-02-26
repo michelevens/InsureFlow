@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { Card, Badge, Button, Input, useConfirm } from '@/components/ui';
-import { Search, ShoppingCart, Tag, MapPin, Clock, Star, TrendingUp, Phone, Mail, RefreshCw, ArrowUpDown, Gavel, Package, CreditCard, Loader2 } from 'lucide-react';
+import { Search, ShoppingCart, Tag, MapPin, Clock, Star, TrendingUp, Phone, Mail, RefreshCw, ArrowUpDown, Gavel, Package, CreditCard, Loader2, ShieldAlert, ArrowRight } from 'lucide-react';
 import { marketplaceService, type LeadMarketplaceListing, type LeadMarketplaceStats, type LeadMarketplaceTransaction } from '@/services/api/marketplace';
 import { toast } from 'sonner';
 
@@ -28,6 +28,8 @@ export default function LeadMarketplace() {
   const [loading, setLoading] = useState(true);
   const [purchasing, setPurchasing] = useState<number | null>(null);
   const [biddingId, setBiddingId] = useState<number | null>(null);
+  const [requiresUpgrade, setRequiresUpgrade] = useState(false);
+  const [creditBalance, setCreditBalance] = useState<number | null>(null);
 
   // Filters
   const [search, setSearch] = useState('');
@@ -56,8 +58,14 @@ export default function LeadMarketplace() {
         sort,
       });
       setListings(res.data);
-    } catch {
-      toast.error('Failed to load marketplace listings');
+      setRequiresUpgrade(false);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : '';
+      if (msg.includes('marketplace access') || msg.includes('HTTP 403') || msg.includes('Upgrade to')) {
+        setRequiresUpgrade(true);
+      } else {
+        toast.error('Failed to load marketplace listings');
+      }
     } finally {
       setLoading(false);
     }
@@ -80,6 +88,10 @@ export default function LeadMarketplace() {
       const res = await marketplaceService.leadMarketplaceStats();
       setStats(res);
     } catch { /* ignore */ }
+    try {
+      const cb = await marketplaceService.creditBalance();
+      setCreditBalance(cb.credits_balance ?? null);
+    } catch { /* ignore */ }
   }, []);
 
   useEffect(() => {
@@ -93,9 +105,15 @@ export default function LeadMarketplace() {
   }, [tab, fetchBrowse, fetchMyListings]);
 
   const handlePurchase = async (listing: LeadMarketplaceListing) => {
+    // Check credit balance before purchase
+    if (creditBalance !== null && creditBalance <= 0) {
+      toast.error('No marketplace credits remaining. Upgrade your plan for more credits.');
+      return;
+    }
+
     const ok = await confirm({
       title: 'Purchase Lead',
-      message: `Purchase this ${listing.insurance_type.replace(/_/g, ' ')} lead for $${Number(listing.asking_price).toFixed(2)}?`,
+      message: `Purchase this ${listing.insurance_type.replace(/_/g, ' ')} lead for $${Number(listing.asking_price).toFixed(2)}?${creditBalance !== null ? `\n\nCredits remaining after purchase: ${creditBalance - 1}` : ''}`,
       confirmLabel: 'Buy Now',
       cancelLabel: 'Cancel',
       variant: 'info',
@@ -112,17 +130,24 @@ export default function LeadMarketplace() {
       }
       // If no checkout_url returned (Stripe not configured), it completed directly
       toast.success('Lead purchased! Check your CRM.');
+      if (creditBalance !== null) setCreditBalance(creditBalance - 1);
       fetchBrowse();
       fetchStats();
     } catch (err) {
-      // If checkout returns a direct purchase response (Stripe not configured, fallback)
-      const errorData = err && typeof err === 'object' && 'message' in err ? err : null;
-      if (errorData && 'lead' in (errorData as Record<string, unknown>)) {
-        toast.success('Lead purchased! Check your CRM.');
-        fetchBrowse();
-        fetchStats();
+      const msg = err instanceof Error ? err.message : '';
+      if (msg.includes('credits') || msg.includes('HTTP 402')) {
+        toast.error('No marketplace credits remaining. Upgrade your plan for more credits.');
       } else {
-        toast.error('Purchase failed. The listing may no longer be available.');
+        // If checkout returns a direct purchase response (Stripe not configured, fallback)
+        const errorData = err && typeof err === 'object' && 'message' in err ? err : null;
+        if (errorData && 'lead' in (errorData as Record<string, unknown>)) {
+          toast.success('Lead purchased! Check your CRM.');
+          if (creditBalance !== null) setCreditBalance(creditBalance - 1);
+          fetchBrowse();
+          fetchStats();
+        } else {
+          toast.error('Purchase failed. The listing may no longer be available.');
+        }
       }
     } finally {
       setPurchasing(null);
@@ -182,9 +207,25 @@ export default function LeadMarketplace() {
         </Button>
       </div>
 
+      {/* Upgrade Gate */}
+      {requiresUpgrade && (
+        <Card className="p-12 text-center border-2 border-dashed border-shield-300 dark:border-shield-700">
+          <ShieldAlert className="w-16 h-16 text-shield-400 dark:text-shield-600 mx-auto mb-4" />
+          <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Marketplace Access Required</h2>
+          <p className="text-slate-500 dark:text-slate-400 max-w-md mx-auto mb-6">
+            Your current plan doesn't include lead marketplace access. Upgrade to Agent Pro or higher to browse and purchase leads.
+          </p>
+          <Link to="/pricing">
+            <Button variant="shield" rightIcon={<ArrowRight className="w-4 h-4" />}>
+              Upgrade Your Plan
+            </Button>
+          </Link>
+        </Card>
+      )}
+
       {/* Stats Cards */}
-      {stats && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      {!requiresUpgrade && stats && (
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
           <Card className="p-4 text-center">
             <p className="text-2xl font-bold text-shield-600 dark:text-shield-400">{stats.marketplace.total_active_listings}</p>
             <p className="text-xs text-slate-500 dark:text-slate-400">Active Listings</p>
@@ -201,21 +242,31 @@ export default function LeadMarketplace() {
             <p className="text-2xl font-bold text-slate-700 dark:text-slate-200">${stats.seller.total_revenue.toFixed(2)}</p>
             <p className="text-xs text-slate-500 dark:text-slate-400">Seller Revenue</p>
           </Card>
+          {creditBalance !== null && (
+            <Card className={`p-4 text-center ${creditBalance <= 0 ? 'border-red-300 dark:border-red-700 bg-red-50 dark:bg-red-900/10' : ''}`}>
+              <p className={`text-2xl font-bold ${creditBalance > 5 ? 'text-savings-600 dark:text-savings-400' : creditBalance > 0 ? 'text-amber-600 dark:text-amber-400' : 'text-red-600 dark:text-red-400'}`}>
+                {creditBalance === -1 ? '∞' : creditBalance}
+              </p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">Credits Left</p>
+            </Card>
+          )}
         </div>
       )}
 
-      {/* Tabs */}
-      <div className="flex gap-1 border-b border-slate-200 dark:border-slate-700/50">
-        {([['browse', 'Browse Leads'], ['my-listings', 'My Listings'], ['transactions', 'Transactions']] as [Tab, string][]).map(([key, label]) => (
-          <button key={key} onClick={() => setTab(key)}
-            className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${tab === key ? 'border-shield-500 text-shield-600 dark:text-shield-400' : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:text-slate-200'}`}>
-            {label}
-          </button>
-        ))}
-      </div>
+      {/* Tabs — hidden when upgrade required */}
+      {!requiresUpgrade && (
+        <div className="flex gap-1 border-b border-slate-200 dark:border-slate-700/50">
+          {([['browse', 'Browse Leads'], ['my-listings', 'My Listings'], ['transactions', 'Transactions']] as [Tab, string][]).map(([key, label]) => (
+            <button key={key} onClick={() => setTab(key)}
+              className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${tab === key ? 'border-shield-500 text-shield-600 dark:text-shield-400' : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:text-slate-200'}`}>
+              {label}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* Browse Tab */}
-      {tab === 'browse' && (
+      {!requiresUpgrade && tab === 'browse' && (
         <>
           <div className="flex flex-wrap gap-3">
             <div className="relative flex-1 min-w-[200px]">
@@ -268,7 +319,7 @@ export default function LeadMarketplace() {
       )}
 
       {/* My Listings Tab */}
-      {tab === 'my-listings' && (
+      {!requiresUpgrade && tab === 'my-listings' && (
         loading ? (
           <div className="text-center py-12 text-slate-400 dark:text-slate-500">Loading...</div>
         ) : (
@@ -335,7 +386,7 @@ export default function LeadMarketplace() {
       )}
 
       {/* Transactions Tab */}
-      {tab === 'transactions' && <TransactionsTab />}
+      {!requiresUpgrade && tab === 'transactions' && <TransactionsTab />}
     </div>
   );
 }

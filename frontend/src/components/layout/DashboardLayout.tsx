@@ -10,7 +10,7 @@ import {
   Building2, BarChart3, UserCircle, Settings, LogOut, Menu, X,
   ClipboardList, Target, DollarSign, Star, ShieldCheck, ChevronDown, MessageSquare, Activity, AlertTriangle, RefreshCw, TrendingUp, Key, Plug, Network, CalendarDays, Palette, Code, Award, Database, BookOpen, HelpCircle,
   MessagesSquare, Calendar, Handshake, Mail, FileBarChart, Video, ShoppingCart, Zap, ListChecks,
-  Moon, Sun, MessageSquarePlus, Quote,
+  Moon, Sun, MessageSquarePlus, Quote, CreditCard,
 } from 'lucide-react';
 import { useTheme } from '@/contexts/ThemeContext';
 import type { ReactNode } from 'react';
@@ -110,6 +110,7 @@ const navSections: NavSection[] = [
       { label: 'Reviews', href: '/reviews', icon: <Star className="w-5 h-5" />, roles: ['agent', 'agency_owner'] },
       { label: 'Analytics', href: '/analytics', icon: <TrendingUp className="w-5 h-5" />, roles: ['agent', 'agency_owner'] },
       { label: 'Compliance', href: '/compliance', icon: <Award className="w-5 h-5" />, roles: ['agent', 'agency_owner'] },
+      { label: 'Billing', href: '/billing', icon: <CreditCard className="w-5 h-5" />, roles: ['agent', 'agency_owner'] },
     ],
   },
   {
@@ -119,6 +120,7 @@ const navSections: NavSection[] = [
       { label: 'Products', href: '/carrier/products', icon: <Briefcase className="w-5 h-5" />, roles: ['carrier'] },
       { label: 'Production', href: '/carrier/production', icon: <BarChart3 className="w-5 h-5" />, roles: ['carrier'] },
       { label: 'API Config', href: '/carrier/api-config', icon: <Plug className="w-5 h-5" />, roles: ['carrier', 'admin', 'superadmin'] },
+      { label: 'Billing', href: '/billing', icon: <CreditCard className="w-5 h-5" />, roles: ['carrier'] },
     ],
   },
   {

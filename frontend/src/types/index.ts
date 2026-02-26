@@ -232,6 +232,8 @@ export interface SubscriptionPlan {
   is_active: boolean;
   is_popular: boolean;
   sort_order: number;
+  lead_credits_per_month?: number;
+  can_access_marketplace?: boolean;
 }
 
 export interface DashboardStats {

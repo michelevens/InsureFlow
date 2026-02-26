@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Card, Badge, Button, Input, useConfirm } from '@/components/ui';
-import { DollarSign, Plus, Edit, Trash2, CheckCircle2, Users, Loader2, X } from 'lucide-react';
+import { DollarSign, Plus, Edit, Trash2, CheckCircle2, Users, Loader2, X, ShoppingCart } from 'lucide-react';
 import { adminService } from '@/services/api/admin';
 import { toast } from 'sonner';
 import type { SubscriptionPlan } from '@/types';
 
-const emptyForm = { name: '', slug: '', role: 'agent', price_monthly: 0, price_yearly: 0, is_active: true, is_popular: false, sort_order: 0 };
+const emptyForm = { name: '', slug: '', role: 'agent', price_monthly: 0, price_yearly: 0, is_active: true, is_popular: false, sort_order: 0, lead_credits_per_month: 0, can_access_marketplace: false };
 
 export default function AdminPlans() {
   const confirm = useConfirm();
@@ -35,7 +35,7 @@ export default function AdminPlans() {
   const openModal = (plan?: SubscriptionPlan) => {
     if (plan) {
       setEditingPlan(plan);
-      setForm({ name: plan.name, slug: plan.slug, role: plan.role, price_monthly: plan.price_monthly, price_yearly: plan.price_yearly, is_active: plan.is_active, is_popular: plan.is_popular, sort_order: plan.sort_order });
+      setForm({ name: plan.name, slug: plan.slug, role: plan.role, price_monthly: plan.price_monthly, price_yearly: plan.price_yearly, is_active: plan.is_active, is_popular: plan.is_popular, sort_order: plan.sort_order, lead_credits_per_month: plan.lead_credits_per_month ?? 0, can_access_marketplace: plan.can_access_marketplace ?? false });
     } else {
       setEditingPlan(null);
       setForm(emptyForm);
@@ -171,6 +171,12 @@ export default function AdminPlans() {
                 </div>
               )}
               {plan.is_popular && <Badge variant="shield" className="mb-2">Popular</Badge>}
+              {plan.can_access_marketplace && (
+                <Badge variant="success" className="mb-2">
+                  <ShoppingCart className="w-3 h-3 mr-1" />
+                  Marketplace{plan.lead_credits_per_month ? `: ${plan.lead_credits_per_month === -1 ? '∞' : plan.lead_credits_per_month} credits/mo` : ''}
+                </Badge>
+              )}
             </div>
             <div className="border-t border-slate-100 dark:border-slate-700/50 p-4 flex gap-2">
               <Button variant="outline" size="sm" className="flex-1" leftIcon={<Edit className="w-4 h-4" />} onClick={() => openModal(plan)}>Edit</Button>
@@ -227,6 +233,18 @@ export default function AdminPlans() {
                   <input type="checkbox" checked={form.is_popular} onChange={e => setForm({ ...form, is_popular: e.target.checked })}
                     className="w-4 h-4 rounded border-slate-300 text-shield-600 dark:text-shield-400 focus:ring-shield-500 dark:focus:ring-shield-400" />
                   <span className="text-sm text-slate-700 dark:text-slate-200">Popular</span>
+                </label>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-sm font-medium text-slate-700 dark:text-slate-200">Credits/Month</label>
+                  <Input type="number" value={form.lead_credits_per_month} onChange={e => setForm({ ...form, lead_credits_per_month: Number(e.target.value) })} />
+                  <p className="text-xs text-slate-400 dark:text-slate-500">-1 = unlimited</p>
+                </div>
+                <label className="flex items-center gap-3 pt-6">
+                  <input type="checkbox" checked={form.can_access_marketplace} onChange={e => setForm({ ...form, can_access_marketplace: e.target.checked })}
+                    className="w-4 h-4 rounded border-slate-300 text-shield-600 dark:text-shield-400 focus:ring-shield-500 dark:focus:ring-shield-400" />
+                  <span className="text-sm text-slate-700 dark:text-slate-200">Marketplace Access</span>
                 </label>
               </div>
             </div>
