@@ -225,6 +225,17 @@ php artisan serve
 
 ## Recent Work
 
+### Pricing Deployment + Production Verification (2026-02-26)
+- **Deployed to Railway:** All 3 commits (backend pricing, frontend pricing+billing+gate, CLAUDE.md) pushed and deployed
+- **Seeder run on production:** `php artisan db:seed --class=SubscriptionPlanSeeder` — all 7 plans live with correct pricing, credits, and marketplace flags
+- **Production verification (all passing):**
+  - `GET /billing/overview` → returns null subscription/plan/credits for free users (correct behavior)
+  - `GET /lead-marketplace/browse` → 403 with `requires_upgrade: true` for users without marketplace access
+  - Push notifications: vapid-key, subscribe, unsubscribe — all 3 endpoints verified
+  - CRM Kanban: 12 leads loaded, status update working
+  - Embed widget: 4 partners active, webhook ping functional
+- **Competitive pricing strategy delivered:** Razor-and-blades model (subscriptions = razors, credits = blades), credit top-up packs proposed (10/$29, 25/$59, 100/$179), CAC math validated (Agent Pro 2.9x, Agency 4.4x)
+
 ### Competitive Pricing + Billing + Marketplace Gate (2026-02-26)
 - **Pricing Strategy:** Researched 11 competitors (HawkSoft, AgencyZoom, EZLynx, Applied Epic, etc.), restructured from 5 → 7 tiers:
   - Consumer Free ($0), Agent Starter ($29), Agent Pro ($79), Agent Pro Plus ($129), Agency Standard ($149), Agency Enterprise ($299), Carrier Partner ($499)
@@ -520,24 +531,28 @@ All 4 core flows tested against production and **PASSING**:
 
 ## Next Tasks
 
-### Immediate — Deploy Pricing Changes
-- **Redeploy Railway:** Push triggered auto-deploy. After deploy completes, run `php artisan db:seed --class=SubscriptionPlanSeeder` to update plans from 5 → 7 tiers
-- **Configure Stripe for new tiers:** Run `php artisan stripe:sync-plans` after adding Stripe keys to create products/prices for all 7 plans
-- **Test billing page:** Log in as agent → navigate to /billing → verify plan details + credit meter display
-- **Test marketplace access gate:** Log in as Agent Starter (no marketplace access) → navigate to /lead-marketplace → verify upgrade gate appears
+### Immediate — Monetization P0
+- **Add Stripe keys to Railway:** Set `STRIPE_SECRET_KEY`, `STRIPE_PUBLISHABLE_KEY`, `STRIPE_WEBHOOK_SECRET` env vars — nothing is paid until this is done
+- **Run `stripe:sync-plans`:** After Stripe keys are added, create Stripe products/prices for all 7 plans
+- **Test Stripe checkout end-to-end:** Subscribe → verify webhook → check subscription status → verify billing page shows plan
+
+### Revenue Features (P1)
+- **Credit top-up packs:** Sell additional marketplace credits outside subscription — Starter Pack (10/$29), Pro Pack (25/$59), Bulk Pack (100/$179). Backend: top-up endpoint + Stripe one-time checkout. Frontend: "Buy More Credits" button on billing page + marketplace.
+- **Lead seller payouts:** Let agencies withdraw earnings from lead sales — track balance, request payout, admin approval
+- **Annual plan discount enforcement:** Stripe billing interval switch (monthly ↔ annual) with prorated credit
 
 ### Testing
 - **Test push notifications end-to-end:** Log in on insurons.com → enable push in NotificationBell → trigger a notification → verify browser push appears
 - **Test Kanban board** drag-and-drop on the live frontend (https://insurons.com)
 - **Test embed widget + webhook:** Create partner with webhook URL (use webhook.site) → complete embed flow → verify webhook fires with signed payload
-- Test Stripe checkout: subscribe → verify webhook → check subscription status
 - Test marketplace auction: create auction listing → place bids → verify min increment enforcement
 - Test `compliance:check-overdue` with overdue test items
 - Test `leads:check-aging` with stale test leads (needs scheduler running)
 
 ### Infrastructure & Config
-- **Add Stripe keys to Railway:** Set `STRIPE_SECRET_KEY`, `STRIPE_PUBLISHABLE_KEY`, `STRIPE_WEBHOOK_SECRET` env vars
 - **Verify Railway scheduler:** Check if the `scheduler` Procfile process starts. If not, create a separate Railway service with start command `php artisan schedule:work`
 
 ### New Features
 - **Real carrier API credentials:** Add actual Progressive/Travelers API keys to `carrier_api_configs` table when available (see `CARRIER_API_GUIDE.md`)
+- **Usage analytics for agents:** "You've closed $X from our leads" dashboard — retention tool that proves ROI
+- **Dynamic credit pricing:** Price marketplace credits differently by lead type (auto vs home vs life) based on conversion data
