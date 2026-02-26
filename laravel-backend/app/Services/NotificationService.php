@@ -3,12 +3,14 @@
 namespace App\Services;
 
 use App\Models\Notification;
+use App\Models\PushSubscription;
+use Illuminate\Support\Facades\Log;
 
 class NotificationService
 {
     public function send(int $userId, string $type, string $title, string $body, ?string $icon = null, ?string $actionUrl = null, ?array $data = null): Notification
     {
-        return Notification::create([
+        $notification = Notification::create([
             'user_id' => $userId,
             'type' => $type,
             'title' => $title,
@@ -17,6 +19,62 @@ class NotificationService
             'action_url' => $actionUrl,
             'data' => $data,
         ]);
+
+        // Fire-and-forget push to all user's subscribed devices
+        $this->sendPush($userId, $title, $body, $actionUrl);
+
+        return $notification;
+    }
+
+    /**
+     * Send Web Push notifications to all of a user's subscribed devices.
+     * Requires VAPID keys in env and minishlink/web-push package.
+     */
+    protected function sendPush(int $userId, string $title, string $body, ?string $actionUrl = null): void
+    {
+        $vapidPublic = config('services.webpush.vapid_public_key');
+        $vapidPrivate = config('services.webpush.vapid_private_key');
+        $vapidSubject = config('services.webpush.vapid_subject', 'mailto:support@insurons.com');
+
+        if (!$vapidPublic || !$vapidPrivate) return;
+        if (!class_exists(\Minishlink\WebPush\WebPush::class)) return;
+
+        $subscriptions = PushSubscription::where('user_id', $userId)->get();
+        if ($subscriptions->isEmpty()) return;
+
+        $payload = json_encode([
+            'title' => $title,
+            'body' => $body,
+            'action_url' => $actionUrl,
+            'tag' => 'insurons-' . time(),
+        ]);
+
+        try {
+            $webPush = new \Minishlink\WebPush\WebPush([
+                'VAPID' => [
+                    'subject' => $vapidSubject,
+                    'publicKey' => $vapidPublic,
+                    'privateKey' => $vapidPrivate,
+                ],
+            ]);
+
+            foreach ($subscriptions as $sub) {
+                $subscription = \Minishlink\WebPush\Subscription::create([
+                    'endpoint' => $sub->endpoint,
+                    'publicKey' => $sub->p256dh_key,
+                    'authToken' => $sub->auth_token,
+                ]);
+                $webPush->queueNotification($subscription, $payload);
+            }
+
+            foreach ($webPush->flush() as $report) {
+                if ($report->isSubscriptionExpired()) {
+                    PushSubscription::where('endpoint', $report->getEndpoint())->delete();
+                }
+            }
+        } catch (\Throwable $e) {
+            Log::debug('Web Push send failed: ' . $e->getMessage());
+        }
     }
 
     public function notifyLeadAssigned(int $agentId, string $leadName, int $leadId): Notification

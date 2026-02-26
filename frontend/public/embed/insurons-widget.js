@@ -77,13 +77,13 @@
   // Floating button
   var btn = document.createElement('button');
   btn.id = 'insurons-widget-btn';
-  btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>&nbsp;Get Insurance Quote';
+  btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#BC9C22" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>&nbsp;Get Insurance Quote';
   btn.style.cssText = 'position:fixed;bottom:24px;right:24px;z-index:99999;display:flex;align-items:center;gap:6px;' +
     'padding:12px 20px;border-radius:50px;border:none;cursor:pointer;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;' +
-    'font-size:14px;font-weight:600;color:#fff;background:linear-gradient(135deg,#3b82f6,#1d4ed8);' +
-    'box-shadow:0 4px 20px rgba(59,130,246,0.4);transition:transform 0.2s,box-shadow 0.2s;';
-  btn.addEventListener('mouseenter', function () { btn.style.transform = 'translateY(-2px)'; btn.style.boxShadow = '0 6px 24px rgba(59,130,246,0.5)'; });
-  btn.addEventListener('mouseleave', function () { btn.style.transform = ''; btn.style.boxShadow = '0 4px 20px rgba(59,130,246,0.4)'; });
+    'font-size:14px;font-weight:600;color:#fff;background:linear-gradient(135deg,#102a43,#011434);' +
+    'box-shadow:0 4px 20px rgba(1,20,52,0.4);transition:transform 0.2s,box-shadow 0.2s;';
+  btn.addEventListener('mouseenter', function () { btn.style.transform = 'translateY(-2px)'; btn.style.boxShadow = '0 6px 24px rgba(1,20,52,0.5)'; });
+  btn.addEventListener('mouseleave', function () { btn.style.transform = ''; btn.style.boxShadow = '0 4px 20px rgba(1,20,52,0.4)'; });
   document.body.appendChild(btn);
 
   // Modal overlay
@@ -98,8 +98,8 @@
 
   // Modal header
   var header = document.createElement('div');
-  header.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid #e2e8f0;';
-  header.innerHTML = '<span style="font-weight:600;font-size:14px;color:#1e293b;">Insurance Quote</span>';
+  header.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid #e2e8f0;background:#f8fafc;';
+  header.innerHTML = '<span style="font-weight:600;font-size:14px;color:#011434;">Insurance Quote</span>';
   var closeBtn = document.createElement('button');
   closeBtn.innerHTML = '&times;';
   closeBtn.style.cssText = 'background:none;border:none;font-size:22px;cursor:pointer;color:#94a3b8;padding:0 4px;line-height:1;';

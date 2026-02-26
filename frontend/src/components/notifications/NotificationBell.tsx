@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { notificationService, type AppNotification } from '@/services/api/notifications';
+import { usePushNotifications } from '@/hooks/usePushNotifications';
 import {
   Bell, Target, FileText, ShieldCheck, MessageSquare, DollarSign,
-  TrendingUp, UserPlus, CheckCheck, X,
+  TrendingUp, UserPlus, CheckCheck, X, BellRing,
 } from 'lucide-react';
 
 const POLL_INTERVAL = 30000;
@@ -32,6 +33,7 @@ function timeAgo(iso: string): string {
 
 export function NotificationBell() {
   const navigate = useNavigate();
+  const push = usePushNotifications();
   const [open, setOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
@@ -134,6 +136,18 @@ export function NotificationBell() {
               </button>
             </div>
           </div>
+
+          {/* Push notification prompt */}
+          {push.permission === 'default' && !push.isSubscribed && (
+            <button
+              onClick={push.subscribe}
+              disabled={push.loading}
+              className="w-full flex items-center gap-2 px-4 py-2.5 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 text-xs font-medium hover:bg-amber-100 dark:hover:bg-amber-900/30 transition-colors border-b border-amber-100 dark:border-amber-800/30"
+            >
+              <BellRing className="w-3.5 h-3.5 shrink-0" />
+              {push.loading ? 'Enabling...' : 'Enable push notifications for real-time alerts'}
+            </button>
+          )}
 
           {/* List */}
           <div className="max-h-96 overflow-y-auto">

@@ -11,7 +11,7 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['shield.svg', 'favicon-32.png', 'apple-touch-icon.png', 'shield-192.png', 'shield-512.png', 'logo.svg'],
+      includeAssets: ['shield.svg', 'favicon-32.png', 'apple-touch-icon.png', 'shield-192.png', 'shield-512.png', 'logo.svg', 'sw-push.js'],
       manifest: {
         name: 'Insurons — Insurance Platform',
         short_name: 'Insurons',
@@ -43,8 +43,29 @@ export default defineConfig({
         ],
       },
       workbox: {
+        importScripts: ['sw-push.js'],
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
         runtimeCaching: [
+          {
+            // Cache quote drafts for offline resume
+            urlPattern: /^https:\/\/api\.insurons\.com\/api\/quotes\/drafts/i,
+            handler: 'StaleWhileRevalidate',
+            options: {
+              cacheName: 'quote-drafts-cache',
+              expiration: { maxEntries: 20, maxAgeSeconds: 60 * 60 * 24 * 7 },
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
+          {
+            // Cache platform products list for offline quote form
+            urlPattern: /^https:\/\/api\.insurons\.com\/api\/platform-products/i,
+            handler: 'StaleWhileRevalidate',
+            options: {
+              cacheName: 'products-cache',
+              expiration: { maxEntries: 10, maxAgeSeconds: 60 * 60 * 24 },
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
           {
             // Cache API responses with NetworkFirst strategy
             urlPattern: /^https:\/\/api\.insurons\.com\/api\/.*/i,

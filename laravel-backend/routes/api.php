@@ -14,6 +14,7 @@ use App\Http\Controllers\LeadController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PolicyController;
+use App\Http\Controllers\PushSubscriptionController;
 use App\Http\Controllers\QuoteController;
 use App\Http\Controllers\ReferralController;
 use App\Http\Controllers\RoutingRuleController;
@@ -357,6 +358,11 @@ Route::middleware(['auth:sanctum', 'agency.scope'])->group(function () {
     Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount']);
     Route::put('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
     Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead']);
+
+    // Push Subscriptions
+    Route::get('/push/vapid-key', [PushSubscriptionController::class, 'vapidKey']);
+    Route::post('/push/subscribe', [PushSubscriptionController::class, 'subscribe']);
+    Route::post('/push/unsubscribe', [PushSubscriptionController::class, 'unsubscribe']);
 
     // Documents
     Route::get('/documents', [DocumentController::class, 'index']);
