@@ -125,8 +125,8 @@ export default function AgencyTeam() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">My Team</h1>
-          <p className="text-slate-500 mt-1">Manage your agency's agents and team members</p>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">My Team</h1>
+          <p className="text-slate-500 dark:text-slate-400 mt-1">Manage your agency's agents and team members</p>
         </div>
         <Button variant="shield" leftIcon={<Plus className="w-4 h-4" />} onClick={() => setInviteModalOpen(true)}>
           Invite Agent
@@ -136,20 +136,20 @@ export default function AgencyTeam() {
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <Card className="p-4 text-center">
-          <p className="text-xl font-bold text-slate-900">{stats.active_agents}</p>
-          <p className="text-sm text-slate-500">Active Agents</p>
+          <p className="text-xl font-bold text-slate-900 dark:text-white">{stats.active_agents}</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400">Active Agents</p>
         </Card>
         <Card className="p-4 text-center">
-          <p className="text-xl font-bold text-amber-600">{stats.pending_invites}</p>
-          <p className="text-sm text-slate-500">Pending Invites</p>
+          <p className="text-xl font-bold text-amber-600 dark:text-amber-400">{stats.pending_invites}</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400">Pending Invites</p>
         </Card>
         <Card className="p-4 text-center">
-          <p className="text-xl font-bold text-slate-900">{stats.total_leads}</p>
-          <p className="text-sm text-slate-500">Total Leads</p>
+          <p className="text-xl font-bold text-slate-900 dark:text-white">{stats.total_leads}</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400">Total Leads</p>
         </Card>
         <Card className="p-4 text-center">
-          <p className="text-xl font-bold text-savings-600">{stats.total_policies}</p>
-          <p className="text-sm text-slate-500">Total Policies</p>
+          <p className="text-xl font-bold text-savings-600 dark:text-savings-400">{stats.total_policies}</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400">Total Policies</p>
         </Card>
       </div>
 
@@ -158,18 +158,18 @@ export default function AgencyTeam() {
       {/* Pending Invites */}
       {filteredInvites.length > 0 && (
         <div>
-          <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-3">Pending Invites</h2>
+          <h2 className="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3">Pending Invites</h2>
           <div className="space-y-2">
             {filteredInvites.map(invite => (
               <Card key={invite.id} className="p-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center">
-                      <Mail className="w-5 h-5 text-amber-600" />
+                    <div className="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+                      <Mail className="w-5 h-5 text-amber-600 dark:text-amber-400" />
                     </div>
                     <div>
-                      <p className="font-medium text-slate-900">{invite.email}</p>
-                      <p className="text-xs text-slate-500">
+                      <p className="font-medium text-slate-900 dark:text-white">{invite.email}</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">
                         Invited {new Date(invite.created_at).toLocaleDateString()} · Expires {new Date(invite.expires_at).toLocaleDateString()}
                       </p>
                     </div>
@@ -178,7 +178,7 @@ export default function AgencyTeam() {
                     <Badge variant="warning">Invited</Badge>
                     <button
                       onClick={() => handleCancelInvite(invite)}
-                      className="p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors"
+                      className="p-1.5 rounded-lg text-slate-400 dark:text-slate-500 hover:text-red-500 hover:bg-red-50 dark:bg-red-900/30 transition-colors"
                       title="Cancel invite"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -194,7 +194,7 @@ export default function AgencyTeam() {
       {/* Team grid */}
       <div>
         {filteredAgents.length > 0 && (
-          <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-3">Team Members</h2>
+          <h2 className="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3">Team Members</h2>
         )}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredAgents.map(member => (
@@ -206,8 +206,8 @@ export default function AgencyTeam() {
                       {member.name.split(' ').map(n => n[0]).join('')}
                     </div>
                     <div>
-                      <h3 className="font-semibold text-slate-900">{member.name}</h3>
-                      <p className="text-sm text-slate-500 capitalize">{member.role.replace('_', ' ')}</p>
+                      <h3 className="font-semibold text-slate-900 dark:text-white">{member.name}</h3>
+                      <p className="text-sm text-slate-500 dark:text-slate-400 capitalize">{member.role.replace('_', ' ')}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-1.5">
@@ -217,7 +217,7 @@ export default function AgencyTeam() {
                     <button
                       onClick={() => handleToggleStatus(member)}
                       disabled={togglingId === member.id}
-                      className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors disabled:opacity-50"
+                      className="p-1.5 rounded-lg text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 dark:bg-slate-800 transition-colors disabled:opacity-50"
                       title={member.is_active ? 'Deactivate' : 'Activate'}
                     >
                       {togglingId === member.id ? (
@@ -232,18 +232,18 @@ export default function AgencyTeam() {
                 </div>
 
                 <div className="space-y-2 mb-4">
-                  <div className="flex items-center gap-2 text-sm text-slate-600">
-                    <Mail className="w-4 h-4 text-slate-400" />
+                  <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
+                    <Mail className="w-4 h-4 text-slate-400 dark:text-slate-500" />
                     {member.email}
                   </div>
                   {member.phone && (
-                    <div className="flex items-center gap-2 text-sm text-slate-600">
-                      <Phone className="w-4 h-4 text-slate-400" />
+                    <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
+                      <Phone className="w-4 h-4 text-slate-400 dark:text-slate-500" />
                       {member.phone}
                     </div>
                   )}
                   {member.avg_rating > 0 && (
-                    <div className="flex items-center gap-2 text-sm text-slate-600">
+                    <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
                       <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
                       {member.avg_rating.toFixed(1)} rating
                     </div>
@@ -253,22 +253,22 @@ export default function AgencyTeam() {
                 {member.specialties.length > 0 && (
                   <div className="flex flex-wrap gap-1 mb-4">
                     {member.specialties.slice(0, 3).map(s => (
-                      <span key={s} className="px-2 py-0.5 rounded-full bg-shield-50 text-shield-700 text-xs font-medium">{s}</span>
+                      <span key={s} className="px-2 py-0.5 rounded-full bg-shield-50 dark:bg-shield-900/30 text-shield-700 dark:text-shield-300 text-xs font-medium">{s}</span>
                     ))}
                     {member.specialties.length > 3 && (
-                      <span className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 text-xs">+{member.specialties.length - 3}</span>
+                      <span className="px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 text-xs">+{member.specialties.length - 3}</span>
                     )}
                   </div>
                 )}
 
-                <div className="grid grid-cols-2 gap-4 pt-4 border-t border-slate-100">
+                <div className="grid grid-cols-2 gap-4 pt-4 border-t border-slate-100 dark:border-slate-700/50">
                   <div className="text-center">
-                    <p className="text-lg font-bold text-slate-900">{member.leads_count}</p>
-                    <p className="text-xs text-slate-500">Leads</p>
+                    <p className="text-lg font-bold text-slate-900 dark:text-white">{member.leads_count}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">Leads</p>
                   </div>
                   <div className="text-center">
-                    <p className="text-lg font-bold text-savings-600">{member.policies_count}</p>
-                    <p className="text-xs text-slate-500">Policies</p>
+                    <p className="text-lg font-bold text-savings-600 dark:text-savings-400">{member.policies_count}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">Policies</p>
                   </div>
                 </div>
               </div>
@@ -279,7 +279,7 @@ export default function AgencyTeam() {
 
       {filteredAgents.length === 0 && filteredInvites.length === 0 && (
         <Card className="p-12 text-center">
-          <p className="text-slate-500">No team members found. Invite agents to grow your team.</p>
+          <p className="text-slate-500 dark:text-slate-400">No team members found. Invite agents to grow your team.</p>
         </Card>
       )}
 
@@ -288,15 +288,15 @@ export default function AgencyTeam() {
         <>
           <div className="fixed inset-0 bg-black/50 z-40" onClick={() => setInviteModalOpen(false)} />
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <div className="bg-white rounded-2xl shadow-xl w-full max-w-md" onClick={e => e.stopPropagation()}>
-              <div className="flex items-center justify-between p-6 border-b border-slate-100">
-                <h2 className="text-lg font-semibold text-slate-900">Invite Agent</h2>
-                <button onClick={() => setInviteModalOpen(false)} className="p-1.5 rounded-lg hover:bg-slate-100">
-                  <X className="w-5 h-5 text-slate-400" />
+            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl w-full max-w-md" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between p-6 border-b border-slate-100 dark:border-slate-700/50">
+                <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Invite Agent</h2>
+                <button onClick={() => setInviteModalOpen(false)} className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 dark:bg-slate-800">
+                  <X className="w-5 h-5 text-slate-400 dark:text-slate-500" />
                 </button>
               </div>
               <div className="p-6 space-y-4">
-                <p className="text-sm text-slate-500">
+                <p className="text-sm text-slate-500 dark:text-slate-400">
                   Enter the email address of the agent you'd like to invite. They'll receive an email with a link to join your agency.
                 </p>
                 <Input
@@ -309,7 +309,7 @@ export default function AgencyTeam() {
                   onKeyDown={e => { if (e.key === 'Enter') handleInvite(); }}
                 />
               </div>
-              <div className="flex justify-end gap-3 p-6 border-t border-slate-100">
+              <div className="flex justify-end gap-3 p-6 border-t border-slate-100 dark:border-slate-700/50">
                 <Button variant="ghost" onClick={() => setInviteModalOpen(false)}>Cancel</Button>
                 <Button variant="shield" onClick={handleInvite} isLoading={inviting} disabled={!inviteEmail.trim()}>
                   Send Invite

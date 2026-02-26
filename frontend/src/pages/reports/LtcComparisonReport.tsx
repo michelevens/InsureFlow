@@ -111,10 +111,10 @@ export default function LtcComparisonReport() {
   if (loading) {
     return (
       <div className="space-y-6">
-        <h1 className="text-2xl font-bold text-slate-900">LTC Carrier Comparison</h1>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">LTC Carrier Comparison</h1>
         <Card className="p-12 text-center">
           <Loader2 className="w-8 h-8 animate-spin text-shield-500 mx-auto" />
-          <p className="text-slate-500 mt-2">Generating comparison report...</p>
+          <p className="text-slate-500 dark:text-slate-400 mt-2">Generating comparison report...</p>
         </Card>
       </div>
     );
@@ -123,7 +123,7 @@ export default function LtcComparisonReport() {
   if (error || !data) {
     return (
       <div className="space-y-6">
-        <h1 className="text-2xl font-bold text-slate-900">LTC Carrier Comparison</h1>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">LTC Carrier Comparison</h1>
         <Card className="p-8 text-center">
           <AlertCircle className="w-10 h-10 text-red-400 mx-auto mb-3" />
           <p className="text-red-500">{error || 'No data available'}</p>
@@ -199,8 +199,8 @@ export default function LtcComparisonReport() {
         {/* ===== SCREEN-ONLY: Action bar ===== */}
         <div className="flex items-center justify-between print:hidden">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">Long Term Care — Carrier Comparison</h1>
-            <p className="text-slate-500 mt-1">Side-by-side carrier analysis</p>
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Long Term Care — Carrier Comparison</h1>
+            <p className="text-slate-500 dark:text-slate-400 mt-1">Side-by-side carrier analysis</p>
           </div>
           <div className="flex gap-2">
             <Button variant="outline" size="sm" leftIcon={<Printer className="w-4 h-4" />} onClick={() => window.print()}>
@@ -218,21 +218,21 @@ export default function LtcComparisonReport() {
             <div>
               {agency ? (
                 <>
-                  <h1 className="text-xl font-bold text-slate-900">{agency.name}</h1>
-                  {agency.address && <p className="text-xs text-slate-600">{agency.address}</p>}
+                  <h1 className="text-xl font-bold text-slate-900 dark:text-white">{agency.name}</h1>
+                  {agency.address && <p className="text-xs text-slate-600 dark:text-slate-300">{agency.address}</p>}
                   <div className="flex gap-4 mt-1">
-                    {agency.phone && <p className="text-xs text-slate-600">{agency.phone}</p>}
-                    {agency.email && <p className="text-xs text-slate-600">{agency.email}</p>}
-                    {agency.website && <p className="text-xs text-slate-600">{agency.website}</p>}
+                    {agency.phone && <p className="text-xs text-slate-600 dark:text-slate-300">{agency.phone}</p>}
+                    {agency.email && <p className="text-xs text-slate-600 dark:text-slate-300">{agency.email}</p>}
+                    {agency.website && <p className="text-xs text-slate-600 dark:text-slate-300">{agency.website}</p>}
                   </div>
                 </>
               ) : (
-                <h1 className="text-xl font-bold text-slate-900">Long Term Care Comparison</h1>
+                <h1 className="text-xl font-bold text-slate-900 dark:text-white">Long Term Care Comparison</h1>
               )}
             </div>
             <div className="text-right">
               <h2 className="text-lg font-bold text-slate-800">LTC Carrier Comparison</h2>
-              <p className="text-xs text-slate-500">Report Date: {data.date}</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">Report Date: {data.date}</p>
             </div>
           </div>
         </div>
@@ -241,16 +241,16 @@ export default function LtcComparisonReport() {
         <Card className="print:shadow-none print:border print:rounded-none">
           <div className="p-6 print:p-3 grid grid-cols-2 gap-4">
             <div>
-              <p className="text-xs text-slate-500 uppercase tracking-wider">Client</p>
-              <p className="font-semibold text-slate-900">{data.client.name}</p>
-              {data.client.state && <p className="text-sm text-slate-600">State: {data.client.state}</p>}
-              {data.client.dob && <p className="text-sm text-slate-600">DOB: {data.client.dob}</p>}
+              <p className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider">Client</p>
+              <p className="font-semibold text-slate-900 dark:text-white">{data.client.name}</p>
+              {data.client.state && <p className="text-sm text-slate-600 dark:text-slate-300">State: {data.client.state}</p>}
+              {data.client.dob && <p className="text-sm text-slate-600 dark:text-slate-300">DOB: {data.client.dob}</p>}
             </div>
             <div className="text-right">
-              <p className="text-xs text-slate-500 uppercase tracking-wider">Prepared By</p>
-              <p className="font-semibold text-slate-900">{data.prepared_by.name}</p>
-              <p className="text-sm text-slate-600">{data.prepared_by.email}</p>
-              <p className="text-sm text-slate-600 print:hidden">{data.date}</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider">Prepared By</p>
+              <p className="font-semibold text-slate-900 dark:text-white">{data.prepared_by.name}</p>
+              <p className="text-sm text-slate-600 dark:text-slate-300">{data.prepared_by.email}</p>
+              <p className="text-sm text-slate-600 dark:text-slate-300 print:hidden">{data.date}</p>
             </div>
           </div>
         </Card>
@@ -260,10 +260,10 @@ export default function LtcComparisonReport() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b-2 border-shield-200 bg-shield-50">
-                  <th className="text-left p-3 font-semibold text-shield-700 w-56 print:w-44">Parameter</th>
+                <tr className="border-b-2 border-shield-200 bg-shield-50 dark:bg-shield-900/30">
+                  <th className="text-left p-3 font-semibold text-shield-700 dark:text-shield-300 w-56 print:w-44">Parameter</th>
                   {carriers.map((c, i) => (
-                    <th key={i} className="text-center p-3 font-semibold text-shield-700 min-w-[180px] print:min-w-0">
+                    <th key={i} className="text-center p-3 font-semibold text-shield-700 dark:text-shield-300 min-w-[180px] print:min-w-0">
                       <div className="flex items-center justify-center gap-2">
                         <ShieldCheck className="w-4 h-4 print:hidden" />
                         {c.carrier_name}
@@ -274,39 +274,39 @@ export default function LtcComparisonReport() {
               </thead>
               <tbody>
                 {rows.map((row, ri) => (
-                  <tr key={row.key} className={ri % 2 === 0 ? 'bg-white' : 'bg-slate-50'}>
-                    <td className="p-3 font-medium text-slate-700">{row.label}</td>
+                  <tr key={row.key} className={ri % 2 === 0 ? 'bg-white dark:bg-slate-900' : 'bg-slate-50 dark:bg-slate-800'}>
+                    <td className="p-3 font-medium text-slate-700 dark:text-slate-200">{row.label}</td>
                     {carriers.map((c, ci) => (
-                      <td key={ci} className="p-3 text-center text-slate-900">{row.format(c)}</td>
+                      <td key={ci} className="p-3 text-center text-slate-900 dark:text-white">{row.format(c)}</td>
                     ))}
                   </tr>
                 ))}
 
                 {/* Projections section */}
-                <tr className="border-t-2 border-shield-200 bg-shield-50">
-                  <td colSpan={carriers.length + 1} className="p-3 font-semibold text-shield-700">
+                <tr className="border-t-2 border-shield-200 bg-shield-50 dark:bg-shield-900/30">
+                  <td colSpan={carriers.length + 1} className="p-3 font-semibold text-shield-700 dark:text-shield-300">
                     Benefit Projections
                   </td>
                 </tr>
                 {projectionRows.map((row, ri) => (
-                  <tr key={`proj-${ri}`} className={ri % 2 === 0 ? 'bg-white' : 'bg-slate-50'}>
-                    <td className="p-3 font-medium text-slate-700">{row.label}</td>
+                  <tr key={`proj-${ri}`} className={ri % 2 === 0 ? 'bg-white dark:bg-slate-900' : 'bg-slate-50 dark:bg-slate-800'}>
+                    <td className="p-3 font-medium text-slate-700 dark:text-slate-200">{row.label}</td>
                     {carriers.map((c, ci) => (
-                      <td key={ci} className="p-3 text-center text-slate-900">{row.format(c)}</td>
+                      <td key={ci} className="p-3 text-center text-slate-900 dark:text-white">{row.format(c)}</td>
                     ))}
                   </tr>
                 ))}
 
                 {/* Premium section */}
-                <tr className="border-t-2 border-savings-200 bg-savings-50">
-                  <td colSpan={carriers.length + 1} className="p-3 font-semibold text-savings-700">
+                <tr className="border-t-2 border-savings-200 bg-savings-50 dark:bg-savings-900/30">
+                  <td colSpan={carriers.length + 1} className="p-3 font-semibold text-savings-700 dark:text-savings-300">
                     Premium
                   </td>
                 </tr>
-                <tr className="bg-white">
-                  <td className="p-3 font-semibold text-slate-900">Annual Premium</td>
+                <tr className="bg-white dark:bg-slate-900">
+                  <td className="p-3 font-semibold text-slate-900 dark:text-white">Annual Premium</td>
                   {carriers.map((c, ci) => (
-                    <td key={ci} className="p-3 text-center font-bold text-lg text-savings-700">
+                    <td key={ci} className="p-3 text-center font-bold text-lg text-savings-700 dark:text-savings-300">
                       {formatCurrency(c.premium)}
                     </td>
                   ))}
@@ -320,12 +320,12 @@ export default function LtcComparisonReport() {
         {Object.keys(data.combined_premiums).length > 0 && (
           <Card className="print:shadow-none print:border print:rounded-none">
             <div className="p-6 print:p-3">
-              <h3 className="font-semibold text-slate-900 mb-3">Combined Annual Premiums</h3>
+              <h3 className="font-semibold text-slate-900 dark:text-white mb-3">Combined Annual Premiums</h3>
               <div className="grid grid-cols-3 gap-4 print:gap-2">
                 {Object.entries(data.combined_premiums).map(([key, total]) => (
-                  <div key={key} className="text-center p-4 print:p-2 rounded-xl bg-slate-50">
-                    <p className="text-sm text-slate-500 capitalize">{key.replace(/_/g, ' ')}</p>
-                    <p className="text-2xl print:text-lg font-bold text-savings-600">{formatCurrency(total)}</p>
+                  <div key={key} className="text-center p-4 print:p-2 rounded-xl bg-slate-50 dark:bg-slate-800">
+                    <p className="text-sm text-slate-500 dark:text-slate-400 capitalize">{key.replace(/_/g, ' ')}</p>
+                    <p className="text-2xl print:text-lg font-bold text-savings-600 dark:text-savings-400">{formatCurrency(total)}</p>
                   </div>
                 ))}
               </div>
@@ -337,8 +337,8 @@ export default function LtcComparisonReport() {
         <div className="hidden print:block mt-6 pt-4 border-t border-slate-300">
           {/* Disclaimer */}
           <div className="mb-4">
-            <p className="text-[8pt] leading-tight text-slate-500">
-              <span className="font-semibold text-slate-600">Disclaimer:</span> This comparison report is provided for informational and illustrative purposes only.
+            <p className="text-[8pt] leading-tight text-slate-500 dark:text-slate-400">
+              <span className="font-semibold text-slate-600 dark:text-slate-300">Disclaimer:</span> This comparison report is provided for informational and illustrative purposes only.
               Premium rates shown are estimates based on the information provided and may differ from final carrier quotes.
               Actual premiums are subject to underwriting approval and may vary based on health status, medical history,
               and other factors determined by the issuing carrier. Benefits, features, and availability may vary by state.
@@ -349,7 +349,7 @@ export default function LtcComparisonReport() {
           </div>
 
           {/* Platform info */}
-          <div className="flex items-center justify-between text-[8pt] text-slate-400">
+          <div className="flex items-center justify-between text-[8pt] text-slate-400 dark:text-slate-500">
             <div>
               <p>Powered by <span className="font-semibold">Insurons</span> — Insurance Technology Platform</p>
               <p>www.insurons.com</p>
@@ -363,9 +363,9 @@ export default function LtcComparisonReport() {
 
         {/* ===== SCREEN-ONLY: Disclaimer notice ===== */}
         <div className="print:hidden">
-          <div className="p-4 rounded-lg bg-slate-50 border border-slate-200">
-            <p className="text-xs text-slate-500 leading-relaxed">
-              <span className="font-semibold text-slate-600">Disclaimer:</span> This comparison is for informational purposes only.
+          <div className="p-4 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700/50">
+            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+              <span className="font-semibold text-slate-600 dark:text-slate-300">Disclaimer:</span> This comparison is for informational purposes only.
               Premium rates are estimates and may differ from final carrier quotes. Actual premiums are subject to underwriting
               approval. Benefits and availability may vary by state. This does not constitute an offer of insurance or financial advice.
               Please review actual policy contracts for complete terms and conditions.

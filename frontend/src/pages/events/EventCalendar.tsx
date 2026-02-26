@@ -67,8 +67,8 @@ export default function EventCalendar() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Events & Webinars</h1>
-          <p className="text-slate-500 mt-1">Industry events, training, and networking opportunities</p>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Events & Webinars</h1>
+          <p className="text-slate-500 dark:text-slate-400 mt-1">Industry events, training, and networking opportunities</p>
         </div>
         <Button variant="shield" onClick={() => setShowCreate(true)}>
           <Plus className="w-4 h-4 mr-1" /> Create Event
@@ -78,7 +78,7 @@ export default function EventCalendar() {
       {/* Upcoming spotlight */}
       {upcoming.length > 0 && (
         <div>
-          <h2 className="text-sm font-medium text-slate-500 uppercase mb-3">Coming Up Next</h2>
+          <h2 className="text-sm font-medium text-slate-500 dark:text-slate-400 uppercase mb-3">Coming Up Next</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {upcoming.slice(0, 3).map(evt => {
               const tc = typeConfig[evt.type] || typeConfig.webinar;
@@ -88,8 +88,8 @@ export default function EventCalendar() {
                     <Badge variant={tc.variant}>{tc.label}</Badge>
                     {evt.is_registered && <Badge variant="success">Registered</Badge>}
                   </div>
-                  <h3 className="font-bold text-slate-900 mb-1">{evt.title}</h3>
-                  <div className="space-y-1 text-xs text-slate-500">
+                  <h3 className="font-bold text-slate-900 dark:text-white mb-1">{evt.title}</h3>
+                  <div className="space-y-1 text-xs text-slate-500 dark:text-slate-400">
                     <div className="flex items-center gap-1"><Clock className="w-3 h-3" /> {formatDate(evt.start_at)}</div>
                     {evt.location && <div className="flex items-center gap-1"><MapPin className="w-3 h-3" /> {evt.location}</div>}
                     <div className="flex items-center gap-1"><Users className="w-3 h-3" /> {evt.registration_count} registered{evt.max_attendees ? ` / ${evt.max_attendees} max` : ''}</div>
@@ -103,7 +103,7 @@ export default function EventCalendar() {
 
       {/* All events */}
       <div>
-        <h2 className="text-sm font-medium text-slate-500 uppercase mb-3">All Events</h2>
+        <h2 className="text-sm font-medium text-slate-500 dark:text-slate-400 uppercase mb-3">All Events</h2>
         {loading ? (
           <Card className="p-8 text-center">
             <div className="w-8 h-8 border-4 border-shield-200 border-t-shield-600 rounded-full animate-spin mx-auto" />
@@ -111,7 +111,7 @@ export default function EventCalendar() {
         ) : events.length === 0 ? (
           <Card className="p-12 text-center">
             <Calendar className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-            <p className="text-slate-500 mb-4">No events scheduled</p>
+            <p className="text-slate-500 dark:text-slate-400 mb-4">No events scheduled</p>
             <Button variant="shield" onClick={() => setShowCreate(true)}>
               <Plus className="w-4 h-4 mr-1" /> Create First Event
             </Button>
@@ -125,16 +125,16 @@ export default function EventCalendar() {
                 <Card key={evt.id} className={`p-4 ${isPast ? 'opacity-60' : 'hover:shadow-md'} transition-all cursor-pointer`} onClick={() => setSelectedEvent(evt)}>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-xl bg-shield-50 flex items-center justify-center">
-                        <tc.icon className="w-5 h-5 text-shield-600" />
+                      <div className="w-12 h-12 rounded-xl bg-shield-50 dark:bg-shield-900/30 flex items-center justify-center">
+                        <tc.icon className="w-5 h-5 text-shield-600 dark:text-shield-400" />
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <h3 className="font-medium text-slate-900">{evt.title}</h3>
+                          <h3 className="font-medium text-slate-900 dark:text-white">{evt.title}</h3>
                           <Badge variant={tc.variant}>{tc.label}</Badge>
                           {evt.is_registered && <Badge variant="success">Registered</Badge>}
                         </div>
-                        <div className="flex items-center gap-3 text-xs text-slate-500 mt-1">
+                        <div className="flex items-center gap-3 text-xs text-slate-500 dark:text-slate-400 mt-1">
                           <span>{formatDate(evt.start_at)}</span>
                           {evt.location && <span>{evt.location}</span>}
                           <span>{evt.registration_count} attendees</span>
@@ -164,12 +164,12 @@ export default function EventCalendar() {
               <Badge variant={typeConfig[selectedEvent.type]?.variant || 'info'}>{typeConfig[selectedEvent.type]?.label || selectedEvent.type}</Badge>
               <Badge variant={selectedEvent.status === 'published' ? 'success' : 'default'}>{selectedEvent.status}</Badge>
             </div>
-            <p className="text-sm text-slate-700">{selectedEvent.description}</p>
+            <p className="text-sm text-slate-700 dark:text-slate-200">{selectedEvent.description}</p>
             <div className="space-y-2 text-sm">
-              <div className="flex items-center gap-2 text-slate-600"><Clock className="w-4 h-4" /> {formatDate(selectedEvent.start_at)} — {formatDate(selectedEvent.end_at)}</div>
-              {selectedEvent.location && <div className="flex items-center gap-2 text-slate-600"><MapPin className="w-4 h-4" /> {selectedEvent.location}</div>}
-              {selectedEvent.meeting_url && <div className="flex items-center gap-2 text-slate-600"><Video className="w-4 h-4" /> <a href={selectedEvent.meeting_url} target="_blank" rel="noopener noreferrer" className="text-shield-600 hover:underline">Join meeting</a></div>}
-              <div className="flex items-center gap-2 text-slate-600"><Users className="w-4 h-4" /> {selectedEvent.registration_count} registered{selectedEvent.max_attendees ? ` / ${selectedEvent.max_attendees}` : ''}</div>
+              <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300"><Clock className="w-4 h-4" /> {formatDate(selectedEvent.start_at)} — {formatDate(selectedEvent.end_at)}</div>
+              {selectedEvent.location && <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300"><MapPin className="w-4 h-4" /> {selectedEvent.location}</div>}
+              {selectedEvent.meeting_url && <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300"><Video className="w-4 h-4" /> <a href={selectedEvent.meeting_url} target="_blank" rel="noopener noreferrer" className="text-shield-600 dark:text-shield-400 hover:underline">Join meeting</a></div>}
+              <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300"><Users className="w-4 h-4" /> {selectedEvent.registration_count} registered{selectedEvent.max_attendees ? ` / ${selectedEvent.max_attendees}` : ''}</div>
             </div>
             <div className="flex justify-end gap-2 pt-2">
               <Button variant="ghost" onClick={() => setSelectedEvent(null)}>Close</Button>
@@ -222,12 +222,12 @@ function CreateEventModal({ onClose, onCreated }: { onClose: () => void; onCreat
       <div className="space-y-4">
         <Input label="Title" placeholder="Product Launch Webinar" value={title} onChange={e => setTitle(e.target.value)} />
         <div>
-          <label className="text-sm font-medium text-slate-700 block mb-1">Description</label>
-          <textarea value={description} onChange={e => setDescription(e.target.value)} className="w-full h-20 text-sm border border-slate-200 rounded-lg p-3 focus:ring-2 focus:ring-shield-500 focus:border-shield-500" placeholder="Event details..." />
+          <label className="text-sm font-medium text-slate-700 dark:text-slate-200 block mb-1">Description</label>
+          <textarea value={description} onChange={e => setDescription(e.target.value)} className="w-full h-20 text-sm border border-slate-200 dark:border-slate-700/50 rounded-lg p-3 focus:ring-2 focus:ring-shield-500 dark:focus:ring-shield-400 focus:border-shield-500" placeholder="Event details..." />
         </div>
         <div>
-          <label className="text-sm font-medium text-slate-700 block mb-1">Type</label>
-          <select value={type} onChange={e => setType(e.target.value as typeof type)} className="w-full text-sm border border-slate-200 rounded-lg px-3 py-2">
+          <label className="text-sm font-medium text-slate-700 dark:text-slate-200 block mb-1">Type</label>
+          <select value={type} onChange={e => setType(e.target.value as typeof type)} className="w-full text-sm border border-slate-200 dark:border-slate-700/50 rounded-lg px-3 py-2">
             <option value="webinar">Webinar</option>
             <option value="in_person">In-Person</option>
             <option value="hybrid">Hybrid</option>

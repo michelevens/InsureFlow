@@ -63,11 +63,11 @@ export default function AdminAuditLog() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-3">
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-3">
           <Activity className="w-6 h-6 text-teal-600" />
           Audit Log
         </h1>
-        <p className="text-slate-500 mt-1">Immutable record of all platform activity ({total} entries)</p>
+        <p className="text-slate-500 dark:text-slate-400 mt-1">Immutable record of all platform activity ({total} entries)</p>
       </div>
 
       {/* Filters */}
@@ -153,8 +153,8 @@ export default function AdminAuditLog() {
           ) : logs.length === 0 ? (
             <div className="py-12 text-center">
               <Activity className="w-10 h-10 text-slate-300 mx-auto mb-3" />
-              <p className="text-slate-600 font-medium">No audit events found</p>
-              <p className="text-sm text-slate-400 mt-1">Try adjusting your filters</p>
+              <p className="text-slate-600 dark:text-slate-300 font-medium">No audit events found</p>
+              <p className="text-sm text-slate-400 dark:text-slate-500 mt-1">Try adjusting your filters</p>
             </div>
           ) : (
             <div className="space-y-0">
@@ -168,10 +168,10 @@ export default function AdminAuditLog() {
                   <div key={log.id} className="flex items-start gap-3">
                     {/* Timeline dot + line */}
                     <div className="flex flex-col items-center flex-shrink-0">
-                      <div className="w-8 h-8 rounded-full bg-slate-100 border-2 border-slate-200 flex items-center justify-center text-slate-500">
+                      <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700/50 flex items-center justify-center text-slate-500 dark:text-slate-400">
                         <EntityIcon className="w-3.5 h-3.5" />
                       </div>
-                      {!isLast && <div className="w-0.5 flex-1 min-h-[24px] bg-slate-200" />}
+                      {!isLast && <div className="w-0.5 flex-1 min-h-[24px] bg-slate-200 dark:bg-slate-700" />}
                     </div>
 
                     {/* Content */}
@@ -184,56 +184,56 @@ export default function AdminAuditLog() {
                           <Badge variant={badgeVariant} size="sm">
                             {log.event_type.replace(/_/g, ' ')}
                           </Badge>
-                          <span className="text-sm font-medium text-slate-700">
+                          <span className="text-sm font-medium text-slate-700 dark:text-slate-200">
                             {log.auditable_type}
                           </span>
-                          <span className="text-xs text-slate-400 font-mono">
+                          <span className="text-xs text-slate-400 dark:text-slate-500 font-mono">
                             #{log.auditable_id}
                           </span>
-                          <span className="text-xs text-slate-400 ml-auto">
+                          <span className="text-xs text-slate-400 dark:text-slate-500 ml-auto">
                             {new Date(log.created_at).toLocaleString()}
                           </span>
                         </div>
-                        <div className="text-xs text-slate-500 mt-0.5">
+                        <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                           {log.actor
                             ? `${log.actor.name} (${log.actor_role})`
                             : log.actor_role}
                           {log.ip_address && (
-                            <span className="ml-2 text-slate-400">{log.ip_address}</span>
+                            <span className="ml-2 text-slate-400 dark:text-slate-500">{log.ip_address}</span>
                           )}
                         </div>
                       </button>
 
                       {/* Expanded details */}
                       {isExpanded && (
-                        <div className="mt-2 bg-slate-50 rounded-lg p-3 text-xs space-y-2">
+                        <div className="mt-2 bg-slate-50 dark:bg-slate-800 rounded-lg p-3 text-xs space-y-2">
                           {log.old_values && Object.keys(log.old_values).length > 0 && (
                             <div>
-                              <span className="font-semibold text-slate-600">Old Values:</span>
-                              <pre className="mt-1 bg-white rounded p-2 overflow-x-auto text-slate-700 border border-slate-200">
+                              <span className="font-semibold text-slate-600 dark:text-slate-300">Old Values:</span>
+                              <pre className="mt-1 bg-white dark:bg-slate-900 rounded p-2 overflow-x-auto text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700/50">
                                 {JSON.stringify(log.old_values, null, 2)}
                               </pre>
                             </div>
                           )}
                           {log.new_values && Object.keys(log.new_values).length > 0 && (
                             <div>
-                              <span className="font-semibold text-slate-600">New Values:</span>
-                              <pre className="mt-1 bg-white rounded p-2 overflow-x-auto text-slate-700 border border-slate-200">
+                              <span className="font-semibold text-slate-600 dark:text-slate-300">New Values:</span>
+                              <pre className="mt-1 bg-white dark:bg-slate-900 rounded p-2 overflow-x-auto text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700/50">
                                 {JSON.stringify(log.new_values, null, 2)}
                               </pre>
                             </div>
                           )}
                           {log.metadata && Object.keys(log.metadata).length > 0 && (
                             <div>
-                              <span className="font-semibold text-slate-600">Metadata:</span>
-                              <pre className="mt-1 bg-white rounded p-2 overflow-x-auto text-slate-700 border border-slate-200">
+                              <span className="font-semibold text-slate-600 dark:text-slate-300">Metadata:</span>
+                              <pre className="mt-1 bg-white dark:bg-slate-900 rounded p-2 overflow-x-auto text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700/50">
                                 {JSON.stringify(log.metadata, null, 2)}
                               </pre>
                             </div>
                           )}
                           {log.user_agent && (
-                            <p className="text-slate-400 truncate">
-                              <span className="font-semibold text-slate-600">User Agent:</span> {log.user_agent}
+                            <p className="text-slate-400 dark:text-slate-500 truncate">
+                              <span className="font-semibold text-slate-600 dark:text-slate-300">User Agent:</span> {log.user_agent}
                             </p>
                           )}
                         </div>
@@ -247,8 +247,8 @@ export default function AdminAuditLog() {
 
           {/* Pagination */}
           {lastPage > 1 && (
-            <div className="flex items-center justify-between pt-4 mt-4 border-t border-slate-100">
-              <p className="text-sm text-slate-500">
+            <div className="flex items-center justify-between pt-4 mt-4 border-t border-slate-100 dark:border-slate-700/50">
+              <p className="text-sm text-slate-500 dark:text-slate-400">
                 Page {page} of {lastPage} ({total} total)
               </p>
               <div className="flex items-center gap-2">

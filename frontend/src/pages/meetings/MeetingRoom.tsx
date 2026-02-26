@@ -77,10 +77,10 @@ export default function MeetingRoom() {
       <div className="max-w-lg mx-auto mt-20 text-center">
         <Card className="p-8">
           <Video className="w-12 h-12 text-slate-300 mx-auto mb-4" />
-          <h2 className="text-xl font-bold text-slate-900 mb-2">Meeting Ended</h2>
-          <p className="text-slate-500 mb-1">{meeting?.title}</p>
+          <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Meeting Ended</h2>
+          <p className="text-slate-500 dark:text-slate-400 mb-1">{meeting?.title}</p>
           {meeting?.started_at && meeting?.ended_at && (
-            <p className="text-sm text-slate-400 mb-6">
+            <p className="text-sm text-slate-400 dark:text-slate-500 mb-6">
               Duration: {formatDuration(new Date(meeting.started_at), new Date(meeting.ended_at))}
             </p>
           )}
@@ -150,14 +150,14 @@ function WaitingRoom({ meeting, userId, onStart, onBack }: {
 
   return (
     <div className="max-w-2xl mx-auto mt-8 space-y-6">
-      <button onClick={onBack} className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700">
+      <button onClick={onBack} className="flex items-center gap-1.5 text-sm text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:text-slate-200">
         <ArrowLeft className="w-4 h-4" /> Back to meetings
       </button>
 
       <Card className="p-0 overflow-hidden">
-        <div className="px-6 py-4 border-b border-slate-100">
-          <h2 className="text-lg font-bold text-slate-900">{meeting.title}</h2>
-          <p className="text-sm text-slate-500 mt-0.5">
+        <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-700/50">
+          <h2 className="text-lg font-bold text-slate-900 dark:text-white">{meeting.title}</h2>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
             {meeting.scheduled_at
               ? `Scheduled for ${new Date(meeting.scheduled_at).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })}`
               : 'Ready to start'}
@@ -177,16 +177,16 @@ function WaitingRoom({ meeting, userId, onStart, onBack }: {
         </div>
 
         {/* Controls */}
-        <div className="flex items-center justify-center gap-3 p-4 bg-slate-50">
+        <div className="flex items-center justify-center gap-3 p-4 bg-slate-50 dark:bg-slate-800">
           <button
             onClick={() => setCameraOn(!cameraOn)}
-            className={`p-3 rounded-full transition-colors ${cameraOn ? 'bg-slate-200 text-slate-700 hover:bg-slate-300' : 'bg-red-500 text-white'}`}
+            className={`p-3 rounded-full transition-colors ${cameraOn ? 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-300' : 'bg-red-500 text-white'}`}
           >
             {cameraOn ? <Video className="w-5 h-5" /> : <VideoOff className="w-5 h-5" />}
           </button>
           <button
             onClick={() => setMicOn(!micOn)}
-            className={`p-3 rounded-full transition-colors ${micOn ? 'bg-slate-200 text-slate-700 hover:bg-slate-300' : 'bg-red-500 text-white'}`}
+            className={`p-3 rounded-full transition-colors ${micOn ? 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-300' : 'bg-red-500 text-white'}`}
           >
             {micOn ? <Mic className="w-5 h-5" /> : <MicOff className="w-5 h-5" />}
           </button>
@@ -198,7 +198,7 @@ function WaitingRoom({ meeting, userId, onStart, onBack }: {
               Start Meeting
             </Button>
           ) : (
-            <div className="flex items-center gap-2 text-sm text-slate-500">
+            <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
               <div className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
               Waiting for host to start...
             </div>
@@ -209,11 +209,11 @@ function WaitingRoom({ meeting, userId, onStart, onBack }: {
       {meeting.guest && (
         <Card className="p-4">
           <div className="flex items-center gap-2 text-sm">
-            <Users className="w-4 h-4 text-slate-400" />
+            <Users className="w-4 h-4 text-slate-400 dark:text-slate-500" />
             <span className="font-medium">Participants:</span>
-            <span className="text-slate-600">{meeting.host?.name} (Host)</span>
-            <span className="text-slate-400">&bull;</span>
-            <span className="text-slate-600">{meeting.guest.name}</span>
+            <span className="text-slate-600 dark:text-slate-300">{meeting.host?.name} (Host)</span>
+            <span className="text-slate-400 dark:text-slate-500">&bull;</span>
+            <span className="text-slate-600 dark:text-slate-300">{meeting.guest.name}</span>
           </div>
         </Card>
       )}
@@ -294,7 +294,7 @@ function VideoSession({ meeting, onEnd, onBack }: {
             {meeting.guest?.name?.charAt(0) || 'G'}
           </div>
           <p className="text-white text-lg font-medium">{meeting.guest?.name || 'Participant'}</p>
-          <p className="text-slate-400 text-sm mt-1">Connected</p>
+          <p className="text-slate-400 dark:text-slate-500 text-sm mt-1">Connected</p>
         </div>
       </div>
 
@@ -329,7 +329,7 @@ function VideoSession({ meeting, onEnd, onBack }: {
       <div className="absolute bottom-0 left-0 right-0 flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-t from-black/60 to-transparent">
         <button
           onClick={() => setCameraOn(!cameraOn)}
-          className={`p-3 rounded-full transition-colors ${cameraOn ? 'bg-white/20 text-white hover:bg-white/30' : 'bg-red-500 text-white'}`}
+          className={`p-3 rounded-full transition-colors ${cameraOn ? 'bg-white dark:bg-slate-900/20 text-white hover:bg-white dark:bg-slate-900/30' : 'bg-red-500 text-white'}`}
           title={cameraOn ? 'Turn off camera' : 'Turn on camera'}
         >
           {cameraOn ? <Video className="w-5 h-5" /> : <VideoOff className="w-5 h-5" />}
@@ -337,25 +337,25 @@ function VideoSession({ meeting, onEnd, onBack }: {
 
         <button
           onClick={() => setMicOn(!micOn)}
-          className={`p-3 rounded-full transition-colors ${micOn ? 'bg-white/20 text-white hover:bg-white/30' : 'bg-red-500 text-white'}`}
+          className={`p-3 rounded-full transition-colors ${micOn ? 'bg-white dark:bg-slate-900/20 text-white hover:bg-white dark:bg-slate-900/30' : 'bg-red-500 text-white'}`}
           title={micOn ? 'Mute' : 'Unmute'}
         >
           {micOn ? <Mic className="w-5 h-5" /> : <MicOff className="w-5 h-5" />}
         </button>
 
-        <button className="p-3 rounded-full bg-white/20 text-white hover:bg-white/30 transition-colors" title="Screen share (coming soon)">
+        <button className="p-3 rounded-full bg-white dark:bg-slate-900/20 text-white hover:bg-white dark:bg-slate-900/30 transition-colors" title="Screen share (coming soon)">
           <Monitor className="w-5 h-5" />
         </button>
 
-        <button className="p-3 rounded-full bg-white/20 text-white hover:bg-white/30 transition-colors" title="Chat (coming soon)">
+        <button className="p-3 rounded-full bg-white dark:bg-slate-900/20 text-white hover:bg-white dark:bg-slate-900/30 transition-colors" title="Chat (coming soon)">
           <MessageSquare className="w-5 h-5" />
         </button>
 
-        <button onClick={toggleFullscreen} className="p-3 rounded-full bg-white/20 text-white hover:bg-white/30 transition-colors" title="Fullscreen">
+        <button onClick={toggleFullscreen} className="p-3 rounded-full bg-white dark:bg-slate-900/20 text-white hover:bg-white dark:bg-slate-900/30 transition-colors" title="Fullscreen">
           {isFullscreen ? <Minimize className="w-5 h-5" /> : <Maximize className="w-5 h-5" />}
         </button>
 
-        <div className="w-px h-8 bg-white/20 mx-2" />
+        <div className="w-px h-8 bg-white dark:bg-slate-900/20 mx-2" />
 
         <button onClick={onEnd} className="px-5 py-3 rounded-full bg-red-500 text-white hover:bg-red-600 transition-colors flex items-center gap-2 font-medium">
           <Phone className="w-5 h-5 rotate-[135deg]" /> End
@@ -383,15 +383,15 @@ function EmbeddedSession({ meeting, onBack }: { meeting: VideoMeeting; onBack: (
 
   return (
     <div className="space-y-4">
-      <button onClick={onBack} className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700">
+      <button onClick={onBack} className="flex items-center gap-1.5 text-sm text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:text-slate-200">
         <ArrowLeft className="w-4 h-4" /> Back to meetings
       </button>
 
       <Card className="p-0 overflow-hidden">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-700/50">
           <div>
-            <h2 className="text-lg font-bold text-slate-900">{meeting.title}</h2>
-            <p className="text-sm text-slate-500 mt-0.5">
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white">{meeting.title}</h2>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
               {meeting.external_service ? `via ${meeting.external_service}` : 'External meeting'}
             </p>
           </div>
@@ -417,8 +417,8 @@ function EmbeddedSession({ meeting, onBack }: { meeting: VideoMeeting; onBack: (
         ) : (
           <div className="flex flex-col items-center justify-center py-20">
             <Video className="w-16 h-16 text-slate-300 mb-4" />
-            <h3 className="text-lg font-medium text-slate-900 mb-2">External Meeting</h3>
-            <p className="text-sm text-slate-500 mb-6 text-center max-w-md">
+            <h3 className="text-lg font-medium text-slate-900 dark:text-white mb-2">External Meeting</h3>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mb-6 text-center max-w-md">
               This meeting uses {meeting.external_service || 'an external service'} which cannot be embedded.
               Click below to open it in a new tab.
             </p>

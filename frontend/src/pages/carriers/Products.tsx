@@ -33,8 +33,8 @@ export default function Products() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Insurance Products</h1>
-          <p className="text-slate-500 mt-1">Manage your insurance product offerings</p>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Insurance Products</h1>
+          <p className="text-slate-500 dark:text-slate-400 mt-1">Manage your insurance product offerings</p>
         </div>
         <Button variant="shield" leftIcon={<Plus className="w-4 h-4" />}>Add Product</Button>
       </div>
@@ -47,11 +47,11 @@ export default function Products() {
             <div className="p-6">
               <div className="flex items-start justify-between mb-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-shield-100 text-shield-600 flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-xl bg-shield-100 dark:bg-shield-900/30 text-shield-600 dark:text-shield-400 flex items-center justify-center">
                     <Briefcase className="w-5 h-5" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-slate-900">{product.name}</h3>
+                    <h3 className="font-semibold text-slate-900 dark:text-white">{product.name}</h3>
                     <Badge variant="outline" className="mt-1">{product.type}</Badge>
                   </div>
                 </div>
@@ -60,27 +60,27 @@ export default function Products() {
                 </Badge>
               </div>
 
-              <p className="text-sm text-slate-600 mb-4">{product.description}</p>
+              <p className="text-sm text-slate-600 dark:text-slate-300 mb-4">{product.description}</p>
 
               <div className="grid grid-cols-3 gap-4 mb-4">
                 <div>
-                  <p className="text-xs text-slate-500">Premium Range</p>
-                  <p className="text-sm font-medium text-slate-900">${product.min_premium}-${product.max_premium}/mo</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Premium Range</p>
+                  <p className="text-sm font-medium text-slate-900 dark:text-white">${product.min_premium}-${product.max_premium}/mo</p>
                 </div>
                 <div>
-                  <p className="text-xs text-slate-500">States</p>
-                  <p className="text-sm font-medium text-slate-900">{product.states_available}</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">States</p>
+                  <p className="text-sm font-medium text-slate-900 dark:text-white">{product.states_available}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-slate-500">MTD Apps</p>
-                  <p className="text-sm font-medium text-slate-900">{product.applications_mtd}</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">MTD Apps</p>
+                  <p className="text-sm font-medium text-slate-900 dark:text-white">{product.applications_mtd}</p>
                 </div>
               </div>
 
               <div className="flex gap-2">
                 <Button variant="outline" size="sm" className="flex-1" leftIcon={<Edit className="w-4 h-4" />}>Edit</Button>
                 <Button variant="ghost" size="sm">
-                  {product.is_active ? <ToggleRight className="w-5 h-5 text-savings-500" /> : <ToggleLeft className="w-5 h-5 text-slate-400" />}
+                  {product.is_active ? <ToggleRight className="w-5 h-5 text-savings-500" /> : <ToggleLeft className="w-5 h-5 text-slate-400 dark:text-slate-500" />}
                 </Button>
               </div>
             </div>

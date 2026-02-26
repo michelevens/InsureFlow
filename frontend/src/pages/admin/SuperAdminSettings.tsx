@@ -230,12 +230,12 @@ export default function SuperAdminSettings() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Platform Settings</h1>
-          <p className="text-slate-500 mt-1">Configure platform-wide settings</p>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Platform Settings</h1>
+          <p className="text-slate-500 dark:text-slate-400 mt-1">Configure platform-wide settings</p>
         </div>
         <Card className="p-12 text-center">
           <Loader2 className="w-8 h-8 animate-spin text-shield-500 mx-auto" />
-          <p className="text-slate-500 mt-2">Loading settings...</p>
+          <p className="text-slate-500 dark:text-slate-400 mt-2">Loading settings...</p>
         </Card>
       </div>
     );
@@ -244,24 +244,24 @@ export default function SuperAdminSettings() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900">Platform Settings</h1>
-        <p className="text-slate-500 mt-1">Configure platform-wide settings</p>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Platform Settings</h1>
+        <p className="text-slate-500 dark:text-slate-400 mt-1">Configure platform-wide settings</p>
       </div>
 
       {/* Status message */}
       {message && (
-        <div className={cn('flex items-center gap-2 p-3 rounded-lg text-sm', message.type === 'success' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700')}>
+        <div className={cn('flex items-center gap-2 p-3 rounded-lg text-sm', message.type === 'success' ? 'bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300' : 'bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300')}>
           {message.type === 'success' ? <CheckCircle className="w-4 h-4" /> : <XCircle className="w-4 h-4" />}
           {message.text}
         </div>
       )}
 
       {/* Tabs */}
-      <div className="flex gap-1 overflow-x-auto border-b border-slate-200">
+      <div className="flex gap-1 overflow-x-auto border-b border-slate-200 dark:border-slate-700/50">
         {tabs.map(tab => (
           <button key={tab.id} onClick={() => { setActiveTab(tab.id); setMessage(null); }}
             className={cn('px-4 py-2.5 text-sm font-medium border-b-2 transition-colors whitespace-nowrap',
-              activeTab === tab.id ? 'border-shield-600 text-shield-700' : 'border-transparent text-slate-500 hover:text-slate-700'
+              activeTab === tab.id ? 'border-shield-600 text-shield-700 dark:text-shield-300' : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:text-slate-200'
             )}>
             {tab.label}
           </button>
@@ -273,17 +273,17 @@ export default function SuperAdminSettings() {
         <Card>
           <div className="p-6 space-y-5">
             <div className="space-y-1">
-              <label className="text-sm font-medium text-slate-700">Platform Name</label>
+              <label className="text-sm font-medium text-slate-700 dark:text-slate-200">Platform Name</label>
               <Input value={platformName} onChange={e => setPlatformName(e.target.value)} />
             </div>
             <div className="space-y-1">
-              <label className="text-sm font-medium text-slate-700">Support Email</label>
+              <label className="text-sm font-medium text-slate-700 dark:text-slate-200">Support Email</label>
               <Input type="email" value={supportEmail} onChange={e => setSupportEmail(e.target.value)} placeholder="support@insurons.com" />
             </div>
             <div className="space-y-1">
-              <label className="text-sm font-medium text-slate-700">Default Timezone</label>
+              <label className="text-sm font-medium text-slate-700 dark:text-slate-200">Default Timezone</label>
               <select value={defaultTimezone} onChange={e => setDefaultTimezone(e.target.value)}
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-shield-500">
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-shield-500 dark:focus:ring-shield-400">
                 <option value="America/New_York">America/New_York (Eastern)</option>
                 <option value="America/Chicago">America/Chicago (Central)</option>
                 <option value="America/Denver">America/Denver (Mountain)</option>
@@ -293,13 +293,13 @@ export default function SuperAdminSettings() {
             </div>
             <label className="flex items-center gap-3">
               <input type="checkbox" checked={maintenanceMode} onChange={e => setMaintenanceMode(e.target.checked)}
-                className="w-4 h-4 rounded border-slate-300 text-shield-600 focus:ring-shield-500" />
-              <span className="text-sm text-slate-700">Maintenance Mode</span>
+                className="w-4 h-4 rounded border-slate-300 text-shield-600 dark:text-shield-400 focus:ring-shield-500 dark:focus:ring-shield-400" />
+              <span className="text-sm text-slate-700 dark:text-slate-200">Maintenance Mode</span>
             </label>
             <label className="flex items-center gap-3">
               <input type="checkbox" checked={allowRegistrations} onChange={e => setAllowRegistrations(e.target.checked)}
-                className="w-4 h-4 rounded border-slate-300 text-shield-600 focus:ring-shield-500" />
-              <span className="text-sm text-slate-700">Allow New Registrations</span>
+                className="w-4 h-4 rounded border-slate-300 text-shield-600 dark:text-shield-400 focus:ring-shield-500 dark:focus:ring-shield-400" />
+              <span className="text-sm text-slate-700 dark:text-slate-200">Allow New Registrations</span>
             </label>
             <Button disabled={saving} onClick={() => saveSettings('platform', [
               { key: 'platform_name', value: platformName },
@@ -318,23 +318,23 @@ export default function SuperAdminSettings() {
         <Card>
           <div className="p-6 space-y-5">
             <div className="flex items-center gap-3">
-              <span className="text-sm font-medium text-slate-700">Stripe Connection:</span>
-              <span className={cn('px-2 py-1 rounded-full text-xs font-medium', stripeConnected ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700')}>
+              <span className="text-sm font-medium text-slate-700 dark:text-slate-200">Stripe Connection:</span>
+              <span className={cn('px-2 py-1 rounded-full text-xs font-medium', stripeConnected ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300' : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300')}>
                 {stripeConnected ? 'Connected' : 'Not Connected'}
               </span>
             </div>
             <label className="flex items-center gap-3">
               <input type="checkbox" checked={testMode} onChange={e => setTestMode(e.target.checked)}
-                className="w-4 h-4 rounded border-slate-300 text-shield-600 focus:ring-shield-500" />
-              <span className="text-sm text-slate-700">Stripe Test Mode</span>
+                className="w-4 h-4 rounded border-slate-300 text-shield-600 dark:text-shield-400 focus:ring-shield-500 dark:focus:ring-shield-400" />
+              <span className="text-sm text-slate-700 dark:text-slate-200">Stripe Test Mode</span>
             </label>
             <div className="space-y-1">
-              <label className="text-sm font-medium text-slate-700">Webhook URL</label>
-              <Input value={`${window.location.origin}/api/webhooks/stripe`} readOnly className="bg-slate-50" />
+              <label className="text-sm font-medium text-slate-700 dark:text-slate-200">Webhook URL</label>
+              <Input value={`${window.location.origin}/api/webhooks/stripe`} readOnly className="bg-slate-50 dark:bg-slate-800" />
             </div>
             <div className="flex items-center gap-3">
               <Button variant="outline" onClick={handleTestStripe}>Test Stripe Connection</Button>
-              {stripeTestResult && <span className="text-sm text-slate-600">{stripeTestResult}</span>}
+              {stripeTestResult && <span className="text-sm text-slate-600 dark:text-slate-300">{stripeTestResult}</span>}
             </div>
             <Button disabled={saving} onClick={() => saveSettings('billing', [
               { key: 'stripe_connected', value: stripeConnected },
@@ -350,9 +350,9 @@ export default function SuperAdminSettings() {
         <Card>
           <div className="p-6 space-y-5">
             <div className="space-y-1">
-              <label className="text-sm font-medium text-slate-700">Email Provider</label>
+              <label className="text-sm font-medium text-slate-700 dark:text-slate-200">Email Provider</label>
               <select value={emailProvider} onChange={e => setEmailProvider(e.target.value)}
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-shield-500">
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-shield-500 dark:focus:ring-shield-400">
                 <option value="smtp">SMTP</option>
                 <option value="sendgrid">SendGrid</option>
                 <option value="ses">Amazon SES</option>
@@ -360,16 +360,16 @@ export default function SuperAdminSettings() {
               </select>
             </div>
             <div className="space-y-1">
-              <label className="text-sm font-medium text-slate-700">From Email</label>
+              <label className="text-sm font-medium text-slate-700 dark:text-slate-200">From Email</label>
               <Input type="email" value={fromEmail} onChange={e => setFromEmail(e.target.value)} placeholder="noreply@insurons.com" />
             </div>
             <div className="space-y-1">
-              <label className="text-sm font-medium text-slate-700">From Name</label>
+              <label className="text-sm font-medium text-slate-700 dark:text-slate-200">From Name</label>
               <Input value={fromName} onChange={e => setFromName(e.target.value)} placeholder="InsureFlow" />
             </div>
             <div className="flex items-center gap-3">
               <Button variant="outline" onClick={handleTestEmail}>Send Test Email</Button>
-              {emailTestResult && <span className="text-sm text-slate-600">{emailTestResult}</span>}
+              {emailTestResult && <span className="text-sm text-slate-600 dark:text-slate-300">{emailTestResult}</span>}
             </div>
             <Button disabled={saving} onClick={() => saveSettings('email', [
               { key: 'provider', value: emailProvider },
@@ -386,21 +386,21 @@ export default function SuperAdminSettings() {
         <Card>
           <div className="p-6 space-y-5">
             <div className="space-y-1">
-              <label className="text-sm font-medium text-slate-700">Session Timeout (minutes)</label>
+              <label className="text-sm font-medium text-slate-700 dark:text-slate-200">Session Timeout (minutes)</label>
               <Input type="number" value={sessionTimeout} onChange={e => setSessionTimeout(Number(e.target.value))} />
             </div>
             <div className="space-y-1">
-              <label className="text-sm font-medium text-slate-700">Max Login Attempts</label>
+              <label className="text-sm font-medium text-slate-700 dark:text-slate-200">Max Login Attempts</label>
               <Input type="number" value={maxLoginAttempts} onChange={e => setMaxLoginAttempts(Number(e.target.value))} />
             </div>
             <div className="space-y-1">
-              <label className="text-sm font-medium text-slate-700">Password Minimum Length</label>
+              <label className="text-sm font-medium text-slate-700 dark:text-slate-200">Password Minimum Length</label>
               <Input type="number" value={passwordMinLength} onChange={e => setPasswordMinLength(Number(e.target.value))} />
             </div>
             <label className="flex items-center gap-3">
               <input type="checkbox" checked={requireTwoFactor} onChange={e => setRequireTwoFactor(e.target.checked)}
-                className="w-4 h-4 rounded border-slate-300 text-shield-600 focus:ring-shield-500" />
-              <span className="text-sm text-slate-700">Require Two-Factor Authentication</span>
+                className="w-4 h-4 rounded border-slate-300 text-shield-600 dark:text-shield-400 focus:ring-shield-500 dark:focus:ring-shield-400" />
+              <span className="text-sm text-slate-700 dark:text-slate-200">Require Two-Factor Authentication</span>
             </label>
             <Button disabled={saving} onClick={() => saveSettings('security', [
               { key: 'session_timeout', value: sessionTimeout },
@@ -417,7 +417,7 @@ export default function SuperAdminSettings() {
       {activeTab === 'notifications' && (
         <Card>
           <div className="p-6 space-y-4">
-            <p className="text-sm text-slate-600 mb-2">Choose which platform-level notifications to receive.</p>
+            <p className="text-sm text-slate-600 dark:text-slate-300 mb-2">Choose which platform-level notifications to receive.</p>
             {[
               { label: 'New agency registration alerts', value: notifyNewAgency, set: setNotifyNewAgency },
               { label: 'Payment failure alerts', value: notifyPaymentFailure, set: setNotifyPaymentFailure },
@@ -426,8 +426,8 @@ export default function SuperAdminSettings() {
             ].map(n => (
               <label key={n.label} className="flex items-center gap-3">
                 <input type="checkbox" checked={n.value} onChange={e => n.set(e.target.checked)}
-                  className="w-4 h-4 rounded border-slate-300 text-shield-600 focus:ring-shield-500" />
-                <span className="text-sm text-slate-700">{n.label}</span>
+                  className="w-4 h-4 rounded border-slate-300 text-shield-600 dark:text-shield-400 focus:ring-shield-500 dark:focus:ring-shield-400" />
+                <span className="text-sm text-slate-700 dark:text-slate-200">{n.label}</span>
               </label>
             ))}
             <div className="pt-2">
@@ -455,14 +455,14 @@ export default function SuperAdminSettings() {
             <Card key={i.label}>
               <div className="p-5">
                 <div className="flex items-center justify-between mb-2">
-                  <h3 className="font-medium text-slate-900">{i.label}</h3>
+                  <h3 className="font-medium text-slate-900 dark:text-white">{i.label}</h3>
                   {i.status !== null && (
                     <span className={cn('w-2.5 h-2.5 rounded-full', i.status ? 'bg-green-500' : 'bg-slate-300')} />
                   )}
                 </div>
-                <p className="text-sm text-slate-500 mb-3">{i.desc}</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400 mb-3">{i.desc}</p>
                 {i.href !== '#' && (
-                  <Link to={i.href} className="text-sm text-shield-600 hover:text-shield-700 font-medium">Configure &rarr;</Link>
+                  <Link to={i.href} className="text-sm text-shield-600 dark:text-shield-400 hover:text-shield-700 dark:text-shield-300 font-medium">Configure &rarr;</Link>
                 )}
               </div>
             </Card>
@@ -477,20 +477,20 @@ export default function SuperAdminSettings() {
           {complianceOverview && (
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
               <Card className="p-4 text-center">
-                <p className="text-xl font-bold text-slate-900">{complianceOverview.total_items}</p>
-                <p className="text-sm text-slate-500">Requirements</p>
+                <p className="text-xl font-bold text-slate-900 dark:text-white">{complianceOverview.total_items}</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400">Requirements</p>
               </Card>
               <Card className="p-4 text-center">
-                <p className="text-xl font-bold text-savings-600">{complianceOverview.completed}</p>
-                <p className="text-sm text-slate-500">Completed</p>
+                <p className="text-xl font-bold text-savings-600 dark:text-savings-400">{complianceOverview.completed}</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400">Completed</p>
               </Card>
               <Card className="p-4 text-center">
-                <p className="text-xl font-bold text-amber-600">{complianceOverview.overdue}</p>
-                <p className="text-sm text-slate-500">Overdue Items</p>
+                <p className="text-xl font-bold text-amber-600 dark:text-amber-400">{complianceOverview.overdue}</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400">Overdue Items</p>
               </Card>
               <Card className="p-4 text-center">
-                <p className="text-xl font-bold text-slate-900">{complianceOverview.users_with_packs}</p>
-                <p className="text-sm text-slate-500">Users with Packs</p>
+                <p className="text-xl font-bold text-slate-900 dark:text-white">{complianceOverview.users_with_packs}</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400">Users with Packs</p>
               </Card>
             </div>
           )}
@@ -499,7 +499,7 @@ export default function SuperAdminSettings() {
           <Card>
             <div className="p-6">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-slate-900">Compliance Requirements</h3>
+                <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Compliance Requirements</h3>
                 <Button size="sm" leftIcon={<Plus className="w-4 h-4" />} onClick={() => openReqModal()}>
                   Add Requirement
                 </Button>
@@ -508,12 +508,12 @@ export default function SuperAdminSettings() {
               {/* Filters */}
               <div className="flex gap-3 mb-4">
                 <div className="flex-1 relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 dark:text-slate-500" />
                   <input value={compSearch} onChange={e => setCompSearch(e.target.value)} placeholder="Search requirements..."
-                    className="w-full pl-9 pr-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-shield-500" />
+                    className="w-full pl-9 pr-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-shield-500 dark:focus:ring-shield-400" />
                 </div>
                 <select value={compStateFilter} onChange={e => setCompStateFilter(e.target.value)}
-                  className="px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-shield-500">
+                  className="px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-shield-500 dark:focus:ring-shield-400">
                   <option value="">All States</option>
                   {compStates.map(s => <option key={s} value={s}>{s}</option>)}
                 </select>
@@ -526,33 +526,33 @@ export default function SuperAdminSettings() {
               ) : filteredReqs.length === 0 ? (
                 <div className="text-center py-8">
                   <ShieldCheck className="w-10 h-10 text-slate-300 mx-auto mb-2" />
-                  <p className="text-sm text-slate-500">No requirements found</p>
+                  <p className="text-sm text-slate-500 dark:text-slate-400">No requirements found</p>
                 </div>
               ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="border-b border-slate-100">
-                        <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider pb-3">State</th>
-                        <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider pb-3">Insurance Type</th>
-                        <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider pb-3">Title</th>
-                        <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider pb-3">Category</th>
-                        <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider pb-3">Frequency</th>
-                        <th className="text-center text-xs font-medium text-slate-500 uppercase tracking-wider pb-3">Required</th>
-                        <th className="text-right text-xs font-medium text-slate-500 uppercase tracking-wider pb-3">Actions</th>
+                      <tr className="border-b border-slate-100 dark:border-slate-700/50">
+                        <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider pb-3">State</th>
+                        <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider pb-3">Insurance Type</th>
+                        <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider pb-3">Title</th>
+                        <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider pb-3">Category</th>
+                        <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider pb-3">Frequency</th>
+                        <th className="text-center text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider pb-3">Required</th>
+                        <th className="text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider pb-3">Actions</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-50">
                       {filteredReqs.map(req => (
-                        <tr key={req.id} className="hover:bg-slate-50">
+                        <tr key={req.id} className="hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-800">
                           <td className="py-3 pr-3"><Badge variant="outline">{req.state}</Badge></td>
-                          <td className="py-3 pr-3 text-slate-600">{req.insurance_type}</td>
+                          <td className="py-3 pr-3 text-slate-600 dark:text-slate-300">{req.insurance_type}</td>
                           <td className="py-3 pr-3">
-                            <p className="font-medium text-slate-900">{req.title}</p>
-                            {req.authority && <p className="text-xs text-slate-400">{req.authority}</p>}
+                            <p className="font-medium text-slate-900 dark:text-white">{req.title}</p>
+                            {req.authority && <p className="text-xs text-slate-400 dark:text-slate-500">{req.authority}</p>}
                           </td>
                           <td className="py-3 pr-3"><Badge variant="default" className="capitalize">{req.category}</Badge></td>
-                          <td className="py-3 pr-3 text-slate-600 capitalize">{req.frequency.replace('_', ' ')}</td>
+                          <td className="py-3 pr-3 text-slate-600 dark:text-slate-300 capitalize">{req.frequency.replace('_', ' ')}</td>
                           <td className="py-3 text-center">
                             {req.is_required ? <CheckCircle className="w-4 h-4 text-savings-500 mx-auto" /> : <XCircle className="w-4 h-4 text-slate-300 mx-auto" />}
                           </td>
@@ -577,32 +577,32 @@ export default function SuperAdminSettings() {
       {showReqModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setShowReqModal(false)}>
           <Card className="w-full max-w-lg max-h-[90vh] overflow-y-auto p-6" onClick={e => e.stopPropagation()}>
-            <h3 className="text-lg font-semibold text-slate-900 mb-4">{editingReq ? 'Edit Requirement' : 'Add Requirement'}</h3>
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">{editingReq ? 'Edit Requirement' : 'Add Requirement'}</h3>
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1">
-                  <label className="text-sm font-medium text-slate-700">State</label>
+                  <label className="text-sm font-medium text-slate-700 dark:text-slate-200">State</label>
                   <Input value={reqForm.state} onChange={e => setReqForm({ ...reqForm, state: e.target.value })} placeholder="ALL or 2-letter code" maxLength={5} />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-sm font-medium text-slate-700">Insurance Type</label>
+                  <label className="text-sm font-medium text-slate-700 dark:text-slate-200">Insurance Type</label>
                   <Input value={reqForm.insurance_type} onChange={e => setReqForm({ ...reqForm, insurance_type: e.target.value })} placeholder="ALL or product slug" />
                 </div>
               </div>
               <div className="space-y-1">
-                <label className="text-sm font-medium text-slate-700">Title</label>
+                <label className="text-sm font-medium text-slate-700 dark:text-slate-200">Title</label>
                 <Input value={reqForm.title} onChange={e => setReqForm({ ...reqForm, title: e.target.value })} placeholder="Requirement title" />
               </div>
               <div className="space-y-1">
-                <label className="text-sm font-medium text-slate-700">Description</label>
+                <label className="text-sm font-medium text-slate-700 dark:text-slate-200">Description</label>
                 <textarea value={reqForm.description} onChange={e => setReqForm({ ...reqForm, description: e.target.value })}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-shield-500 min-h-[60px]" />
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-shield-500 dark:focus:ring-shield-400 min-h-[60px]" />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1">
-                  <label className="text-sm font-medium text-slate-700">Requirement Type</label>
+                  <label className="text-sm font-medium text-slate-700 dark:text-slate-200">Requirement Type</label>
                   <select value={reqForm.requirement_type} onChange={e => setReqForm({ ...reqForm, requirement_type: e.target.value })}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-shield-500">
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-shield-500 dark:focus:ring-shield-400">
                     <option value="license">License</option>
                     <option value="ce_credit">CE Credit</option>
                     <option value="eo_insurance">E&O Insurance</option>
@@ -613,9 +613,9 @@ export default function SuperAdminSettings() {
                   </select>
                 </div>
                 <div className="space-y-1">
-                  <label className="text-sm font-medium text-slate-700">Category</label>
+                  <label className="text-sm font-medium text-slate-700 dark:text-slate-200">Category</label>
                   <select value={reqForm.category} onChange={e => setReqForm({ ...reqForm, category: e.target.value })}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-shield-500">
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-shield-500 dark:focus:ring-shield-400">
                     <option value="licensing">Licensing</option>
                     <option value="education">Education</option>
                     <option value="insurance">Insurance</option>
@@ -626,9 +626,9 @@ export default function SuperAdminSettings() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1">
-                  <label className="text-sm font-medium text-slate-700">Frequency</label>
+                  <label className="text-sm font-medium text-slate-700 dark:text-slate-200">Frequency</label>
                   <select value={reqForm.frequency} onChange={e => setReqForm({ ...reqForm, frequency: e.target.value })}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-shield-500">
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-shield-500 dark:focus:ring-shield-400">
                     <option value="one_time">One Time</option>
                     <option value="annual">Annual</option>
                     <option value="biennial">Biennial</option>
@@ -636,18 +636,18 @@ export default function SuperAdminSettings() {
                   </select>
                 </div>
                 <div className="space-y-1">
-                  <label className="text-sm font-medium text-slate-700">Authority</label>
+                  <label className="text-sm font-medium text-slate-700 dark:text-slate-200">Authority</label>
                   <Input value={reqForm.authority} onChange={e => setReqForm({ ...reqForm, authority: e.target.value })} placeholder="Regulatory body" />
                 </div>
               </div>
               <div className="space-y-1">
-                <label className="text-sm font-medium text-slate-700">Reference URL</label>
+                <label className="text-sm font-medium text-slate-700 dark:text-slate-200">Reference URL</label>
                 <Input value={reqForm.reference_url} onChange={e => setReqForm({ ...reqForm, reference_url: e.target.value })} placeholder="https://" />
               </div>
               <label className="flex items-center gap-3">
                 <input type="checkbox" checked={reqForm.is_required} onChange={e => setReqForm({ ...reqForm, is_required: e.target.checked })}
-                  className="w-4 h-4 rounded border-slate-300 text-shield-600 focus:ring-shield-500" />
-                <span className="text-sm text-slate-700">Required</span>
+                  className="w-4 h-4 rounded border-slate-300 text-shield-600 dark:text-shield-400 focus:ring-shield-500 dark:focus:ring-shield-400" />
+                <span className="text-sm text-slate-700 dark:text-slate-200">Required</span>
               </label>
             </div>
             <div className="flex justify-end gap-2 mt-6">

@@ -130,7 +130,7 @@ export default function ComplianceDashboardPage() {
   if (loading || !data) {
     return (
       <div className="space-y-6">
-        <h1 className="text-2xl font-bold text-slate-900">Compliance</h1>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Compliance</h1>
         <Card className="p-8 text-center">
           <div className="w-8 h-8 border-4 border-shield-200 border-t-shield-600 rounded-full animate-spin mx-auto" />
         </Card>
@@ -142,18 +142,18 @@ export default function ComplianceDashboardPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Compliance</h1>
-          <p className="text-slate-500 mt-1">Licenses, CE credits, and E&O insurance tracking</p>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Compliance</h1>
+          <p className="text-slate-500 dark:text-slate-400 mt-1">Licenses, CE credits, and E&O insurance tracking</p>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="flex bg-slate-100 rounded-lg p-1 w-fit">
+      <div className="flex bg-slate-100 dark:bg-slate-800 rounded-lg p-1 w-fit">
         {tabs.map(t => (
           <button
             key={t.key}
             onClick={() => setActiveTab(t.key)}
-            className={`px-4 py-2 text-sm rounded-md transition-colors ${activeTab === t.key ? 'bg-white shadow text-slate-900 font-medium' : 'text-slate-500'}`}
+            className={`px-4 py-2 text-sm rounded-md transition-colors ${activeTab === t.key ? 'bg-white dark:bg-slate-900 shadow text-slate-900 dark:text-white font-medium' : 'text-slate-500 dark:text-slate-400'}`}
           >
             {t.label}
           </button>
@@ -167,43 +167,43 @@ export default function ComplianceDashboardPage() {
             <>
               <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                 <Card className="p-4 text-center">
-                  <p className="text-2xl font-bold text-slate-900">{pack.summary.total}</p>
-                  <p className="text-xs text-slate-500">Total</p>
+                  <p className="text-2xl font-bold text-slate-900 dark:text-white">{pack.summary.total}</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Total</p>
                 </Card>
                 <Card className="p-4 text-center">
-                  <p className="text-2xl font-bold text-savings-600">{pack.summary.completed}</p>
-                  <p className="text-xs text-slate-500">Completed</p>
+                  <p className="text-2xl font-bold text-savings-600 dark:text-savings-400">{pack.summary.completed}</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Completed</p>
                 </Card>
                 <Card className="p-4 text-center">
-                  <p className="text-2xl font-bold text-amber-600">{pack.summary.pending}</p>
-                  <p className="text-xs text-slate-500">Pending</p>
+                  <p className="text-2xl font-bold text-amber-600 dark:text-amber-400">{pack.summary.pending}</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Pending</p>
                 </Card>
                 <Card className="p-4 text-center">
-                  <p className="text-2xl font-bold text-shield-600">{pack.summary.in_progress}</p>
-                  <p className="text-xs text-slate-500">In Progress</p>
+                  <p className="text-2xl font-bold text-shield-600 dark:text-shield-400">{pack.summary.in_progress}</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">In Progress</p>
                 </Card>
                 <Card className="p-4 text-center">
-                  <p className="text-2xl font-bold text-red-600">{pack.summary.overdue}</p>
-                  <p className="text-xs text-slate-500">Overdue</p>
+                  <p className="text-2xl font-bold text-red-600 dark:text-red-400">{pack.summary.overdue}</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Overdue</p>
                 </Card>
               </div>
 
               {/* Progress bar */}
               <Card className="p-5">
                 <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-sm font-semibold text-slate-700">Overall Compliance Progress</h3>
-                  <span className="text-sm font-bold text-shield-600">
+                  <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-200">Overall Compliance Progress</h3>
+                  <span className="text-sm font-bold text-shield-600 dark:text-shield-400">
                     {pack.summary.total > 0 ? Math.round((pack.summary.completed / pack.summary.total) * 100) : 0}%
                   </span>
                 </div>
-                <div className="w-full bg-slate-200 rounded-full h-3">
+                <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-3">
                   <div
                     className="bg-shield-600 h-3 rounded-full transition-all"
                     style={{ width: `${pack.summary.total > 0 ? (pack.summary.completed / pack.summary.total) * 100 : 0}%` }}
                   />
                 </div>
                 <div className="flex justify-between mt-2">
-                  <p className="text-xs text-slate-400">{pack.summary.completed} of {pack.summary.total} requirements completed</p>
+                  <p className="text-xs text-slate-400 dark:text-slate-500">{pack.summary.completed} of {pack.summary.total} requirements completed</p>
                   <Button variant="ghost" size="sm" onClick={handleGeneratePack} disabled={generatingPack}>
                     <RefreshCw className={`w-3 h-3 mr-1 ${generatingPack ? 'animate-spin' : ''}`} /> Refresh
                   </Button>
@@ -217,7 +217,7 @@ export default function ComplianceDashboardPage() {
                     key={f}
                     onClick={() => setPackFilter(f)}
                     className={`px-3 py-1.5 text-xs rounded-full capitalize transition-colors ${
-                      packFilter === f ? 'bg-shield-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                      packFilter === f ? 'bg-shield-600 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:bg-slate-700'
                     }`}
                   >
                     {f === 'all' ? 'All' : f.replace('_', ' ')}
@@ -241,8 +241,8 @@ export default function ComplianceDashboardPage() {
                   }, {})
               ).map(([category, items]) => (
                 <Card key={category} className="overflow-hidden">
-                  <div className="px-5 py-3 bg-slate-50 border-b border-slate-100">
-                    <h3 className="text-sm font-semibold text-slate-700">{categoryLabels[category] || category}</h3>
+                  <div className="px-5 py-3 bg-slate-50 dark:bg-slate-800 border-b border-slate-100 dark:border-slate-700/50">
+                    <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-200">{categoryLabels[category] || category}</h3>
                   </div>
                   <div className="divide-y divide-slate-50">
                     {items.map(item => {
@@ -252,19 +252,19 @@ export default function ComplianceDashboardPage() {
                       const isExpanded = expandedItem === item.id;
 
                       return (
-                        <div key={item.id} className={`${isOverdue ? 'bg-red-50/50' : ''}`}>
+                        <div key={item.id} className={`${isOverdue ? 'bg-red-50 dark:bg-red-900/30/50' : ''}`}>
                           <div
-                            className="flex items-center justify-between px-5 py-3 cursor-pointer hover:bg-slate-50"
+                            className="flex items-center justify-between px-5 py-3 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-800"
                             onClick={() => setExpandedItem(isExpanded ? null : item.id)}
                           >
                             <div className="flex items-center gap-3 min-w-0">
-                              {isExpanded ? <ChevronDown className="w-4 h-4 text-slate-400 flex-shrink-0" /> : <ChevronRight className="w-4 h-4 text-slate-400 flex-shrink-0" />}
+                              {isExpanded ? <ChevronDown className="w-4 h-4 text-slate-400 dark:text-slate-500 flex-shrink-0" /> : <ChevronRight className="w-4 h-4 text-slate-400 dark:text-slate-500 flex-shrink-0" />}
                               <div className="min-w-0">
-                                <p className="font-medium text-slate-900 text-sm truncate">{req?.title || 'Requirement'}</p>
+                                <p className="font-medium text-slate-900 dark:text-white text-sm truncate">{req?.title || 'Requirement'}</p>
                                 <div className="flex items-center gap-2 mt-0.5">
-                                  <span className="text-xs text-slate-400 capitalize">{req?.frequency?.replace('_', ' ')}</span>
-                                  {req?.authority && <span className="text-xs text-slate-400">• {req.authority}</span>}
-                                  {item.due_date && <span className={`text-xs ${isOverdue ? 'text-red-600 font-medium' : 'text-slate-400'}`}>Due: {new Date(item.due_date).toLocaleDateString()}</span>}
+                                  <span className="text-xs text-slate-400 dark:text-slate-500 capitalize">{req?.frequency?.replace('_', ' ')}</span>
+                                  {req?.authority && <span className="text-xs text-slate-400 dark:text-slate-500">• {req.authority}</span>}
+                                  {item.due_date && <span className={`text-xs ${isOverdue ? 'text-red-600 dark:text-red-400 font-medium' : 'text-slate-400 dark:text-slate-500'}`}>Due: {new Date(item.due_date).toLocaleDateString()}</span>}
                                 </div>
                               </div>
                             </div>
@@ -275,9 +275,9 @@ export default function ComplianceDashboardPage() {
 
                           {isExpanded && (
                             <div className="px-5 pb-4 pl-12 space-y-3">
-                              {req?.description && <p className="text-sm text-slate-600">{req.description}</p>}
+                              {req?.description && <p className="text-sm text-slate-600 dark:text-slate-300">{req.description}</p>}
                               {req?.reference_url && (
-                                <a href={req.reference_url} target="_blank" rel="noopener noreferrer" className="text-xs text-shield-600 hover:underline flex items-center gap-1">
+                                <a href={req.reference_url} target="_blank" rel="noopener noreferrer" className="text-xs text-shield-600 dark:text-shield-400 hover:underline flex items-center gap-1">
                                   <ExternalLink className="w-3 h-3" /> Reference
                                 </a>
                               )}
@@ -310,13 +310,13 @@ export default function ComplianceDashboardPage() {
           ) : packLoading ? (
             <Card className="p-8 text-center">
               <div className="w-8 h-8 border-4 border-shield-200 border-t-shield-600 rounded-full animate-spin mx-auto" />
-              <p className="text-sm text-slate-400 mt-2">Loading compliance pack...</p>
+              <p className="text-sm text-slate-400 dark:text-slate-500 mt-2">Loading compliance pack...</p>
             </Card>
           ) : (
             <Card className="p-12 text-center">
               <ClipboardList className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-              <h3 className="text-lg font-semibold text-slate-900 mb-1">No Compliance Pack Yet</h3>
-              <p className="text-sm text-slate-500 mb-4">
+              <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-1">No Compliance Pack Yet</h3>
+              <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
                 Generate your personalized compliance pack based on your licensed states and insurance products.
               </p>
               <Button variant="shield" onClick={handleGeneratePack} disabled={generatingPack}>
@@ -337,16 +337,16 @@ export default function ComplianceDashboardPage() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <Card className="p-5">
               <div className="flex items-center gap-3 mb-2">
-                <div className="w-10 h-10 rounded-xl bg-shield-50 flex items-center justify-center">
-                  <ShieldCheck className="w-5 h-5 text-shield-600" />
+                <div className="w-10 h-10 rounded-xl bg-shield-50 dark:bg-shield-900/30 flex items-center justify-center">
+                  <ShieldCheck className="w-5 h-5 text-shield-600 dark:text-shield-400" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-slate-900">{data.licenses.active}</p>
-                  <p className="text-sm text-slate-500">Active Licenses</p>
+                  <p className="text-2xl font-bold text-slate-900 dark:text-white">{data.licenses.active}</p>
+                  <p className="text-sm text-slate-500 dark:text-slate-400">Active Licenses</p>
                 </div>
               </div>
               {data.licenses.expiring_soon > 0 && (
-                <p className="text-xs text-amber-600 mt-1">
+                <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">
                   <AlertTriangle className="w-3 h-3 inline mr-1" />{data.licenses.expiring_soon} expiring soon
                 </p>
               )}
@@ -354,40 +354,40 @@ export default function ComplianceDashboardPage() {
 
             <Card className="p-5">
               <div className="flex items-center gap-3 mb-2">
-                <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
-                  <Award className="w-5 h-5 text-blue-600" />
+                <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center">
+                  <Award className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-slate-900">{data.ce_credits.this_year}h</p>
-                  <p className="text-sm text-slate-500">CE This Year</p>
+                  <p className="text-2xl font-bold text-slate-900 dark:text-white">{data.ce_credits.this_year}h</p>
+                  <p className="text-sm text-slate-500 dark:text-slate-400">CE This Year</p>
                 </div>
               </div>
-              <p className="text-xs text-slate-400">{data.ce_credits.total_hours}h total</p>
+              <p className="text-xs text-slate-400 dark:text-slate-500">{data.ce_credits.total_hours}h total</p>
             </Card>
 
             <Card className="p-5">
               <div className="flex items-center gap-3 mb-2">
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${data.eo_insurance.active ? 'bg-green-50' : 'bg-red-50'}`}>
-                  <FileText className={`w-5 h-5 ${data.eo_insurance.active ? 'text-green-600' : 'text-red-600'}`} />
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${data.eo_insurance.active ? 'bg-green-50 dark:bg-green-900/30' : 'bg-red-50 dark:bg-red-900/30'}`}>
+                  <FileText className={`w-5 h-5 ${data.eo_insurance.active ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`} />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-slate-900">{data.eo_insurance.active ? 'Active' : 'None'}</p>
-                  <p className="text-sm text-slate-500">E&O Insurance</p>
+                  <p className="text-2xl font-bold text-slate-900 dark:text-white">{data.eo_insurance.active ? 'Active' : 'None'}</p>
+                  <p className="text-sm text-slate-500 dark:text-slate-400">E&O Insurance</p>
                 </div>
               </div>
               {data.eo_insurance.policy && (
-                <p className="text-xs text-slate-400">Expires {new Date(data.eo_insurance.policy.expiration_date).toLocaleDateString()}</p>
+                <p className="text-xs text-slate-400 dark:text-slate-500">Expires {new Date(data.eo_insurance.policy.expiration_date).toLocaleDateString()}</p>
               )}
             </Card>
 
             <Card className="p-5">
               <div className="flex items-center gap-3 mb-2">
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${data.expiring.length > 0 ? 'bg-amber-50' : 'bg-green-50'}`}>
-                  <Clock className={`w-5 h-5 ${data.expiring.length > 0 ? 'text-amber-600' : 'text-green-600'}`} />
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${data.expiring.length > 0 ? 'bg-amber-50 dark:bg-amber-900/30' : 'bg-green-50 dark:bg-green-900/30'}`}>
+                  <Clock className={`w-5 h-5 ${data.expiring.length > 0 ? 'text-amber-600 dark:text-amber-400' : 'text-green-600 dark:text-green-400'}`} />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-slate-900">{data.expiring.length}</p>
-                  <p className="text-sm text-slate-500">Expiring Items</p>
+                  <p className="text-2xl font-bold text-slate-900 dark:text-white">{data.expiring.length}</p>
+                  <p className="text-sm text-slate-500 dark:text-slate-400">Expiring Items</p>
                 </div>
               </div>
             </Card>
@@ -396,15 +396,15 @@ export default function ComplianceDashboardPage() {
           {/* Expiring items */}
           {data.expiring.length > 0 && (
             <Card className="p-5">
-              <h3 className="text-sm font-bold text-slate-700 mb-3 flex items-center gap-2">
+              <h3 className="text-sm font-bold text-slate-700 dark:text-slate-200 mb-3 flex items-center gap-2">
                 <AlertTriangle className="w-4 h-4 text-amber-500" /> Expiring Soon
               </h3>
               <div className="space-y-2">
                 {data.expiring.map((item, i) => (
-                  <div key={i} className="flex items-center justify-between bg-amber-50 rounded-lg px-4 py-2.5 text-sm">
+                  <div key={i} className="flex items-center justify-between bg-amber-50 dark:bg-amber-900/30 rounded-lg px-4 py-2.5 text-sm">
                     <div>
                       <span className="font-medium">{item.label}</span>
-                      <span className="text-slate-400 ml-2">expires {item.expires}</span>
+                      <span className="text-slate-400 dark:text-slate-500 ml-2">expires {item.expires}</span>
                     </div>
                     <Badge variant={item.days_left <= 14 ? 'danger' : 'warning'}>
                       {item.days_left} days
@@ -420,26 +420,26 @@ export default function ComplianceDashboardPage() {
       {activeTab === 'licenses' && (
         <Card className="p-5">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-bold text-slate-900">Agent Licenses</h3>
+            <h3 className="text-lg font-bold text-slate-900 dark:text-white">Agent Licenses</h3>
             <Button variant="shield" size="sm" onClick={() => setShowAddLicense(true)}>
               <Plus className="w-4 h-4 mr-1" /> Add License
             </Button>
           </div>
           {data.licenses.items.length === 0 ? (
-            <p className="text-sm text-slate-400 text-center py-8">No licenses on file</p>
+            <p className="text-sm text-slate-400 dark:text-slate-500 text-center py-8">No licenses on file</p>
           ) : (
             <div className="space-y-2">
               {data.licenses.items.map(l => {
                 const sc = licenseStatusConfig[l.status] || licenseStatusConfig.pending;
                 return (
-                  <div key={l.id} className="flex items-center justify-between bg-slate-50 rounded-xl px-4 py-3">
+                  <div key={l.id} className="flex items-center justify-between bg-slate-50 dark:bg-slate-800 rounded-xl px-4 py-3">
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="font-bold text-lg text-slate-900">{l.state}</span>
+                        <span className="font-bold text-lg text-slate-900 dark:text-white">{l.state}</span>
                         <Badge variant={sc.variant}>{sc.label}</Badge>
-                        <span className="text-sm text-slate-500">{l.license_type}</span>
+                        <span className="text-sm text-slate-500 dark:text-slate-400">{l.license_type}</span>
                       </div>
-                      <div className="flex items-center gap-3 mt-1 text-sm text-slate-500">
+                      <div className="flex items-center gap-3 mt-1 text-sm text-slate-500 dark:text-slate-400">
                         <span>#{l.license_number}</span>
                         {l.npn && <span>NPN: {l.npn}</span>}
                         <span>Expires: {new Date(l.expiration_date).toLocaleDateString()}</span>
@@ -447,7 +447,7 @@ export default function ComplianceDashboardPage() {
                       {l.lines_of_authority && l.lines_of_authority.length > 0 && (
                         <div className="flex gap-1 mt-1">
                           {l.lines_of_authority.map(loa => (
-                            <span key={loa} className="text-xs px-2 py-0.5 rounded-full bg-shield-50 text-shield-700 capitalize">{loa}</span>
+                            <span key={loa} className="text-xs px-2 py-0.5 rounded-full bg-shield-50 dark:bg-shield-900/30 text-shield-700 dark:text-shield-300 capitalize">{loa}</span>
                           ))}
                         </div>
                       )}
@@ -466,21 +466,21 @@ export default function ComplianceDashboardPage() {
       {activeTab === 'ce' && (
         <Card className="p-5">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-bold text-slate-900">CE Credits</h3>
+            <h3 className="text-lg font-bold text-slate-900 dark:text-white">CE Credits</h3>
             <Button variant="shield" size="sm" onClick={() => setShowAddCe(true)}>
               <Plus className="w-4 h-4 mr-1" /> Add CE Credit
             </Button>
           </div>
           {data.ce_credits.items.length === 0 ? (
-            <p className="text-sm text-slate-400 text-center py-8">No CE credits recorded</p>
+            <p className="text-sm text-slate-400 dark:text-slate-500 text-center py-8">No CE credits recorded</p>
           ) : (
             <div className="space-y-2">
               {data.ce_credits.items.map(c => (
-                <div key={c.id} className="flex items-center justify-between bg-slate-50 rounded-xl px-4 py-3">
+                <div key={c.id} className="flex items-center justify-between bg-slate-50 dark:bg-slate-800 rounded-xl px-4 py-3">
                   <div>
-                    <p className="font-medium text-slate-900">{c.course_name}</p>
-                    <div className="flex items-center gap-3 mt-1 text-sm text-slate-500">
-                      <span className="font-bold text-shield-600">{c.hours}h</span>
+                    <p className="font-medium text-slate-900 dark:text-white">{c.course_name}</p>
+                    <div className="flex items-center gap-3 mt-1 text-sm text-slate-500 dark:text-slate-400">
+                      <span className="font-bold text-shield-600 dark:text-shield-400">{c.hours}h</span>
                       {c.provider && <span>{c.provider}</span>}
                       {c.category && <span className="capitalize">{c.category}</span>}
                       {c.state && <span>{c.state}</span>}
@@ -500,7 +500,7 @@ export default function ComplianceDashboardPage() {
       {activeTab === 'eo' && (
         <Card className="p-5">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-bold text-slate-900">E&O Insurance</h3>
+            <h3 className="text-lg font-bold text-slate-900 dark:text-white">E&O Insurance</h3>
             <Button variant="shield" size="sm" onClick={() => setShowAddEo(true)}>
               <Plus className="w-4 h-4 mr-1" /> Add E&O Policy
             </Button>
@@ -508,38 +508,38 @@ export default function ComplianceDashboardPage() {
           {!data.eo_insurance.policy ? (
             <div className="text-center py-8">
               <FileText className="w-10 h-10 text-slate-300 mx-auto mb-2" />
-              <p className="text-sm text-slate-400">No E&O policy on file</p>
+              <p className="text-sm text-slate-400 dark:text-slate-500">No E&O policy on file</p>
             </div>
           ) : (
-            <div className="bg-slate-50 rounded-xl p-5">
+            <div className="bg-slate-50 dark:bg-slate-800 rounded-xl p-5">
               <div className="flex items-start justify-between">
                 <div>
                   <div className="flex items-center gap-2 mb-2">
-                    <h4 className="font-bold text-slate-900">{data.eo_insurance.policy.carrier}</h4>
+                    <h4 className="font-bold text-slate-900 dark:text-white">{data.eo_insurance.policy.carrier}</h4>
                     <Badge variant={data.eo_insurance.active ? 'success' : 'danger'}>
                       {data.eo_insurance.active ? 'Active' : 'Expired'}
                     </Badge>
                   </div>
                   <div className="grid grid-cols-2 gap-x-8 gap-y-2 text-sm">
                     <div>
-                      <span className="text-slate-400">Policy #</span>
+                      <span className="text-slate-400 dark:text-slate-500">Policy #</span>
                       <p className="font-medium">{data.eo_insurance.policy.policy_number}</p>
                     </div>
                     <div>
-                      <span className="text-slate-400">Coverage</span>
+                      <span className="text-slate-400 dark:text-slate-500">Coverage</span>
                       <p className="font-medium">${Number(data.eo_insurance.policy.coverage_amount).toLocaleString()}</p>
                     </div>
                     <div>
-                      <span className="text-slate-400">Effective</span>
+                      <span className="text-slate-400 dark:text-slate-500">Effective</span>
                       <p className="font-medium">{new Date(data.eo_insurance.policy.effective_date).toLocaleDateString()}</p>
                     </div>
                     <div>
-                      <span className="text-slate-400">Expires</span>
+                      <span className="text-slate-400 dark:text-slate-500">Expires</span>
                       <p className="font-medium">{new Date(data.eo_insurance.policy.expiration_date).toLocaleDateString()}</p>
                     </div>
                     {data.eo_insurance.policy.deductible && (
                       <div>
-                        <span className="text-slate-400">Deductible</span>
+                        <span className="text-slate-400 dark:text-slate-500">Deductible</span>
                         <p className="font-medium">${Number(data.eo_insurance.policy.deductible).toLocaleString()}</p>
                       </div>
                     )}

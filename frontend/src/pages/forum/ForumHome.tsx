@@ -97,8 +97,8 @@ export default function ForumHome() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Community Forum</h1>
-          <p className="text-slate-500 mt-1">Connect, share knowledge, and learn from peers</p>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Community Forum</h1>
+          <p className="text-slate-500 dark:text-slate-400 mt-1">Connect, share knowledge, and learn from peers</p>
         </div>
         {view === 'topics' && (
           <Button variant="shield" onClick={() => setShowNewTopic(true)}>
@@ -117,16 +117,16 @@ export default function ForumHome() {
             <Card key={cat.id} className="p-5 cursor-pointer hover:shadow-md transition-all group" onClick={() => openCategory(cat)}>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-shield-50 flex items-center justify-center text-lg">
+                  <div className="w-10 h-10 rounded-xl bg-shield-50 dark:bg-shield-900/30 flex items-center justify-center text-lg">
                     {cat.icon || '💬'}
                   </div>
                   <div>
-                    <h3 className="font-bold text-slate-900 group-hover:text-shield-600 transition-colors">{cat.name}</h3>
-                    {cat.description && <p className="text-xs text-slate-500 mt-0.5">{cat.description}</p>}
+                    <h3 className="font-bold text-slate-900 dark:text-white group-hover:text-shield-600 dark:text-shield-400 transition-colors">{cat.name}</h3>
+                    {cat.description && <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{cat.description}</p>}
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-xs text-slate-400">{cat.topic_count} topics</span>
+                  <span className="text-xs text-slate-400 dark:text-slate-500">{cat.topic_count} topics</span>
                   <ChevronRight className="w-4 h-4 text-slate-300" />
                 </div>
               </div>
@@ -135,27 +135,27 @@ export default function ForumHome() {
           {categories.length === 0 && (
             <Card className="p-12 text-center col-span-2">
               <MessageCircle className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-              <p className="text-slate-500">Forum is being set up</p>
+              <p className="text-slate-500 dark:text-slate-400">Forum is being set up</p>
             </Card>
           )}
         </div>
       ) : view === 'topics' ? (
         <div className="space-y-3">
-          <button onClick={goBack} className="flex items-center gap-1 text-sm text-shield-600 hover:text-shield-700">
+          <button onClick={goBack} className="flex items-center gap-1 text-sm text-shield-600 dark:text-shield-400 hover:text-shield-700 dark:text-shield-300">
             <ArrowLeft className="w-4 h-4" /> Back to categories
           </button>
-          {activeCategory && <h2 className="text-xl font-bold text-slate-900">{activeCategory.name}</h2>}
+          {activeCategory && <h2 className="text-xl font-bold text-slate-900 dark:text-white">{activeCategory.name}</h2>}
           {topics.map(topic => (
             <Card key={topic.id} className="p-4 cursor-pointer hover:shadow-md transition-all" onClick={() => openTopic(topic)}>
               <div className="flex items-start gap-3">
                 <div className="flex-1">
                   <div className="flex items-center gap-2">
                     {topic.is_pinned && <Pin className="w-3.5 h-3.5 text-amber-500" />}
-                    <h3 className="font-medium text-slate-900">{topic.title}</h3>
+                    <h3 className="font-medium text-slate-900 dark:text-white">{topic.title}</h3>
                   </div>
-                  <p className="text-xs text-slate-500 mt-1">by {topic.author_name} • {new Date(topic.created_at).toLocaleDateString()}</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">by {topic.author_name} • {new Date(topic.created_at).toLocaleDateString()}</p>
                 </div>
-                <div className="flex items-center gap-4 text-xs text-slate-400">
+                <div className="flex items-center gap-4 text-xs text-slate-400 dark:text-slate-500">
                   <span className="flex items-center gap-1"><MessageCircle className="w-3 h-3" /> {topic.reply_count}</span>
                   <span className="flex items-center gap-1"><Eye className="w-3 h-3" /> {topic.view_count}</span>
                 </div>
@@ -164,44 +164,44 @@ export default function ForumHome() {
           ))}
           {topics.length === 0 && (
             <Card className="p-8 text-center">
-              <p className="text-slate-400">No topics yet. Start the conversation!</p>
+              <p className="text-slate-400 dark:text-slate-500">No topics yet. Start the conversation!</p>
             </Card>
           )}
         </div>
       ) : view === 'topic' && activeTopic ? (
         <div className="space-y-4">
-          <button onClick={goBack} className="flex items-center gap-1 text-sm text-shield-600 hover:text-shield-700">
+          <button onClick={goBack} className="flex items-center gap-1 text-sm text-shield-600 dark:text-shield-400 hover:text-shield-700 dark:text-shield-300">
             <ArrowLeft className="w-4 h-4" /> Back to topics
           </button>
 
           {/* Topic header */}
           <Card className="p-6">
-            <h2 className="text-xl font-bold text-slate-900 mb-2">{activeTopic.title}</h2>
-            <div className="flex items-center gap-3 text-sm text-slate-500 mb-4">
+            <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-2">{activeTopic.title}</h2>
+            <div className="flex items-center gap-3 text-sm text-slate-500 dark:text-slate-400 mb-4">
               <span>by {activeTopic.author_name}</span>
               <span>{new Date(activeTopic.created_at).toLocaleDateString()}</span>
               <span className="flex items-center gap-1"><Eye className="w-3.5 h-3.5" /> {activeTopic.view_count}</span>
             </div>
-            <div className="text-sm text-slate-700 whitespace-pre-wrap">{activeTopic.body}</div>
+            <div className="text-sm text-slate-700 dark:text-slate-200 whitespace-pre-wrap">{activeTopic.body}</div>
           </Card>
 
           {/* Posts */}
           {posts.map(post => (
-            <Card key={post.id} className={`p-5 ${post.is_solution ? 'border-green-200 bg-green-50/30' : ''}`}>
+            <Card key={post.id} className={`p-5 ${post.is_solution ? 'border-green-200 bg-green-50 dark:bg-green-900/30/30' : ''}`}>
               <div className="flex items-start gap-3">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="font-medium text-slate-900 text-sm">{post.author_name}</span>
-                    <span className="text-xs text-slate-400">{new Date(post.created_at).toLocaleDateString()}</span>
+                    <span className="font-medium text-slate-900 dark:text-white text-sm">{post.author_name}</span>
+                    <span className="text-xs text-slate-400 dark:text-slate-500">{new Date(post.created_at).toLocaleDateString()}</span>
                     {post.is_solution && <Badge variant="success">Solution</Badge>}
                   </div>
-                  <p className="text-sm text-slate-700 whitespace-pre-wrap">{post.content}</p>
+                  <p className="text-sm text-slate-700 dark:text-slate-200 whitespace-pre-wrap">{post.content}</p>
                   <div className="flex items-center gap-3 mt-3">
-                    <button onClick={() => handleVote(post.id)} className="flex items-center gap-1 text-xs text-slate-500 hover:text-shield-600">
+                    <button onClick={() => handleVote(post.id)} className="flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400 hover:text-shield-600 dark:text-shield-400">
                       <ThumbsUp className="w-3.5 h-3.5" /> {post.upvote_count}
                     </button>
                     {!post.is_solution && (
-                      <button onClick={() => handleMarkSolution(post.id)} className="flex items-center gap-1 text-xs text-slate-500 hover:text-green-600">
+                      <button onClick={() => handleMarkSolution(post.id)} className="flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400 hover:text-green-600 dark:text-green-400">
                         <CheckCircle className="w-3.5 h-3.5" /> Mark as solution
                       </button>
                     )}
@@ -217,7 +217,7 @@ export default function ForumHome() {
               <textarea
                 value={replyContent}
                 onChange={e => setReplyContent(e.target.value)}
-                className="w-full h-24 text-sm border border-slate-200 rounded-lg p-3 focus:ring-2 focus:ring-shield-500 focus:border-shield-500 mb-3"
+                className="w-full h-24 text-sm border border-slate-200 dark:border-slate-700/50 rounded-lg p-3 focus:ring-2 focus:ring-shield-500 dark:focus:ring-shield-400 focus:border-shield-500 mb-3"
                 placeholder="Write a reply..."
               />
               <div className="flex justify-end">
@@ -266,11 +266,11 @@ function NewTopicModal({ categoryId, onClose, onCreated }: { categoryId: number;
       <div className="space-y-4">
         <Input label="Title" placeholder="What's your question or topic?" value={title} onChange={e => setTitle(e.target.value)} />
         <div>
-          <label className="text-sm font-medium text-slate-700 block mb-1">Body</label>
+          <label className="text-sm font-medium text-slate-700 dark:text-slate-200 block mb-1">Body</label>
           <textarea
             value={body}
             onChange={e => setBody(e.target.value)}
-            className="w-full h-32 text-sm border border-slate-200 rounded-lg p-3 focus:ring-2 focus:ring-shield-500 focus:border-shield-500"
+            className="w-full h-32 text-sm border border-slate-200 dark:border-slate-700/50 rounded-lg p-3 focus:ring-2 focus:ring-shield-500 dark:focus:ring-shield-400 focus:border-shield-500"
             placeholder="Describe your question or share your thoughts..."
           />
         </div>

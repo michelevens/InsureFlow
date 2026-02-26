@@ -10,18 +10,18 @@ const PRODUCT_TYPES = ['All', 'LTC', 'LTD', 'Life', 'P&C', 'Annuity'] as const;
 type ProductFilter = typeof PRODUCT_TYPES[number];
 
 const PRODUCT_TYPE_COLORS: Record<string, string> = {
-  LTC:     'bg-blue-50 text-blue-700',
-  LTD:     'bg-purple-50 text-purple-700',
-  Life:    'bg-emerald-50 text-emerald-700',
-  'P&C':   'bg-amber-50 text-amber-700',
-  Annuity: 'bg-rose-50 text-rose-700',
+  LTC:     'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300',
+  LTD:     'bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300',
+  Life:    'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300',
+  'P&C':   'bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300',
+  Annuity: 'bg-rose-50 dark:bg-rose-900/30 text-rose-700 dark:text-rose-300',
 };
 
 function productTypeBadge(productType: string): string {
   const normalised = PRODUCT_TYPES.find(
     t => t.toLowerCase() === productType.toLowerCase() || productType.toLowerCase().includes(t.toLowerCase()),
   );
-  return PRODUCT_TYPE_COLORS[normalised ?? ''] ?? 'bg-slate-100 text-slate-600';
+  return PRODUCT_TYPE_COLORS[normalised ?? ''] ?? 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300';
 }
 
 function normaliseProductLabel(productType: string): string {
@@ -114,12 +114,12 @@ export default function AdminRateTables() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Rate Tables</h1>
-          <p className="text-slate-500 mt-1">Manage carrier rating tables and pricing data</p>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Rate Tables</h1>
+          <p className="text-slate-500 dark:text-slate-400 mt-1">Manage carrier rating tables and pricing data</p>
         </div>
-        <div className="bg-white rounded-xl border border-slate-200 p-16 flex flex-col items-center justify-center gap-3">
-          <Loader2 className="w-6 h-6 text-shield-600 animate-spin" />
-          <p className="text-sm text-slate-500">Loading rate tables...</p>
+        <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700/50 p-16 flex flex-col items-center justify-center gap-3">
+          <Loader2 className="w-6 h-6 text-shield-600 dark:text-shield-400 animate-spin" />
+          <p className="text-sm text-slate-500 dark:text-slate-400">Loading rate tables...</p>
         </div>
       </div>
     );
@@ -130,8 +130,8 @@ export default function AdminRateTables() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Rate Tables</h1>
-          <p className="text-slate-500 mt-1">Manage carrier rating tables and pricing data</p>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Rate Tables</h1>
+          <p className="text-slate-500 dark:text-slate-400 mt-1">Manage carrier rating tables and pricing data</p>
         </div>
         <Link
           to="/admin/rate-tables/new"
@@ -144,31 +144,31 @@ export default function AdminRateTables() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-3 gap-4">
-        <div className="bg-white rounded-xl border border-slate-200 p-4 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-shield-50 flex items-center justify-center flex-shrink-0">
-            <Database className="w-5 h-5 text-shield-600" />
+        <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700/50 p-4 flex items-center gap-3">
+          <div className="w-10 h-10 rounded-lg bg-shield-50 dark:bg-shield-900/30 flex items-center justify-center flex-shrink-0">
+            <Database className="w-5 h-5 text-shield-600 dark:text-shield-400" />
           </div>
           <div>
-            <p className="text-xl font-bold text-slate-900">{counts.total}</p>
-            <p className="text-sm text-slate-500">Total Tables</p>
+            <p className="text-xl font-bold text-slate-900 dark:text-white">{counts.total}</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400">Total Tables</p>
           </div>
         </div>
-        <div className="bg-white rounded-xl border border-slate-200 p-4 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center flex-shrink-0">
-            <CheckCircle className="w-5 h-5 text-emerald-600" />
+        <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700/50 p-4 flex items-center gap-3">
+          <div className="w-10 h-10 rounded-lg bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center flex-shrink-0">
+            <CheckCircle className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
           </div>
           <div>
-            <p className="text-xl font-bold text-slate-900">{counts.active}</p>
-            <p className="text-sm text-slate-500">Active</p>
+            <p className="text-xl font-bold text-slate-900 dark:text-white">{counts.active}</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400">Active</p>
           </div>
         </div>
-        <div className="bg-white rounded-xl border border-slate-200 p-4 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-red-50 flex items-center justify-center flex-shrink-0">
+        <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700/50 p-4 flex items-center gap-3">
+          <div className="w-10 h-10 rounded-lg bg-red-50 dark:bg-red-900/30 flex items-center justify-center flex-shrink-0">
             <XCircle className="w-5 h-5 text-red-500" />
           </div>
           <div>
-            <p className="text-xl font-bold text-slate-900">{counts.total - counts.active}</p>
-            <p className="text-sm text-slate-500">Inactive</p>
+            <p className="text-xl font-bold text-slate-900 dark:text-white">{counts.total - counts.active}</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400">Inactive</p>
           </div>
         </div>
       </div>
@@ -176,15 +176,15 @@ export default function AdminRateTables() {
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-3">
         {/* Product type tabs */}
-        <div className="bg-slate-100 rounded-lg p-1 flex gap-1 flex-wrap">
+        <div className="bg-slate-100 dark:bg-slate-800 rounded-lg p-1 flex gap-1 flex-wrap">
           {PRODUCT_TYPES.map(type => (
             <button
               key={type}
               onClick={() => setProductFilter(type)}
               className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
                 productFilter === type
-                  ? 'bg-white shadow-sm text-slate-900'
-                  : 'text-slate-600 hover:text-slate-900'
+                  ? 'bg-white dark:bg-slate-900 shadow-sm dark:shadow-none text-slate-900 dark:text-white'
+                  : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:text-white'
               }`}
             >
               {type}
@@ -196,7 +196,7 @@ export default function AdminRateTables() {
         <select
           value={carrierFilter}
           onChange={e => setCarrierFilter(e.target.value)}
-          className="px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-shield-500 focus:border-shield-500 bg-white"
+          className="px-3 py-2 border border-slate-200 dark:border-slate-700/50 rounded-lg text-sm focus:ring-2 focus:ring-shield-500 dark:focus:ring-shield-400 focus:border-shield-500 bg-white dark:bg-slate-900"
         >
           <option value="">All Carriers</option>
           {carriers.map(c => (
@@ -206,23 +206,23 @@ export default function AdminRateTables() {
 
         {/* Search */}
         <div className="relative flex-1 min-w-48">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 dark:text-slate-500 pointer-events-none" />
           <input
             type="text"
             placeholder="Search tables..."
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-shield-500 focus:border-shield-500"
+            className="w-full pl-9 pr-4 py-2 border border-slate-200 dark:border-slate-700/50 rounded-lg text-sm focus:ring-2 focus:ring-shield-500 dark:focus:ring-shield-400 focus:border-shield-500"
           />
         </div>
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700/50 overflow-hidden">
         {filtered.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 text-slate-500">
+          <div className="flex flex-col items-center justify-center py-20 text-slate-500 dark:text-slate-400">
             <Table2 className="w-10 h-10 mb-3 text-slate-300" />
-            <p className="font-medium text-slate-700">No rate tables found</p>
+            <p className="font-medium text-slate-700 dark:text-slate-200">No rate tables found</p>
             <p className="text-sm mt-1">
               {searchTerm || productFilter !== 'All' || carrierFilter
                 ? 'Try adjusting your filters'
@@ -233,13 +233,13 @@ export default function AdminRateTables() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-slate-100 bg-slate-50">
-                  <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider px-4 py-3">Name</th>
-                  <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider px-4 py-3">Product Type</th>
-                  <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider px-4 py-3">Version</th>
-                  <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider px-4 py-3">Entries</th>
-                  <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider px-4 py-3">Status</th>
-                  <th className="text-right text-xs font-medium text-slate-500 uppercase tracking-wider px-4 py-3">Actions</th>
+                <tr className="border-b border-slate-100 dark:border-slate-700/50 bg-slate-50 dark:bg-slate-800">
+                  <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider px-4 py-3">Name</th>
+                  <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider px-4 py-3">Product Type</th>
+                  <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider px-4 py-3">Version</th>
+                  <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider px-4 py-3">Entries</th>
+                  <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider px-4 py-3">Status</th>
+                  <th className="text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider px-4 py-3">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
@@ -247,17 +247,17 @@ export default function AdminRateTables() {
                   const displayName = rt.name ?? rt.product_type;
                   const productLabel = normaliseProductLabel(rt.product_type);
                   return (
-                    <tr key={rt.id} className="hover:bg-slate-50 transition-colors">
+                    <tr key={rt.id} className="hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-800 transition-colors">
                       {/* Name */}
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-lg bg-shield-50 flex items-center justify-center flex-shrink-0">
-                            <Table2 className="w-4 h-4 text-shield-600" />
+                          <div className="w-8 h-8 rounded-lg bg-shield-50 dark:bg-shield-900/30 flex items-center justify-center flex-shrink-0">
+                            <Table2 className="w-4 h-4 text-shield-600 dark:text-shield-400" />
                           </div>
                           <div>
-                            <p className="font-medium text-slate-900">{displayName}</p>
+                            <p className="font-medium text-slate-900 dark:text-white">{displayName}</p>
                             {rt.carrier?.name && (
-                              <p className="text-xs text-slate-400">{rt.carrier.name}</p>
+                              <p className="text-xs text-slate-400 dark:text-slate-500">{rt.carrier.name}</p>
                             )}
                           </div>
                         </div>
@@ -272,24 +272,24 @@ export default function AdminRateTables() {
 
                       {/* Version */}
                       <td className="px-4 py-3">
-                        <span className="font-mono text-xs text-slate-600 bg-slate-100 px-2 py-0.5 rounded">
+                        <span className="font-mono text-xs text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded">
                           {rt.version}
                         </span>
                       </td>
 
                       {/* Entries count */}
                       <td className="px-4 py-3">
-                        <span className="text-slate-700">{rt.entries_count.toLocaleString()}</span>
+                        <span className="text-slate-700 dark:text-slate-200">{rt.entries_count.toLocaleString()}</span>
                       </td>
 
                       {/* Status */}
                       <td className="px-4 py-3">
                         {rt.is_active ? (
-                          <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700">
+                          <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300">
                             Active
                           </span>
                         ) : (
-                          <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-red-50 text-red-600">
+                          <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400">
                             Inactive
                           </span>
                         )}
@@ -300,28 +300,28 @@ export default function AdminRateTables() {
                         <div className="flex items-center justify-end gap-1">
                           <Link
                             to={`/admin/rate-tables/${rt.id}`}
-                            className="p-1.5 rounded-md text-slate-500 hover:text-shield-600 hover:bg-shield-50 transition-colors"
+                            className="p-1.5 rounded-md text-slate-500 dark:text-slate-400 hover:text-shield-600 dark:text-shield-400 hover:bg-shield-50 dark:bg-shield-900/30 transition-colors"
                             title="View details"
                           >
                             <Eye className="w-4 h-4" />
                           </Link>
                           <button
                             onClick={() => handleClone(rt.id, displayName)}
-                            className="p-1.5 rounded-md text-slate-500 hover:text-amber-600 hover:bg-amber-50 transition-colors"
+                            className="p-1.5 rounded-md text-slate-500 dark:text-slate-400 hover:text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:bg-amber-900/30 transition-colors"
                             title="Clone"
                           >
                             <Copy className="w-4 h-4" />
                           </button>
                           <button
                             onClick={() => handleToggle(rt)}
-                            className="p-1.5 rounded-md text-slate-500 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+                            className="p-1.5 rounded-md text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:bg-blue-900/30 transition-colors"
                             title={rt.is_active ? 'Deactivate' : 'Activate'}
                           >
                             <ToggleLeft className="w-4 h-4" />
                           </button>
                           <button
                             onClick={() => handleDelete(rt.id, displayName)}
-                            className="p-1.5 rounded-md text-slate-500 hover:text-red-600 hover:bg-red-50 transition-colors"
+                            className="p-1.5 rounded-md text-slate-500 dark:text-slate-400 hover:text-red-600 dark:text-red-400 hover:bg-red-50 dark:bg-red-900/30 transition-colors"
                             title="Delete"
                           >
                             <Trash2 className="w-4 h-4" />
@@ -335,8 +335,8 @@ export default function AdminRateTables() {
             </table>
 
             {/* Footer count */}
-            <div className="px-4 py-3 border-t border-slate-100 bg-slate-50">
-              <p className="text-xs text-slate-500">
+            <div className="px-4 py-3 border-t border-slate-100 dark:border-slate-700/50 bg-slate-50 dark:bg-slate-800">
+              <p className="text-xs text-slate-500 dark:text-slate-400">
                 Showing {filtered.length} of {counts.total} rate table{counts.total !== 1 ? 's' : ''}
               </p>
             </div>

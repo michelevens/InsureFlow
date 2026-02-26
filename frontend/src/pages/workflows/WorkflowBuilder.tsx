@@ -126,11 +126,11 @@ export default function WorkflowBuilder() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
             <Zap className="w-6 h-6 text-amber-500" />
             Workflow Automation
           </h1>
-          <p className="text-sm text-slate-500 mt-1">
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
             Create rules to automate actions when events happen
           </p>
         </div>
@@ -142,31 +142,31 @@ export default function WorkflowBuilder() {
       {/* Stats */}
       <div className="grid grid-cols-4 gap-4">
         <Card className="p-4 text-center">
-          <p className="text-2xl font-bold text-slate-900">{rules.length}</p>
-          <p className="text-xs text-slate-500">Total Rules</p>
+          <p className="text-2xl font-bold text-slate-900 dark:text-white">{rules.length}</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400">Total Rules</p>
         </Card>
         <Card className="p-4 text-center">
-          <p className="text-2xl font-bold text-green-600">{rules.filter(r => r.is_active).length}</p>
-          <p className="text-xs text-slate-500">Active</p>
+          <p className="text-2xl font-bold text-green-600 dark:text-green-400">{rules.filter(r => r.is_active).length}</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400">Active</p>
         </Card>
         <Card className="p-4 text-center">
-          <p className="text-2xl font-bold text-slate-400">{rules.filter(r => !r.is_active).length}</p>
-          <p className="text-xs text-slate-500">Inactive</p>
+          <p className="text-2xl font-bold text-slate-400 dark:text-slate-500">{rules.filter(r => !r.is_active).length}</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400">Inactive</p>
         </Card>
         <Card className="p-4 text-center">
-          <p className="text-2xl font-bold text-amber-600">{rules.reduce((s, r) => s + r.execution_count, 0)}</p>
-          <p className="text-xs text-slate-500">Total Executions</p>
+          <p className="text-2xl font-bold text-amber-600 dark:text-amber-400">{rules.reduce((s, r) => s + r.execution_count, 0)}</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400">Total Executions</p>
         </Card>
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 border-b border-slate-200">
+      <div className="flex gap-1 border-b border-slate-200 dark:border-slate-700/50">
         {([['rules', 'Rules', Settings2], ['executions', 'Execution Log', Activity]] as const).map(([id, label, Icon]) => (
           <button
             key={id}
             onClick={() => setTab(id as Tab)}
             className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
-              tab === id ? 'border-shield-600 text-shield-700' : 'border-transparent text-slate-500 hover:text-slate-700'
+              tab === id ? 'border-shield-600 text-shield-700 dark:text-shield-300' : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:text-slate-200'
             }`}
           >
             <Icon className="w-4 h-4" /> {label}
@@ -180,8 +180,8 @@ export default function WorkflowBuilder() {
           {rules.length === 0 ? (
             <Card className="p-12 text-center">
               <Zap className="w-12 h-12 text-slate-300 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-slate-700 mb-2">No workflow rules yet</h3>
-              <p className="text-sm text-slate-500 mb-4">Create your first automation rule to get started</p>
+              <h3 className="text-lg font-semibold text-slate-700 dark:text-slate-200 mb-2">No workflow rules yet</h3>
+              <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">Create your first automation rule to get started</p>
               <Button variant="shield" leftIcon={<Plus className="w-4 h-4" />} onClick={() => setShowCreate(true)}>
                 Create Rule
               </Button>
@@ -201,12 +201,12 @@ export default function WorkflowBuilder() {
                 {/* Info */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <h3 className="font-semibold text-slate-900 truncate">{rule.name}</h3>
+                    <h3 className="font-semibold text-slate-900 dark:text-white truncate">{rule.name}</h3>
                     <Badge variant={rule.is_active ? 'success' : 'default'}>
                       {rule.is_active ? 'Active' : 'Inactive'}
                     </Badge>
                   </div>
-                  <div className="flex items-center gap-3 mt-1 text-xs text-slate-500">
+                  <div className="flex items-center gap-3 mt-1 text-xs text-slate-500 dark:text-slate-400">
                     <span className="flex items-center gap-1">
                       <Zap className="w-3 h-3" />
                       {options?.trigger_events[rule.trigger_event] || rule.trigger_event}
@@ -237,7 +237,7 @@ export default function WorkflowBuilder() {
                   <Button size="sm" variant="ghost" onClick={() => handleExpand(rule.id)}>
                     {expandedRule === rule.id ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                   </Button>
-                  <Button size="sm" variant="ghost" className="text-red-500 hover:text-red-700" onClick={() => handleDelete(rule)}>
+                  <Button size="sm" variant="ghost" className="text-red-500 hover:text-red-700 dark:text-red-300" onClick={() => handleDelete(rule)}>
                     <Trash2 className="w-4 h-4" />
                   </Button>
                 </div>
@@ -245,21 +245,21 @@ export default function WorkflowBuilder() {
 
               {/* Expanded Detail */}
               {expandedRule === rule.id && (
-                <div className="border-t border-slate-100 bg-slate-50 p-4 space-y-3">
+                <div className="border-t border-slate-100 dark:border-slate-700/50 bg-slate-50 dark:bg-slate-800 p-4 space-y-3">
                   {rule.description && (
-                    <p className="text-sm text-slate-600">{rule.description}</p>
+                    <p className="text-sm text-slate-600 dark:text-slate-300">{rule.description}</p>
                   )}
 
                   {/* Conditions */}
                   {rule.conditions.length > 0 && (
                     <div>
-                      <p className="text-xs font-semibold text-slate-500 uppercase mb-1">Conditions</p>
+                      <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1">Conditions</p>
                       <div className="space-y-1">
                         {rule.conditions.map((c, i) => (
-                          <div key={i} className="text-sm bg-white rounded px-3 py-1.5 border border-slate-200">
+                          <div key={i} className="text-sm bg-white dark:bg-slate-900 rounded px-3 py-1.5 border border-slate-200 dark:border-slate-700/50">
                             <span className="font-medium">{options?.condition_fields[c.field] || c.field}</span>
-                            {' '}<span className="text-slate-500">{options?.operators[c.operator] || c.operator}</span>
-                            {' '}<span className="font-medium text-shield-700">{String(c.value)}</span>
+                            {' '}<span className="text-slate-500 dark:text-slate-400">{options?.operators[c.operator] || c.operator}</span>
+                            {' '}<span className="font-medium text-shield-700 dark:text-shield-300">{String(c.value)}</span>
                           </div>
                         ))}
                       </div>
@@ -268,13 +268,13 @@ export default function WorkflowBuilder() {
 
                   {/* Actions */}
                   <div>
-                    <p className="text-xs font-semibold text-slate-500 uppercase mb-1">Actions</p>
+                    <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1">Actions</p>
                     <div className="space-y-1">
                       {rule.actions.map((a, i) => (
-                        <div key={i} className="text-sm bg-white rounded px-3 py-1.5 border border-slate-200">
+                        <div key={i} className="text-sm bg-white dark:bg-slate-900 rounded px-3 py-1.5 border border-slate-200 dark:border-slate-700/50">
                           <span className="font-medium">{options?.action_types[a.type]?.label || a.type}</span>
                           {Object.entries(a.config).map(([k, v]) => (
-                            <span key={k} className="ml-2 text-slate-500">{k}: <span className="text-slate-700">{String(v)}</span></span>
+                            <span key={k} className="ml-2 text-slate-500 dark:text-slate-400">{k}: <span className="text-slate-700 dark:text-slate-200">{String(v)}</span></span>
                           ))}
                         </div>
                       ))}
@@ -284,16 +284,16 @@ export default function WorkflowBuilder() {
                   {/* Recent Executions */}
                   {ruleExecs.length > 0 && (
                     <div>
-                      <p className="text-xs font-semibold text-slate-500 uppercase mb-1">Recent Executions</p>
+                      <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1">Recent Executions</p>
                       <div className="space-y-1">
                         {ruleExecs.slice(0, 5).map(exec => (
-                          <div key={exec.id} className="flex items-center justify-between text-sm bg-white rounded px-3 py-1.5 border border-slate-200">
+                          <div key={exec.id} className="flex items-center justify-between text-sm bg-white dark:bg-slate-900 rounded px-3 py-1.5 border border-slate-200 dark:border-slate-700/50">
                             <div className="flex items-center gap-2">
                               <Badge variant={STATUS_BADGE[exec.status] || 'default'}>{exec.status}</Badge>
-                              <span className="text-slate-500">{new Date(exec.created_at).toLocaleString()}</span>
+                              <span className="text-slate-500 dark:text-slate-400">{new Date(exec.created_at).toLocaleString()}</span>
                             </div>
                             {exec.duration_ms != null && (
-                              <span className="text-xs text-slate-400">{exec.duration_ms}ms</span>
+                              <span className="text-xs text-slate-400 dark:text-slate-500">{exec.duration_ms}ms</span>
                             )}
                           </div>
                         ))}
@@ -313,8 +313,8 @@ export default function WorkflowBuilder() {
           {executions.length === 0 ? (
             <Card className="p-12 text-center">
               <Activity className="w-12 h-12 text-slate-300 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-slate-700">No executions yet</h3>
-              <p className="text-sm text-slate-500 mt-1">Workflow execution history will appear here</p>
+              <h3 className="text-lg font-semibold text-slate-700 dark:text-slate-200">No executions yet</h3>
+              <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Workflow execution history will appear here</p>
             </Card>
           ) : executions.map(exec => (
             <Card key={exec.id} className="p-4">
@@ -323,13 +323,13 @@ export default function WorkflowBuilder() {
                   {exec.status === 'completed' && <CheckCircle className="w-5 h-5 text-green-500" />}
                   {exec.status === 'failed' && <XCircle className="w-5 h-5 text-red-500" />}
                   {exec.status === 'running' && <Loader2 className="w-5 h-5 text-amber-500 animate-spin" />}
-                  {exec.status === 'skipped' && <AlertCircle className="w-5 h-5 text-slate-400" />}
+                  {exec.status === 'skipped' && <AlertCircle className="w-5 h-5 text-slate-400 dark:text-slate-500" />}
                   {exec.status === 'pending' && <Clock className="w-5 h-5 text-blue-400" />}
                   <div>
-                    <p className="text-sm font-medium text-slate-900">
+                    <p className="text-sm font-medium text-slate-900 dark:text-white">
                       {exec.rule?.name || `Rule #${exec.workflow_rule_id}`}
                     </p>
-                    <p className="text-xs text-slate-500">
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
                       {options?.trigger_events[exec.trigger_event] || exec.trigger_event}
                     </p>
                   </div>
@@ -337,13 +337,13 @@ export default function WorkflowBuilder() {
                 <div className="flex items-center gap-3 text-right">
                   <Badge variant={STATUS_BADGE[exec.status] || 'default'}>{exec.status}</Badge>
                   {exec.duration_ms != null && (
-                    <span className="text-xs text-slate-400">{exec.duration_ms}ms</span>
+                    <span className="text-xs text-slate-400 dark:text-slate-500">{exec.duration_ms}ms</span>
                   )}
-                  <span className="text-xs text-slate-400">{new Date(exec.created_at).toLocaleString()}</span>
+                  <span className="text-xs text-slate-400 dark:text-slate-500">{new Date(exec.created_at).toLocaleString()}</span>
                 </div>
               </div>
               {exec.error_message && (
-                <p className="mt-2 text-xs text-red-600 bg-red-50 rounded p-2">{exec.error_message}</p>
+                <p className="mt-2 text-xs text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/30 rounded p-2">{exec.error_message}</p>
               )}
               {exec.actions_executed && exec.actions_executed.length > 0 && (
                 <div className="mt-2 flex gap-2">
@@ -441,16 +441,16 @@ function CreateRuleModal({
         {/* Name & Description */}
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Rule Name *</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1">Rule Name *</label>
             <Input value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Welcome new leads" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Delay (minutes)</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1">Delay (minutes)</label>
             <Input type="number" value={delayMinutes} onChange={e => setDelayMinutes(Number(e.target.value))} min={0} />
           </div>
         </div>
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">Description</label>
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1">Description</label>
           <Input value={description} onChange={e => setDescription(e.target.value)} placeholder="Optional description" />
         </div>
 
@@ -468,8 +468,8 @@ function CreateRuleModal({
         {/* Conditions */}
         <div>
           <div className="flex items-center justify-between mb-2">
-            <label className="text-sm font-medium text-slate-700">Only if... (conditions)</label>
-            <button onClick={addCondition} className="text-xs text-shield-600 hover:underline flex items-center gap-1">
+            <label className="text-sm font-medium text-slate-700 dark:text-slate-200">Only if... (conditions)</label>
+            <button onClick={addCondition} className="text-xs text-shield-600 dark:text-shield-400 hover:underline flex items-center gap-1">
               <Plus className="w-3 h-3" /> Add Condition
             </button>
           </div>
@@ -489,7 +489,7 @@ function CreateRuleModal({
                 options={Object.entries(options.operators).map(([k, v]) => ({ value: k, label: v }))}
               />
               <Input value={c.value} onChange={e => updateCondition(i, 'value', e.target.value)} placeholder="Value" className="flex-1" />
-              <button onClick={() => removeCondition(i)} className="text-red-400 hover:text-red-600">
+              <button onClick={() => removeCondition(i)} className="text-red-400 hover:text-red-600 dark:text-red-400">
                 <Trash2 className="w-4 h-4" />
               </button>
             </div>
@@ -499,13 +499,13 @@ function CreateRuleModal({
         {/* Actions */}
         <div>
           <div className="flex items-center justify-between mb-2">
-            <label className="text-sm font-medium text-slate-700">Then do... (actions) *</label>
-            <button onClick={addAction} className="text-xs text-shield-600 hover:underline flex items-center gap-1">
+            <label className="text-sm font-medium text-slate-700 dark:text-slate-200">Then do... (actions) *</label>
+            <button onClick={addAction} className="text-xs text-shield-600 dark:text-shield-400 hover:underline flex items-center gap-1">
               <Plus className="w-3 h-3" /> Add Action
             </button>
           </div>
           {actions.map((a, i) => (
-            <div key={i} className="bg-slate-50 rounded-lg p-3 mb-2">
+            <div key={i} className="bg-slate-50 dark:bg-slate-800 rounded-lg p-3 mb-2">
               <div className="flex gap-2 items-center mb-2">
                 <Select
                   value={a.type}
@@ -515,7 +515,7 @@ function CreateRuleModal({
                   options={Object.entries(options.action_types).map(([k, v]) => ({ value: k, label: v.label }))}
                 />
                 {actions.length > 1 && (
-                  <button onClick={() => removeAction(i)} className="text-red-400 hover:text-red-600">
+                  <button onClick={() => removeAction(i)} className="text-red-400 hover:text-red-600 dark:text-red-400">
                     <Trash2 className="w-4 h-4" />
                   </button>
                 )}
@@ -523,7 +523,7 @@ function CreateRuleModal({
               {/* Config fields based on action type */}
               {a.type && options.action_types[a.type]?.config.map(field => (
                 <div key={field} className="mb-1">
-                  <label className="text-xs text-slate-500 capitalize">{field.replace(/_/g, ' ')}</label>
+                  <label className="text-xs text-slate-500 dark:text-slate-400 capitalize">{field.replace(/_/g, ' ')}</label>
                   {field === 'to_role' ? (
                     <Select
                       value={a.config[field] || ''}
@@ -558,7 +558,7 @@ function CreateRuleModal({
         </div>
       </div>
 
-      <div className="flex justify-end gap-3 pt-4 border-t border-slate-100 mt-4">
+      <div className="flex justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-700/50 mt-4">
         <Button variant="outline" onClick={onClose}>Cancel</Button>
         <Button variant="shield" onClick={handleSave} isLoading={saving} leftIcon={<Zap className="w-4 h-4" />}>
           Create Rule

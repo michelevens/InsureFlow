@@ -160,20 +160,20 @@ export default function Calendar() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Calendar</h1>
-          <p className="text-slate-500 mt-1">Manage appointments &amp; availability</p>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Calendar</h1>
+          <p className="text-slate-500 dark:text-slate-400 mt-1">Manage appointments &amp; availability</p>
         </div>
         <div className="flex items-center gap-2">
-          <div className="flex bg-slate-100 rounded-lg p-1">
+          <div className="flex bg-slate-100 dark:bg-slate-800 rounded-lg p-1">
             <button
               onClick={() => setActiveTab('calendar')}
-              className={`px-3 py-1.5 text-sm rounded-md transition-colors ${activeTab === 'calendar' ? 'bg-white shadow text-slate-900 font-medium' : 'text-slate-500'}`}
+              className={`px-3 py-1.5 text-sm rounded-md transition-colors ${activeTab === 'calendar' ? 'bg-white dark:bg-slate-900 shadow text-slate-900 dark:text-white font-medium' : 'text-slate-500 dark:text-slate-400'}`}
             >
               <CalendarDays className="w-4 h-4 inline mr-1" /> Calendar
             </button>
             <button
               onClick={() => setActiveTab('availability')}
-              className={`px-3 py-1.5 text-sm rounded-md transition-colors ${activeTab === 'availability' ? 'bg-white shadow text-slate-900 font-medium' : 'text-slate-500'}`}
+              className={`px-3 py-1.5 text-sm rounded-md transition-colors ${activeTab === 'availability' ? 'bg-white dark:bg-slate-900 shadow text-slate-900 dark:text-white font-medium' : 'text-slate-500 dark:text-slate-400'}`}
             >
               <Settings2 className="w-4 h-4 inline mr-1" /> Availability
             </button>
@@ -191,8 +191,8 @@ export default function Calendar() {
           {/* Calendar grid */}
           <Card className="lg:col-span-2 p-0 overflow-hidden">
             {/* Month navigation */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
-              <h2 className="text-lg font-bold text-slate-900">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 dark:border-slate-700/50">
+              <h2 className="text-lg font-bold text-slate-900 dark:text-white">
                 {MONTHS[currentMonth]} {currentYear}
               </h2>
               <div className="flex items-center gap-2">
@@ -215,12 +215,12 @@ export default function Calendar() {
                 {/* Day headers */}
                 <div className="grid grid-cols-7 mb-1">
                   {DAYS.map(d => (
-                    <div key={d} className="text-center text-xs font-medium text-slate-400 py-2">{d}</div>
+                    <div key={d} className="text-center text-xs font-medium text-slate-400 dark:text-slate-500 py-2">{d}</div>
                   ))}
                 </div>
 
                 {/* Day cells */}
-                <div className="grid grid-cols-7 gap-px bg-slate-100 rounded-lg overflow-hidden">
+                <div className="grid grid-cols-7 gap-px bg-slate-100 dark:bg-slate-800 rounded-lg overflow-hidden">
                   {calendarDays.map((day, i) => {
                     const dayAppts = appointmentsByDate[day.dateStr] || [];
                     const isToday = day.dateStr === todayStr;
@@ -229,24 +229,24 @@ export default function Calendar() {
                       <button
                         key={i}
                         onClick={() => setSelectedDate(day.dateStr)}
-                        className={`relative bg-white p-1.5 min-h-[80px] text-left transition-colors hover:bg-shield-50 ${
+                        className={`relative bg-white dark:bg-slate-900 p-1.5 min-h-[80px] text-left transition-colors hover:bg-shield-50 dark:bg-shield-900/30 ${
                           !day.isCurrentMonth ? 'opacity-40' : ''
                         } ${isSelected ? 'ring-2 ring-shield-500 ring-inset' : ''}`}
                       >
                         <span className={`text-sm font-medium inline-flex items-center justify-center w-7 h-7 rounded-full ${
-                          isToday ? 'bg-shield-600 text-white' : 'text-slate-700'
+                          isToday ? 'bg-shield-600 text-white' : 'text-slate-700 dark:text-slate-200'
                         }`}>
                           {day.date}
                         </span>
                         {dayAppts.length > 0 && (
                           <div className="mt-0.5 space-y-0.5">
                             {dayAppts.slice(0, 2).map(a => (
-                              <div key={a.id} className="text-[10px] px-1 py-0.5 rounded bg-shield-50 text-shield-700 truncate">
+                              <div key={a.id} className="text-[10px] px-1 py-0.5 rounded bg-shield-50 dark:bg-shield-900/30 text-shield-700 dark:text-shield-300 truncate">
                                 {a.start_time?.slice(0, 5)} {a.title}
                               </div>
                             ))}
                             {dayAppts.length > 2 && (
-                              <div className="text-[10px] text-slate-400 px-1">+{dayAppts.length - 2} more</div>
+                              <div className="text-[10px] text-slate-400 dark:text-slate-500 px-1">+{dayAppts.length - 2} more</div>
                             )}
                           </div>
                         )}
@@ -260,22 +260,22 @@ export default function Calendar() {
 
           {/* Side panel — selected date or upcoming */}
           <Card className="p-0 overflow-hidden">
-            <div className="px-5 py-4 border-b border-slate-100">
-              <h3 className="font-bold text-slate-900">
+            <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-700/50">
+              <h3 className="font-bold text-slate-900 dark:text-white">
                 {selectedDate ? new Date(selectedDate + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) : 'Select a date'}
               </h3>
               {selectedDate && (
-                <p className="text-sm text-slate-500 mt-0.5">{selectedDateAppointments.length} appointment{selectedDateAppointments.length !== 1 ? 's' : ''}</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">{selectedDateAppointments.length} appointment{selectedDateAppointments.length !== 1 ? 's' : ''}</p>
               )}
             </div>
 
             <div className="p-4 space-y-3 max-h-[600px] overflow-y-auto">
               {!selectedDate ? (
-                <p className="text-sm text-slate-400 text-center py-8">Click a date to view appointments</p>
+                <p className="text-sm text-slate-400 dark:text-slate-500 text-center py-8">Click a date to view appointments</p>
               ) : selectedDateAppointments.length === 0 ? (
                 <div className="text-center py-8">
                   <CalendarDays className="w-10 h-10 text-slate-300 mx-auto mb-2" />
-                  <p className="text-sm text-slate-400">No appointments</p>
+                  <p className="text-sm text-slate-400 dark:text-slate-500">No appointments</p>
                   <Button variant="ghost" size="sm" className="mt-2" onClick={() => setShowCreate(true)}>
                     <Plus className="w-3.5 h-3.5 mr-1" /> Schedule one
                   </Button>
@@ -289,12 +289,12 @@ export default function Calendar() {
                       <button
                         key={appt.id}
                         onClick={() => setSelectedAppt(appt)}
-                        className="w-full text-left bg-slate-50 rounded-xl p-3 hover:bg-slate-100 transition-colors"
+                        className="w-full text-left bg-slate-50 dark:bg-slate-800 rounded-xl p-3 hover:bg-slate-100 dark:hover:bg-slate-800 dark:bg-slate-800 transition-colors"
                       >
                         <div className="flex items-start justify-between">
                           <div>
-                            <p className="font-medium text-slate-900 text-sm">{appt.title}</p>
-                            <div className="flex items-center gap-2 mt-1 text-xs text-slate-500">
+                            <p className="font-medium text-slate-900 dark:text-white text-sm">{appt.title}</p>
+                            <div className="flex items-center gap-2 mt-1 text-xs text-slate-500 dark:text-slate-400">
                               <Clock className="w-3.5 h-3.5" />
                               {appt.start_time?.slice(0, 5)} – {appt.end_time?.slice(0, 5)}
                             </div>
@@ -302,12 +302,12 @@ export default function Calendar() {
                           <Badge variant={sc.variant}>{sc.label}</Badge>
                         </div>
                         {appt.location && (
-                          <div className="flex items-center gap-1.5 mt-2 text-xs text-slate-400">
+                          <div className="flex items-center gap-1.5 mt-2 text-xs text-slate-400 dark:text-slate-500">
                             <MapPin className="w-3 h-3" /> {appt.location}
                           </div>
                         )}
                         {appt.video_link && (
-                          <div className="flex items-center gap-1.5 mt-1 text-xs text-shield-600">
+                          <div className="flex items-center gap-1.5 mt-1 text-xs text-shield-600 dark:text-shield-400">
                             <Video className="w-3 h-3" /> Video meeting
                           </div>
                         )}
@@ -333,7 +333,7 @@ export default function Calendar() {
         <Modal isOpen onClose={() => setSelectedAppt(null)} title="Appointment Details" size="md">
           <div className="space-y-4">
             <div>
-              <h3 className="text-lg font-bold text-slate-900">{selectedAppt.title}</h3>
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white">{selectedAppt.title}</h3>
               <Badge variant={statusConfig[selectedAppt.status].variant} className="mt-1">
                 {statusConfig[selectedAppt.status].label}
               </Badge>
@@ -341,57 +341,57 @@ export default function Calendar() {
 
             <div className="grid grid-cols-2 gap-3 text-sm">
               <div>
-                <span className="text-slate-400">Type</span>
+                <span className="text-slate-400 dark:text-slate-500">Type</span>
                 <p className="font-medium">{typeLabels[selectedAppt.type]}</p>
               </div>
               <div>
-                <span className="text-slate-400">Date</span>
+                <span className="text-slate-400 dark:text-slate-500">Date</span>
                 <p className="font-medium">{new Date(selectedAppt.date + 'T00:00:00').toLocaleDateString()}</p>
               </div>
               <div>
-                <span className="text-slate-400">Time</span>
+                <span className="text-slate-400 dark:text-slate-500">Time</span>
                 <p className="font-medium">{selectedAppt.start_time?.slice(0, 5)} – {selectedAppt.end_time?.slice(0, 5)}</p>
               </div>
               {selectedAppt.location && (
                 <div>
-                  <span className="text-slate-400">Location</span>
+                  <span className="text-slate-400 dark:text-slate-500">Location</span>
                   <p className="font-medium">{selectedAppt.location}</p>
                 </div>
               )}
             </div>
 
             {selectedAppt.consumer && (
-              <div className="flex items-center gap-2 text-sm bg-slate-50 rounded-lg p-3">
-                <User className="w-4 h-4 text-slate-400" />
+              <div className="flex items-center gap-2 text-sm bg-slate-50 dark:bg-slate-800 rounded-lg p-3">
+                <User className="w-4 h-4 text-slate-400 dark:text-slate-500" />
                 <span>{selectedAppt.consumer.name}</span>
-                <span className="text-slate-400">({selectedAppt.consumer.email})</span>
+                <span className="text-slate-400 dark:text-slate-500">({selectedAppt.consumer.email})</span>
               </div>
             )}
 
             {selectedAppt.lead && (
-              <div className="flex items-center gap-2 text-sm bg-slate-50 rounded-lg p-3">
-                <User className="w-4 h-4 text-slate-400" />
+              <div className="flex items-center gap-2 text-sm bg-slate-50 dark:bg-slate-800 rounded-lg p-3">
+                <User className="w-4 h-4 text-slate-400 dark:text-slate-500" />
                 <span>{selectedAppt.lead.first_name} {selectedAppt.lead.last_name}</span>
-                <span className="text-slate-400">(Lead)</span>
+                <span className="text-slate-400 dark:text-slate-500">(Lead)</span>
               </div>
             )}
 
             {selectedAppt.video_link && (
               <a href={selectedAppt.video_link} target="_blank" rel="noopener noreferrer"
-                className="flex items-center gap-2 text-sm text-shield-600 hover:underline">
+                className="flex items-center gap-2 text-sm text-shield-600 dark:text-shield-400 hover:underline">
                 <Video className="w-4 h-4" /> Join video meeting
               </a>
             )}
 
             {selectedAppt.notes && (
               <div>
-                <span className="text-sm text-slate-400">Notes</span>
+                <span className="text-sm text-slate-400 dark:text-slate-500">Notes</span>
                 <p className="text-sm mt-1">{selectedAppt.notes}</p>
               </div>
             )}
 
             {/* Actions */}
-            <div className="flex flex-wrap gap-2 pt-2 border-t border-slate-100">
+            <div className="flex flex-wrap gap-2 pt-2 border-t border-slate-100 dark:border-slate-700/50">
               {selectedAppt.status === 'scheduled' && (
                 <Button variant="shield" size="sm" onClick={() => updateStatus(selectedAppt.id, 'confirmed')}>
                   <Check className="w-3.5 h-3.5 mr-1" /> Confirm
@@ -494,7 +494,7 @@ function AvailabilityManager({ availability, blockedDates, loading, onRefresh }:
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       {/* Weekly schedule */}
       <Card className="p-6">
-        <h3 className="text-lg font-bold text-slate-900 mb-4">Weekly Schedule</h3>
+        <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">Weekly Schedule</h3>
         <div className="space-y-3">
           {schedule.map((slot, idx) => (
             <div key={slot.day_of_week} className="flex items-center gap-3">
@@ -507,9 +507,9 @@ function AvailabilityManager({ availability, blockedDates, loading, onRefresh }:
                     next[idx] = { ...next[idx], is_active: !next[idx].is_active };
                     setSchedule(next);
                   }}
-                  className="rounded border-slate-300 text-shield-600 focus:ring-shield-500"
+                  className="rounded border-slate-300 text-shield-600 dark:text-shield-400 focus:ring-shield-500 dark:focus:ring-shield-400"
                 />
-                <span className={`text-sm font-medium ${slot.is_active ? 'text-slate-900' : 'text-slate-400'}`}>
+                <span className={`text-sm font-medium ${slot.is_active ? 'text-slate-900 dark:text-white' : 'text-slate-400 dark:text-slate-500'}`}>
                   {FULL_DAYS[slot.day_of_week]}
                 </span>
               </label>
@@ -523,9 +523,9 @@ function AvailabilityManager({ availability, blockedDates, loading, onRefresh }:
                       next[idx] = { ...next[idx], start_time: e.target.value };
                       setSchedule(next);
                     }}
-                    className="text-sm border border-slate-200 rounded-lg px-2 py-1.5"
+                    className="text-sm border border-slate-200 dark:border-slate-700/50 rounded-lg px-2 py-1.5"
                   />
-                  <span className="text-slate-400">to</span>
+                  <span className="text-slate-400 dark:text-slate-500">to</span>
                   <input
                     type="time"
                     value={slot.end_time}
@@ -534,7 +534,7 @@ function AvailabilityManager({ availability, blockedDates, loading, onRefresh }:
                       next[idx] = { ...next[idx], end_time: e.target.value };
                       setSchedule(next);
                     }}
-                    className="text-sm border border-slate-200 rounded-lg px-2 py-1.5"
+                    className="text-sm border border-slate-200 dark:border-slate-700/50 rounded-lg px-2 py-1.5"
                   />
                 </div>
               )}
@@ -550,8 +550,8 @@ function AvailabilityManager({ availability, blockedDates, loading, onRefresh }:
 
       {/* Blocked dates */}
       <Card className="p-6">
-        <h3 className="text-lg font-bold text-slate-900 mb-4">Blocked Dates</h3>
-        <p className="text-sm text-slate-500 mb-4">Block specific dates when you're unavailable (vacations, holidays, etc.)</p>
+        <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">Blocked Dates</h3>
+        <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">Block specific dates when you're unavailable (vacations, holidays, etc.)</p>
 
         <div className="flex gap-2 mb-4">
           <Input
@@ -572,18 +572,18 @@ function AvailabilityManager({ availability, blockedDates, loading, onRefresh }:
         </div>
 
         {blockedDates.length === 0 ? (
-          <p className="text-sm text-slate-400 text-center py-4">No blocked dates</p>
+          <p className="text-sm text-slate-400 dark:text-slate-500 text-center py-4">No blocked dates</p>
         ) : (
           <div className="space-y-2 max-h-80 overflow-y-auto">
             {blockedDates
               .sort((a, b) => a.blocked_date.localeCompare(b.blocked_date))
               .map(bd => (
-                <div key={bd.id} className="flex items-center justify-between bg-slate-50 rounded-lg px-3 py-2 text-sm">
+                <div key={bd.id} className="flex items-center justify-between bg-slate-50 dark:bg-slate-800 rounded-lg px-3 py-2 text-sm">
                   <div>
                     <span className="font-medium">{new Date(bd.blocked_date + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}</span>
-                    {bd.reason && <span className="text-slate-400 ml-2">— {bd.reason}</span>}
+                    {bd.reason && <span className="text-slate-400 dark:text-slate-500 ml-2">— {bd.reason}</span>}
                   </div>
-                  <button onClick={() => removeBlockedDate(bd.id)} className="text-red-400 hover:text-red-600">
+                  <button onClick={() => removeBlockedDate(bd.id)} className="text-red-400 hover:text-red-600 dark:text-red-400">
                     <X className="w-4 h-4" />
                   </button>
                 </div>

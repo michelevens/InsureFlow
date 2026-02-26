@@ -70,8 +70,8 @@ export default function AdminProfiles() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Agent Profiles</h1>
-          <p className="text-slate-500 mt-1">All profiles — imported from state DOI data and user-created</p>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Agent Profiles</h1>
+          <p className="text-slate-500 dark:text-slate-400 mt-1">All profiles — imported from state DOI data and user-created</p>
         </div>
       </div>
 
@@ -80,26 +80,26 @@ export default function AdminProfiles() {
         <Card className="p-4 text-center cursor-pointer hover:ring-2 hover:ring-shield-500 transition-all"
           onClick={() => { setStatusFilter('all'); }}>
           <div className="flex items-center justify-center gap-2 mb-1">
-            <Database className="w-4 h-4 text-slate-400" />
-            <p className="text-2xl font-bold text-slate-900">{summary.total}</p>
+            <Database className="w-4 h-4 text-slate-400 dark:text-slate-500" />
+            <p className="text-2xl font-bold text-slate-900 dark:text-white">{summary.total}</p>
           </div>
-          <p className="text-sm text-slate-500">Total Profiles</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400">Total Profiles</p>
         </Card>
         <Card className="p-4 text-center cursor-pointer hover:ring-2 hover:ring-savings-500 transition-all"
           onClick={() => { setStatusFilter('claimed'); }}>
           <div className="flex items-center justify-center gap-2 mb-1">
             <UserCheck className="w-4 h-4 text-savings-500" />
-            <p className="text-2xl font-bold text-savings-600">{summary.claimed}</p>
+            <p className="text-2xl font-bold text-savings-600 dark:text-savings-400">{summary.claimed}</p>
           </div>
-          <p className="text-sm text-slate-500">Claimed</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400">Claimed</p>
         </Card>
         <Card className="p-4 text-center cursor-pointer hover:ring-2 hover:ring-amber-500 transition-all"
           onClick={() => { setStatusFilter('unclaimed'); }}>
           <div className="flex items-center justify-center gap-2 mb-1">
             <UserX className="w-4 h-4 text-amber-500" />
-            <p className="text-2xl font-bold text-amber-600">{summary.unclaimed}</p>
+            <p className="text-2xl font-bold text-amber-600 dark:text-amber-400">{summary.unclaimed}</p>
           </div>
-          <p className="text-sm text-slate-500">Unclaimed</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400">Unclaimed</p>
         </Card>
       </div>
 
@@ -164,7 +164,7 @@ export default function AdminProfiles() {
       {loading && (
         <Card className="p-12 text-center">
           <Loader2 className="w-8 h-8 animate-spin text-shield-500 mx-auto" />
-          <p className="text-slate-500 mt-2">Loading profiles...</p>
+          <p className="text-slate-500 dark:text-slate-400 mt-2">Loading profiles...</p>
         </Card>
       )}
 
@@ -174,37 +174,37 @@ export default function AdminProfiles() {
           {profiles.length === 0 ? (
             <div className="p-12 text-center">
               <Users className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-              <p className="text-slate-500">No profiles found</p>
+              <p className="text-slate-500 dark:text-slate-400">No profiles found</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b border-slate-100">
-                    <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider p-4">Name</th>
-                    <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider p-4">NPN</th>
-                    <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider p-4">License</th>
-                    <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider p-4">State</th>
-                    <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider p-4">Source</th>
-                    <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider p-4">Status</th>
-                    <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider p-4">Created</th>
-                    <th className="text-right text-xs font-medium text-slate-500 uppercase tracking-wider p-4">Actions</th>
+                  <tr className="border-b border-slate-100 dark:border-slate-700/50">
+                    <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider p-4">Name</th>
+                    <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider p-4">NPN</th>
+                    <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider p-4">License</th>
+                    <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider p-4">State</th>
+                    <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider p-4">Source</th>
+                    <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider p-4">Status</th>
+                    <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider p-4">Created</th>
+                    <th className="text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider p-4">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-50">
                   {profiles.map(profile => (
-                    <tr key={profile.id} className="hover:bg-slate-50">
+                    <tr key={profile.id} className="hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-800">
                       <td className="p-4">
                         <div>
-                          <p className="font-medium text-slate-900">{profile.full_name || '—'}</p>
+                          <p className="font-medium text-slate-900 dark:text-white">{profile.full_name || '—'}</p>
                           {profile.license_type && (
-                            <p className="text-xs text-slate-400">{profile.license_type}</p>
+                            <p className="text-xs text-slate-400 dark:text-slate-500">{profile.license_type}</p>
                           )}
                         </div>
                       </td>
                       <td className="p-4">
                         <div className="flex items-center gap-1.5">
-                          <span className="text-sm text-slate-700 font-mono">{profile.npn || '—'}</span>
+                          <span className="text-sm text-slate-700 dark:text-slate-200 font-mono">{profile.npn || '—'}</span>
                           {profile.npn && (
                             <Badge variant={profile.npn_verified === 'verified' ? 'success' : profile.npn_verified === 'pending' ? 'warning' : 'default'} className="text-[10px]">
                               {profile.npn_verified}
@@ -213,15 +213,15 @@ export default function AdminProfiles() {
                         </div>
                       </td>
                       <td className="p-4">
-                        <span className="text-sm text-slate-700 font-mono">{profile.license_number || '—'}</span>
+                        <span className="text-sm text-slate-700 dark:text-slate-200 font-mono">{profile.license_number || '—'}</span>
                         {profile.license_status && (
-                          <p className="text-xs text-slate-400 capitalize">{profile.license_status}</p>
+                          <p className="text-xs text-slate-400 dark:text-slate-500 capitalize">{profile.license_status}</p>
                         )}
                       </td>
                       <td className="p-4">
-                        <span className="text-sm font-bold text-slate-900">{profile.state || '—'}</span>
+                        <span className="text-sm font-bold text-slate-900 dark:text-white">{profile.state || '—'}</span>
                         {profile.city && (
-                          <p className="text-xs text-slate-400">{profile.city}{profile.county ? `, ${profile.county}` : ''}</p>
+                          <p className="text-xs text-slate-400 dark:text-slate-500">{profile.city}{profile.county ? `, ${profile.county}` : ''}</p>
                         )}
                       </td>
                       <td className="p-4">
@@ -234,16 +234,16 @@ export default function AdminProfiles() {
                           <Badge variant="warning">Unclaimed</Badge>
                         )}
                         {profile.claimed_at && (
-                          <p className="text-[10px] text-slate-400 mt-0.5">{new Date(profile.claimed_at).toLocaleDateString()}</p>
+                          <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">{new Date(profile.claimed_at).toLocaleDateString()}</p>
                         )}
                       </td>
-                      <td className="p-4 text-sm text-slate-500">
+                      <td className="p-4 text-sm text-slate-500 dark:text-slate-400">
                         {profile.created_at?.split('T')[0] || '—'}
                       </td>
                       <td className="p-4 text-right">
                         {profile.license_lookup_url && (
                           <a href={profile.license_lookup_url} target="_blank" rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 text-xs text-shield-600 hover:underline">
+                            className="inline-flex items-center gap-1 text-xs text-shield-600 dark:text-shield-400 hover:underline">
                             <ExternalLink className="w-3 h-3" /> Verify
                           </a>
                         )}
@@ -257,15 +257,15 @@ export default function AdminProfiles() {
 
           {/* Pagination */}
           {totalPages > 1 && (
-            <div className="flex items-center justify-between px-4 py-3 border-t border-slate-100">
-              <p className="text-sm text-slate-500">
+            <div className="flex items-center justify-between px-4 py-3 border-t border-slate-100 dark:border-slate-700/50">
+              <p className="text-sm text-slate-500 dark:text-slate-400">
                 Showing {((page - 1) * 25) + 1}–{Math.min(page * 25, total)} of {total}
               </p>
               <div className="flex gap-2">
                 <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => loadProfiles(page - 1)}>
                   <ChevronLeft className="w-4 h-4" />
                 </Button>
-                <span className="flex items-center text-sm text-slate-700 px-2">
+                <span className="flex items-center text-sm text-slate-700 dark:text-slate-200 px-2">
                   Page {page} of {totalPages}
                 </span>
                 <Button variant="outline" size="sm" disabled={page >= totalPages} onClick={() => loadProfiles(page + 1)}>

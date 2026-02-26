@@ -44,9 +44,9 @@ interface FormErrors {
 }
 
 const inputClass =
-  'w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-shield-500 focus:border-shield-500';
+  'w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-shield-500 dark:focus:ring-shield-400 focus:border-shield-500';
 
-const labelClass = 'block text-sm font-medium text-slate-700 mb-1';
+const labelClass = 'block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1';
 
 export default function AdminRateTableForm() {
   const { id } = useParams<{ id?: string }>();
@@ -203,24 +203,24 @@ export default function AdminRateTableForm() {
       <button
         type="button"
         onClick={() => navigate('/admin/rate-tables')}
-        className="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-800 transition-colors"
+        className="inline-flex items-center gap-1 text-sm text-slate-500 dark:text-slate-400 hover:text-slate-800 transition-colors"
       >
         <ArrowLeft className="h-4 w-4" />
         {isEdit ? 'Back' : 'Back to Rate Tables'}
       </button>
 
       <div>
-        <h1 className="text-2xl font-bold text-slate-900">
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
           {isEdit ? 'Edit Rate Table' : 'New Rate Table'}
         </h1>
-        <p className="text-sm text-slate-500 mt-1">
+        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
           {isEdit ? 'Update the rate table details below.' : 'Fill in the details to create a new rate table.'}
         </p>
       </div>
 
       {/* Main form card */}
       <form onSubmit={handleSubmit}>
-        <div className="bg-white rounded-xl border border-slate-200 p-6 space-y-5">
+        <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700/50 p-6 space-y-5">
           {/* Name */}
           <div>
             <label className={labelClass}>Name <span className="text-red-500">*</span></label>
@@ -266,7 +266,7 @@ export default function AdminRateTableForm() {
 
           {/* Carrier */}
           <div>
-            <label className={labelClass}>Carrier <span className="text-slate-400 font-normal">(optional — leave blank for generic)</span></label>
+            <label className={labelClass}>Carrier <span className="text-slate-400 dark:text-slate-500 font-normal">(optional — leave blank for generic)</span></label>
             <select
               value={form.carrier_id}
               onChange={e => handleChange('carrier_id', e.target.value)}
@@ -302,7 +302,7 @@ export default function AdminRateTableForm() {
               />
             </div>
             <div>
-              <label className={labelClass}>Expiration Date <span className="text-slate-400 font-normal">(optional)</span></label>
+              <label className={labelClass}>Expiration Date <span className="text-slate-400 dark:text-slate-500 font-normal">(optional)</span></label>
               <input
                 type="date"
                 value={form.expiration_date}
@@ -318,10 +318,10 @@ export default function AdminRateTableForm() {
               type="checkbox"
               checked={form.is_active}
               onChange={e => handleChange('is_active', e.target.checked)}
-              className="w-4 h-4 rounded border-slate-300 text-shield-600 focus:ring-shield-500"
+              className="w-4 h-4 rounded border-slate-300 text-shield-600 dark:text-shield-400 focus:ring-shield-500 dark:focus:ring-shield-400"
             />
-            <span className="text-sm font-medium text-slate-700">Active</span>
-            <span className="text-xs text-slate-400">(only active tables are used in quoting)</span>
+            <span className="text-sm font-medium text-slate-700 dark:text-slate-200">Active</span>
+            <span className="text-xs text-slate-400 dark:text-slate-500">(only active tables are used in quoting)</span>
           </label>
 
           {/* Submit */}
@@ -340,9 +340,9 @@ export default function AdminRateTableForm() {
 
       {/* CSV Import — edit mode only */}
       {isEdit && (
-        <div className="bg-white rounded-xl border border-slate-200 p-6 space-y-4">
-          <h2 className="text-base font-semibold text-slate-900">Import CSV Data</h2>
-          <p className="text-sm text-slate-500">Upload a CSV file to populate rate entries, factors, riders, or fees for this table.</p>
+        <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700/50 p-6 space-y-4">
+          <h2 className="text-base font-semibold text-slate-900 dark:text-white">Import CSV Data</h2>
+          <p className="text-sm text-slate-500 dark:text-slate-400">Upload a CSV file to populate rate entries, factors, riders, or fees for this table.</p>
 
           {/* Type selector */}
           <div>
@@ -365,16 +365,16 @@ export default function AdminRateTableForm() {
             onDrop={handleDrop}
             onClick={() => fileInputRef.current?.click()}
             className={`flex flex-col items-center justify-center gap-2 border-2 border-dashed rounded-lg py-8 cursor-pointer transition-colors ${
-              isDragging ? 'border-shield-400 bg-shield-50' : 'border-slate-300 hover:border-shield-400 hover:bg-slate-50'
+              isDragging ? 'border-shield-400 bg-shield-50 dark:bg-shield-900/30' : 'border-slate-300 hover:border-shield-400 hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-800'
             }`}
           >
-            <Upload className="h-7 w-7 text-slate-400" />
+            <Upload className="h-7 w-7 text-slate-400 dark:text-slate-500" />
             {csvFile ? (
-              <p className="text-sm font-medium text-slate-700">{csvFile.name}</p>
+              <p className="text-sm font-medium text-slate-700 dark:text-slate-200">{csvFile.name}</p>
             ) : (
               <>
-                <p className="text-sm font-medium text-slate-700">Drop a CSV file here, or click to browse</p>
-                <p className="text-xs text-slate-400">Only .csv files are accepted</p>
+                <p className="text-sm font-medium text-slate-700 dark:text-slate-200">Drop a CSV file here, or click to browse</p>
+                <p className="text-xs text-slate-400 dark:text-slate-500">Only .csv files are accepted</p>
               </>
             )}
             <input

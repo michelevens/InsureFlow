@@ -118,11 +118,11 @@ interface AgentFormData {
 function StateSelect({ value, onChange, label = 'State' }: { value: string; onChange: (val: string) => void; label?: string }) {
   return (
     <div>
-      <label className="block text-sm font-medium text-slate-700 mb-1.5">{label}</label>
+      <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1.5">{label}</label>
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full h-11 px-3 rounded-xl border border-slate-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-shield-500/20 focus:border-shield-500 transition-all"
+        className="w-full h-11 px-3 rounded-xl border border-slate-200 dark:border-slate-700/50 bg-white dark:bg-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-shield-500 dark:focus:ring-shield-400/20 focus:border-shield-500 transition-all"
       >
         <option value="">Select state</option>
         {US_STATES.map(s => <option key={s} value={s}>{s}</option>)}
@@ -138,8 +138,8 @@ function MultiStateSelect({ selected, onChange }: { selected: string[]; onChange
 
   return (
     <div>
-      <label className="block text-sm font-medium text-slate-700 mb-1.5">Licensed States</label>
-      <div className="grid grid-cols-8 sm:grid-cols-10 gap-1.5 max-h-48 overflow-y-auto p-3 border border-slate-200 rounded-xl bg-white">
+      <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1.5">Licensed States</label>
+      <div className="grid grid-cols-8 sm:grid-cols-10 gap-1.5 max-h-48 overflow-y-auto p-3 border border-slate-200 dark:border-slate-700/50 rounded-xl bg-white dark:bg-slate-900">
         {US_STATES.map(s => (
           <button
             key={s}
@@ -148,7 +148,7 @@ function MultiStateSelect({ selected, onChange }: { selected: string[]; onChange
             className={`px-2 py-1.5 text-xs font-medium rounded-lg transition-all ${
               selected.includes(s)
                 ? 'bg-shield-600 text-white'
-                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:bg-slate-700'
             }`}
           >
             {s}
@@ -156,7 +156,7 @@ function MultiStateSelect({ selected, onChange }: { selected: string[]; onChange
         ))}
       </div>
       {selected.length > 0 && (
-        <p className="text-xs text-slate-500 mt-1">{selected.length} state{selected.length !== 1 ? 's' : ''} selected</p>
+        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{selected.length} state{selected.length !== 1 ? 's' : ''} selected</p>
       )}
     </div>
   );
@@ -172,7 +172,7 @@ function FormInput({ label, value, onChange, placeholder, type = 'text', require
 }) {
   return (
     <div>
-      <label className="block text-sm font-medium text-slate-700 mb-1.5">
+      <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1.5">
         {label} {required && <span className="text-red-500">*</span>}
       </label>
       <input
@@ -180,7 +180,7 @@ function FormInput({ label, value, onChange, placeholder, type = 'text', require
         value={value}
         onChange={e => onChange(e.target.value)}
         placeholder={placeholder}
-        className="w-full h-11 px-3 rounded-xl border border-slate-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-shield-500/20 focus:border-shield-500 transition-all"
+        className="w-full h-11 px-3 rounded-xl border border-slate-200 dark:border-slate-700/50 bg-white dark:bg-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-shield-500 dark:focus:ring-shield-400/20 focus:border-shield-500 transition-all"
       />
     </div>
   );
@@ -195,13 +195,13 @@ function FormTextarea({ label, value, onChange, placeholder, rows = 3 }: {
 }) {
   return (
     <div>
-      <label className="block text-sm font-medium text-slate-700 mb-1.5">{label}</label>
+      <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1.5">{label}</label>
       <textarea
         value={value}
         onChange={e => onChange(e.target.value)}
         placeholder={placeholder}
         rows={rows}
-        className="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-shield-500/20 focus:border-shield-500 transition-all resize-none"
+        className="w-full px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700/50 bg-white dark:bg-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-shield-500 dark:focus:ring-shield-400/20 focus:border-shield-500 transition-all resize-none"
       />
     </div>
   );
@@ -447,10 +447,10 @@ export default function Onboarding() {
       <div className="w-20 h-20 rounded-2xl gradient-shield flex items-center justify-center mx-auto mb-6">
         <ShieldCheck className="w-10 h-10 text-white" />
       </div>
-      <h2 className="text-2xl font-bold text-slate-900 mb-3">
+      <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-3">
         Welcome to Insurons{user?.name ? `, ${user.name.split(' ')[0]}` : ''}!
       </h2>
-      <p className="text-slate-500 max-w-md mx-auto mb-6">
+      <p className="text-slate-500 dark:text-slate-400 max-w-md mx-auto mb-6">
         {isAgencyOwner
           ? "Let's set up your agency. We'll collect your company details, licensing, products you sell, and carrier appointments to get you started."
           : "Let's set up your agent profile. We'll collect your licensing info, specialties, and service area so we can match you with the right leads."
@@ -459,11 +459,11 @@ export default function Onboarding() {
       <div className="flex flex-col gap-3 max-w-sm mx-auto text-left">
         {steps.filter(s => s.id !== 'welcome' && s.id !== 'complete').map((s, i) => (
           <div key={s.id} className="flex items-center gap-3 text-sm">
-            <div className="w-7 h-7 rounded-full bg-shield-100 text-shield-700 flex items-center justify-center text-xs font-bold">
+            <div className="w-7 h-7 rounded-full bg-shield-100 dark:bg-shield-900/30 text-shield-700 dark:text-shield-300 flex items-center justify-center text-xs font-bold">
               {i + 1}
             </div>
-            <span className="text-slate-700">{s.label}</span>
-            <span className="text-slate-400 text-xs">— {s.description}</span>
+            <span className="text-slate-700 dark:text-slate-200">{s.label}</span>
+            <span className="text-slate-400 dark:text-slate-500 text-xs">— {s.description}</span>
           </div>
         ))}
       </div>
@@ -473,33 +473,33 @@ export default function Onboarding() {
   const renderClaimProfile = () => (
     <div className="space-y-5">
       <div className="flex items-center gap-3 mb-6">
-        <UserCheck className="w-6 h-6 text-shield-600" />
+        <UserCheck className="w-6 h-6 text-shield-600 dark:text-shield-400" />
         <div>
-          <h2 className="text-lg font-bold text-slate-900">Find Your Existing Profile</h2>
-          <p className="text-sm text-slate-500">
+          <h2 className="text-lg font-bold text-slate-900 dark:text-white">Find Your Existing Profile</h2>
+          <p className="text-sm text-slate-500 dark:text-slate-400">
             We may already have your license on file. Search to claim your profile and skip manual entry.
           </p>
         </div>
       </div>
 
       {claimedProfile ? (
-        <div className="bg-savings-50 border border-savings-200 rounded-xl p-6">
+        <div className="bg-savings-50 dark:bg-savings-900/30 border border-savings-200 rounded-xl p-6">
           <div className="flex items-center gap-3 mb-3">
-            <CheckCircle2 className="w-6 h-6 text-savings-600" />
+            <CheckCircle2 className="w-6 h-6 text-savings-600 dark:text-savings-400" />
             <h3 className="text-base font-semibold text-savings-800">Profile Claimed!</h3>
           </div>
           <div className="grid grid-cols-2 gap-3 text-sm">
-            <div><span className="text-slate-500">Name:</span> <span className="font-medium text-slate-800">{claimedProfile.full_name}</span></div>
-            {claimedProfile.npn && <div><span className="text-slate-500">NPN:</span> <span className="font-medium text-slate-800">{claimedProfile.npn}</span></div>}
-            {claimedProfile.license_number && <div><span className="text-slate-500">License:</span> <span className="font-medium text-slate-800">{claimedProfile.license_number}</span></div>}
-            {claimedProfile.state && <div><span className="text-slate-500">State:</span> <span className="font-medium text-slate-800">{claimedProfile.state}</span></div>}
+            <div><span className="text-slate-500 dark:text-slate-400">Name:</span> <span className="font-medium text-slate-800">{claimedProfile.full_name}</span></div>
+            {claimedProfile.npn && <div><span className="text-slate-500 dark:text-slate-400">NPN:</span> <span className="font-medium text-slate-800">{claimedProfile.npn}</span></div>}
+            {claimedProfile.license_number && <div><span className="text-slate-500 dark:text-slate-400">License:</span> <span className="font-medium text-slate-800">{claimedProfile.license_number}</span></div>}
+            {claimedProfile.state && <div><span className="text-slate-500 dark:text-slate-400">State:</span> <span className="font-medium text-slate-800">{claimedProfile.state}</span></div>}
           </div>
-          <p className="text-xs text-savings-600 mt-3">Your license details have been pre-filled in the next steps.</p>
+          <p className="text-xs text-savings-600 dark:text-savings-400 mt-3">Your license details have been pre-filled in the next steps.</p>
         </div>
       ) : (
         <>
           {/* Search Form */}
-          <div className="bg-slate-50 rounded-xl p-5 space-y-4">
+          <div className="bg-slate-50 dark:bg-slate-800 rounded-xl p-5 space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <FormInput label="NPN (National Producer Number)" value={claimSearch.npn} onChange={v => setClaimSearch(prev => ({ ...prev, npn: v }))} placeholder="12345678" />
               <FormInput label="License Number" value={claimSearch.license_number} onChange={v => setClaimSearch(prev => ({ ...prev, license_number: v }))} placeholder="W123456" />
@@ -521,30 +521,30 @@ export default function Onboarding() {
 
           {/* Results */}
           {claimSearched && claimResults.length === 0 && (
-            <div className="text-center py-6 text-slate-500 text-sm">
+            <div className="text-center py-6 text-slate-500 dark:text-slate-400 text-sm">
               <p>No matching profiles found. You can skip this step and enter your details manually.</p>
             </div>
           )}
 
           {claimResults.length > 0 && (
             <div className="space-y-3">
-              <p className="text-sm font-medium text-slate-700">{claimResults.length} profile{claimResults.length !== 1 ? 's' : ''} found:</p>
+              <p className="text-sm font-medium text-slate-700 dark:text-slate-200">{claimResults.length} profile{claimResults.length !== 1 ? 's' : ''} found:</p>
               <div className="space-y-2 max-h-[300px] overflow-y-auto pr-1">
                 {claimResults.map(profile => (
-                  <div key={profile.id} className="border border-slate-200 rounded-xl p-4 hover:border-shield-300 transition-colors">
+                  <div key={profile.id} className="border border-slate-200 dark:border-slate-700/50 rounded-xl p-4 hover:border-shield-300 transition-colors">
                     <div className="flex items-start justify-between gap-4">
                       <div className="min-w-0 flex-1">
-                        <p className="font-semibold text-slate-900">{profile.full_name || 'Unknown'}</p>
+                        <p className="font-semibold text-slate-900 dark:text-white">{profile.full_name || 'Unknown'}</p>
                         <div className="grid grid-cols-2 gap-x-6 gap-y-1 mt-2 text-sm">
-                          {profile.npn && <div><span className="text-slate-400">NPN:</span> <span className="text-slate-700">{profile.npn}</span></div>}
-                          {profile.license_number && <div><span className="text-slate-400">License:</span> <span className="text-slate-700">{profile.license_number}</span></div>}
-                          {profile.license_type && <div><span className="text-slate-400">Type:</span> <span className="text-slate-700">{profile.license_type}</span></div>}
-                          {profile.license_status && <div><span className="text-slate-400">Status:</span> <span className="text-slate-700">{profile.license_status}</span></div>}
-                          {profile.city && profile.state && <div><span className="text-slate-400">Location:</span> <span className="text-slate-700">{profile.city}, {profile.state}</span></div>}
-                          {profile.county && <div><span className="text-slate-400">County:</span> <span className="text-slate-700">{profile.county}</span></div>}
+                          {profile.npn && <div><span className="text-slate-400 dark:text-slate-500">NPN:</span> <span className="text-slate-700 dark:text-slate-200">{profile.npn}</span></div>}
+                          {profile.license_number && <div><span className="text-slate-400 dark:text-slate-500">License:</span> <span className="text-slate-700 dark:text-slate-200">{profile.license_number}</span></div>}
+                          {profile.license_type && <div><span className="text-slate-400 dark:text-slate-500">Type:</span> <span className="text-slate-700 dark:text-slate-200">{profile.license_type}</span></div>}
+                          {profile.license_status && <div><span className="text-slate-400 dark:text-slate-500">Status:</span> <span className="text-slate-700 dark:text-slate-200">{profile.license_status}</span></div>}
+                          {profile.city && profile.state && <div><span className="text-slate-400 dark:text-slate-500">Location:</span> <span className="text-slate-700 dark:text-slate-200">{profile.city}, {profile.state}</span></div>}
+                          {profile.county && <div><span className="text-slate-400 dark:text-slate-500">County:</span> <span className="text-slate-700 dark:text-slate-200">{profile.county}</span></div>}
                         </div>
                         {profile.license_lookup_url && (
-                          <a href={profile.license_lookup_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-shield-600 hover:text-shield-700 mt-2">
+                          <a href={profile.license_lookup_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs text-shield-600 dark:text-shield-400 hover:text-shield-700 dark:text-shield-300 mt-2">
                             <ExternalLink className="w-3 h-3" /> Verify on state DOI
                           </a>
                         )}
@@ -572,10 +572,10 @@ export default function Onboarding() {
   const renderAgencyInfo = () => (
     <div className="space-y-5">
       <div className="flex items-center gap-3 mb-6">
-        <Building2 className="w-6 h-6 text-shield-600" />
+        <Building2 className="w-6 h-6 text-shield-600 dark:text-shield-400" />
         <div>
-          <h2 className="text-lg font-bold text-slate-900">Agency Information</h2>
-          <p className="text-sm text-slate-500">Tell us about your insurance agency</p>
+          <h2 className="text-lg font-bold text-slate-900 dark:text-white">Agency Information</h2>
+          <p className="text-sm text-slate-500 dark:text-slate-400">Tell us about your insurance agency</p>
         </div>
       </div>
       <FormInput label="Agency Name" value={agencyForm.agency_name} onChange={v => updateAgency('agency_name', v)} placeholder="Acme Insurance Group" required />
@@ -591,10 +591,10 @@ export default function Onboarding() {
   const renderAgencyLocation = () => (
     <div className="space-y-5">
       <div className="flex items-center gap-3 mb-6">
-        <MapPin className="w-6 h-6 text-shield-600" />
+        <MapPin className="w-6 h-6 text-shield-600 dark:text-shield-400" />
         <div>
-          <h2 className="text-lg font-bold text-slate-900">Agency Location</h2>
-          <p className="text-sm text-slate-500">Where is your agency located?</p>
+          <h2 className="text-lg font-bold text-slate-900 dark:text-white">Agency Location</h2>
+          <p className="text-sm text-slate-500 dark:text-slate-400">Where is your agency located?</p>
         </div>
       </div>
       <FormInput label="Street Address" value={agencyForm.address} onChange={v => updateAgency('address', v)} placeholder="123 Main Street, Suite 100" />
@@ -609,10 +609,10 @@ export default function Onboarding() {
   const renderLicensing = () => (
     <div className="space-y-5">
       <div className="flex items-center gap-3 mb-6">
-        <ShieldCheck className="w-6 h-6 text-shield-600" />
+        <ShieldCheck className="w-6 h-6 text-shield-600 dark:text-shield-400" />
         <div>
-          <h2 className="text-lg font-bold text-slate-900">Licensing & Compliance</h2>
-          <p className="text-sm text-slate-500">Your agency's licensing and E&O insurance details</p>
+          <h2 className="text-lg font-bold text-slate-900 dark:text-white">Licensing & Compliance</h2>
+          <p className="text-sm text-slate-500 dark:text-slate-400">Your agency's licensing and E&O insurance details</p>
         </div>
       </div>
       <div className="grid grid-cols-2 gap-4">
@@ -620,7 +620,7 @@ export default function Onboarding() {
         <FormInput label="NPN (National Producer Number)" value={agencyForm.npn_number} onChange={v => updateAgency('npn_number', v)} placeholder="12345678" />
       </div>
       <MultiStateSelect selected={agencyForm.license_states} onChange={v => updateAgency('license_states', v)} />
-      <div className="border-t border-slate-200 pt-5">
+      <div className="border-t border-slate-200 dark:border-slate-700/50 pt-5">
         <h3 className="text-sm font-semibold text-slate-800 mb-3">E&O Insurance</h3>
         <div className="grid grid-cols-3 gap-4">
           <FormInput label="E&O Carrier" value={agencyForm.eo_carrier} onChange={v => updateAgency('eo_carrier', v)} placeholder="Swiss Re" />
@@ -641,13 +641,13 @@ export default function Onboarding() {
     return (
       <div className="space-y-5">
         <div className="flex items-center gap-3 mb-6">
-          <Package className="w-6 h-6 text-shield-600" />
+          <Package className="w-6 h-6 text-shield-600 dark:text-shield-400" />
           <div>
-            <h2 className="text-lg font-bold text-slate-900">Products You Sell</h2>
-            <p className="text-sm text-slate-500">Select the insurance products your agency offers</p>
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white">Products You Sell</h2>
+            <p className="text-sm text-slate-500 dark:text-slate-400">Select the insurance products your agency offers</p>
           </div>
         </div>
-        <p className="text-sm text-shield-700 bg-shield-50 px-4 py-2 rounded-lg">
+        <p className="text-sm text-shield-700 dark:text-shield-300 bg-shield-50 dark:bg-shield-900/30 px-4 py-2 rounded-lg">
           {agencyForm.product_ids.length} product{agencyForm.product_ids.length !== 1 ? 's' : ''} selected
         </p>
         <div className="space-y-4 max-h-[400px] overflow-y-auto pr-1">
@@ -655,13 +655,13 @@ export default function Onboarding() {
             const catSelected = products.filter(p => agencyForm.product_ids.includes(p.id)).length;
             const allSelected = catSelected === products.length;
             return (
-              <div key={category} className="border border-slate-200 rounded-xl overflow-hidden">
-                <div className="flex items-center justify-between px-4 py-2.5 bg-slate-50 border-b border-slate-200">
+              <div key={category} className="border border-slate-200 dark:border-slate-700/50 rounded-xl overflow-hidden">
+                <div className="flex items-center justify-between px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700/50">
                   <span className="text-sm font-semibold text-slate-800">{category}</span>
                   <button
                     type="button"
                     onClick={() => toggleAllCategory(products, !allSelected)}
-                    className="text-xs px-2.5 py-1 bg-shield-100 text-shield-700 rounded-full hover:bg-shield-200"
+                    className="text-xs px-2.5 py-1 bg-shield-100 dark:bg-shield-900/30 text-shield-700 dark:text-shield-300 rounded-full hover:bg-shield-200"
                   >
                     {allSelected ? 'Deselect All' : 'Select All'}
                   </button>
@@ -674,8 +674,8 @@ export default function Onboarding() {
                         key={product.id}
                         type="button"
                         onClick={() => toggleProduct(product.id)}
-                        className={`flex items-center gap-2.5 px-4 py-2.5 text-left hover:bg-slate-50 transition-colors border-b border-r border-slate-100 ${
-                          selected ? 'bg-shield-50/50' : ''
+                        className={`flex items-center gap-2.5 px-4 py-2.5 text-left hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-800 transition-colors border-b border-r border-slate-100 dark:border-slate-700/50 ${
+                          selected ? 'bg-shield-50 dark:bg-shield-900/30/50' : ''
                         }`}
                       >
                         <div className={`w-4.5 h-4.5 rounded border-2 flex items-center justify-center flex-shrink-0 ${
@@ -706,17 +706,17 @@ export default function Onboarding() {
     return (
       <div className="space-y-5">
         <div className="flex items-center gap-3 mb-6">
-          <Briefcase className="w-6 h-6 text-shield-600" />
+          <Briefcase className="w-6 h-6 text-shield-600 dark:text-shield-400" />
           <div>
-            <h2 className="text-lg font-bold text-slate-900">Carrier Appointments</h2>
-            <p className="text-sm text-slate-500">Select the carriers your agency is appointed with</p>
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white">Carrier Appointments</h2>
+            <p className="text-sm text-slate-500 dark:text-slate-400">Select the carriers your agency is appointed with</p>
           </div>
         </div>
-        <p className="text-sm text-shield-700 bg-shield-50 px-4 py-2 rounded-lg">
+        <p className="text-sm text-shield-700 dark:text-shield-300 bg-shield-50 dark:bg-shield-900/30 px-4 py-2 rounded-lg">
           {agencyForm.carrier_ids.length} carrier{agencyForm.carrier_ids.length !== 1 ? 's' : ''} selected
         </p>
         {carriers.length === 0 ? (
-          <div className="text-center py-8 text-slate-500 text-sm">
+          <div className="text-center py-8 text-slate-500 dark:text-slate-400 text-sm">
             No carriers available. You can add carrier appointments later from your dashboard.
           </div>
         ) : (
@@ -730,8 +730,8 @@ export default function Onboarding() {
                   onClick={() => toggleCarrier(carrier.id)}
                   className={`flex items-center gap-3 px-4 py-3 rounded-xl border-2 text-left transition-all ${
                     selected
-                      ? 'border-shield-500 bg-shield-50'
-                      : 'border-slate-200 hover:border-slate-300 bg-white'
+                      ? 'border-shield-500 bg-shield-50 dark:bg-shield-900/30'
+                      : 'border-slate-200 dark:border-slate-700/50 hover:border-slate-300 bg-white dark:bg-slate-900'
                   }`}
                 >
                   <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
@@ -740,9 +740,9 @@ export default function Onboarding() {
                     {selected && <Check className="w-3 h-3 text-white" />}
                   </div>
                   <div className="min-w-0">
-                    <p className="text-sm font-medium text-slate-900 truncate">{carrier.name}</p>
+                    <p className="text-sm font-medium text-slate-900 dark:text-white truncate">{carrier.name}</p>
                     {carrier.am_best_rating && (
-                      <p className="text-xs text-slate-400">AM Best: {carrier.am_best_rating}</p>
+                      <p className="text-xs text-slate-400 dark:text-slate-500">AM Best: {carrier.am_best_rating}</p>
                     )}
                   </div>
                 </button>
@@ -757,12 +757,12 @@ export default function Onboarding() {
   const renderAgentProfile = () => (
     <div className="space-y-5">
       <div className="flex items-center gap-3 mb-6">
-        <Users className="w-6 h-6 text-shield-600" />
+        <Users className="w-6 h-6 text-shield-600 dark:text-shield-400" />
         <div>
-          <h2 className="text-lg font-bold text-slate-900">
+          <h2 className="text-lg font-bold text-slate-900 dark:text-white">
             {isAgencyOwner ? 'Your Personal Profile' : 'Your Profile'}
           </h2>
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-slate-500 dark:text-slate-400">
             {isAgencyOwner ? 'Set up your personal agent profile as the agency principal' : 'Tell us about yourself and your experience'}
           </p>
         </div>
@@ -780,10 +780,10 @@ export default function Onboarding() {
   const renderAgentLicensing = () => (
     <div className="space-y-5">
       <div className="flex items-center gap-3 mb-6">
-        <FileText className="w-6 h-6 text-shield-600" />
+        <FileText className="w-6 h-6 text-shield-600 dark:text-shield-400" />
         <div>
-          <h2 className="text-lg font-bold text-slate-900">Licensing Information</h2>
-          <p className="text-sm text-slate-500">Your personal insurance license details</p>
+          <h2 className="text-lg font-bold text-slate-900 dark:text-white">Licensing Information</h2>
+          <p className="text-sm text-slate-500 dark:text-slate-400">Your personal insurance license details</p>
         </div>
       </div>
       <div className="grid grid-cols-2 gap-4">
@@ -800,13 +800,13 @@ export default function Onboarding() {
     return (
       <div className="space-y-5">
         <div className="flex items-center gap-3 mb-6">
-          <Package className="w-6 h-6 text-shield-600" />
+          <Package className="w-6 h-6 text-shield-600 dark:text-shield-400" />
           <div>
-            <h2 className="text-lg font-bold text-slate-900">Your Specialties</h2>
-            <p className="text-sm text-slate-500">What types of insurance do you specialize in?</p>
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white">Your Specialties</h2>
+            <p className="text-sm text-slate-500 dark:text-slate-400">What types of insurance do you specialize in?</p>
           </div>
         </div>
-        <p className="text-sm text-shield-700 bg-shield-50 px-4 py-2 rounded-lg">
+        <p className="text-sm text-shield-700 dark:text-shield-300 bg-shield-50 dark:bg-shield-900/30 px-4 py-2 rounded-lg">
           {agentForm.specialties.length} specialt{agentForm.specialties.length !== 1 ? 'ies' : 'y'} selected
         </p>
         {loadingFormData ? (
@@ -822,8 +822,8 @@ export default function Onboarding() {
                   onClick={() => toggleSpecialty(product.slug)}
                   className={`flex items-center gap-2.5 px-4 py-2.5 rounded-lg border text-left transition-all ${
                     selected
-                      ? 'border-shield-500 bg-shield-50'
-                      : 'border-slate-200 hover:border-slate-300'
+                      ? 'border-shield-500 bg-shield-50 dark:bg-shield-900/30'
+                      : 'border-slate-200 dark:border-slate-700/50 hover:border-slate-300'
                   }`}
                 >
                   <div className={`w-4.5 h-4.5 rounded border-2 flex items-center justify-center flex-shrink-0 ${
@@ -844,10 +844,10 @@ export default function Onboarding() {
   const renderServiceArea = () => (
     <div className="space-y-5">
       <div className="flex items-center gap-3 mb-6">
-        <MapPin className="w-6 h-6 text-shield-600" />
+        <MapPin className="w-6 h-6 text-shield-600 dark:text-shield-400" />
         <div>
-          <h2 className="text-lg font-bold text-slate-900">Service Area</h2>
-          <p className="text-sm text-slate-500">Which states do you serve clients in?</p>
+          <h2 className="text-lg font-bold text-slate-900 dark:text-white">Service Area</h2>
+          <p className="text-sm text-slate-500 dark:text-slate-400">Which states do you serve clients in?</p>
         </div>
       </div>
       <MultiStateSelect selected={agentForm.license_states} onChange={v => updateAgent('license_states', v)} />
@@ -860,52 +860,52 @@ export default function Onboarding() {
 
   const renderComplete = () => (
     <div className="text-center py-8">
-      <div className="w-20 h-20 rounded-full bg-savings-100 flex items-center justify-center mx-auto mb-6">
-        <CheckCircle2 className="w-10 h-10 text-savings-600" />
+      <div className="w-20 h-20 rounded-full bg-savings-100 dark:bg-savings-900/30 flex items-center justify-center mx-auto mb-6">
+        <CheckCircle2 className="w-10 h-10 text-savings-600 dark:text-savings-400" />
       </div>
-      <h2 className="text-2xl font-bold text-slate-900 mb-3">You're All Set!</h2>
-      <p className="text-slate-500 max-w-md mx-auto mb-8">
+      <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-3">You're All Set!</h2>
+      <p className="text-slate-500 dark:text-slate-400 max-w-md mx-auto mb-8">
         {isAgencyOwner
           ? "Your agency is set up and ready to go. You can always update your settings from the dashboard."
           : "Your profile is set up. You'll start receiving leads and can begin serving clients right away."
         }
       </p>
-      <div className="bg-slate-50 rounded-xl p-6 max-w-sm mx-auto text-left space-y-3">
+      <div className="bg-slate-50 dark:bg-slate-800 rounded-xl p-6 max-w-sm mx-auto text-left space-y-3">
         <h3 className="text-sm font-semibold text-slate-800 mb-3">Setup Summary</h3>
         {isAgencyOwner && agencyForm.agency_name && (
           <div className="flex items-center gap-2 text-sm">
-            <Check className="w-4 h-4 text-savings-600" />
-            <span className="text-slate-700">Agency: {agencyForm.agency_name}</span>
+            <Check className="w-4 h-4 text-savings-600 dark:text-savings-400" />
+            <span className="text-slate-700 dark:text-slate-200">Agency: {agencyForm.agency_name}</span>
           </div>
         )}
         {isAgencyOwner && agencyForm.product_ids.length > 0 && (
           <div className="flex items-center gap-2 text-sm">
-            <Check className="w-4 h-4 text-savings-600" />
-            <span className="text-slate-700">{agencyForm.product_ids.length} products enabled</span>
+            <Check className="w-4 h-4 text-savings-600 dark:text-savings-400" />
+            <span className="text-slate-700 dark:text-slate-200">{agencyForm.product_ids.length} products enabled</span>
           </div>
         )}
         {isAgencyOwner && agencyForm.carrier_ids.length > 0 && (
           <div className="flex items-center gap-2 text-sm">
-            <Check className="w-4 h-4 text-savings-600" />
-            <span className="text-slate-700">{agencyForm.carrier_ids.length} carriers appointed</span>
+            <Check className="w-4 h-4 text-savings-600 dark:text-savings-400" />
+            <span className="text-slate-700 dark:text-slate-200">{agencyForm.carrier_ids.length} carriers appointed</span>
           </div>
         )}
         {agentForm.license_number && (
           <div className="flex items-center gap-2 text-sm">
-            <Check className="w-4 h-4 text-savings-600" />
-            <span className="text-slate-700">License: {agentForm.license_number}</span>
+            <Check className="w-4 h-4 text-savings-600 dark:text-savings-400" />
+            <span className="text-slate-700 dark:text-slate-200">License: {agentForm.license_number}</span>
           </div>
         )}
         {agentForm.license_states.length > 0 && (
           <div className="flex items-center gap-2 text-sm">
-            <Check className="w-4 h-4 text-savings-600" />
-            <span className="text-slate-700">{agentForm.license_states.length} licensed states</span>
+            <Check className="w-4 h-4 text-savings-600 dark:text-savings-400" />
+            <span className="text-slate-700 dark:text-slate-200">{agentForm.license_states.length} licensed states</span>
           </div>
         )}
         {!isAgencyOwner && agentForm.specialties.length > 0 && (
           <div className="flex items-center gap-2 text-sm">
-            <Check className="w-4 h-4 text-savings-600" />
-            <span className="text-slate-700">{agentForm.specialties.length} specialties</span>
+            <Check className="w-4 h-4 text-savings-600 dark:text-savings-400" />
+            <span className="text-slate-700 dark:text-slate-200">{agentForm.specialties.length} specialties</span>
           </div>
         )}
       </div>
@@ -942,15 +942,15 @@ export default function Onboarding() {
   const isCompleteStep = step.id === 'complete';
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-800">
       {/* Header */}
-      <nav className="bg-white border-b border-slate-100">
+      <nav className="bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-700/50">
         <div className="max-w-3xl mx-auto px-6 py-4 flex items-center justify-between">
           <a href="/" className="flex items-center gap-2.5">
             <img src="/logo.png" alt="Insurons" className="h-14 w-auto" />
           </a>
-          <div className="flex items-center gap-2 text-sm text-slate-500">
-            <ShieldCheck className="w-4 h-4 text-shield-600" />
+          <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
+            <ShieldCheck className="w-4 h-4 text-shield-600 dark:text-shield-400" />
             Account Setup
           </div>
         </div>
@@ -960,12 +960,12 @@ export default function Onboarding() {
         {/* Progress Bar */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-sm font-medium text-slate-700">
+            <span className="text-sm font-medium text-slate-700 dark:text-slate-200">
               Step {currentStep + 1} of {steps.length}
             </span>
-            <span className="text-sm text-slate-500">{step.label}</span>
+            <span className="text-sm text-slate-500 dark:text-slate-400">{step.label}</span>
           </div>
-          <div className="w-full bg-slate-200 rounded-full h-2">
+          <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
             <div
               className="bg-shield-600 h-2 rounded-full transition-all duration-500"
               style={{ width: `${((currentStep + 1) / steps.length) * 100}%` }}
@@ -982,7 +982,7 @@ export default function Onboarding() {
                       ? 'bg-savings-500 text-white'
                       : i === currentStep
                         ? 'gradient-shield text-white'
-                        : 'bg-slate-200 text-slate-400'
+                        : 'bg-slate-200 dark:bg-slate-700 text-slate-400 dark:text-slate-500'
                   }`}>
                     {i < currentStep ? (
                       <Check className="w-4 h-4" />
@@ -991,7 +991,7 @@ export default function Onboarding() {
                     )}
                   </div>
                   <span className={`text-xs mt-1 hidden sm:block ${
-                    i <= currentStep ? 'text-slate-700 font-medium' : 'text-slate-400'
+                    i <= currentStep ? 'text-slate-700 dark:text-slate-200 font-medium' : 'text-slate-400 dark:text-slate-500'
                   }`}>
                     {s.label}
                   </span>
@@ -1002,18 +1002,18 @@ export default function Onboarding() {
         </div>
 
         {/* Card */}
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/50 shadow-sm dark:shadow-none">
           <div className="p-8">
             {renderStep()}
           </div>
 
           {/* Footer */}
-          <div className="flex items-center justify-between px-8 py-5 border-t border-slate-100 bg-slate-50/50 rounded-b-2xl">
+          <div className="flex items-center justify-between px-8 py-5 border-t border-slate-100 dark:border-slate-700/50 bg-slate-50 dark:bg-slate-800/50 rounded-b-2xl">
             <button
               type="button"
               onClick={handleBack}
               disabled={currentStep === 0}
-              className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-slate-600 hover:text-slate-800 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-slate-800 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
             >
               <ArrowLeft className="w-4 h-4" />
               Back
@@ -1059,7 +1059,7 @@ export default function Onboarding() {
             <button
               type="button"
               onClick={handleNext}
-              className="text-sm text-slate-400 hover:text-slate-600 transition-colors"
+              className="text-sm text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:text-slate-300 transition-colors"
             >
               Skip this step for now
             </button>

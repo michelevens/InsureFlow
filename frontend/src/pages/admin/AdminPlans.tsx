@@ -88,10 +88,10 @@ export default function AdminPlans() {
   if (loading) {
     return (
       <div className="space-y-6">
-        <div><h1 className="text-2xl font-bold text-slate-900">Subscription Plans</h1></div>
+        <div><h1 className="text-2xl font-bold text-slate-900 dark:text-white">Subscription Plans</h1></div>
         <Card className="p-12 text-center">
           <Loader2 className="w-8 h-8 animate-spin text-shield-500 mx-auto" />
-          <p className="text-slate-500 mt-2">Loading plans...</p>
+          <p className="text-slate-500 dark:text-slate-400 mt-2">Loading plans...</p>
         </Card>
       </div>
     );
@@ -101,8 +101,8 @@ export default function AdminPlans() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Subscription Plans</h1>
-          <p className="text-slate-500 mt-1">Manage pricing and subscription tiers</p>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Subscription Plans</h1>
+          <p className="text-slate-500 dark:text-slate-400 mt-1">Manage pricing and subscription tiers</p>
         </div>
         <Button variant="shield" leftIcon={<Plus className="w-4 h-4" />} onClick={() => openModal()}>Create Plan</Button>
       </div>
@@ -112,8 +112,8 @@ export default function AdminPlans() {
           <div className="flex items-center gap-3">
             <DollarSign className="w-8 h-8 text-savings-500" />
             <div>
-              <p className="text-xl font-bold text-slate-900">{plans.length}</p>
-              <p className="text-sm text-slate-500">Total Plans</p>
+              <p className="text-xl font-bold text-slate-900 dark:text-white">{plans.length}</p>
+              <p className="text-sm text-slate-500 dark:text-slate-400">Total Plans</p>
             </div>
           </div>
         </Card>
@@ -121,8 +121,8 @@ export default function AdminPlans() {
           <div className="flex items-center gap-3">
             <CheckCircle2 className="w-8 h-8 text-confidence-500" />
             <div>
-              <p className="text-xl font-bold text-slate-900">{activePlans}</p>
-              <p className="text-sm text-slate-500">Active Plans</p>
+              <p className="text-xl font-bold text-slate-900 dark:text-white">{activePlans}</p>
+              <p className="text-sm text-slate-500 dark:text-slate-400">Active Plans</p>
             </div>
           </div>
         </Card>
@@ -130,8 +130,8 @@ export default function AdminPlans() {
           <div className="flex items-center gap-3">
             <Users className="w-8 h-8 text-shield-500" />
             <div>
-              <p className="text-xl font-bold text-slate-900">{plans.filter(p => p.role === 'agent' || p.role === 'agency_owner').length}</p>
-              <p className="text-sm text-slate-500">Agent/Agency Plans</p>
+              <p className="text-xl font-bold text-slate-900 dark:text-white">{plans.filter(p => p.role === 'agent' || p.role === 'agency_owner').length}</p>
+              <p className="text-sm text-slate-500 dark:text-slate-400">Agent/Agency Plans</p>
             </div>
           </div>
         </Card>
@@ -149,13 +149,13 @@ export default function AdminPlans() {
                   </Badge>
                 </button>
               </div>
-              <h3 className="text-lg font-bold text-slate-900 mb-1">{plan.name}</h3>
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1">{plan.name}</h3>
               <div className="flex items-baseline gap-1 mb-2">
-                <span className="text-3xl font-bold text-slate-900">${plan.price_monthly}</span>
-                <span className="text-slate-500">/mo</span>
+                <span className="text-3xl font-bold text-slate-900 dark:text-white">${plan.price_monthly}</span>
+                <span className="text-slate-500 dark:text-slate-400">/mo</span>
               </div>
               {plan.price_yearly > 0 && (
-                <p className="text-sm text-slate-500 mb-4">
+                <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
                   ${plan.price_yearly}/year
                   {plan.price_monthly > 0 && ` (save ${Math.round((1 - plan.price_yearly / (plan.price_monthly * 12)) * 100)}%)`}
                 </p>
@@ -163,7 +163,7 @@ export default function AdminPlans() {
               {plan.features && typeof plan.features === 'object' && (
                 <div className="space-y-2 mb-4">
                   {Object.entries(plan.features).filter(([, v]) => v).slice(0, 6).map(([k]) => (
-                    <div key={k} className="flex items-center gap-2 text-sm text-slate-600">
+                    <div key={k} className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
                       <CheckCircle2 className="w-4 h-4 text-savings-500 flex-shrink-0" />
                       {k.replace(/_/g, ' ')}
                     </div>
@@ -172,7 +172,7 @@ export default function AdminPlans() {
               )}
               {plan.is_popular && <Badge variant="shield" className="mb-2">Popular</Badge>}
             </div>
-            <div className="border-t border-slate-100 p-4 flex gap-2">
+            <div className="border-t border-slate-100 dark:border-slate-700/50 p-4 flex gap-2">
               <Button variant="outline" size="sm" className="flex-1" leftIcon={<Edit className="w-4 h-4" />} onClick={() => openModal(plan)}>Edit</Button>
               <Button variant="ghost" size="sm" onClick={() => handleDelete(plan)}><Trash2 className="w-4 h-4 text-red-500" /></Button>
             </div>
@@ -185,22 +185,22 @@ export default function AdminPlans() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setShowModal(false)}>
           <Card className="w-full max-w-md p-6" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-slate-900">{editingPlan ? 'Edit Plan' : 'Create Plan'}</h3>
-              <button onClick={() => setShowModal(false)}><X className="w-5 h-5 text-slate-400" /></button>
+              <h3 className="text-lg font-semibold text-slate-900 dark:text-white">{editingPlan ? 'Edit Plan' : 'Create Plan'}</h3>
+              <button onClick={() => setShowModal(false)}><X className="w-5 h-5 text-slate-400 dark:text-slate-500" /></button>
             </div>
             <div className="space-y-4">
               <div className="space-y-1">
-                <label className="text-sm font-medium text-slate-700">Name</label>
+                <label className="text-sm font-medium text-slate-700 dark:text-slate-200">Name</label>
                 <Input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} placeholder="Agent Pro" />
               </div>
               <div className="space-y-1">
-                <label className="text-sm font-medium text-slate-700">Slug</label>
+                <label className="text-sm font-medium text-slate-700 dark:text-slate-200">Slug</label>
                 <Input value={form.slug} onChange={e => setForm({ ...form, slug: e.target.value })} placeholder="agent-pro" />
               </div>
               <div className="space-y-1">
-                <label className="text-sm font-medium text-slate-700">Target Role</label>
+                <label className="text-sm font-medium text-slate-700 dark:text-slate-200">Target Role</label>
                 <select value={form.role} onChange={e => setForm({ ...form, role: e.target.value })}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-shield-500">
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-shield-500 dark:focus:ring-shield-400">
                   <option value="agent">Agent</option>
                   <option value="agency_owner">Agency Owner</option>
                   <option value="carrier">Carrier</option>
@@ -209,24 +209,24 @@ export default function AdminPlans() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1">
-                  <label className="text-sm font-medium text-slate-700">Monthly Price</label>
+                  <label className="text-sm font-medium text-slate-700 dark:text-slate-200">Monthly Price</label>
                   <Input type="number" value={form.price_monthly} onChange={e => setForm({ ...form, price_monthly: Number(e.target.value) })} />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-sm font-medium text-slate-700">Annual Price</label>
+                  <label className="text-sm font-medium text-slate-700 dark:text-slate-200">Annual Price</label>
                   <Input type="number" value={form.price_yearly} onChange={e => setForm({ ...form, price_yearly: Number(e.target.value) })} />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <label className="flex items-center gap-3">
                   <input type="checkbox" checked={form.is_active} onChange={e => setForm({ ...form, is_active: e.target.checked })}
-                    className="w-4 h-4 rounded border-slate-300 text-shield-600 focus:ring-shield-500" />
-                  <span className="text-sm text-slate-700">Active</span>
+                    className="w-4 h-4 rounded border-slate-300 text-shield-600 dark:text-shield-400 focus:ring-shield-500 dark:focus:ring-shield-400" />
+                  <span className="text-sm text-slate-700 dark:text-slate-200">Active</span>
                 </label>
                 <label className="flex items-center gap-3">
                   <input type="checkbox" checked={form.is_popular} onChange={e => setForm({ ...form, is_popular: e.target.checked })}
-                    className="w-4 h-4 rounded border-slate-300 text-shield-600 focus:ring-shield-500" />
-                  <span className="text-sm text-slate-700">Popular</span>
+                    className="w-4 h-4 rounded border-slate-300 text-shield-600 dark:text-shield-400 focus:ring-shield-500 dark:focus:ring-shield-400" />
+                  <span className="text-sm text-slate-700 dark:text-slate-200">Popular</span>
                 </label>
               </div>
             </div>

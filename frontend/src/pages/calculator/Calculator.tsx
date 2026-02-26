@@ -341,15 +341,15 @@ export default function Calculator() {
   const selectedProductName = productGroups.flatMap(g => g.options).find(t => t.value === form.insurance_type)?.label || form.insurance_type;
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-800">
       {/* Header */}
-      <nav className="bg-white border-b border-slate-100">
+      <nav className="bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-700/50">
         <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
           <a href="/" className="flex items-center gap-2.5">
             <img src="/logo.png" alt="Insurons" className="h-16 w-auto" />
           </a>
-          <div className="flex items-center gap-2 text-sm text-slate-500">
-            <ShieldCheck className="w-4 h-4 text-shield-600" />
+          <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
+            <ShieldCheck className="w-4 h-4 text-shield-600 dark:text-shield-400" />
             No login required
           </div>
         </div>
@@ -358,12 +358,12 @@ export default function Calculator() {
       <div className="max-w-4xl mx-auto px-6 py-12">
         {/* Welcome back banner for resumed drafts */}
         {showResumeBanner && (
-          <div className="max-w-2xl mx-auto mb-6 flex items-center justify-between gap-3 px-4 py-3 rounded-xl bg-shield-50 border border-shield-200 text-sm">
-            <div className="flex items-center gap-2 text-shield-700">
+          <div className="max-w-2xl mx-auto mb-6 flex items-center justify-between gap-3 px-4 py-3 rounded-xl bg-shield-50 dark:bg-shield-900/30 border border-shield-200 text-sm">
+            <div className="flex items-center gap-2 text-shield-700 dark:text-shield-300">
               <RotateCcw className="w-4 h-4" />
               <span>Welcome back! We saved your progress.</span>
             </div>
-            <button onClick={handleClearDraft} className="flex items-center gap-1 text-slate-500 hover:text-slate-700">
+            <button onClick={handleClearDraft} className="flex items-center gap-1 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:text-slate-200">
               <X className="w-3.5 h-3.5" />
               Start over
             </button>
@@ -375,25 +375,25 @@ export default function Calculator() {
           {[1, 2].map(s => (
             <div key={s} className="flex items-center gap-3">
               <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold ${
-                step >= s ? 'gradient-shield text-white' : 'bg-slate-200 text-slate-500'
+                step >= s ? 'gradient-shield text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400'
               }`}>
                 {step > s ? <CheckCircle2 className="w-5 h-5" /> : s}
               </div>
-              {s < 2 && <div className={`w-16 h-1 rounded ${step > s ? 'bg-shield-500' : 'bg-slate-200'}`} />}
+              {s < 2 && <div className={`w-16 h-1 rounded ${step > s ? 'bg-shield-500' : 'bg-slate-200 dark:bg-slate-700'}`} />}
             </div>
           ))}
         </div>
 
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-slate-900">
+          <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
             {step === 1 && 'What type of insurance do you need?'}
             {step === 2 && 'Tell us about what you\'re insuring'}
           </h1>
-          <p className="text-slate-500 mt-2">
+          <p className="text-slate-500 dark:text-slate-400 mt-2">
             {step === 1 && 'Select your coverage type and we\'ll find the best rates — no account needed'}
             {step === 2 && 'This helps us get you accurate quotes from top carriers'}
           </p>
-          <p className="text-xs text-slate-400 mt-1">Takes about 60 seconds</p>
+          <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">Takes about 60 seconds</p>
         </div>
 
         <Card className="max-w-2xl mx-auto">
@@ -401,7 +401,7 @@ export default function Calculator() {
             {step === 1 && (
               <div className="space-y-5">
                 {loadingProducts ? (
-                  <div className="text-center py-4 text-slate-500 text-sm">Loading available products...</div>
+                  <div className="text-center py-4 text-slate-500 dark:text-slate-400 text-sm">Loading available products...</div>
                 ) : (
                   <Select
                     label="Insurance Type"
@@ -445,11 +445,11 @@ export default function Calculator() {
                 {/* Sub-step progress */}
                 {totalSubSteps > 0 && (
                   <div className="space-y-2">
-                    <div className="flex items-center justify-between text-xs text-slate-500">
+                    <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
                       <span>Question {subStep + 1} of {totalSubSteps}</span>
                       <span>{Math.round(((subStep + 1) / totalSubSteps) * 100)}%</span>
                     </div>
-                    <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                    <div className="h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
                       <div
                         className="h-full bg-shield-500 rounded-full transition-all duration-500 ease-out"
                         style={{ width: `${((subStep + 1) / totalSubSteps) * 100}%` }}
@@ -486,12 +486,12 @@ export default function Calculator() {
                   /* Generic fallback (no fields for this category) */
                   <div className="text-center py-8">
                     <CalcIcon className="w-12 h-12 text-shield-400 mx-auto mb-3" />
-                    <p className="text-slate-600">Great choice! We'll match you with the best {selectedProductName} rates in your area.</p>
+                    <p className="text-slate-600 dark:text-slate-300">Great choice! We'll match you with the best {selectedProductName} rates in your area.</p>
                   </div>
                 )}
 
                 {error && (
-                  <div className="p-3 rounded-lg bg-red-50 text-red-700 text-sm">
+                  <div className="p-3 rounded-lg bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 text-sm">
                     {error}
                   </div>
                 )}
@@ -522,7 +522,7 @@ export default function Calculator() {
 
                 {/* Skip hint */}
                 {!isLastSubStep && totalSubSteps > 0 && (
-                  <p className="text-center text-xs text-slate-400">
+                  <p className="text-center text-xs text-slate-400 dark:text-slate-500">
                     Press Enter to continue or <button type="button" onClick={advanceSubStep} className="text-shield-500 hover:underline">skip</button>
                   </p>
                 )}
@@ -532,7 +532,7 @@ export default function Calculator() {
         </Card>
 
         {/* Trust indicators */}
-        <div className="flex items-center justify-center gap-8 mt-10 text-sm text-slate-500">
+        <div className="flex items-center justify-center gap-8 mt-10 text-sm text-slate-500 dark:text-slate-400">
           <div className="flex items-center gap-2">
             <ShieldCheck className="w-4 h-4 text-shield-500" />
             No login required

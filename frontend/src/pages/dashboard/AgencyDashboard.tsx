@@ -75,7 +75,7 @@ export default function AgencyDashboard() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Agency Dashboard</h1>
-          <p className="text-slate-500 mt-1">
+          <p className="text-slate-500 dark:text-slate-400 mt-1">
             {stats?.agency?.name ? `${stats.agency.name}` : "Overview of your agency's performance"}
             {stats?.agency?.city && stats?.agency?.state && (
               <span className="ml-1">— {stats.agency.city}, {stats.agency.state}</span>
@@ -97,8 +97,8 @@ export default function AgencyDashboard() {
         {loading ? (
           Array.from({ length: 4 }).map((_, i) => (
             <Card key={i} className="p-5 animate-pulse">
-              <div className="h-4 w-20 bg-slate-200 rounded mb-2" />
-              <div className="h-7 w-16 bg-slate-200 rounded" />
+              <div className="h-4 w-20 bg-slate-200 dark:bg-slate-700 rounded mb-2" />
+              <div className="h-7 w-16 bg-slate-200 dark:bg-slate-700 rounded" />
             </Card>
           ))
         ) : (
@@ -119,28 +119,28 @@ export default function AgencyDashboard() {
             <div className="p-6">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-semibold text-slate-900">Team Performance</h2>
-                <Link to="/agency/settings" className="text-sm text-shield-600 hover:underline">View all</Link>
+                <Link to="/agency/settings" className="text-sm text-shield-600 dark:text-shield-400 hover:underline">View all</Link>
               </div>
               {loading ? (
                 <div className="flex items-center justify-center py-12">
                   <Loader2 className="w-6 h-6 animate-spin text-shield-400" />
                 </div>
               ) : team.length === 0 ? (
-                <p className="text-sm text-slate-500 text-center py-8">No agent performance data yet. As your team writes business, their metrics will appear here.</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400 text-center py-8">No agent performance data yet. As your team writes business, their metrics will appear here.</p>
               ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full">
                     <thead>
-                      <tr className="border-b border-slate-100">
-                        <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider pb-3">Agent</th>
-                        <th className="text-right text-xs font-medium text-slate-500 uppercase tracking-wider pb-3">Leads</th>
-                        <th className="text-right text-xs font-medium text-slate-500 uppercase tracking-wider pb-3">Policies</th>
-                        <th className="text-right text-xs font-medium text-slate-500 uppercase tracking-wider pb-3">Commission</th>
+                      <tr className="border-b border-slate-100 dark:border-slate-700/50">
+                        <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider pb-3">Agent</th>
+                        <th className="text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider pb-3">Leads</th>
+                        <th className="text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider pb-3">Policies</th>
+                        <th className="text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider pb-3">Commission</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-50">
+                    <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
                       {team.map((member) => (
-                        <tr key={member.id} className="hover:bg-slate-50">
+                        <tr key={member.id} className="hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-800">
                           <td className="py-3">
                             <div className="flex items-center gap-3">
                               <div className="w-8 h-8 rounded-full gradient-shield flex items-center justify-center text-white text-xs font-bold">
@@ -151,7 +151,7 @@ export default function AgencyDashboard() {
                           </td>
                           <td className="py-3 text-right text-sm font-medium text-slate-900">{member.lead_count}</td>
                           <td className="py-3 text-right text-sm font-medium text-slate-900">{member.policy_count}</td>
-                          <td className="py-3 text-right text-sm font-medium text-savings-600">
+                          <td className="py-3 text-right text-sm font-medium text-savings-600 dark:text-savings-400">
                             {member.total_commission ? `$${Number(member.total_commission).toLocaleString()}` : '$0'}
                           </td>
                         </tr>
@@ -169,17 +169,17 @@ export default function AgencyDashboard() {
               <div className="p-6">
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-lg font-semibold text-slate-900">Services Offered</h2>
-                  <Link to="/agency/settings" className="text-sm text-shield-600 hover:underline">Manage</Link>
+                  <Link to="/agency/settings" className="text-sm text-shield-600 dark:text-shield-400 hover:underline">Manage</Link>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {stats.products.map(p => (
-                    <span key={p.id} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium bg-shield-50 text-shield-700">
+                    <span key={p.id} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium bg-shield-50 dark:bg-shield-900/30 text-shield-700 dark:text-shield-300">
                       <Briefcase className="w-3.5 h-3.5" />
                       {p.name}
                     </span>
                   ))}
                 </div>
-                <p className="text-xs text-slate-400 mt-3">{stats.products.length} active product{stats.products.length !== 1 ? 's' : ''}</p>
+                <p className="text-xs text-slate-400 dark:text-slate-500 mt-3">{stats.products.length} active product{stats.products.length !== 1 ? 's' : ''}</p>
               </div>
             </Card>
           )}
@@ -195,7 +195,7 @@ export default function AgencyDashboard() {
                 <div className="space-y-3">
                   {stats.agency.npn && (
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-slate-500">NPN</span>
+                      <span className="text-sm text-slate-500 dark:text-slate-400">NPN</span>
                       <div className="flex items-center gap-1.5">
                         <span className="text-sm font-medium text-slate-900">{stats.agency.npn}</span>
                         {stats.agency.npn_verified && <CheckCircle2 className="w-4 h-4 text-green-500" />}
@@ -203,15 +203,15 @@ export default function AgencyDashboard() {
                     </div>
                   )}
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-slate-500">Applications</span>
+                    <span className="text-sm text-slate-500 dark:text-slate-400">Applications</span>
                     <span className="text-sm font-medium text-slate-900">{fmt(stats.total_applications)}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-slate-500">Total Commissions</span>
-                    <span className="text-sm font-medium text-savings-600">{fmtCurrency(stats.total_commissions)}</span>
+                    <span className="text-sm text-slate-500 dark:text-slate-400">Total Commissions</span>
+                    <span className="text-sm font-medium text-savings-600 dark:text-savings-400">{fmtCurrency(stats.total_commissions)}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-slate-500">Verification</span>
+                    <span className="text-sm text-slate-500 dark:text-slate-400">Verification</span>
                     <Badge variant={stats.agency.is_verified ? 'success' : 'warning'} size="sm">
                       {stats.agency.is_verified ? 'Verified' : 'Pending'}
                     </Badge>
@@ -227,20 +227,20 @@ export default function AgencyDashboard() {
               <div className="p-6">
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-lg font-semibold text-slate-900">Carrier Appointments</h2>
-                  <span className="text-xs text-slate-400">{stats.carriers.length} carrier{stats.carriers.length !== 1 ? 's' : ''}</span>
+                  <span className="text-xs text-slate-400 dark:text-slate-500">{stats.carriers.length} carrier{stats.carriers.length !== 1 ? 's' : ''}</span>
                 </div>
                 <div className="space-y-2.5">
                   {stats.carriers.map((c, i) => (
-                    <div key={i} className="flex items-center justify-between p-2.5 rounded-lg bg-slate-50">
+                    <div key={i} className="flex items-center justify-between p-2.5 rounded-lg bg-slate-50 dark:bg-slate-800">
                       <div className="flex items-center gap-2">
-                        <Building2 className="w-4 h-4 text-slate-400" />
+                        <Building2 className="w-4 h-4 text-slate-400 dark:text-slate-500" />
                         <span className="text-sm font-medium text-slate-900">{c.carrier_name}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         {c.am_best_rating && (
-                          <span className="text-xs px-1.5 py-0.5 rounded bg-confidence-50 text-confidence-700 font-medium">{c.am_best_rating}</span>
+                          <span className="text-xs px-1.5 py-0.5 rounded bg-confidence-50 dark:bg-confidence-900/30 text-confidence-700 dark:text-confidence-300 font-medium">{c.am_best_rating}</span>
                         )}
-                        <span className="text-xs text-slate-400">{c.product_count} product{c.product_count !== 1 ? 's' : ''}</span>
+                        <span className="text-xs text-slate-400 dark:text-slate-500">{c.product_count} product{c.product_count !== 1 ? 's' : ''}</span>
                       </div>
                     </div>
                   ))}
@@ -254,15 +254,15 @@ export default function AgencyDashboard() {
             <Card>
               <div className="p-6">
                 <div className="flex items-center gap-2 mb-4">
-                  <MapPin className="w-5 h-5 text-shield-600" />
+                  <MapPin className="w-5 h-5 text-shield-600 dark:text-shield-400" />
                   <h2 className="text-lg font-semibold text-slate-900">States of Operation</h2>
                 </div>
                 <div className="flex flex-wrap gap-1.5">
                   {stats.license_states.map(s => (
-                    <span key={s} className="px-2.5 py-1 text-xs font-bold rounded-md bg-shield-50 text-shield-700">{s}</span>
+                    <span key={s} className="px-2.5 py-1 text-xs font-bold rounded-md bg-shield-50 dark:bg-shield-900/30 text-shield-700 dark:text-shield-300">{s}</span>
                   ))}
                 </div>
-                <p className="text-xs text-slate-400 mt-3">Licensed across {stats.license_states.length} state{stats.license_states.length !== 1 ? 's' : ''}</p>
+                <p className="text-xs text-slate-400 dark:text-slate-500 mt-3">Licensed across {stats.license_states.length} state{stats.license_states.length !== 1 ? 's' : ''}</p>
               </div>
             </Card>
           )}
@@ -274,10 +274,10 @@ export default function AgencyDashboard() {
         <Link to="/crm/leads">
           <Card className="p-5 hover:shadow-lg transition-shadow cursor-pointer">
             <div className="flex items-center gap-3">
-              <Target className="w-8 h-8 text-shield-600" />
+              <Target className="w-8 h-8 text-shield-600 dark:text-shield-400" />
               <div>
                 <h3 className="font-semibold text-slate-900">Lead Pipeline</h3>
-                <p className="text-sm text-slate-500">Manage all agency leads</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400">Manage all agency leads</p>
               </div>
             </div>
           </Card>
@@ -285,10 +285,10 @@ export default function AgencyDashboard() {
         <Link to="/commissions">
           <Card className="p-5 hover:shadow-lg transition-shadow cursor-pointer">
             <div className="flex items-center gap-3">
-              <BarChart3 className="w-8 h-8 text-confidence-600" />
+              <BarChart3 className="w-8 h-8 text-confidence-600 dark:text-confidence-400" />
               <div>
                 <h3 className="font-semibold text-slate-900">Commissions</h3>
-                <p className="text-sm text-slate-500">Revenue by agent</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400">Revenue by agent</p>
               </div>
             </div>
           </Card>
@@ -296,10 +296,10 @@ export default function AgencyDashboard() {
         <Link to="/compliance">
           <Card className="p-5 hover:shadow-lg transition-shadow cursor-pointer">
             <div className="flex items-center gap-3">
-              <ShieldCheck className="w-8 h-8 text-savings-600" />
+              <ShieldCheck className="w-8 h-8 text-savings-600 dark:text-savings-400" />
               <div>
                 <h3 className="font-semibold text-slate-900">Compliance</h3>
-                <p className="text-sm text-slate-500">Licenses & CE credits</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400">Licenses & CE credits</p>
               </div>
             </div>
           </Card>
@@ -307,10 +307,10 @@ export default function AgencyDashboard() {
         <Link to="/reviews">
           <Card className="p-5 hover:shadow-lg transition-shadow cursor-pointer">
             <div className="flex items-center gap-3">
-              <Award className="w-8 h-8 text-amber-600" />
+              <Award className="w-8 h-8 text-amber-600 dark:text-amber-400" />
               <div>
                 <h3 className="font-semibold text-slate-900">Reviews</h3>
-                <p className="text-sm text-slate-500">Client feedback</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400">Client feedback</p>
               </div>
             </div>
           </Card>

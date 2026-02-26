@@ -3,14 +3,14 @@ import { FileText, ArrowLeft } from 'lucide-react';
 
 export default function Terms() {
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-800">
       {/* Header */}
-      <header className="bg-white border-b border-slate-200">
+      <header className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700/50">
         <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
             <img src="/logo.png" alt="Insurons" className="h-14 w-auto" />
           </Link>
-          <Link to="/" className="flex items-center gap-1 text-sm text-shield-600 hover:text-shield-700">
+          <Link to="/" className="flex items-center gap-1 text-sm text-shield-600 dark:text-shield-400 hover:text-shield-700 dark:text-shield-300">
             <ArrowLeft className="w-4 h-4" /> Back to Home
           </Link>
         </div>
@@ -18,18 +18,18 @@ export default function Terms() {
 
       <main className="max-w-4xl mx-auto px-6 py-12">
         <div className="flex items-center gap-3 mb-8">
-          <div className="w-12 h-12 rounded-xl bg-shield-50 flex items-center justify-center">
-            <FileText className="w-6 h-6 text-shield-600" />
+          <div className="w-12 h-12 rounded-xl bg-shield-50 dark:bg-shield-900/30 flex items-center justify-center">
+            <FileText className="w-6 h-6 text-shield-600 dark:text-shield-400" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold text-slate-900">Terms of Service</h1>
-            <p className="text-slate-500 text-sm">Last updated: February 22, 2026</p>
+            <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Terms of Service</h1>
+            <p className="text-slate-500 dark:text-slate-400 text-sm">Last updated: February 22, 2026</p>
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl border border-slate-200 p-8 lg:p-10 space-y-8 text-sm text-slate-700 leading-relaxed">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/50 p-8 lg:p-10 space-y-8 text-sm text-slate-700 dark:text-slate-200 leading-relaxed">
           <section>
-            <h2 className="text-lg font-bold text-slate-900 mb-3">1. Acceptance of Terms</h2>
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-3">1. Acceptance of Terms</h2>
             <p>
               By accessing and using the Insurons platform ("Platform"), you accept and agree to be bound by these Terms of Service ("Terms"). If you do not agree to these Terms, you must not access or use the Platform.
             </p>
@@ -39,7 +39,7 @@ export default function Terms() {
           </section>
 
           <section>
-            <h2 className="text-lg font-bold text-slate-900 mb-3">2. Description of Service</h2>
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-3">2. Description of Service</h2>
             <p>Insurons is an insurance marketplace platform that:</p>
             <ul className="list-disc pl-6 mt-2 space-y-1">
               <li>Connects consumers with licensed insurance agents and carriers</li>
@@ -54,7 +54,7 @@ export default function Terms() {
           </section>
 
           <section>
-            <h2 className="text-lg font-bold text-slate-900 mb-3">3. User Accounts</h2>
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-3">3. User Accounts</h2>
             <ul className="list-disc pl-6 space-y-1">
               <li>You must provide accurate and complete registration information</li>
               <li>You are responsible for maintaining the security of your account credentials</li>
@@ -65,7 +65,7 @@ export default function Terms() {
           </section>
 
           <section>
-            <h2 className="text-lg font-bold text-slate-900 mb-3">4. Insurance Professional Requirements</h2>
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-3">4. Insurance Professional Requirements</h2>
             <p>If you are an insurance agent, agency owner, or carrier using the Platform:</p>
             <ul className="list-disc pl-6 mt-2 space-y-1">
               <li>You must hold all required licenses and certifications in the states where you operate</li>
@@ -77,7 +77,7 @@ export default function Terms() {
           </section>
 
           <section>
-            <h2 className="text-lg font-bold text-slate-900 mb-3">5. Subscription Plans and Payments</h2>
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-3">5. Subscription Plans and Payments</h2>
             <ul className="list-disc pl-6 space-y-1">
               <li>Certain features require a paid subscription plan</li>
               <li>Subscription fees are billed in advance on a monthly or annual basis</li>
@@ -89,7 +89,7 @@ export default function Terms() {
           </section>
 
           <section>
-            <h2 className="text-lg font-bold text-slate-900 mb-3">6. Acceptable Use</h2>
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-3">6. Acceptable Use</h2>
             <p>You agree not to:</p>
             <ul className="list-disc pl-6 mt-2 space-y-1">
               <li>Use the Platform for any unlawful purpose or in violation of any regulations</li>
@@ -104,7 +104,7 @@ export default function Terms() {
           </section>
 
           <section>
-            <h2 className="text-lg font-bold text-slate-900 mb-3">7. Intellectual Property</h2>
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-3">7. Intellectual Property</h2>
             <p>
               The Platform, including its design, features, content, and underlying technology, is owned by Insurons and protected by intellectual property laws. You may not copy, modify, distribute, or create derivative works without our written consent.
             </p>
@@ -114,7 +114,7 @@ export default function Terms() {
           </section>
 
           <section>
-            <h2 className="text-lg font-bold text-slate-900 mb-3">8. Disclaimers</h2>
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-3">8. Disclaimers</h2>
             <ul className="list-disc pl-6 space-y-1">
               <li>The Platform is provided "as is" and "as available" without warranties of any kind</li>
               <li>We do not guarantee the accuracy of insurance quotes or coverage information</li>
@@ -125,7 +125,7 @@ export default function Terms() {
           </section>
 
           <section>
-            <h2 className="text-lg font-bold text-slate-900 mb-3">9. Limitation of Liability</h2>
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-3">9. Limitation of Liability</h2>
             <p>
               To the maximum extent permitted by law, Insurons shall not be liable for any indirect, incidental, special, consequential, or punitive damages, including loss of profits, data, or business opportunities, arising from your use of the Platform.
             </p>
@@ -135,48 +135,48 @@ export default function Terms() {
           </section>
 
           <section>
-            <h2 className="text-lg font-bold text-slate-900 mb-3">10. Indemnification</h2>
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-3">10. Indemnification</h2>
             <p>
               You agree to indemnify, defend, and hold harmless Insurons, its officers, directors, employees, and agents from any claims, damages, losses, or expenses arising from your use of the Platform or violation of these Terms.
             </p>
           </section>
 
           <section>
-            <h2 className="text-lg font-bold text-slate-900 mb-3">11. Termination</h2>
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-3">11. Termination</h2>
             <p>
               We may terminate or suspend your access to the Platform at any time, with or without cause, and with or without notice. Upon termination, your right to use the Platform ceases immediately. Provisions that by their nature should survive termination shall survive.
             </p>
           </section>
 
           <section>
-            <h2 className="text-lg font-bold text-slate-900 mb-3">12. Governing Law</h2>
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-3">12. Governing Law</h2>
             <p>
               These Terms shall be governed by and construed in accordance with the laws of the State of Delaware, without regard to its conflict of law provisions. Any disputes shall be resolved in the courts located in Delaware.
             </p>
           </section>
 
           <section>
-            <h2 className="text-lg font-bold text-slate-900 mb-3">13. Changes to Terms</h2>
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-3">13. Changes to Terms</h2>
             <p>
               We reserve the right to modify these Terms at any time. We will notify you of material changes by posting the updated Terms on this page and updating the "Last updated" date. Your continued use of the Platform after changes constitutes acceptance of the modified Terms.
             </p>
           </section>
 
           <section>
-            <h2 className="text-lg font-bold text-slate-900 mb-3">14. Contact Us</h2>
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-3">14. Contact Us</h2>
             <p>If you have questions about these Terms, please contact us at:</p>
-            <div className="mt-2 bg-slate-50 rounded-xl p-4">
-              <p className="font-medium text-slate-900">Insurons Legal Team</p>
-              <p>Email: <a href="mailto:legal@insurons.com" className="text-shield-600 hover:underline">legal@insurons.com</a></p>
+            <div className="mt-2 bg-slate-50 dark:bg-slate-800 rounded-xl p-4">
+              <p className="font-medium text-slate-900 dark:text-white">Insurons Legal Team</p>
+              <p>Email: <a href="mailto:legal@insurons.com" className="text-shield-600 dark:text-shield-400 hover:underline">legal@insurons.com</a></p>
             </div>
           </section>
         </div>
 
         {/* Footer links */}
-        <div className="flex items-center justify-center gap-6 mt-8 text-sm text-slate-500">
-          <Link to="/privacy" className="hover:text-shield-600">Privacy Policy</Link>
+        <div className="flex items-center justify-center gap-6 mt-8 text-sm text-slate-500 dark:text-slate-400">
+          <Link to="/privacy" className="hover:text-shield-600 dark:text-shield-400">Privacy Policy</Link>
           <span>|</span>
-          <Link to="/" className="hover:text-shield-600">Home</Link>
+          <Link to="/" className="hover:text-shield-600 dark:text-shield-400">Home</Link>
         </div>
       </main>
     </div>

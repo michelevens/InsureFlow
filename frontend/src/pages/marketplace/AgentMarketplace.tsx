@@ -65,8 +65,8 @@ export default function AgentMarketplace() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Insurance Marketplace</h1>
-          <p className="text-slate-500 mt-1">Consumers looking for insurance in your area</p>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Insurance Marketplace</h1>
+          <p className="text-slate-500 dark:text-slate-400 mt-1">Consumers looking for insurance in your area</p>
         </div>
         <Button variant="outline" size="sm" onClick={loadRequests} leftIcon={<RefreshCw className="w-4 h-4" />}>
           Refresh
@@ -81,8 +81,8 @@ export default function AgentMarketplace() {
       ) : requests.length === 0 ? (
         <Card className="p-12 text-center">
           <Inbox className="w-12 h-12 text-slate-300 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-slate-900 mb-2">No Open Requests</h3>
-          <p className="text-slate-500 max-w-md mx-auto">
+          <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">No Open Requests</h3>
+          <p className="text-slate-500 dark:text-slate-400 max-w-md mx-auto">
             There are no marketplace requests matching your licensed states right now. Check back later or refresh.
           </p>
         </Card>
@@ -95,28 +95,28 @@ export default function AgentMarketplace() {
                   <Badge variant="info" size="sm">
                     {typeLabels[req.insurance_type] || req.insurance_type}
                   </Badge>
-                  <h3 className="font-semibold text-slate-900 mt-2">
+                  <h3 className="font-semibold text-slate-900 dark:text-white mt-2">
                     {req.first_name} {req.last_name?.charAt(0)}.
                   </h3>
                 </div>
-                <div className="flex items-center gap-1.5 text-xs text-slate-400">
+                <div className="flex items-center gap-1.5 text-xs text-slate-400 dark:text-slate-500">
                   <Clock className="w-3.5 h-3.5" />
                   {timeAgo(req.created_at)}
                 </div>
               </div>
 
               <div className="space-y-1.5 mb-4">
-                <div className="flex items-center gap-2 text-sm text-slate-600">
-                  <MapPin className="w-4 h-4 text-slate-400" />
+                <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
+                  <MapPin className="w-4 h-4 text-slate-400 dark:text-slate-500" />
                   {req.state} — {req.zip_code}
                 </div>
-                <div className="flex items-center gap-2 text-sm text-slate-600">
-                  <ShieldCheck className="w-4 h-4 text-slate-400" />
+                <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
+                  <ShieldCheck className="w-4 h-4 text-slate-400 dark:text-slate-500" />
                   {req.coverage_level?.charAt(0).toUpperCase()}{req.coverage_level?.slice(1)} coverage
                 </div>
                 {req.description && (
-                  <div className="flex items-start gap-2 text-sm text-slate-600">
-                    <FileText className="w-4 h-4 text-slate-400 mt-0.5" />
+                  <div className="flex items-start gap-2 text-sm text-slate-600 dark:text-slate-300">
+                    <FileText className="w-4 h-4 text-slate-400 dark:text-slate-500 mt-0.5" />
                     <span className="line-clamp-2">{req.description}</span>
                   </div>
                 )}

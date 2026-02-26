@@ -36,7 +36,7 @@ export default function ConsumerDashboard() {
       {/* Welcome */}
       <div>
         <h1 className="text-2xl font-bold text-slate-900">Welcome back, {user?.name?.split(' ')[0] || 'there'}!</h1>
-        <p className="text-slate-500 mt-1">Manage your insurance quotes, applications, and policies</p>
+        <p className="text-slate-500 dark:text-slate-400 mt-1">Manage your insurance quotes, applications, and policies</p>
       </div>
 
       {/* Stats */}
@@ -44,8 +44,8 @@ export default function ConsumerDashboard() {
         {loading ? (
           Array.from({ length: 4 }).map((_, i) => (
             <Card key={i} className="p-5 animate-pulse">
-              <div className="h-4 w-20 bg-slate-200 rounded mb-2" />
-              <div className="h-7 w-16 bg-slate-200 rounded" />
+              <div className="h-4 w-20 bg-slate-200 dark:bg-slate-700 rounded mb-2" />
+              <div className="h-7 w-16 bg-slate-200 dark:bg-slate-700 rounded" />
             </Card>
           ))
         ) : (
@@ -62,38 +62,38 @@ export default function ConsumerDashboard() {
       <div className="grid md:grid-cols-3 gap-4">
         <Link to="/calculator">
           <Card className="p-6 hover:shadow-lg transition-shadow cursor-pointer group">
-            <div className="w-12 h-12 rounded-2xl bg-shield-100 text-shield-600 flex items-center justify-center mb-4">
+            <div className="w-12 h-12 rounded-2xl bg-shield-100 text-shield-600 dark:text-shield-400 flex items-center justify-center mb-4">
               <Calculator className="w-6 h-6" />
             </div>
             <h3 className="font-semibold text-slate-900 mb-1 flex items-center gap-2">
               Get New Quote
               <ArrowRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
             </h3>
-            <p className="text-sm text-slate-500">Compare rates from 50+ carriers instantly</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400">Compare rates from 50+ carriers instantly</p>
           </Card>
         </Link>
         <Link to="/portal/quotes">
           <Card className="p-6 hover:shadow-lg transition-shadow cursor-pointer group">
-            <div className="w-12 h-12 rounded-2xl bg-confidence-100 text-confidence-600 flex items-center justify-center mb-4">
+            <div className="w-12 h-12 rounded-2xl bg-confidence-100 text-confidence-600 dark:text-confidence-400 flex items-center justify-center mb-4">
               <ClipboardList className="w-6 h-6" />
             </div>
             <h3 className="font-semibold text-slate-900 mb-1 flex items-center gap-2">
               View My Quotes
               <ArrowRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
             </h3>
-            <p className="text-sm text-slate-500">Review and compare your saved quotes</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400">Review and compare your saved quotes</p>
           </Card>
         </Link>
         <Link to="/marketplace">
           <Card className="p-6 hover:shadow-lg transition-shadow cursor-pointer group">
-            <div className="w-12 h-12 rounded-2xl bg-savings-100 text-savings-600 flex items-center justify-center mb-4">
+            <div className="w-12 h-12 rounded-2xl bg-savings-100 text-savings-600 dark:text-savings-400 flex items-center justify-center mb-4">
               <ShieldCheck className="w-6 h-6" />
             </div>
             <h3 className="font-semibold text-slate-900 mb-1 flex items-center gap-2">
               Find an Agent
               <ArrowRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
             </h3>
-            <p className="text-sm text-slate-500">Connect with a licensed insurance expert</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400">Connect with a licensed insurance expert</p>
           </Card>
         </Link>
       </div>
@@ -105,21 +105,21 @@ export default function ConsumerDashboard() {
           {stats && (stats.quotes > 0 || stats.applications > 0 || stats.active_policies > 0) ? (
             <div className="space-y-3">
               {stats.active_policies > 0 && (
-                <div className="flex items-center gap-3 p-3 rounded-xl bg-savings-50">
-                  <ShieldCheck className="w-5 h-5 text-savings-600" />
-                  <p className="text-sm text-slate-700">You have <strong>{stats.active_policies}</strong> active {stats.active_policies === 1 ? 'policy' : 'policies'}</p>
+                <div className="flex items-center gap-3 p-3 rounded-xl bg-savings-50 dark:bg-savings-900/30">
+                  <ShieldCheck className="w-5 h-5 text-savings-600 dark:text-savings-400" />
+                  <p className="text-sm text-slate-700 dark:text-slate-300">You have <strong>{stats.active_policies}</strong> active {stats.active_policies === 1 ? 'policy' : 'policies'}</p>
                 </div>
               )}
               {stats.quotes > 0 && (
-                <div className="flex items-center gap-3 p-3 rounded-xl bg-shield-50">
-                  <ClipboardList className="w-5 h-5 text-shield-600" />
-                  <p className="text-sm text-slate-700">You have <strong>{stats.quotes}</strong> saved {stats.quotes === 1 ? 'quote' : 'quotes'}</p>
+                <div className="flex items-center gap-3 p-3 rounded-xl bg-shield-50 dark:bg-shield-900/30">
+                  <ClipboardList className="w-5 h-5 text-shield-600 dark:text-shield-400" />
+                  <p className="text-sm text-slate-700 dark:text-slate-300">You have <strong>{stats.quotes}</strong> saved {stats.quotes === 1 ? 'quote' : 'quotes'}</p>
                 </div>
               )}
               {stats.applications > 0 && (
-                <div className="flex items-center gap-3 p-3 rounded-xl bg-confidence-50">
-                  <FileText className="w-5 h-5 text-confidence-600" />
-                  <p className="text-sm text-slate-700">You have <strong>{stats.applications}</strong> pending {stats.applications === 1 ? 'application' : 'applications'}</p>
+                <div className="flex items-center gap-3 p-3 rounded-xl bg-confidence-50 dark:bg-confidence-900/30">
+                  <FileText className="w-5 h-5 text-confidence-600 dark:text-confidence-400" />
+                  <p className="text-sm text-slate-700 dark:text-slate-300">You have <strong>{stats.applications}</strong> pending {stats.applications === 1 ? 'application' : 'applications'}</p>
                 </div>
               )}
             </div>

@@ -30,10 +30,10 @@ export default function MyPolicies() {
   if (loading) {
     return (
       <div>
-        <h1 className="text-2xl font-bold text-slate-900 mb-6">My Policies</h1>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-6">My Policies</h1>
         <Card className="p-12 text-center">
           <Loader2 className="w-8 h-8 animate-spin text-shield-500 mx-auto" />
-          <p className="text-slate-500 mt-2">Loading your policies...</p>
+          <p className="text-slate-500 dark:text-slate-400 mt-2">Loading your policies...</p>
         </Card>
       </div>
     );
@@ -42,7 +42,7 @@ export default function MyPolicies() {
   if (error) {
     return (
       <div>
-        <h1 className="text-2xl font-bold text-slate-900 mb-6">My Policies</h1>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-6">My Policies</h1>
         <Card className="p-6 text-center">
           <p className="text-red-500">{error}</p>
           <Button variant="outline" size="sm" className="mt-2" onClick={loadPolicies}>Retry</Button>
@@ -54,7 +54,7 @@ export default function MyPolicies() {
   if (policies.length === 0) {
     return (
       <div>
-        <h1 className="text-2xl font-bold text-slate-900 mb-6">My Policies</h1>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-6">My Policies</h1>
         <Card>
           <EmptyState
             icon={<ShieldCheck className="w-8 h-8" />}
@@ -71,8 +71,8 @@ export default function MyPolicies() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900">My Policies</h1>
-        <p className="text-slate-500 mt-1">View and manage your active insurance policies</p>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">My Policies</h1>
+        <p className="text-slate-500 dark:text-slate-400 mt-1">View and manage your active insurance policies</p>
       </div>
 
       <div className="space-y-4">
@@ -85,8 +85,8 @@ export default function MyPolicies() {
                     <ShieldCheck className="w-6 h-6" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-slate-900 capitalize">{(policy.type || '').replace(/_/g, ' ')}</h3>
-                    <p className="text-sm text-slate-500">{policy.carrier_name} · {policy.policy_number}</p>
+                    <h3 className="font-semibold text-slate-900 dark:text-white capitalize">{(policy.type || '').replace(/_/g, ' ')}</h3>
+                    <p className="text-sm text-slate-500 dark:text-slate-400">{policy.carrier_name} · {policy.policy_number}</p>
                   </div>
                 </div>
                 <Badge variant={policy.status === 'active' ? 'success' : policy.status === 'expiring_soon' ? 'warning' : 'danger'}>
@@ -96,34 +96,34 @@ export default function MyPolicies() {
 
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
                 <div>
-                  <div className="flex items-center gap-1 text-xs text-slate-500 mb-1">
+                  <div className="flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400 mb-1">
                     <DollarSign className="w-3.5 h-3.5" /> Premium
                   </div>
-                  <p className="text-sm font-medium text-slate-900">${policy.monthly_premium}/mo</p>
+                  <p className="text-sm font-medium text-slate-900 dark:text-white">${policy.monthly_premium}/mo</p>
                 </div>
                 <div>
-                  <div className="flex items-center gap-1 text-xs text-slate-500 mb-1">
+                  <div className="flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400 mb-1">
                     <ShieldCheck className="w-3.5 h-3.5" /> Coverage
                   </div>
-                  <p className="text-sm font-medium text-slate-900">{policy.coverage_limit || '-'}</p>
+                  <p className="text-sm font-medium text-slate-900 dark:text-white">{policy.coverage_limit || '-'}</p>
                 </div>
                 <div>
-                  <div className="flex items-center gap-1 text-xs text-slate-500 mb-1">
+                  <div className="flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400 mb-1">
                     <Calendar className="w-3.5 h-3.5" /> Effective
                   </div>
-                  <p className="text-sm font-medium text-slate-900">{policy.effective_date}</p>
+                  <p className="text-sm font-medium text-slate-900 dark:text-white">{policy.effective_date}</p>
                 </div>
                 <div>
-                  <div className="flex items-center gap-1 text-xs text-slate-500 mb-1">
+                  <div className="flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400 mb-1">
                     <Calendar className="w-3.5 h-3.5" /> Expires
                   </div>
-                  <p className="text-sm font-medium text-slate-900">{policy.expiration_date}</p>
+                  <p className="text-sm font-medium text-slate-900 dark:text-white">{policy.expiration_date}</p>
                 </div>
               </div>
 
-              <div className="flex items-center justify-between pt-4 border-t border-slate-100">
-                <div className="flex items-center gap-2 text-sm text-slate-600">
-                  {policy.agent && <span>Agent: <span className="font-medium text-slate-900">{policy.agent.first_name} {policy.agent.last_name}</span></span>}
+              <div className="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-700/50">
+                <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
+                  {policy.agent && <span>Agent: <span className="font-medium text-slate-900 dark:text-white">{policy.agent.first_name} {policy.agent.last_name}</span></span>}
                 </div>
                 <div className="flex gap-2">
                   {policy.agent?.phone ? (

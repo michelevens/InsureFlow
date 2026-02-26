@@ -247,12 +247,12 @@ export default function AgencySettings() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Agency Settings</h1>
-          <p className="text-slate-500 mt-1">Manage your agency configuration</p>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Agency Settings</h1>
+          <p className="text-slate-500 dark:text-slate-400 mt-1">Manage your agency configuration</p>
         </div>
         <Card className="p-12 text-center">
           <Loader2 className="w-8 h-8 animate-spin text-shield-500 mx-auto" />
-          <p className="text-slate-500 mt-2">Loading settings...</p>
+          <p className="text-slate-500 dark:text-slate-400 mt-2">Loading settings...</p>
         </Card>
       </div>
     );
@@ -261,24 +261,24 @@ export default function AgencySettings() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900">Agency Settings</h1>
-        <p className="text-slate-500 mt-1">Manage your agency configuration</p>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Agency Settings</h1>
+        <p className="text-slate-500 dark:text-slate-400 mt-1">Manage your agency configuration</p>
       </div>
 
       {/* Status message */}
       {message && (
-        <div className={cn('flex items-center gap-2 p-3 rounded-lg text-sm', message.type === 'success' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700')}>
+        <div className={cn('flex items-center gap-2 p-3 rounded-lg text-sm', message.type === 'success' ? 'bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300' : 'bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300')}>
           {message.type === 'success' ? <CheckCircle className="w-4 h-4" /> : <XCircle className="w-4 h-4" />}
           {message.text}
         </div>
       )}
 
       {/* Tabs */}
-      <div className="flex gap-1 overflow-x-auto border-b border-slate-200">
+      <div className="flex gap-1 overflow-x-auto border-b border-slate-200 dark:border-slate-700/50">
         {tabs.map(tab => (
           <button key={tab.id} onClick={() => { setActiveTab(tab.id); setMessage(null); }}
             className={cn('px-4 py-2.5 text-sm font-medium border-b-2 transition-colors whitespace-nowrap',
-              activeTab === tab.id ? 'border-shield-600 text-shield-700' : 'border-transparent text-slate-500 hover:text-slate-700'
+              activeTab === tab.id ? 'border-shield-600 text-shield-700 dark:text-shield-300' : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:text-slate-200'
             )}>
             {tab.label}
           </button>
@@ -291,43 +291,43 @@ export default function AgencySettings() {
           <div className="p-6 space-y-5">
             <div className="grid sm:grid-cols-2 gap-5">
               <div className="space-y-1">
-                <label className="text-sm font-medium text-slate-700">Agency Name</label>
+                <label className="text-sm font-medium text-slate-700 dark:text-slate-200">Agency Name</label>
                 <Input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} />
               </div>
               <div className="space-y-1">
-                <label className="text-sm font-medium text-slate-700">Email</label>
+                <label className="text-sm font-medium text-slate-700 dark:text-slate-200">Email</label>
                 <Input type="email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} />
               </div>
               <div className="space-y-1">
-                <label className="text-sm font-medium text-slate-700">Phone</label>
+                <label className="text-sm font-medium text-slate-700 dark:text-slate-200">Phone</label>
                 <Input value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} />
               </div>
               <div className="space-y-1">
-                <label className="text-sm font-medium text-slate-700">Website</label>
+                <label className="text-sm font-medium text-slate-700 dark:text-slate-200">Website</label>
                 <Input value={form.website} onChange={e => setForm({ ...form, website: e.target.value })} placeholder="https://" />
               </div>
             </div>
             <div className="space-y-1">
-              <label className="text-sm font-medium text-slate-700">Description</label>
+              <label className="text-sm font-medium text-slate-700 dark:text-slate-200">Description</label>
               <textarea value={form.description} onChange={e => setForm({ ...form, description: e.target.value })}
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-shield-500 min-h-[80px]" />
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-shield-500 dark:focus:ring-shield-400 min-h-[80px]" />
             </div>
             <div className="grid sm:grid-cols-4 gap-5">
               <div className="space-y-1 sm:col-span-2">
-                <label className="text-sm font-medium text-slate-700">Address</label>
+                <label className="text-sm font-medium text-slate-700 dark:text-slate-200">Address</label>
                 <Input value={form.address} onChange={e => setForm({ ...form, address: e.target.value })} />
               </div>
               <div className="space-y-1">
-                <label className="text-sm font-medium text-slate-700">City</label>
+                <label className="text-sm font-medium text-slate-700 dark:text-slate-200">City</label>
                 <Input value={form.city} onChange={e => setForm({ ...form, city: e.target.value })} />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <label className="text-sm font-medium text-slate-700">State</label>
+                  <label className="text-sm font-medium text-slate-700 dark:text-slate-200">State</label>
                   <Input value={form.state} onChange={e => setForm({ ...form, state: e.target.value })} maxLength={2} />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-sm font-medium text-slate-700">Zip</label>
+                  <label className="text-sm font-medium text-slate-700 dark:text-slate-200">Zip</label>
                   <Input value={form.zip_code} onChange={e => setForm({ ...form, zip_code: e.target.value })} />
                 </div>
               </div>
@@ -344,10 +344,10 @@ export default function AgencySettings() {
         <>
           <Card>
             <div className="p-6">
-              <h3 className="text-lg font-semibold text-slate-900 mb-4">Agency Code</h3>
-              <p className="text-sm text-slate-500 mb-3">Share this code with agents so they can join your agency during registration.</p>
+              <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Agency Code</h3>
+              <p className="text-sm text-slate-500 dark:text-slate-400 mb-3">Share this code with agents so they can join your agency during registration.</p>
               <div className="flex items-center gap-3">
-                <div className="flex-1 px-4 py-3 bg-slate-50 rounded-lg border border-slate-200 font-mono text-lg font-bold text-shield-700 tracking-widest">
+                <div className="flex-1 px-4 py-3 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700/50 font-mono text-lg font-bold text-shield-700 dark:text-shield-300 tracking-widest">
                   {(agency as AgencyData & { agency_code?: string }).agency_code || 'Not generated'}
                 </div>
                 <Button variant="outline" size="sm" onClick={() => copyToClipboard((agency as AgencyData & { agency_code?: string }).agency_code || '', 'Agency code')}>
@@ -362,35 +362,35 @@ export default function AgencySettings() {
 
           <Card>
             <div className="p-6">
-              <h3 className="text-lg font-semibold text-slate-900 mb-2">
+              <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">
                 <Link2 className="w-5 h-5 inline mr-2" />Lead Intake Links
               </h3>
-              <p className="text-sm text-slate-500 mb-4">Share these links with potential clients. When they fill out the form, the lead is automatically routed to your agency.</p>
+              <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">Share these links with potential clients. When they fill out the form, the lead is automatically routed to your agency.</p>
               {intakeUrls ? (
                 <div className="space-y-3">
                   <div>
-                    <label className="text-xs font-medium text-slate-500 uppercase tracking-wider">Agency Link</label>
+                    <label className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Agency Link</label>
                     <div className="flex items-center gap-2 mt-1">
-                      <Input value={intakeUrls.agency_intake_url} readOnly className="bg-slate-50 text-sm font-mono" />
+                      <Input value={intakeUrls.agency_intake_url} readOnly className="bg-slate-50 dark:bg-slate-800 text-sm font-mono" />
                       <Button variant="outline" size="sm" onClick={() => copyToClipboard(intakeUrls.agency_intake_url, 'Agency intake link')}>
                         <Copy className="w-4 h-4" />
                       </Button>
                     </div>
-                    <p className="text-xs text-slate-400 mt-1">Leads go to your agency queue for distribution</p>
+                    <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">Leads go to your agency queue for distribution</p>
                   </div>
                   <div>
-                    <label className="text-xs font-medium text-slate-500 uppercase tracking-wider">Your Personal Link</label>
+                    <label className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Your Personal Link</label>
                     <div className="flex items-center gap-2 mt-1">
-                      <Input value={intakeUrls.agent_intake_url} readOnly className="bg-slate-50 text-sm font-mono" />
+                      <Input value={intakeUrls.agent_intake_url} readOnly className="bg-slate-50 dark:bg-slate-800 text-sm font-mono" />
                       <Button variant="outline" size="sm" onClick={() => copyToClipboard(intakeUrls.agent_intake_url, 'Personal intake link')}>
                         <Copy className="w-4 h-4" />
                       </Button>
                     </div>
-                    <p className="text-xs text-slate-400 mt-1">Leads go directly to you</p>
+                    <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">Leads go directly to you</p>
                   </div>
                 </div>
               ) : (
-                <p className="text-sm text-slate-400">Loading intake links...</p>
+                <p className="text-sm text-slate-400 dark:text-slate-500">Loading intake links...</p>
               )}
             </div>
           </Card>
@@ -404,34 +404,34 @@ export default function AgencySettings() {
             {!billing ? (
               <div className="text-center py-8">
                 <Loader2 className="w-6 h-6 animate-spin text-shield-500 mx-auto" />
-                <p className="text-sm text-slate-500 mt-2">Loading billing info...</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400 mt-2">Loading billing info...</p>
               </div>
             ) : (
               <>
                 {billingError && (
-                  <div className="flex items-center gap-2 p-3 rounded-lg text-sm bg-amber-50 text-amber-700 mb-4">
+                  <div className="flex items-center gap-2 p-3 rounded-lg text-sm bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 mb-4">
                     <XCircle className="w-4 h-4" />
                     Could not load billing details from server. Showing defaults.
                   </div>
                 )}
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-slate-500">Current Plan</p>
-                    <p className="text-xl font-bold text-slate-900">{billing.plan.name}</p>
+                    <p className="text-sm text-slate-500 dark:text-slate-400">Current Plan</p>
+                    <p className="text-xl font-bold text-slate-900 dark:text-white">{billing.plan.name}</p>
                   </div>
                   <Badge variant={billing.plan.status === 'active' ? 'success' : 'warning'}>
                     {billing.plan.status}
                   </Badge>
                 </div>
                 {billing.plan.price > 0 && (
-                  <p className="text-lg font-semibold text-savings-600">${billing.plan.price}/mo</p>
+                  <p className="text-lg font-semibold text-savings-600 dark:text-savings-400">${billing.plan.price}/mo</p>
                 )}
                 {billing.plan.current_period_end && (
-                  <p className="text-sm text-slate-500">Renews: {new Date(billing.plan.current_period_end).toLocaleDateString()}</p>
+                  <p className="text-sm text-slate-500 dark:text-slate-400">Renews: {new Date(billing.plan.current_period_end).toLocaleDateString()}</p>
                 )}
                 <div className="flex items-center gap-3 pt-2">
                   <span className={cn('w-2.5 h-2.5 rounded-full', billing.stripe_connected ? 'bg-green-500' : 'bg-slate-300')} />
-                  <span className="text-sm text-slate-700">Stripe Connect: {billing.stripe_connected ? 'Connected' : 'Not connected'}</span>
+                  <span className="text-sm text-slate-700 dark:text-slate-200">Stripe Connect: {billing.stripe_connected ? 'Connected' : 'Not connected'}</span>
                 </div>
                 <Link to="/pricing">
                   <Button variant="outline">Upgrade Plan</Button>
@@ -447,7 +447,7 @@ export default function AgencySettings() {
         <Card>
           <div className="p-6">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-slate-900">Team Members</h3>
+              <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Team Members</h3>
               <div className="flex gap-2">
                 <Button size="sm" variant="outline" leftIcon={<Plus className="w-4 h-4" />} onClick={() => setShowInviteModal(true)}>
                   Invite Agent
@@ -459,36 +459,36 @@ export default function AgencySettings() {
             </div>
 
             {resetTempPassword && resetAgentId && (
-              <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+              <div className="mb-4 p-3 bg-amber-50 dark:bg-amber-900/30 border border-amber-200 rounded-lg">
                 <p className="text-sm font-medium text-amber-800">Temporary Password for Agent #{resetAgentId}:</p>
                 <p className="text-lg font-mono font-bold text-amber-900 mt-1">{resetTempPassword}</p>
                 <div className="flex justify-between items-center mt-1">
-                  <p className="text-xs text-amber-600">Share this with the agent. They should change it after logging in.</p>
-                  <button onClick={() => { setResetTempPassword(''); setResetAgentId(null); }} className="text-xs text-amber-700 underline">Dismiss</button>
+                  <p className="text-xs text-amber-600 dark:text-amber-400">Share this with the agent. They should change it after logging in.</p>
+                  <button onClick={() => { setResetTempPassword(''); setResetAgentId(null); }} className="text-xs text-amber-700 dark:text-amber-300 underline">Dismiss</button>
                 </div>
               </div>
             )}
 
             {!agency?.agents || agency.agents.length === 0 ? (
-              <p className="text-sm text-slate-400 text-center py-8">No team members yet</p>
+              <p className="text-sm text-slate-400 dark:text-slate-500 text-center py-8">No team members yet</p>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
-                    <tr className="border-b border-slate-100">
-                      <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider pb-3">Name</th>
-                      <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider pb-3">Email</th>
-                      <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider pb-3">Role</th>
-                      <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider pb-3">Status</th>
-                      <th className="text-right text-xs font-medium text-slate-500 uppercase tracking-wider pb-3">Actions</th>
+                    <tr className="border-b border-slate-100 dark:border-slate-700/50">
+                      <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider pb-3">Name</th>
+                      <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider pb-3">Email</th>
+                      <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider pb-3">Role</th>
+                      <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider pb-3">Status</th>
+                      <th className="text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider pb-3">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-50">
                     {agency.agents.map(a => (
-                      <tr key={a.id} className="hover:bg-slate-50">
-                        <td className="py-3 font-medium text-slate-900">{a.name}</td>
-                        <td className="py-3 text-sm text-slate-600">{a.email}</td>
-                        <td className="py-3 text-sm text-slate-600 capitalize">{a.role?.replace('_', ' ')}</td>
+                      <tr key={a.id} className="hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-800">
+                        <td className="py-3 font-medium text-slate-900 dark:text-white">{a.name}</td>
+                        <td className="py-3 text-sm text-slate-600 dark:text-slate-300">{a.email}</td>
+                        <td className="py-3 text-sm text-slate-600 dark:text-slate-300 capitalize">{a.role?.replace('_', ' ')}</td>
                         <td className="py-3">
                           <Badge variant={a.is_active ? 'success' : 'danger'}>
                             {a.is_active ? 'Active' : 'Inactive'}
@@ -514,15 +514,15 @@ export default function AgencySettings() {
         <div className="grid sm:grid-cols-2 gap-4">
           <Card>
             <div className="p-6">
-              <h3 className="font-semibold text-slate-900 mb-2">Agency Products</h3>
-              <p className="text-sm text-slate-500 mb-4">Manage which insurance products your agency offers.</p>
+              <h3 className="font-semibold text-slate-900 dark:text-white mb-2">Agency Products</h3>
+              <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">Manage which insurance products your agency offers.</p>
               <Link to="/agency/products"><Button variant="outline">Go to Products</Button></Link>
             </div>
           </Card>
           <Card>
             <div className="p-6">
-              <h3 className="font-semibold text-slate-900 mb-2">Carrier Appointments</h3>
-              <p className="text-sm text-slate-500 mb-4">Manage your carrier appointments and authorizations.</p>
+              <h3 className="font-semibold text-slate-900 dark:text-white mb-2">Carrier Appointments</h3>
+              <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">Manage your carrier appointments and authorizations.</p>
               <Link to="/agency/appointments"><Button variant="outline">Go to Appointments</Button></Link>
             </div>
           </Card>
@@ -534,24 +534,24 @@ export default function AgencySettings() {
         <Card>
           <div className="p-6">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-slate-900">Agent Compliance</h3>
-              <Link to="/compliance" className="text-sm text-shield-600 hover:text-shield-700 font-medium">Manage Details &rarr;</Link>
+              <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Agent Compliance</h3>
+              <Link to="/compliance" className="text-sm text-shield-600 dark:text-shield-400 hover:text-shield-700 dark:text-shield-300 font-medium">Manage Details &rarr;</Link>
             </div>
             {complianceAgents.length === 0 ? (
-              <p className="text-sm text-slate-400 text-center py-8">No compliance data available</p>
+              <p className="text-sm text-slate-400 dark:text-slate-500 text-center py-8">No compliance data available</p>
             ) : (
               <div className="space-y-3">
                 {complianceAgents.map(a => {
                   const expiring = a.license_expiry && new Date(a.license_expiry) < new Date(Date.now() + 60 * 24 * 60 * 60 * 1000);
                   return (
-                    <div key={a.agent_id} className={cn('p-4 rounded-lg border', expiring ? 'border-amber-200 bg-amber-50' : 'border-slate-100')}>
+                    <div key={a.agent_id} className={cn('p-4 rounded-lg border', expiring ? 'border-amber-200 bg-amber-50 dark:bg-amber-900/30' : 'border-slate-100 dark:border-slate-700/50')}>
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="font-medium text-slate-900">{a.name}</p>
-                          <p className="text-xs text-slate-500">NPN: {a.npn || 'Not set'}</p>
+                          <p className="font-medium text-slate-900 dark:text-white">{a.name}</p>
+                          <p className="text-xs text-slate-500 dark:text-slate-400">NPN: {a.npn || 'Not set'}</p>
                         </div>
                         {a.license_expiry && (
-                          <p className={cn('text-xs font-medium', expiring ? 'text-amber-700' : 'text-slate-500')}>
+                          <p className={cn('text-xs font-medium', expiring ? 'text-amber-700 dark:text-amber-300' : 'text-slate-500 dark:text-slate-400')}>
                             Expires: {new Date(a.license_expiry).toLocaleDateString()}
                           </p>
                         )}
@@ -559,7 +559,7 @@ export default function AgencySettings() {
                       {a.license_states.length > 0 && (
                         <div className="flex gap-1.5 mt-2 flex-wrap">
                           {a.license_states.map(s => (
-                            <span key={s} className="px-2 py-0.5 text-xs rounded-full bg-shield-50 text-shield-700 font-medium">{s}</span>
+                            <span key={s} className="px-2 py-0.5 text-xs rounded-full bg-shield-50 dark:bg-shield-900/30 text-shield-700 dark:text-shield-300 font-medium">{s}</span>
                           ))}
                         </div>
                       )}
@@ -584,10 +584,10 @@ export default function AgencySettings() {
             <Card key={i.label}>
               <div className="p-5">
                 <div className="flex items-center gap-3 mb-2">
-                  <div className="w-10 h-10 rounded-lg bg-shield-50 text-shield-600 flex items-center justify-center">{i.icon}</div>
-                  <h3 className="font-medium text-slate-900">{i.label}</h3>
+                  <div className="w-10 h-10 rounded-lg bg-shield-50 dark:bg-shield-900/30 text-shield-600 dark:text-shield-400 flex items-center justify-center">{i.icon}</div>
+                  <h3 className="font-medium text-slate-900 dark:text-white">{i.label}</h3>
                 </div>
-                <p className="text-sm text-slate-500 mb-3">{i.desc}</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400 mb-3">{i.desc}</p>
                 <Link to={i.href}><Button variant="outline" size="sm">Configure</Button></Link>
               </div>
             </Card>
@@ -599,7 +599,7 @@ export default function AgencySettings() {
       {activeTab === 'notifications' && (
         <Card>
           <div className="p-6 space-y-4">
-            <p className="text-sm text-slate-600 mb-2">Choose which notifications to receive for your agency.</p>
+            <p className="text-sm text-slate-600 dark:text-slate-300 mb-2">Choose which notifications to receive for your agency.</p>
             {[
               { label: 'New lead alerts', value: notifyNewLead, set: setNotifyNewLead },
               { label: 'Application status changes', value: notifyAppStatus, set: setNotifyAppStatus },
@@ -609,8 +609,8 @@ export default function AgencySettings() {
             ].map(n => (
               <label key={n.label} className="flex items-center gap-3">
                 <input type="checkbox" checked={n.value} onChange={e => n.set(e.target.checked)}
-                  className="w-4 h-4 rounded border-slate-300 text-shield-600 focus:ring-shield-500" />
-                <span className="text-sm text-slate-700">{n.label}</span>
+                  className="w-4 h-4 rounded border-slate-300 text-shield-600 dark:text-shield-400 focus:ring-shield-500 dark:focus:ring-shield-400" />
+                <span className="text-sm text-slate-700 dark:text-slate-200">{n.label}</span>
               </label>
             ))}
             <div className="pt-2">
@@ -628,9 +628,9 @@ export default function AgencySettings() {
       {showInviteModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setShowInviteModal(false)}>
           <Card className="w-full max-w-md p-6" onClick={e => e.stopPropagation()}>
-            <h3 className="text-lg font-semibold text-slate-900 mb-4">Invite Agent</h3>
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Invite Agent</h3>
             <div className="space-y-1 mb-4">
-              <label className="text-sm font-medium text-slate-700">Email Address</label>
+              <label className="text-sm font-medium text-slate-700 dark:text-slate-200">Email Address</label>
               <Input type="email" placeholder="agent@example.com" value={inviteEmail} onChange={e => setInviteEmail(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && handleInvite()} />
             </div>
@@ -648,16 +648,16 @@ export default function AgencySettings() {
       {showAddAgentModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setShowAddAgentModal(false)}>
           <Card className="w-full max-w-md p-6" onClick={e => e.stopPropagation()}>
-            <h3 className="text-lg font-semibold text-slate-900 mb-4">
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">
               <UserPlus className="w-5 h-5 inline mr-2" />Add Agent
             </h3>
             {newAgentPassword ? (
               <div>
-                <div className="p-3 bg-green-50 border border-green-200 rounded-lg mb-4">
+                <div className="p-3 bg-green-50 dark:bg-green-900/30 border border-green-200 rounded-lg mb-4">
                   <p className="text-sm font-medium text-green-800">Agent created successfully!</p>
-                  <p className="text-sm text-green-700 mt-1">Temporary password:</p>
+                  <p className="text-sm text-green-700 dark:text-green-300 mt-1">Temporary password:</p>
                   <p className="text-lg font-mono font-bold text-green-900 mt-1">{newAgentPassword}</p>
-                  <p className="text-xs text-green-600 mt-1">Share this with the agent. They should change it after logging in.</p>
+                  <p className="text-xs text-green-600 dark:text-green-400 mt-1">Share this with the agent. They should change it after logging in.</p>
                 </div>
                 <div className="flex justify-end">
                   <Button onClick={() => { setShowAddAgentModal(false); setNewAgentPassword(''); }}>Done</Button>
@@ -667,17 +667,17 @@ export default function AgencySettings() {
               <>
                 <div className="space-y-4 mb-4">
                   <div className="space-y-1">
-                    <label className="text-sm font-medium text-slate-700">Full Name</label>
+                    <label className="text-sm font-medium text-slate-700 dark:text-slate-200">Full Name</label>
                     <Input value={agentForm.name} onChange={e => setAgentForm({ ...agentForm, name: e.target.value })} placeholder="John Doe" />
                   </div>
                   <div className="space-y-1">
-                    <label className="text-sm font-medium text-slate-700">Email</label>
+                    <label className="text-sm font-medium text-slate-700 dark:text-slate-200">Email</label>
                     <Input type="email" value={agentForm.email} onChange={e => setAgentForm({ ...agentForm, email: e.target.value })} placeholder="agent@example.com" />
                   </div>
                   <div className="space-y-1">
-                    <label className="text-sm font-medium text-slate-700">Password (optional)</label>
+                    <label className="text-sm font-medium text-slate-700 dark:text-slate-200">Password (optional)</label>
                     <Input type="password" value={agentForm.password} onChange={e => setAgentForm({ ...agentForm, password: e.target.value })} placeholder="Leave blank for auto-generated" />
-                    <p className="text-xs text-slate-400">If left blank, a temporary password will be generated.</p>
+                    <p className="text-xs text-slate-400 dark:text-slate-500">If left blank, a temporary password will be generated.</p>
                   </div>
                 </div>
                 <div className="flex justify-end gap-2">

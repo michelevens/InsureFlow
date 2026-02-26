@@ -41,7 +41,7 @@ export default function CarrierDashboard() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Carrier Dashboard</h1>
-          <p className="text-slate-500 mt-1">Monitor product performance and production metrics</p>
+          <p className="text-slate-500 dark:text-slate-400 mt-1">Monitor product performance and production metrics</p>
         </div>
         <Link to="/carrier/products">
           <Button variant="shield" size="sm" rightIcon={<ArrowRight className="w-4 h-4" />}>Manage Products</Button>
@@ -53,8 +53,8 @@ export default function CarrierDashboard() {
         {loading ? (
           Array.from({ length: 4 }).map((_, i) => (
             <Card key={i} className="p-5 animate-pulse">
-              <div className="h-4 w-20 bg-slate-200 rounded mb-2" />
-              <div className="h-7 w-16 bg-slate-200 rounded" />
+              <div className="h-4 w-20 bg-slate-200 dark:bg-slate-700 rounded mb-2" />
+              <div className="h-7 w-16 bg-slate-200 dark:bg-slate-700 rounded" />
             </Card>
           ))
         ) : (
@@ -72,7 +72,7 @@ export default function CarrierDashboard() {
         <div className="p-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-slate-900">Platform Overview</h2>
-            <Link to="/carrier/production" className="text-sm text-shield-600 hover:underline">View details</Link>
+            <Link to="/carrier/production" className="text-sm text-shield-600 dark:text-shield-400 hover:underline">View details</Link>
           </div>
           {loading ? (
             <div className="flex items-center justify-center py-12">
@@ -80,25 +80,25 @@ export default function CarrierDashboard() {
             </div>
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="p-4 rounded-xl bg-shield-50 text-center">
-                <p className="text-2xl font-bold text-shield-700">{fmt(stats?.active_products)}</p>
-                <p className="text-sm text-slate-500 mt-1">Products</p>
+              <div className="p-4 rounded-xl bg-shield-50 dark:bg-shield-900/30 text-center">
+                <p className="text-2xl font-bold text-shield-700 dark:text-shield-300">{fmt(stats?.active_products)}</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Products</p>
               </div>
-              <div className="p-4 rounded-xl bg-amber-50 text-center">
-                <p className="text-2xl font-bold text-amber-700">{fmt(stats?.total_applications)}</p>
-                <p className="text-sm text-slate-500 mt-1">Applications</p>
+              <div className="p-4 rounded-xl bg-amber-50 dark:bg-amber-900/30 text-center">
+                <p className="text-2xl font-bold text-amber-700 dark:text-amber-300">{fmt(stats?.total_applications)}</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Applications</p>
               </div>
-              <div className="p-4 rounded-xl bg-savings-50 text-center">
-                <p className="text-2xl font-bold text-savings-700">{fmt(stats?.total_policies)}</p>
-                <p className="text-sm text-slate-500 mt-1">Policies</p>
+              <div className="p-4 rounded-xl bg-savings-50 dark:bg-savings-900/30 text-center">
+                <p className="text-2xl font-bold text-savings-700 dark:text-savings-300">{fmt(stats?.total_policies)}</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Policies</p>
               </div>
-              <div className="p-4 rounded-xl bg-confidence-50 text-center">
-                <p className="text-2xl font-bold text-confidence-700">
+              <div className="p-4 rounded-xl bg-confidence-50 dark:bg-confidence-900/30 text-center">
+                <p className="text-2xl font-bold text-confidence-700 dark:text-confidence-300">
                   {stats?.total_applications && stats?.total_policies
                     ? `${Math.round((stats.total_policies / stats.total_applications) * 100)}%`
                     : '0%'}
                 </p>
-                <p className="text-sm text-slate-500 mt-1">Bind Rate</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Bind Rate</p>
               </div>
             </div>
           )}
@@ -110,10 +110,10 @@ export default function CarrierDashboard() {
         <Link to="/carrier/products">
           <Card className="p-5 hover:shadow-lg transition-shadow cursor-pointer">
             <div className="flex items-center gap-3">
-              <Package className="w-8 h-8 text-shield-600" />
+              <Package className="w-8 h-8 text-shield-600 dark:text-shield-400" />
               <div>
                 <h3 className="font-semibold text-slate-900">Products</h3>
-                <p className="text-sm text-slate-500">Manage insurance products</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400">Manage insurance products</p>
               </div>
             </div>
           </Card>
@@ -121,10 +121,10 @@ export default function CarrierDashboard() {
         <Link to="/carrier/production">
           <Card className="p-5 hover:shadow-lg transition-shadow cursor-pointer">
             <div className="flex items-center gap-3">
-              <BarChart3 className="w-8 h-8 text-confidence-600" />
+              <BarChart3 className="w-8 h-8 text-confidence-600 dark:text-confidence-400" />
               <div>
                 <h3 className="font-semibold text-slate-900">Production Report</h3>
-                <p className="text-sm text-slate-500">Detailed analytics</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400">Detailed analytics</p>
               </div>
             </div>
           </Card>
@@ -132,10 +132,10 @@ export default function CarrierDashboard() {
         <Link to="/applications">
           <Card className="p-5 hover:shadow-lg transition-shadow cursor-pointer">
             <div className="flex items-center gap-3">
-              <Users className="w-8 h-8 text-savings-600" />
+              <Users className="w-8 h-8 text-savings-600 dark:text-savings-400" />
               <div>
                 <h3 className="font-semibold text-slate-900">Agent Network</h3>
-                <p className="text-sm text-slate-500">View appointed agents</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400">View appointed agents</p>
               </div>
             </div>
           </Card>

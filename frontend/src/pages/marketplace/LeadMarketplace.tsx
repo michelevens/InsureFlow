@@ -174,8 +174,8 @@ export default function LeadMarketplace() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Lead Marketplace</h1>
-          <p className="text-slate-500 mt-1">Buy and sell insurance leads across the platform</p>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Lead Marketplace</h1>
+          <p className="text-slate-500 dark:text-slate-400 mt-1">Buy and sell insurance leads across the platform</p>
         </div>
         <Button variant="ghost" size="sm" onClick={() => { fetchStats(); if (tab === 'browse') fetchBrowse(); else fetchMyListings(); }}>
           <RefreshCw className="w-4 h-4 mr-1" /> Refresh
@@ -186,29 +186,29 @@ export default function LeadMarketplace() {
       {stats && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <Card className="p-4 text-center">
-            <p className="text-2xl font-bold text-shield-600">{stats.marketplace.total_active_listings}</p>
-            <p className="text-xs text-slate-500">Active Listings</p>
+            <p className="text-2xl font-bold text-shield-600 dark:text-shield-400">{stats.marketplace.total_active_listings}</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400">Active Listings</p>
           </Card>
           <Card className="p-4 text-center">
-            <p className="text-2xl font-bold text-savings-600">{stats.buyer.total_purchased}</p>
-            <p className="text-xs text-slate-500">Leads Purchased</p>
+            <p className="text-2xl font-bold text-savings-600 dark:text-savings-400">{stats.buyer.total_purchased}</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400">Leads Purchased</p>
           </Card>
           <Card className="p-4 text-center">
-            <p className="text-2xl font-bold text-amber-600">{stats.seller.total_sold}</p>
-            <p className="text-xs text-slate-500">Leads Sold</p>
+            <p className="text-2xl font-bold text-amber-600 dark:text-amber-400">{stats.seller.total_sold}</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400">Leads Sold</p>
           </Card>
           <Card className="p-4 text-center">
-            <p className="text-2xl font-bold text-slate-700">${stats.seller.total_revenue.toFixed(2)}</p>
-            <p className="text-xs text-slate-500">Seller Revenue</p>
+            <p className="text-2xl font-bold text-slate-700 dark:text-slate-200">${stats.seller.total_revenue.toFixed(2)}</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400">Seller Revenue</p>
           </Card>
         </div>
       )}
 
       {/* Tabs */}
-      <div className="flex gap-1 border-b border-slate-200">
+      <div className="flex gap-1 border-b border-slate-200 dark:border-slate-700/50">
         {([['browse', 'Browse Leads'], ['my-listings', 'My Listings'], ['transactions', 'Transactions']] as [Tab, string][]).map(([key, label]) => (
           <button key={key} onClick={() => setTab(key)}
-            className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${tab === key ? 'border-shield-500 text-shield-600' : 'border-transparent text-slate-500 hover:text-slate-700'}`}>
+            className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${tab === key ? 'border-shield-500 text-shield-600 dark:text-shield-400' : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:text-slate-200'}`}>
             {label}
           </button>
         ))}
@@ -219,7 +219,7 @@ export default function LeadMarketplace() {
         <>
           <div className="flex flex-wrap gap-3">
             <div className="relative flex-1 min-w-[200px]">
-              <Search className="absolute left-3 top-2.5 w-4 h-4 text-slate-400" />
+              <Search className="absolute left-3 top-2.5 w-4 h-4 text-slate-400 dark:text-slate-500" />
               <Input className="pl-9" placeholder="Search by type, state, or agency..." value={search} onChange={e => setSearch(e.target.value)} />
             </div>
             <select value={typeFilter} onChange={e => setTypeFilter(e.target.value)}
@@ -237,7 +237,7 @@ export default function LeadMarketplace() {
               )}
             </select>
             <div className="flex items-center gap-1">
-              <ArrowUpDown className="w-4 h-4 text-slate-400" />
+              <ArrowUpDown className="w-4 h-4 text-slate-400 dark:text-slate-500" />
               <select value={sort} onChange={e => setSort(e.target.value)}
                 className="px-3 py-2 border border-slate-300 rounded-lg text-sm">
                 {SORT_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
@@ -246,12 +246,12 @@ export default function LeadMarketplace() {
           </div>
 
           {loading ? (
-            <div className="text-center py-12 text-slate-400">Loading marketplace...</div>
+            <div className="text-center py-12 text-slate-400 dark:text-slate-500">Loading marketplace...</div>
           ) : filtered.length === 0 ? (
             <Card className="p-12 text-center">
               <ShoppingCart className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-              <p className="text-slate-500 font-medium">No leads available</p>
-              <p className="text-slate-400 text-sm mt-1">Check back later or adjust your filters</p>
+              <p className="text-slate-500 dark:text-slate-400 font-medium">No leads available</p>
+              <p className="text-slate-400 dark:text-slate-500 text-sm mt-1">Check back later or adjust your filters</p>
             </Card>
           ) : (
             <div className="grid md:grid-cols-2 gap-4">
@@ -270,11 +270,11 @@ export default function LeadMarketplace() {
       {/* My Listings Tab */}
       {tab === 'my-listings' && (
         loading ? (
-          <div className="text-center py-12 text-slate-400">Loading...</div>
+          <div className="text-center py-12 text-slate-400 dark:text-slate-500">Loading...</div>
         ) : (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <p className="text-sm text-slate-500">{myListings.length} listing{myListings.length !== 1 ? 's' : ''}</p>
+              <p className="text-sm text-slate-500 dark:text-slate-400">{myListings.length} listing{myListings.length !== 1 ? 's' : ''}</p>
               <Button variant="primary" size="sm" onClick={() => toast.info('Select leads from your CRM to bulk-list them here.')}>
                 <Package className="w-4 h-4 mr-1" /> Bulk List
               </Button>
@@ -282,8 +282,8 @@ export default function LeadMarketplace() {
             {myListings.length === 0 ? (
               <Card className="p-12 text-center">
                 <Tag className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-                <p className="text-slate-500 font-medium">No listings yet</p>
-                <p className="text-slate-400 text-sm mt-1">List leads from your CRM to sell them on the marketplace</p>
+                <p className="text-slate-500 dark:text-slate-400 font-medium">No listings yet</p>
+                <p className="text-slate-400 dark:text-slate-500 text-sm mt-1">List leads from your CRM to sell them on the marketplace</p>
               </Card>
             ) : (
               <div className="space-y-3">
@@ -299,23 +299,23 @@ export default function LeadMarketplace() {
                             <Gavel className="w-3 h-3 mr-1" /> Auction
                           </Badge>
                         )}
-                        <span className="font-medium text-slate-900">{listing.insurance_type}</span>
-                        {listing.state && <span className="text-slate-500 text-sm">{listing.state}</span>}
-                        <span className="text-shield-600 font-bold">${listing.asking_price}</span>
+                        <span className="font-medium text-slate-900 dark:text-white">{listing.insurance_type}</span>
+                        {listing.state && <span className="text-slate-500 dark:text-slate-400 text-sm">{listing.state}</span>}
+                        <span className="text-shield-600 dark:text-shield-400 font-bold">${listing.asking_price}</span>
                         {listing.listing_type === 'auction' && listing.bid_count > 0 && (
-                          <span className="text-xs text-amber-600">
+                          <span className="text-xs text-amber-600 dark:text-amber-400">
                             {listing.bid_count} bid{listing.bid_count !== 1 ? 's' : ''} — current: ${listing.current_bid}
                           </span>
                         )}
                         {listing.suggested_price != null && (
-                          <span className="text-xs text-slate-400">
+                          <span className="text-xs text-slate-400 dark:text-slate-500">
                             Suggested: ${listing.suggested_price}
                           </span>
                         )}
                       </div>
                       <div className="flex items-center gap-2">
                         {listing.status === 'sold' && listing.transaction && (
-                          <span className="text-sm text-savings-600 font-medium">
+                          <span className="text-sm text-savings-600 dark:text-savings-400 font-medium">
                             Sold — payout ${listing.transaction.seller_payout}
                           </span>
                         )}
@@ -367,60 +367,60 @@ function ListingCard({ listing, onPurchase, onBid, purchasing, bidding }: {
         </div>
         {isAuction ? (
           <div className="text-right">
-            <span className="text-xl font-bold text-amber-600">
+            <span className="text-xl font-bold text-amber-600 dark:text-amber-400">
               ${listing.current_bid || listing.min_bid || listing.asking_price}
             </span>
             {listing.bid_count > 0 && (
-              <p className="text-xs text-slate-500">{listing.bid_count} bid{listing.bid_count !== 1 ? 's' : ''}</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">{listing.bid_count} bid{listing.bid_count !== 1 ? 's' : ''}</p>
             )}
           </div>
         ) : (
-          <span className="text-xl font-bold text-shield-600">${listing.asking_price}</span>
+          <span className="text-xl font-bold text-shield-600 dark:text-shield-400">${listing.asking_price}</span>
         )}
       </div>
 
       <div className="grid grid-cols-2 gap-2 text-sm mb-4">
         {listing.state && (
-          <div className="flex items-center gap-1.5 text-slate-600">
+          <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
             <MapPin className="w-3.5 h-3.5" /> {listing.state} {listing.zip_prefix && `(${listing.zip_prefix}xx)`}
           </div>
         )}
         {listing.lead_score !== null && (
-          <div className="flex items-center gap-1.5 text-slate-600">
+          <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
             <Star className="w-3.5 h-3.5" /> Score: {listing.lead_score}/100
           </div>
         )}
-        <div className="flex items-center gap-1.5 text-slate-600">
+        <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
           <Clock className="w-3.5 h-3.5" /> {listing.days_old}d old
         </div>
-        <div className="flex items-center gap-1.5 text-slate-600">
+        <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
           <TrendingUp className="w-3.5 h-3.5" /> {listing.coverage_level || 'Standard'}
         </div>
         {listing.has_phone && (
-          <div className="flex items-center gap-1.5 text-savings-600">
+          <div className="flex items-center gap-1.5 text-savings-600 dark:text-savings-400">
             <Phone className="w-3.5 h-3.5" /> Has phone
           </div>
         )}
         {listing.has_email && (
-          <div className="flex items-center gap-1.5 text-savings-600">
+          <div className="flex items-center gap-1.5 text-savings-600 dark:text-savings-400">
             <Mail className="w-3.5 h-3.5" /> Has email
           </div>
         )}
       </div>
 
       {isAuction && listing.auction_ends_at && (
-        <p className="text-xs text-amber-600 mb-3">
+        <p className="text-xs text-amber-600 dark:text-amber-400 mb-3">
           <Clock className="w-3 h-3 inline mr-1" />
           Auction ends {new Date(listing.auction_ends_at).toLocaleDateString()}
         </p>
       )}
 
       {listing.seller_notes && (
-        <p className="text-xs text-slate-500 mb-3 italic">{listing.seller_notes}</p>
+        <p className="text-xs text-slate-500 dark:text-slate-400 mb-3 italic">{listing.seller_notes}</p>
       )}
 
       {listing.seller_agency && (
-        <p className="text-xs text-slate-400 mb-3">From: {listing.seller_agency.name}</p>
+        <p className="text-xs text-slate-400 dark:text-slate-500 mb-3">From: {listing.seller_agency.name}</p>
       )}
 
       {isAuction ? (
@@ -455,14 +455,14 @@ function TransactionsTab() {
       .finally(() => setLoading(false));
   }, [txType]);
 
-  if (loading) return <div className="text-center py-12 text-slate-400">Loading transactions...</div>;
+  if (loading) return <div className="text-center py-12 text-slate-400 dark:text-slate-500">Loading transactions...</div>;
 
   return (
     <div className="space-y-4">
       <div className="flex gap-2">
         {(['all', 'bought', 'sold'] as const).map(t => (
           <button key={t} onClick={() => setTxType(t)}
-            className={`px-3 py-1.5 text-sm rounded-lg ${txType === t ? 'bg-shield-100 text-shield-700 font-medium' : 'text-slate-500 hover:bg-slate-100'}`}>
+            className={`px-3 py-1.5 text-sm rounded-lg ${txType === t ? 'bg-shield-100 dark:bg-shield-900/30 text-shield-700 dark:text-shield-300 font-medium' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 dark:bg-slate-800'}`}>
             {t.charAt(0).toUpperCase() + t.slice(1)}
           </button>
         ))}
@@ -470,7 +470,7 @@ function TransactionsTab() {
 
       {transactions.length === 0 ? (
         <Card className="p-8 text-center">
-          <p className="text-slate-500">No transactions yet</p>
+          <p className="text-slate-500 dark:text-slate-400">No transactions yet</p>
         </Card>
       ) : (
         <div className="space-y-2">
@@ -487,13 +487,13 @@ function TransactionsTab() {
                     </Badge>
                   )}
                   <span className="font-medium">{tx.listing?.insurance_type || 'Lead'}</span>
-                  {tx.listing?.state && <span className="text-slate-500 text-sm">{tx.listing.state}</span>}
+                  {tx.listing?.state && <span className="text-slate-500 dark:text-slate-400 text-sm">{tx.listing.state}</span>}
                 </div>
                 <div className="text-right">
-                  <p className={`font-bold ${tx.direction === 'bought' ? 'text-red-600' : 'text-savings-600'}`}>
+                  <p className={`font-bold ${tx.direction === 'bought' ? 'text-red-600 dark:text-red-400' : 'text-savings-600 dark:text-savings-400'}`}>
                     {tx.direction === 'bought' ? `-$${tx.purchase_price}` : `+$${tx.seller_payout}`}
                   </p>
-                  <p className="text-xs text-slate-400">
+                  <p className="text-xs text-slate-400 dark:text-slate-500">
                     {tx.paid_at
                       ? `Paid ${new Date(tx.paid_at).toLocaleDateString()}`
                       : new Date(tx.created_at).toLocaleDateString()}

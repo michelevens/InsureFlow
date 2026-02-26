@@ -75,14 +75,14 @@ export default function Notifications() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-3">
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-3">
             <Bell className="w-6 h-6 text-teal-600" />
             Notifications
             {unreadCount > 0 && (
               <Badge variant="danger" size="sm">{unreadCount} unread</Badge>
             )}
           </h1>
-          <p className="text-slate-500 text-sm mt-1">Stay updated on your insurance activity</p>
+          <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">Stay updated on your insurance activity</p>
         </div>
         {unreadCount > 0 && (
           <Button variant="shield" size="sm" onClick={handleMarkAllRead}>
@@ -96,7 +96,7 @@ export default function Notifications() {
         <button
           onClick={() => setFilter('all')}
           className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
-            filter === 'all' ? 'bg-teal-50 text-teal-700 border border-teal-200' : 'text-slate-500 hover:bg-slate-100'
+            filter === 'all' ? 'bg-teal-50 dark:bg-teal-900/30 text-teal-700 border border-teal-200' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 dark:bg-slate-800'
           }`}
         >
           All
@@ -104,7 +104,7 @@ export default function Notifications() {
         <button
           onClick={() => setFilter('unread')}
           className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors flex items-center gap-1.5 ${
-            filter === 'unread' ? 'bg-teal-50 text-teal-700 border border-teal-200' : 'text-slate-500 hover:bg-slate-100'
+            filter === 'unread' ? 'bg-teal-50 dark:bg-teal-900/30 text-teal-700 border border-teal-200' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 dark:bg-slate-800'
           }`}
         >
           <Filter className="w-3.5 h-3.5" /> Unread
@@ -112,20 +112,20 @@ export default function Notifications() {
       </div>
 
       {/* Notification List */}
-      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700/50 overflow-hidden">
         {loading ? (
           <div className="flex items-center justify-center py-16">
             <div className="w-6 h-6 border-2 border-teal-200 border-t-teal-600 rounded-full animate-spin" />
           </div>
         ) : notifications.length === 0 ? (
           <div className="py-16 text-center">
-            <div className="w-14 h-14 bg-slate-100 rounded-xl flex items-center justify-center mx-auto mb-3">
-              <Bell className="w-7 h-7 text-slate-400" />
+            <div className="w-14 h-14 bg-slate-100 dark:bg-slate-800 rounded-xl flex items-center justify-center mx-auto mb-3">
+              <Bell className="w-7 h-7 text-slate-400 dark:text-slate-500" />
             </div>
-            <p className="text-slate-600 font-medium">
+            <p className="text-slate-600 dark:text-slate-300 font-medium">
               {filter === 'unread' ? 'No unread notifications' : 'No notifications yet'}
             </p>
-            <p className="text-sm text-slate-400 mt-1">
+            <p className="text-sm text-slate-400 dark:text-slate-500 mt-1">
               {filter === 'unread' ? 'You\'re all caught up!' : 'Notifications will appear here as activity happens'}
             </p>
           </div>
@@ -136,26 +136,26 @@ export default function Notifications() {
               <button
                 key={notif.id}
                 onClick={() => handleClick(notif)}
-                className={`w-full flex items-start gap-4 p-5 text-left border-b border-slate-100 hover:bg-slate-50 transition-colors ${
-                  !notif.read ? 'bg-teal-50/40' : ''
+                className={`w-full flex items-start gap-4 p-5 text-left border-b border-slate-100 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-800 transition-colors ${
+                  !notif.read ? 'bg-teal-50 dark:bg-teal-900/30/40' : ''
                 }`}
               >
                 <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
-                  !notif.read ? 'bg-teal-100 text-teal-600' : 'bg-slate-100 text-slate-400'
+                  !notif.read ? 'bg-teal-100 text-teal-600' : 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500'
                 }`}>
                   <IconComponent className="w-5 h-5" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <p className={`text-sm ${!notif.read ? 'font-semibold text-slate-900' : 'font-medium text-slate-700'}`}>
+                    <p className={`text-sm ${!notif.read ? 'font-semibold text-slate-900 dark:text-white' : 'font-medium text-slate-700 dark:text-slate-200'}`}>
                       {notif.title}
                     </p>
                     {!notif.read && (
                       <div className="w-2 h-2 bg-teal-500 rounded-full shrink-0" />
                     )}
                   </div>
-                  <p className="text-sm text-slate-500 mt-0.5">{notif.body}</p>
-                  <p className="text-xs text-slate-400 mt-1.5">{timeAgo(notif.created_at)}</p>
+                  <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">{notif.body}</p>
+                  <p className="text-xs text-slate-400 dark:text-slate-500 mt-1.5">{timeAgo(notif.created_at)}</p>
                 </div>
               </button>
             );

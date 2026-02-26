@@ -136,8 +136,8 @@ export default function CarrierApiConfigPage() {
     <div className="max-w-5xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Carrier API Integrations</h1>
-          <p className="text-slate-500 mt-1">Configure real-time rating APIs for carrier partners</p>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Carrier API Integrations</h1>
+          <p className="text-slate-500 dark:text-slate-400 mt-1">Configure real-time rating APIs for carrier partners</p>
         </div>
         <Button variant="shield" onClick={() => { setShowForm(true); setEditingId(null); resetForm(); }}>
           <Plus className="w-4 h-4 mr-2" /> Add Integration
@@ -146,7 +146,7 @@ export default function CarrierApiConfigPage() {
 
       {message && (
         <div className={`flex items-center gap-2 p-3 rounded-xl text-sm ${
-          message.type === 'success' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-600'
+          message.type === 'success' ? 'bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300' : 'bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400'
         }`}>
           {message.type === 'success' ? <CheckCircle className="w-4 h-4" /> : <XCircle className="w-4 h-4" />}
           {message.text}
@@ -155,8 +155,8 @@ export default function CarrierApiConfigPage() {
 
       {/* Add/Edit Form */}
       {showForm && (
-        <div className="bg-white rounded-2xl border border-slate-200 p-6">
-          <h2 className="text-lg font-semibold text-slate-900 mb-4">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/50 p-6">
+          <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">
             {editingId ? 'Edit Integration' : 'New Carrier API Integration'}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -168,11 +168,11 @@ export default function CarrierApiConfigPage() {
               onChange={(e) => setFormData(p => ({ ...p, carrier_id: e.target.value }))}
             />
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">API Type</label>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1.5">API Type</label>
               <select
                 value={formData.api_type}
                 onChange={(e) => setFormData(p => ({ ...p, api_type: e.target.value as 'rest' | 'soap' | 'xml' }))}
-                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-shield-500"
+                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700/50 focus:ring-2 focus:ring-shield-500 dark:focus:ring-shield-400"
               >
                 <option value="rest">REST</option>
                 <option value="soap">SOAP</option>
@@ -187,11 +187,11 @@ export default function CarrierApiConfigPage() {
               leftIcon={<Globe className="w-5 h-5" />}
             />
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">Auth Type</label>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1.5">Auth Type</label>
               <select
                 value={formData.auth_type}
                 onChange={(e) => setFormData(p => ({ ...p, auth_type: e.target.value as 'api_key' | 'oauth2' | 'basic' | 'certificate' }))}
-                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-shield-500"
+                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700/50 focus:ring-2 focus:ring-shield-500 dark:focus:ring-shield-400"
               >
                 <option value="api_key">API Key</option>
                 <option value="oauth2">OAuth 2.0</option>
@@ -237,10 +237,10 @@ export default function CarrierApiConfigPage() {
 
       {/* Config List */}
       {configs.length === 0 && !showForm ? (
-        <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/50 p-12 text-center">
           <Plug className="w-12 h-12 text-slate-300 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-slate-700 mb-2">No API Integrations</h3>
-          <p className="text-slate-500 mb-4">Connect carrier rating APIs for real-time quotes</p>
+          <h3 className="text-lg font-semibold text-slate-700 dark:text-slate-200 mb-2">No API Integrations</h3>
+          <p className="text-slate-500 dark:text-slate-400 mb-4">Connect carrier rating APIs for real-time quotes</p>
           <Button variant="shield" onClick={() => setShowForm(true)}>
             <Plus className="w-4 h-4 mr-2" /> Add First Integration
           </Button>
@@ -248,20 +248,20 @@ export default function CarrierApiConfigPage() {
       ) : (
         <div className="space-y-4">
           {configs.map(config => (
-            <div key={config.id} className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+            <div key={config.id} className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/50 overflow-hidden">
               <div className="p-5">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                      config.is_active ? 'bg-green-100' : 'bg-slate-100'
+                      config.is_active ? 'bg-green-100 dark:bg-green-900/30' : 'bg-slate-100 dark:bg-slate-800'
                     }`}>
-                      <Plug className={`w-5 h-5 ${config.is_active ? 'text-green-600' : 'text-slate-400'}`} />
+                      <Plug className={`w-5 h-5 ${config.is_active ? 'text-green-600 dark:text-green-400' : 'text-slate-400 dark:text-slate-500'}`} />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-slate-900">
+                      <h3 className="font-semibold text-slate-900 dark:text-white">
                         {config.carrier?.name || `Carrier #${config.carrier_id}`}
                       </h3>
-                      <div className="flex items-center gap-3 text-sm text-slate-500">
+                      <div className="flex items-center gap-3 text-sm text-slate-500 dark:text-slate-400">
                         <span className="uppercase font-mono">{config.api_type}</span>
                         <span>{config.base_url}</span>
                       </div>
@@ -269,7 +269,7 @@ export default function CarrierApiConfigPage() {
                   </div>
                   <div className="flex items-center gap-2">
                     <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${
-                      config.is_active ? 'bg-green-50 text-green-700' : 'bg-slate-100 text-slate-500'
+                      config.is_active ? 'bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
                     }`}>
                       {config.is_active ? 'Active' : 'Inactive'}
                     </span>
@@ -304,7 +304,7 @@ export default function CarrierApiConfigPage() {
                     >
                       <Settings2 className="w-4 h-4" />
                     </Button>
-                    <button onClick={() => handleDelete(config.id)} className="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg">
+                    <button onClick={() => handleDelete(config.id)} className="p-2 text-red-400 hover:text-red-600 dark:text-red-400 hover:bg-red-50 dark:bg-red-900/30 rounded-lg">
                       <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
@@ -313,7 +313,7 @@ export default function CarrierApiConfigPage() {
                 {/* Test Result */}
                 {testResults[config.id] && (
                   <div className={`mt-3 flex items-center gap-2 p-2.5 rounded-xl text-sm ${
-                    testResults[config.id].success ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-600'
+                    testResults[config.id].success ? 'bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300' : 'bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400'
                   }`}>
                     {testResults[config.id].success ? <CheckCircle className="w-4 h-4" /> : <XCircle className="w-4 h-4" />}
                     {testResults[config.id].message}
@@ -327,7 +327,7 @@ export default function CarrierApiConfigPage() {
 
                 {/* Last tested */}
                 {config.last_tested_at && (
-                  <p className="mt-2 text-xs text-slate-400">
+                  <p className="mt-2 text-xs text-slate-400 dark:text-slate-500">
                     Last tested: {new Date(config.last_tested_at).toLocaleString()}
                   </p>
                 )}
@@ -335,28 +335,28 @@ export default function CarrierApiConfigPage() {
 
               {/* Logs */}
               {expandedLogs === config.id && (
-                <div className="border-t border-slate-100 bg-slate-50 p-4">
-                  <h4 className="text-sm font-medium text-slate-700 mb-3">Recent API Logs</h4>
+                <div className="border-t border-slate-100 dark:border-slate-700/50 bg-slate-50 dark:bg-slate-800 p-4">
+                  <h4 className="text-sm font-medium text-slate-700 dark:text-slate-200 mb-3">Recent API Logs</h4>
                   {logs.length === 0 ? (
-                    <p className="text-sm text-slate-400">No logs yet</p>
+                    <p className="text-sm text-slate-400 dark:text-slate-500">No logs yet</p>
                   ) : (
                     <div className="space-y-2">
                       {logs.slice(0, 20).map(log => (
-                        <div key={log.id} className="flex items-center gap-3 px-3 py-2 bg-white rounded-lg text-sm">
+                        <div key={log.id} className="flex items-center gap-3 px-3 py-2 bg-white dark:bg-slate-900 rounded-lg text-sm">
                           <span className={`w-2 h-2 rounded-full ${
                             log.response_status && log.response_status < 400 ? 'bg-green-400' : 'bg-red-400'
                           }`} />
-                          <span className="font-mono text-xs text-slate-500">{log.request_method}</span>
-                          <span className="flex-1 truncate text-slate-600">{log.request_url}</span>
+                          <span className="font-mono text-xs text-slate-500 dark:text-slate-400">{log.request_method}</span>
+                          <span className="flex-1 truncate text-slate-600 dark:text-slate-300">{log.request_url}</span>
                           <span className={`font-mono text-xs ${
-                            log.response_status && log.response_status < 400 ? 'text-green-600' : 'text-red-600'
+                            log.response_status && log.response_status < 400 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
                           }`}>
                             {log.response_status || 'ERR'}
                           </span>
                           {log.response_time_ms && (
-                            <span className="text-xs text-slate-400">{log.response_time_ms}ms</span>
+                            <span className="text-xs text-slate-400 dark:text-slate-500">{log.response_time_ms}ms</span>
                           )}
-                          <span className="text-xs text-slate-400">
+                          <span className="text-xs text-slate-400 dark:text-slate-500">
                             {new Date(log.created_at).toLocaleTimeString()}
                           </span>
                         </div>

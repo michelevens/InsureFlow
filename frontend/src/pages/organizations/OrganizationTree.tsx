@@ -93,23 +93,23 @@ export default function OrganizationTree() {
     return (
       <div key={org.id} style={{ marginLeft: depth * 24 }}>
         <div
-          className={`flex items-center justify-between p-3 rounded-xl cursor-pointer transition-colors ${isSelected ? 'bg-shield-50 border border-shield-200' : 'hover:bg-slate-50'}`}
+          className={`flex items-center justify-between p-3 rounded-xl cursor-pointer transition-colors ${isSelected ? 'bg-shield-50 dark:bg-shield-900/30 border border-shield-200' : 'hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-800'}`}
           onClick={() => selectOrg(org)}
         >
           <div className="flex items-center gap-2">
             {children.length > 0 ? (
               <button onClick={e => { e.stopPropagation(); toggleExpand(org.id); }} className="p-0.5">
-                {isExpanded ? <ChevronDown className="w-4 h-4 text-slate-400" /> : <ChevronRight className="w-4 h-4 text-slate-400" />}
+                {isExpanded ? <ChevronDown className="w-4 h-4 text-slate-400 dark:text-slate-500" /> : <ChevronRight className="w-4 h-4 text-slate-400 dark:text-slate-500" />}
               </button>
             ) : (
               <span className="w-5" />
             )}
-            <Building2 className="w-4 h-4 text-shield-600" />
-            <span className="font-medium text-slate-900">{org.name}</span>
+            <Building2 className="w-4 h-4 text-shield-600 dark:text-shield-400" />
+            <span className="font-medium text-slate-900 dark:text-white">{org.name}</span>
             <Badge variant={orgTypeBadge[org.type]}>{orgTypeLabels[org.type]}</Badge>
             {!org.is_active && <Badge variant="danger">Inactive</Badge>}
           </div>
-          <div className="flex items-center gap-2 text-xs text-slate-400">
+          <div className="flex items-center gap-2 text-xs text-slate-400 dark:text-slate-500">
             {org.city && org.state && <span>{org.city}, {org.state}</span>}
             {children.length > 0 && <span>{children.length} sub-orgs</span>}
           </div>
@@ -123,8 +123,8 @@ export default function OrganizationTree() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Organizations</h1>
-          <p className="text-slate-500 mt-1">Manage MGA, agency, and sub-agency hierarchy</p>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Organizations</h1>
+          <p className="text-slate-500 dark:text-slate-400 mt-1">Manage MGA, agency, and sub-agency hierarchy</p>
         </div>
         <Button variant="shield" onClick={() => setShowCreateOrg(true)}>
           <Plus className="w-4 h-4 mr-1" /> New Organization
@@ -135,13 +135,13 @@ export default function OrganizationTree() {
         {/* Tree */}
         <div className="lg:col-span-1">
           <Card className="p-4">
-            <h2 className="text-sm font-bold text-slate-700 mb-3">Hierarchy</h2>
+            <h2 className="text-sm font-bold text-slate-700 dark:text-slate-200 mb-3">Hierarchy</h2>
             {loading ? (
               <div className="flex justify-center py-8">
                 <div className="w-6 h-6 border-4 border-shield-200 border-t-shield-600 rounded-full animate-spin" />
               </div>
             ) : rootOrgs.length === 0 ? (
-              <p className="text-sm text-slate-400 text-center py-8">No organizations yet</p>
+              <p className="text-sm text-slate-400 dark:text-slate-500 text-center py-8">No organizations yet</p>
             ) : (
               <div className="space-y-1">
                 {rootOrgs.map(org => renderOrgNode(org))}
@@ -158,10 +158,10 @@ export default function OrganizationTree() {
                 <div className="flex items-center justify-between mb-4">
                   <div>
                     <div className="flex items-center gap-2">
-                      <h2 className="text-xl font-bold text-slate-900">{selectedOrg.name}</h2>
+                      <h2 className="text-xl font-bold text-slate-900 dark:text-white">{selectedOrg.name}</h2>
                       <Badge variant={orgTypeBadge[selectedOrg.type]}>{orgTypeLabels[selectedOrg.type]}</Badge>
                     </div>
-                    <p className="text-sm text-slate-500 mt-1">Level {selectedOrg.level} &middot; {selectedOrg.slug}</p>
+                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Level {selectedOrg.level} &middot; {selectedOrg.slug}</p>
                   </div>
                   <Button variant="danger" size="sm" onClick={() => deleteOrg(selectedOrg.id)}>
                     <Trash2 className="w-4 h-4 mr-1" /> Delete
@@ -170,22 +170,22 @@ export default function OrganizationTree() {
 
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   {selectedOrg.email && (
-                    <div className="flex items-center gap-2 text-slate-600">
+                    <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
                       <Mail className="w-4 h-4" /> {selectedOrg.email}
                     </div>
                   )}
                   {selectedOrg.phone && (
-                    <div className="flex items-center gap-2 text-slate-600">
+                    <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
                       <Phone className="w-4 h-4" /> {selectedOrg.phone}
                     </div>
                   )}
                   {selectedOrg.website && (
-                    <div className="flex items-center gap-2 text-slate-600">
+                    <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
                       <Globe className="w-4 h-4" /> {selectedOrg.website}
                     </div>
                   )}
                   {selectedOrg.address && (
-                    <div className="flex items-center gap-2 text-slate-600">
+                    <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
                       <MapPin className="w-4 h-4" /> {selectedOrg.address}, {selectedOrg.city} {selectedOrg.state} {selectedOrg.zip}
                     </div>
                   )}
@@ -195,8 +195,8 @@ export default function OrganizationTree() {
               {/* Members */}
               <Card className="p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-bold text-slate-900 flex items-center gap-2">
-                    <Users className="w-5 h-5 text-shield-600" /> Members
+                  <h3 className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                    <Users className="w-5 h-5 text-shield-600 dark:text-shield-400" /> Members
                   </h3>
                   <Button variant="outline" size="sm" onClick={() => setShowAddMember(true)}>
                     <Plus className="w-3 h-3 mr-1" /> Add Member
@@ -208,18 +208,18 @@ export default function OrganizationTree() {
                     <div className="w-6 h-6 border-4 border-shield-200 border-t-shield-600 rounded-full animate-spin" />
                   </div>
                 ) : members.length === 0 ? (
-                  <p className="text-sm text-slate-400 text-center py-4">No members</p>
+                  <p className="text-sm text-slate-400 dark:text-slate-500 text-center py-4">No members</p>
                 ) : (
                   <div className="space-y-2">
                     {members.map(m => (
-                      <div key={m.id} className="flex items-center justify-between bg-slate-50 rounded-lg px-4 py-2">
+                      <div key={m.id} className="flex items-center justify-between bg-slate-50 dark:bg-slate-800 rounded-lg px-4 py-2">
                         <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-shield-100 text-shield-700 flex items-center justify-center text-sm font-bold">
+                          <div className="w-8 h-8 rounded-full bg-shield-100 dark:bg-shield-900/30 text-shield-700 dark:text-shield-300 flex items-center justify-center text-sm font-bold">
                             {m.user?.name?.charAt(0) || '?'}
                           </div>
                           <div>
-                            <p className="font-medium text-slate-900 text-sm">{m.user?.name}</p>
-                            <p className="text-xs text-slate-500">{m.user?.email}</p>
+                            <p className="font-medium text-slate-900 dark:text-white text-sm">{m.user?.name}</p>
+                            <p className="text-xs text-slate-500 dark:text-slate-400">{m.user?.email}</p>
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
@@ -239,7 +239,7 @@ export default function OrganizationTree() {
           ) : (
             <Card className="p-12 text-center">
               <Shield className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-              <p className="text-slate-500">Select an organization to view details</p>
+              <p className="text-slate-500 dark:text-slate-400">Select an organization to view details</p>
             </Card>
           )}
         </div>

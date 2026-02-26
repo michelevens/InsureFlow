@@ -54,7 +54,7 @@ export default function MyApplications() {
   if (applications.length === 0) {
     return (
       <div>
-        <h1 className="text-2xl font-bold text-slate-900 mb-6">My Applications</h1>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-6">My Applications</h1>
         <Card>
           <EmptyState
             icon={<FileText className="w-8 h-8" />}
@@ -71,8 +71,8 @@ export default function MyApplications() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900">My Applications</h1>
-        <p className="text-slate-500 mt-1">Track the status of your insurance applications</p>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">My Applications</h1>
+        <p className="text-slate-500 dark:text-slate-400 mt-1">Track the status of your insurance applications</p>
       </div>
 
       <div className="space-y-4">
@@ -99,26 +99,26 @@ export default function MyApplications() {
 
                 <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                   <div>
-                    <p className="text-xs text-slate-500">Type</p>
-                    <p className="text-sm font-medium text-slate-900">{typeLabel(app.insurance_type)}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">Type</p>
+                    <p className="text-sm font-medium text-slate-900 dark:text-white">{typeLabel(app.insurance_type)}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-slate-500">Carrier</p>
-                    <p className="text-sm font-medium text-slate-900">{app.carrier_name}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">Carrier</p>
+                    <p className="text-sm font-medium text-slate-900 dark:text-white">{app.carrier_name}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-slate-500">Premium</p>
-                    <p className="text-sm font-medium text-slate-900">
+                    <p className="text-xs text-slate-500 dark:text-slate-400">Premium</p>
+                    <p className="text-sm font-medium text-slate-900 dark:text-white">
                       {Number(app.monthly_premium) > 0 ? `$${Number(app.monthly_premium).toLocaleString()}/mo` : '—'}
                     </p>
                   </div>
                   <div>
-                    <p className="text-xs text-slate-500">Agent</p>
-                    <p className="text-sm font-medium text-slate-900">{app.agent?.name || '—'}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">Agent</p>
+                    <p className="text-sm font-medium text-slate-900 dark:text-white">{app.agent?.name || '—'}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-slate-500">Date</p>
-                    <p className="text-sm font-medium text-slate-900">{new Date(app.created_at).toLocaleDateString()}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">Date</p>
+                    <p className="text-sm font-medium text-slate-900 dark:text-white">{new Date(app.created_at).toLocaleDateString()}</p>
                   </div>
                 </div>
 
@@ -133,12 +133,12 @@ export default function MyApplications() {
                     return (
                       <div key={step} className="flex items-center gap-2 flex-1">
                         <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs flex-shrink-0 ${
-                          isCompleted ? 'gradient-shield text-white' : 'bg-slate-200 text-slate-500'
+                          isCompleted ? 'gradient-shield text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400'
                         }`}>
                           {isCompleted ? <CheckCircle2 className="w-4 h-4" /> : i + 1}
                         </div>
-                        <span className={`text-xs whitespace-nowrap ${isCurrent ? 'font-medium text-shield-700' : 'text-slate-500'}`}>{step}</span>
-                        {i < 3 && <div className={`flex-1 h-0.5 ${isCompleted ? 'bg-shield-500' : 'bg-slate-200'}`} />}
+                        <span className={`text-xs whitespace-nowrap ${isCurrent ? 'font-medium text-shield-700' : 'text-slate-500 dark:text-slate-400'}`}>{step}</span>
+                        {i < 3 && <div className={`flex-1 h-0.5 ${isCompleted ? 'bg-shield-500' : 'bg-slate-200 dark:bg-slate-700'}`} />}
                       </div>
                     );
                   })}

@@ -72,12 +72,12 @@ export default function SuperAdminDashboard() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Platform Overview</h1>
-          <p className="text-slate-500 mt-1">SuperAdmin Dashboard</p>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Platform Overview</h1>
+          <p className="text-slate-500 dark:text-slate-400 mt-1">SuperAdmin Dashboard</p>
         </div>
         <Card className="p-12 text-center">
           <Loader2 className="w-8 h-8 animate-spin text-shield-500 mx-auto" />
-          <p className="text-slate-500 mt-2">Loading platform data...</p>
+          <p className="text-slate-500 dark:text-slate-400 mt-2">Loading platform data...</p>
         </Card>
       </div>
     );
@@ -87,8 +87,8 @@ export default function SuperAdminDashboard() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-slate-900">Platform Overview</h1>
-        <p className="text-slate-500 mt-1">SuperAdmin Dashboard</p>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Platform Overview</h1>
+        <p className="text-slate-500 dark:text-slate-400 mt-1">SuperAdmin Dashboard</p>
       </div>
 
       {/* Stats */}
@@ -101,10 +101,10 @@ export default function SuperAdminDashboard() {
         ].map(s => (
           <Card key={s.label} className="p-6">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-shield-50 flex items-center justify-center text-shield-600">{s.icon}</div>
+              <div className="w-12 h-12 rounded-xl bg-shield-50 dark:bg-shield-900/30 flex items-center justify-center text-shield-600 dark:text-shield-400">{s.icon}</div>
               <div>
-                <p className="text-sm text-slate-500">{s.label}</p>
-                <p className="text-2xl font-bold text-slate-900">{s.value}</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400">{s.label}</p>
+                <p className="text-2xl font-bold text-slate-900 dark:text-white">{s.value}</p>
               </div>
             </div>
           </Card>
@@ -113,16 +113,16 @@ export default function SuperAdminDashboard() {
 
       {/* Quick Actions */}
       <div>
-        <h2 className="text-lg font-semibold text-slate-900 mb-3">Quick Actions</h2>
+        <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-3">Quick Actions</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {quickActions.map(a => (
             <Link key={a.href + a.label} to={a.href} className="block">
               <Card className="p-5 hover:shadow-md transition-shadow cursor-pointer group">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-shield-50 text-shield-600 flex items-center justify-center group-hover:bg-shield-100 transition-colors">{a.icon}</div>
+                  <div className="w-10 h-10 rounded-lg bg-shield-50 dark:bg-shield-900/30 text-shield-600 dark:text-shield-400 flex items-center justify-center group-hover:bg-shield-100 dark:bg-shield-900/30 dark:hover:bg-shield-900/40 transition-colors">{a.icon}</div>
                   <div>
-                    <p className="font-medium text-slate-900">{a.label}</p>
-                    <p className="text-xs text-slate-500">{a.desc}</p>
+                    <p className="font-medium text-slate-900 dark:text-white">{a.label}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">{a.desc}</p>
                   </div>
                 </div>
               </Card>
@@ -137,18 +137,18 @@ export default function SuperAdminDashboard() {
         <Card>
           <div className="p-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-slate-900">Recent Agencies</h2>
-              <Link to="/admin/agencies" className="text-sm text-shield-600 hover:text-shield-700 font-medium">View all</Link>
+              <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Recent Agencies</h2>
+              <Link to="/admin/agencies" className="text-sm text-shield-600 dark:text-shield-400 hover:text-shield-700 dark:text-shield-300 font-medium">View all</Link>
             </div>
             {recentAgencies.length === 0 ? (
-              <p className="text-sm text-slate-400 text-center py-8">No agencies yet</p>
+              <p className="text-sm text-slate-400 dark:text-slate-500 text-center py-8">No agencies yet</p>
             ) : (
               <div className="space-y-1">
                 {recentAgencies.map(a => (
                   <div key={a.id} className="flex items-center justify-between py-3 border-b border-slate-50 last:border-0">
                     <div className="min-w-0">
-                      <p className="font-medium text-slate-900 truncate">{a.name}</p>
-                      <p className="text-xs text-slate-500">{a.owner?.name ?? 'No owner'}</p>
+                      <p className="font-medium text-slate-900 dark:text-white truncate">{a.name}</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">{a.owner?.name ?? 'No owner'}</p>
                     </div>
                     <Badge variant={a.is_verified ? 'success' : 'warning'}>
                       {a.is_verified ? 'Verified' : 'Pending'}
@@ -163,18 +163,18 @@ export default function SuperAdminDashboard() {
         {/* System Health */}
         <Card>
           <div className="p-6">
-            <h2 className="text-lg font-semibold text-slate-900 mb-4">System Health</h2>
+            <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">System Health</h2>
             {healthError || !health ? (
-              <p className="text-sm text-slate-400 text-center py-8">System health check unavailable</p>
+              <p className="text-sm text-slate-400 dark:text-slate-500 text-center py-8">System health check unavailable</p>
             ) : (
               <div className="space-y-1">
                 {Object.entries(health.checks).map(([name, check]) => (
                   <div key={name} className="flex items-center justify-between py-3 border-b border-slate-50 last:border-0">
                     <div className="flex items-center gap-3">
                       <div className={`w-2.5 h-2.5 rounded-full ${check.status === 'ok' ? 'bg-green-500' : check.status === 'warning' ? 'bg-yellow-500' : 'bg-red-500'}`} />
-                      <p className="font-medium text-slate-900 capitalize">{name}</p>
+                      <p className="font-medium text-slate-900 dark:text-white capitalize">{name}</p>
                     </div>
-                    <span className="text-xs text-slate-500">{check.message}</span>
+                    <span className="text-xs text-slate-500 dark:text-slate-400">{check.message}</span>
                   </div>
                 ))}
                 <div className="pt-3">

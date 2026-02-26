@@ -31,25 +31,25 @@ export default function VerifyEmail() {
   }, [token, navigate]);
 
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-800 flex items-center justify-center px-4">
       <div className="w-full max-w-md text-center">
         <img src="/logo.png" alt="Insurons" className="h-20 w-auto mx-auto mb-6" />
 
-        <div className="bg-white rounded-2xl border border-slate-200 p-8">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/50 p-8">
           {status === 'loading' && (
             <>
               <Loader2 className="w-12 h-12 text-teal-600 animate-spin mx-auto mb-4" />
-              <h1 className="text-xl font-bold text-slate-900">Verifying your email...</h1>
-              <p className="text-slate-500 mt-2">Please wait a moment</p>
+              <h1 className="text-xl font-bold text-slate-900 dark:text-white">Verifying your email...</h1>
+              <p className="text-slate-500 dark:text-slate-400 mt-2">Please wait a moment</p>
             </>
           )}
 
           {status === 'success' && (
             <>
               <CheckCircle className="w-12 h-12 text-emerald-500 mx-auto mb-4" />
-              <h1 className="text-xl font-bold text-slate-900">Email Verified!</h1>
-              <p className="text-slate-500 mt-2">{message}</p>
-              <p className="text-sm text-slate-400 mt-4">Redirecting to dashboard...</p>
+              <h1 className="text-xl font-bold text-slate-900 dark:text-white">Email Verified!</h1>
+              <p className="text-slate-500 dark:text-slate-400 mt-2">{message}</p>
+              <p className="text-sm text-slate-400 dark:text-slate-500 mt-4">Redirecting to dashboard...</p>
               <Button
                 variant="shield"
                 size="lg"
@@ -64,8 +64,8 @@ export default function VerifyEmail() {
           {status === 'error' && (
             <>
               <XCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-              <h1 className="text-xl font-bold text-slate-900">Verification Failed</h1>
-              <p className="text-red-600 mt-2">{message}</p>
+              <h1 className="text-xl font-bold text-slate-900 dark:text-white">Verification Failed</h1>
+              <p className="text-red-600 dark:text-red-400 mt-2">{message}</p>
               <div className="mt-6 space-y-3">
                 <Link to="/dashboard">
                   <Button variant="shield" size="lg" className="w-full">

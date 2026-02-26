@@ -18,8 +18,8 @@ export default function Production() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Production Report</h1>
-          <p className="text-slate-500 mt-1">Detailed production metrics and agent performance</p>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Production Report</h1>
+          <p className="text-slate-500 dark:text-slate-400 mt-1">Detailed production metrics and agent performance</p>
         </div>
         <Select
           options={[
@@ -44,38 +44,38 @@ export default function Production() {
       {/* Agent production table */}
       <Card>
         <div className="p-6">
-          <h2 className="text-lg font-semibold text-slate-900 mb-4">Agent Production Rankings</h2>
+          <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Agent Production Rankings</h2>
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-slate-100">
-                  <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider pb-3">#</th>
-                  <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider pb-3">Agent</th>
-                  <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider pb-3">Agency</th>
-                  <th className="text-right text-xs font-medium text-slate-500 uppercase tracking-wider pb-3">Applications</th>
-                  <th className="text-right text-xs font-medium text-slate-500 uppercase tracking-wider pb-3">Bound</th>
-                  <th className="text-right text-xs font-medium text-slate-500 uppercase tracking-wider pb-3">Conversion</th>
-                  <th className="text-right text-xs font-medium text-slate-500 uppercase tracking-wider pb-3">Premium Volume</th>
+                <tr className="border-b border-slate-100 dark:border-slate-700/50">
+                  <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider pb-3">#</th>
+                  <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider pb-3">Agent</th>
+                  <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider pb-3">Agency</th>
+                  <th className="text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider pb-3">Applications</th>
+                  <th className="text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider pb-3">Bound</th>
+                  <th className="text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider pb-3">Conversion</th>
+                  <th className="text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider pb-3">Premium Volume</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
                 {agentProduction.map((row, i) => (
-                  <tr key={i} className="hover:bg-slate-50">
+                  <tr key={i} className="hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-800">
                     <td className="py-3">
                       <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
-                        i < 3 ? 'gradient-shield text-white' : 'bg-slate-200 text-slate-600'
+                        i < 3 ? 'gradient-shield text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300'
                       }`}>
                         {i + 1}
                       </div>
                     </td>
-                    <td className="py-3 font-medium text-slate-900">{row.agent}</td>
-                    <td className="py-3 text-sm text-slate-500">{row.agency}</td>
-                    <td className="py-3 text-right text-sm text-slate-700">{row.applications}</td>
-                    <td className="py-3 text-right text-sm text-slate-700">{row.bound}</td>
+                    <td className="py-3 font-medium text-slate-900 dark:text-white">{row.agent}</td>
+                    <td className="py-3 text-sm text-slate-500 dark:text-slate-400">{row.agency}</td>
+                    <td className="py-3 text-right text-sm text-slate-700 dark:text-slate-200">{row.applications}</td>
+                    <td className="py-3 text-right text-sm text-slate-700 dark:text-slate-200">{row.bound}</td>
                     <td className="py-3 text-right">
                       <Badge variant={row.conversion >= 75 ? 'success' : 'warning'}>{row.conversion}%</Badge>
                     </td>
-                    <td className="py-3 text-right text-sm font-medium text-savings-600">{row.premium_volume}</td>
+                    <td className="py-3 text-right text-sm font-medium text-savings-600 dark:text-savings-400">{row.premium_volume}</td>
                   </tr>
                 ))}
               </tbody>

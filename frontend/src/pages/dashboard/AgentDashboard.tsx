@@ -75,7 +75,7 @@ export default function AgentDashboard() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Agent Dashboard</h1>
-          <p className="text-slate-500 mt-1">Welcome back, {user?.name?.split(' ')[0]}. Here's your pipeline overview.</p>
+          <p className="text-slate-500 dark:text-slate-400 mt-1">Welcome back, {user?.name?.split(' ')[0]}. Here's your pipeline overview.</p>
         </div>
         <Link to="/crm/leads">
           <Button variant="shield" size="sm" rightIcon={<ArrowRight className="w-4 h-4" />}>View All Leads</Button>
@@ -87,8 +87,8 @@ export default function AgentDashboard() {
         {loading ? (
           Array.from({ length: 5 }).map((_, i) => (
             <Card key={i} className="p-5 animate-pulse">
-              <div className="h-4 w-20 bg-slate-200 rounded mb-2" />
-              <div className="h-7 w-16 bg-slate-200 rounded" />
+              <div className="h-4 w-20 bg-slate-200 dark:bg-slate-700 rounded mb-2" />
+              <div className="h-7 w-16 bg-slate-200 dark:bg-slate-700 rounded" />
             </Card>
           ))
         ) : (
@@ -109,7 +109,7 @@ export default function AgentDashboard() {
             <div className="p-6">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-semibold text-slate-900">Pipeline Summary</h2>
-                <Link to="/crm/leads" className="text-sm text-shield-600 hover:underline">View all</Link>
+                <Link to="/crm/leads" className="text-sm text-shield-600 dark:text-shield-400 hover:underline">View all</Link>
               </div>
               {loading ? (
                 <div className="flex items-center justify-center py-12">
@@ -117,21 +117,21 @@ export default function AgentDashboard() {
                 </div>
               ) : (
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div className="p-4 rounded-xl bg-shield-50 text-center">
-                    <p className="text-2xl font-bold text-shield-700">{fmt(stats?.new_leads)}</p>
-                    <p className="text-sm text-slate-500 mt-1">New</p>
+                  <div className="p-4 rounded-xl bg-shield-50 dark:bg-shield-900/30 text-center">
+                    <p className="text-2xl font-bold text-shield-700 dark:text-shield-300">{fmt(stats?.new_leads)}</p>
+                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">New</p>
                   </div>
-                  <div className="p-4 rounded-xl bg-amber-50 text-center">
-                    <p className="text-2xl font-bold text-amber-700">{fmt(stats?.total_leads ? stats.total_leads - (stats?.new_leads ?? 0) - (stats?.policies_bound ?? 0) : 0)}</p>
-                    <p className="text-sm text-slate-500 mt-1">In Progress</p>
+                  <div className="p-4 rounded-xl bg-amber-50 dark:bg-amber-900/30 text-center">
+                    <p className="text-2xl font-bold text-amber-700 dark:text-amber-300">{fmt(stats?.total_leads ? stats.total_leads - (stats?.new_leads ?? 0) - (stats?.policies_bound ?? 0) : 0)}</p>
+                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">In Progress</p>
                   </div>
-                  <div className="p-4 rounded-xl bg-confidence-50 text-center">
-                    <p className="text-2xl font-bold text-confidence-700">{fmt(stats?.applications)}</p>
-                    <p className="text-sm text-slate-500 mt-1">Applications</p>
+                  <div className="p-4 rounded-xl bg-confidence-50 dark:bg-confidence-900/30 text-center">
+                    <p className="text-2xl font-bold text-confidence-700 dark:text-confidence-300">{fmt(stats?.applications)}</p>
+                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Applications</p>
                   </div>
-                  <div className="p-4 rounded-xl bg-savings-50 text-center">
-                    <p className="text-2xl font-bold text-savings-700">{fmt(stats?.policies_bound)}</p>
-                    <p className="text-sm text-slate-500 mt-1">Bound</p>
+                  <div className="p-4 rounded-xl bg-savings-50 dark:bg-savings-900/30 text-center">
+                    <p className="text-2xl font-bold text-savings-700 dark:text-savings-300">{fmt(stats?.policies_bound)}</p>
+                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Bound</p>
                   </div>
                 </div>
               )}
@@ -143,25 +143,25 @@ export default function AgentDashboard() {
           <div className="p-6">
             <h2 className="text-lg font-semibold text-slate-900 mb-4">Action Items</h2>
             <div className="space-y-3">
-              <Link to="/crm/leads" className="flex items-start gap-3 p-3 rounded-xl bg-amber-50 hover:bg-amber-100 transition-colors">
+              <Link to="/crm/leads" className="flex items-start gap-3 p-3 rounded-xl bg-amber-50 dark:bg-amber-900/30 hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-colors">
                 <AlertCircle className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
                 <div>
                   <p className="text-sm font-medium text-slate-900">{stats?.new_leads ?? 0} leads need follow-up</p>
-                  <p className="text-xs text-slate-500">New leads awaiting contact</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">New leads awaiting contact</p>
                 </div>
               </Link>
-              <Link to="/applications" className="flex items-start gap-3 p-3 rounded-xl bg-shield-50 hover:bg-shield-100 transition-colors">
+              <Link to="/applications" className="flex items-start gap-3 p-3 rounded-xl bg-shield-50 dark:bg-shield-900/30 hover:bg-shield-100 dark:hover:bg-shield-900/40 transition-colors">
                 <Clock className="w-5 h-5 text-shield-500 flex-shrink-0 mt-0.5" />
                 <div>
                   <p className="text-sm font-medium text-slate-900">{stats?.applications ?? 0} applications pending</p>
-                  <p className="text-xs text-slate-500">In review or awaiting documents</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">In review or awaiting documents</p>
                 </div>
               </Link>
-              <Link to="/policies" className="flex items-start gap-3 p-3 rounded-xl bg-savings-50 hover:bg-savings-100 transition-colors">
+              <Link to="/policies" className="flex items-start gap-3 p-3 rounded-xl bg-savings-50 dark:bg-savings-900/30 hover:bg-savings-100 dark:hover:bg-savings-900/40 transition-colors">
                 <TrendingUp className="w-5 h-5 text-savings-500 flex-shrink-0 mt-0.5" />
                 <div>
                   <p className="text-sm font-medium text-slate-900">{stats?.policies_bound ?? 0} policies bound</p>
-                  <p className="text-xs text-slate-500">Lifetime production</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Lifetime production</p>
                 </div>
               </Link>
             </div>
@@ -176,12 +176,12 @@ export default function AgentDashboard() {
           <div className="p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
-                <ListChecks className="w-5 h-5 text-shield-600" /> Tasks Due Today
+                <ListChecks className="w-5 h-5 text-shield-600 dark:text-shield-400" /> Tasks Due Today
               </h2>
-              <Link to="/tasks" className="text-sm text-shield-600 hover:underline">View all</Link>
+              <Link to="/tasks" className="text-sm text-shield-600 dark:text-shield-400 hover:underline">View all</Link>
             </div>
             {tasks.length === 0 ? (
-              <div className="text-center py-8 text-slate-400">
+              <div className="text-center py-8 text-slate-400 dark:text-slate-500">
                 <CheckCircle2 className="w-8 h-8 mx-auto mb-2 opacity-50" />
                 <p className="text-sm">All caught up! No tasks due today.</p>
               </div>
@@ -191,12 +191,12 @@ export default function AgentDashboard() {
                   const done = !!task.completed_at;
                   const overdue = !done && new Date(task.date) < new Date(new Date().toDateString());
                   return (
-                    <Link key={task.id} to="/tasks" className={`flex items-center gap-3 p-3 rounded-lg hover:bg-slate-50 transition-colors ${done ? 'opacity-50' : ''}`}>
+                    <Link key={task.id} to="/tasks" className={`flex items-center gap-3 p-3 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-800 transition-colors ${done ? 'opacity-50' : ''}`}>
                       {done ? <CheckCircle2 className="w-4 h-4 text-savings-500 flex-shrink-0" /> : <Circle className="w-4 h-4 text-slate-300 flex-shrink-0" />}
                       <div className="flex-1 min-w-0">
-                        <p className={`text-sm ${done ? 'line-through text-slate-400' : 'text-slate-900'} truncate`}>{task.title}</p>
+                        <p className={`text-sm ${done ? 'line-through text-slate-400 dark:text-slate-500' : 'text-slate-900'} truncate`}>{task.title}</p>
                         <div className="flex items-center gap-2 mt-0.5">
-                          <span className="text-xs text-slate-400 flex items-center gap-1"><Calendar className="w-3 h-3" />{formatDate(task.date)}</span>
+                          <span className="text-xs text-slate-400 dark:text-slate-500 flex items-center gap-1"><Calendar className="w-3 h-3" />{formatDate(task.date)}</span>
                           {overdue && <Badge variant="danger" className="text-[10px]">Overdue</Badge>}
                         </div>
                       </div>
@@ -213,12 +213,12 @@ export default function AgentDashboard() {
           <div className="p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
-                <Target className="w-5 h-5 text-shield-600" /> Recent Leads
+                <Target className="w-5 h-5 text-shield-600 dark:text-shield-400" /> Recent Leads
               </h2>
-              <Link to="/crm/leads" className="text-sm text-shield-600 hover:underline">View all</Link>
+              <Link to="/crm/leads" className="text-sm text-shield-600 dark:text-shield-400 hover:underline">View all</Link>
             </div>
             {recentLeads.length === 0 ? (
-              <div className="text-center py-8 text-slate-400">
+              <div className="text-center py-8 text-slate-400 dark:text-slate-500">
                 <Target className="w-8 h-8 mx-auto mb-2 opacity-50" />
                 <p className="text-sm">No leads yet</p>
               </div>
@@ -227,22 +227,22 @@ export default function AgentDashboard() {
                 {recentLeads.map(lead => {
                   const config = statusConfig[lead.status] || statusConfig.new;
                   return (
-                    <Link key={lead.id} to="/crm/leads" className="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-50 transition-colors">
-                      <div className="w-8 h-8 rounded-full bg-shield-100 text-shield-700 flex items-center justify-center text-xs font-bold flex-shrink-0">
+                    <Link key={lead.id} to="/crm/leads" className="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-800 transition-colors">
+                      <div className="w-8 h-8 rounded-full bg-shield-100 text-shield-700 dark:text-shield-300 flex items-center justify-center text-xs font-bold flex-shrink-0">
                         {lead.first_name[0]}{lead.last_name[0]}
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-slate-900 truncate">{lead.first_name} {lead.last_name}</p>
-                        <p className="text-xs text-slate-400 capitalize truncate">{lead.insurance_type?.replace(/_/g, ' ')} · {formatDate(lead.created_at)}</p>
+                        <p className="text-xs text-slate-400 dark:text-slate-500 capitalize truncate">{lead.insurance_type?.replace(/_/g, ' ')} · {formatDate(lead.created_at)}</p>
                       </div>
                       <Badge variant={config.variant} className="text-[10px] flex-shrink-0">{config.label}</Badge>
                       <div className="flex items-center gap-0.5 flex-shrink-0">
                         {lead.phone && (
-                          <button onClick={e => { e.preventDefault(); window.location.href = `tel:${lead.phone}`; }} className="p-1 text-slate-400 hover:text-shield-600">
+                          <button onClick={e => { e.preventDefault(); window.location.href = `tel:${lead.phone}`; }} className="p-1 text-slate-400 dark:text-slate-500 hover:text-shield-600 dark:text-shield-400">
                             <Phone className="w-3.5 h-3.5" />
                           </button>
                         )}
-                        <button onClick={e => { e.preventDefault(); window.location.href = `mailto:${lead.email}`; }} className="p-1 text-slate-400 hover:text-shield-600">
+                        <button onClick={e => { e.preventDefault(); window.location.href = `mailto:${lead.email}`; }} className="p-1 text-slate-400 dark:text-slate-500 hover:text-shield-600 dark:text-shield-400">
                           <Mail className="w-3.5 h-3.5" />
                         </button>
                         <ChevronRight className="w-4 h-4 text-slate-300" />
@@ -258,21 +258,21 @@ export default function AgentDashboard() {
 
       {/* Quick Links row */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <Link to="/commissions" className="flex items-center gap-3 p-4 bg-white rounded-xl border border-slate-200 hover:border-shield-300 hover:shadow-sm transition-all">
-          <DollarSign className="w-5 h-5 text-savings-600" />
-          <span className="text-sm font-medium text-slate-700">Commissions</span>
+        <Link to="/commissions" className="flex items-center gap-3 p-4 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700/50 hover:border-shield-300 hover:shadow-sm transition-all">
+          <DollarSign className="w-5 h-5 text-savings-600 dark:text-savings-400" />
+          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Commissions</span>
         </Link>
-        <Link to="/reviews" className="flex items-center gap-3 p-4 bg-white rounded-xl border border-slate-200 hover:border-shield-300 hover:shadow-sm transition-all">
+        <Link to="/reviews" className="flex items-center gap-3 p-4 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700/50 hover:border-shield-300 hover:shadow-sm transition-all">
           <Star className="w-5 h-5 text-amber-500" />
-          <span className="text-sm font-medium text-slate-700">Reviews</span>
+          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Reviews</span>
         </Link>
-        <Link to="/calendar" className="flex items-center gap-3 p-4 bg-white rounded-xl border border-slate-200 hover:border-shield-300 hover:shadow-sm transition-all">
-          <Calendar className="w-5 h-5 text-shield-600" />
-          <span className="text-sm font-medium text-slate-700">Calendar</span>
+        <Link to="/calendar" className="flex items-center gap-3 p-4 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700/50 hover:border-shield-300 hover:shadow-sm transition-all">
+          <Calendar className="w-5 h-5 text-shield-600 dark:text-shield-400" />
+          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Calendar</span>
         </Link>
-        <Link to="/tasks" className="flex items-center gap-3 p-4 bg-white rounded-xl border border-slate-200 hover:border-shield-300 hover:shadow-sm transition-all">
+        <Link to="/tasks" className="flex items-center gap-3 p-4 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700/50 hover:border-shield-300 hover:shadow-sm transition-all">
           <ListChecks className="w-5 h-5 text-teal-600" />
-          <span className="text-sm font-medium text-slate-700">All Tasks</span>
+          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">All Tasks</span>
         </Link>
       </div>
     </div>

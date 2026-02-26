@@ -23,24 +23,24 @@ export default function SsoLogin() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4 py-12">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-800 flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-md text-center">
         <img src="/logo.png" alt="Insurons" className="h-20 w-auto mx-auto mb-4" />
-        <h1 className="text-2xl font-bold text-slate-900 mb-2">Enterprise SSO Login</h1>
-        <p className="text-slate-500 mb-8">
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">Enterprise SSO Login</h1>
+        <p className="text-slate-500 dark:text-slate-400 mb-8">
           Sign in with your organization's identity provider
         </p>
 
-        <div className="bg-white rounded-2xl border border-slate-200 p-8">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/50 p-8">
           {error && (
-            <div className="flex items-center gap-2 p-3 rounded-xl bg-red-50 text-red-600 text-sm mb-6">
+            <div className="flex items-center gap-2 p-3 rounded-xl bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-sm mb-6">
               <AlertCircle className="w-4 h-4 flex-shrink-0" />
               {error}
             </div>
           )}
 
-          <p className="text-sm text-slate-600 mb-6">
-            Agency: <span className="font-semibold text-slate-900">{agencySlug?.toUpperCase()}</span>
+          <p className="text-sm text-slate-600 dark:text-slate-300 mb-6">
+            Agency: <span className="font-semibold text-slate-900 dark:text-white">{agencySlug?.toUpperCase()}</span>
           </p>
 
           <Button
@@ -55,9 +55,9 @@ export default function SsoLogin() {
           </Button>
         </div>
 
-        <p className="text-sm text-slate-500 mt-6">
+        <p className="text-sm text-slate-500 dark:text-slate-400 mt-6">
           Not using SSO?{' '}
-          <Link to="/login" className="text-shield-600 font-medium hover:underline">
+          <Link to="/login" className="text-shield-600 dark:text-shield-400 font-medium hover:underline">
             Sign in with email
           </Link>
         </p>

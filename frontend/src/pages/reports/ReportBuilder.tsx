@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 
 const statusConfig: Record<string, { icon: typeof CheckCircle; color: string }> = {
-  pending: { icon: Clock, color: 'text-slate-400' },
+  pending: { icon: Clock, color: 'text-slate-400 dark:text-slate-500' },
   running: { icon: Loader, color: 'text-blue-500' },
   completed: { icon: CheckCircle, color: 'text-green-500' },
   failed: { icon: XCircle, color: 'text-red-500' },
@@ -78,8 +78,8 @@ export default function ReportBuilder() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Reports & BI Export</h1>
-          <p className="text-slate-500 mt-1">Build custom reports with scheduled delivery</p>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Reports & BI Export</h1>
+          <p className="text-slate-500 dark:text-slate-400 mt-1">Build custom reports with scheduled delivery</p>
         </div>
         <Button variant="shield" onClick={() => setShowCreate(true)}>
           <Plus className="w-4 h-4 mr-1" /> New Report
@@ -96,7 +96,7 @@ export default function ReportBuilder() {
           ) : definitions.length === 0 ? (
             <Card className="p-12 text-center">
               <FileBarChart className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-              <p className="text-slate-500 mb-4">No report definitions yet</p>
+              <p className="text-slate-500 dark:text-slate-400 mb-4">No report definitions yet</p>
               <Button variant="shield" onClick={() => setShowCreate(true)}>
                 <Plus className="w-4 h-4 mr-1" /> Create First Report
               </Button>
@@ -109,22 +109,22 @@ export default function ReportBuilder() {
             >
               <div className="flex items-start justify-between mb-2">
                 <div>
-                  <h3 className="font-bold text-slate-900">{def.name}</h3>
-                  {def.description && <p className="text-xs text-slate-500 mt-0.5">{def.description}</p>}
+                  <h3 className="font-bold text-slate-900 dark:text-white">{def.name}</h3>
+                  {def.description && <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{def.description}</p>}
                 </div>
                 <div className="flex items-center gap-2">
                   {def.schedule && <Badge variant="info">{def.schedule}</Badge>}
                   <Badge variant={def.is_active ? 'success' : 'default'}>{def.is_active ? 'Active' : 'Inactive'}</Badge>
                 </div>
               </div>
-              <div className="flex items-center gap-3 text-xs text-slate-400">
+              <div className="flex items-center gap-3 text-xs text-slate-400 dark:text-slate-500">
                 {def.recipients && def.recipients.length > 0 && (
                   <span className="flex items-center gap-1"><Mail className="w-3 h-3" /> {def.recipients.length} recipient(s)</span>
                 )}
                 {def.last_run_at && <span>Last run: {new Date(def.last_run_at).toLocaleDateString()}</span>}
                 <span>Created: {new Date(def.created_at).toLocaleDateString()}</span>
               </div>
-              <div className="flex items-center gap-2 mt-3 pt-2 border-t border-slate-100">
+              <div className="flex items-center gap-2 mt-3 pt-2 border-t border-slate-100 dark:border-slate-700/50">
                 <Button variant="shield" size="sm" onClick={e => { e.stopPropagation(); setShowRunModal(def); }}>
                   <Play className="w-3.5 h-3.5 mr-1" /> Run Now
                 </Button>
@@ -141,7 +141,7 @@ export default function ReportBuilder() {
           {selectedDef ? (
             <Card className="p-5 sticky top-4">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="font-bold text-slate-900">Report Runs</h3>
+                <h3 className="font-bold text-slate-900 dark:text-white">Report Runs</h3>
                 <Button variant="shield" size="sm" onClick={() => setShowRunModal(selectedDef)}>
                   <Play className="w-3.5 h-3.5 mr-1" /> Run
                 </Button>
@@ -151,18 +151,18 @@ export default function ReportBuilder() {
                   const sc = statusConfig[run.status] || statusConfig.pending;
                   const FormatIcon = formatIcons[run.file_format] || FileText;
                   return (
-                    <div key={run.id} className="bg-slate-50 rounded-xl p-3">
+                    <div key={run.id} className="bg-slate-50 dark:bg-slate-800 rounded-xl p-3">
                       <div className="flex items-center justify-between mb-1">
                         <div className="flex items-center gap-2">
                           <sc.icon className={`w-4 h-4 ${sc.color} ${run.status === 'running' ? 'animate-spin' : ''}`} />
-                          <span className="text-sm font-medium text-slate-900 capitalize">{run.status}</span>
+                          <span className="text-sm font-medium text-slate-900 dark:text-white capitalize">{run.status}</span>
                         </div>
-                        <div className="flex items-center gap-1 text-xs text-slate-400">
+                        <div className="flex items-center gap-1 text-xs text-slate-400 dark:text-slate-500">
                           <FormatIcon className="w-3 h-3" />
                           <span>{run.file_format.toUpperCase()}</span>
                         </div>
                       </div>
-                      <div className="text-xs text-slate-500">
+                      <div className="text-xs text-slate-500 dark:text-slate-400">
                         {run.completed_at ? (
                           <span>{run.row_count.toLocaleString()} rows &bull; {new Date(run.completed_at).toLocaleString()}</span>
                         ) : run.started_at ? (
@@ -186,12 +186,12 @@ export default function ReportBuilder() {
                   );
                 })}
                 {runs.length === 0 && (
-                  <p className="text-sm text-slate-400 text-center py-4">No runs yet</p>
+                  <p className="text-sm text-slate-400 dark:text-slate-500 text-center py-4">No runs yet</p>
                 )}
               </div>
             </Card>
           ) : (
-            <Card className="p-8 text-center text-slate-400">
+            <Card className="p-8 text-center text-slate-400 dark:text-slate-500">
               <FileBarChart className="w-8 h-8 mx-auto mb-2 opacity-50" />
               <p className="text-sm">Select a report to view runs</p>
             </Card>
@@ -260,7 +260,7 @@ function RunReportModal({ definition, onClose, onRun }: { definition: ReportDefi
     <Modal isOpen onClose={onClose} title={`Run: ${definition.name}`} size="md">
       <div className="space-y-4">
         <div>
-          <label className="text-sm font-medium text-slate-700 block mb-2">Export Format</label>
+          <label className="text-sm font-medium text-slate-700 dark:text-slate-200 block mb-2">Export Format</label>
           <div className="grid grid-cols-3 gap-2">
             {formats.map(f => (
               <button
@@ -268,13 +268,13 @@ function RunReportModal({ definition, onClose, onRun }: { definition: ReportDefi
                 onClick={() => setFormat(f.value)}
                 className={`p-3 rounded-xl border-2 text-center transition-all ${
                   format === f.value
-                    ? 'border-shield-500 bg-shield-50 text-shield-700'
-                    : 'border-slate-200 hover:border-slate-300 text-slate-600'
+                    ? 'border-shield-500 bg-shield-50 dark:bg-shield-900/30 text-shield-700 dark:text-shield-300'
+                    : 'border-slate-200 dark:border-slate-700/50 hover:border-slate-300 text-slate-600 dark:text-slate-300'
                 }`}
               >
                 <f.Icon className="w-6 h-6 mx-auto mb-1" />
                 <p className="text-sm font-medium">{f.label}</p>
-                <p className="text-xs text-slate-400 mt-0.5">{f.desc}</p>
+                <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">{f.desc}</p>
               </button>
             ))}
           </div>
@@ -317,32 +317,32 @@ function EmailReportModal({ run, onClose }: { run: ReportRun; onClose: () => voi
   return (
     <Modal isOpen onClose={onClose} title="Email Report" size="md">
       <div className="space-y-4">
-        <div className="bg-slate-50 rounded-xl p-3 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-shield-50 flex items-center justify-center">
-            {(() => { const Icon = formatIcons[run.file_format] || FileText; return <Icon className="w-5 h-5 text-shield-600" />; })()}
+        <div className="bg-slate-50 dark:bg-slate-800 rounded-xl p-3 flex items-center gap-3">
+          <div className="w-10 h-10 rounded-lg bg-shield-50 dark:bg-shield-900/30 flex items-center justify-center">
+            {(() => { const Icon = formatIcons[run.file_format] || FileText; return <Icon className="w-5 h-5 text-shield-600 dark:text-shield-400" />; })()}
           </div>
           <div>
-            <p className="text-sm font-medium text-slate-900">{run.file_format.toUpperCase()} Report</p>
-            <p className="text-xs text-slate-500">{run.row_count.toLocaleString()} rows &bull; {run.completed_at ? new Date(run.completed_at).toLocaleString() : ''}</p>
+            <p className="text-sm font-medium text-slate-900 dark:text-white">{run.file_format.toUpperCase()} Report</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400">{run.row_count.toLocaleString()} rows &bull; {run.completed_at ? new Date(run.completed_at).toLocaleString() : ''}</p>
           </div>
         </div>
 
         <div>
-          <label className="text-sm font-medium text-slate-700 block mb-1">Recipients</label>
+          <label className="text-sm font-medium text-slate-700 dark:text-slate-200 block mb-1">Recipients</label>
           <Input
             placeholder="email@example.com, another@example.com"
             value={recipients}
             onChange={e => setRecipients(e.target.value)}
           />
-          <p className="text-xs text-slate-400 mt-1">Separate multiple emails with commas</p>
+          <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">Separate multiple emails with commas</p>
         </div>
 
         <div>
-          <label className="text-sm font-medium text-slate-700 block mb-1">Message (optional)</label>
+          <label className="text-sm font-medium text-slate-700 dark:text-slate-200 block mb-1">Message (optional)</label>
           <textarea
             value={message}
             onChange={e => setMessage(e.target.value)}
-            className="w-full h-20 text-sm border border-slate-200 rounded-lg p-3 focus:ring-2 focus:ring-shield-500 focus:border-shield-500"
+            className="w-full h-20 text-sm border border-slate-200 dark:border-slate-700/50 rounded-lg p-3 focus:ring-2 focus:ring-shield-500 dark:focus:ring-shield-400 focus:border-shield-500"
             placeholder="Here's the latest report..."
           />
         </div>
@@ -392,12 +392,12 @@ function CreateReportModal({ onClose, onCreated }: { onClose: () => void; onCrea
       <div className="space-y-4">
         <Input label="Report Name" placeholder="Monthly Production Summary" value={name} onChange={e => setName(e.target.value)} />
         <div>
-          <label className="text-sm font-medium text-slate-700 block mb-1">Description</label>
-          <textarea value={description} onChange={e => setDescription(e.target.value)} className="w-full h-20 text-sm border border-slate-200 rounded-lg p-3 focus:ring-2 focus:ring-shield-500 focus:border-shield-500" placeholder="What this report covers..." />
+          <label className="text-sm font-medium text-slate-700 dark:text-slate-200 block mb-1">Description</label>
+          <textarea value={description} onChange={e => setDescription(e.target.value)} className="w-full h-20 text-sm border border-slate-200 dark:border-slate-700/50 rounded-lg p-3 focus:ring-2 focus:ring-shield-500 dark:focus:ring-shield-400 focus:border-shield-500" placeholder="What this report covers..." />
         </div>
         <div>
-          <label className="text-sm font-medium text-slate-700 block mb-1">Schedule (optional)</label>
-          <select value={schedule} onChange={e => setSchedule(e.target.value)} className="w-full text-sm border border-slate-200 rounded-lg px-3 py-2">
+          <label className="text-sm font-medium text-slate-700 dark:text-slate-200 block mb-1">Schedule (optional)</label>
+          <select value={schedule} onChange={e => setSchedule(e.target.value)} className="w-full text-sm border border-slate-200 dark:border-slate-700/50 rounded-lg px-3 py-2">
             <option value="">No schedule (run manually)</option>
             <option value="daily">Daily</option>
             <option value="weekly">Weekly</option>
@@ -405,13 +405,13 @@ function CreateReportModal({ onClose, onCreated }: { onClose: () => void; onCrea
           </select>
         </div>
         <div>
-          <label className="text-sm font-medium text-slate-700 block mb-1">Email Recipients (optional)</label>
+          <label className="text-sm font-medium text-slate-700 dark:text-slate-200 block mb-1">Email Recipients (optional)</label>
           <Input
             placeholder="email@example.com, another@example.com"
             value={recipientInput}
             onChange={e => setRecipientInput(e.target.value)}
           />
-          <p className="text-xs text-slate-400 mt-1">Reports will be emailed to these addresses on schedule</p>
+          <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">Reports will be emailed to these addresses on schedule</p>
         </div>
         <div className="flex justify-end gap-2 pt-2">
           <Button variant="ghost" onClick={onClose}>Cancel</Button>

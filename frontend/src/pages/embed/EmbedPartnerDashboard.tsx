@@ -65,8 +65,8 @@ export default function EmbedPartnerDashboard() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Embedded Insurance</h1>
-          <p className="text-slate-500 mt-1">Manage widget partners and track conversions</p>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Embedded Insurance</h1>
+          <p className="text-slate-500 dark:text-slate-400 mt-1">Manage widget partners and track conversions</p>
         </div>
         <Button variant="shield" onClick={() => setShowCreate(true)}>
           <Plus className="w-4 h-4 mr-1" /> New Partner
@@ -80,7 +80,7 @@ export default function EmbedPartnerDashboard() {
       ) : partners.length === 0 ? (
         <Card className="p-12 text-center">
           <Code className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-          <p className="text-slate-500 mb-4">No embed partners configured</p>
+          <p className="text-slate-500 dark:text-slate-400 mb-4">No embed partners configured</p>
           <Button variant="shield" onClick={() => setShowCreate(true)}>
             <Plus className="w-4 h-4 mr-1" /> Add First Partner
           </Button>
@@ -97,12 +97,12 @@ export default function EmbedPartnerDashboard() {
               >
                 <div className="flex items-start justify-between mb-2">
                   <div>
-                    <h3 className="font-bold text-slate-900">{p.name}</h3>
-                    <p className="text-xs text-slate-500">{p.contact_email}</p>
+                    <h3 className="font-bold text-slate-900 dark:text-white">{p.name}</h3>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">{p.contact_email}</p>
                   </div>
                   {p.is_active ? <Badge variant="success">Active</Badge> : <Badge variant="danger">Inactive</Badge>}
                 </div>
-                <div className="flex items-center gap-4 text-sm text-slate-500">
+                <div className="flex items-center gap-4 text-sm text-slate-500 dark:text-slate-400">
                   <span>{p.sessions_count ?? 0} sessions</span>
                   <span>{p.converted_count ?? 0} conversions</span>
                   <span>{p.commission_share_percent}% share</span>
@@ -110,7 +110,7 @@ export default function EmbedPartnerDashboard() {
                 {p.allowed_domains && p.allowed_domains.length > 0 && (
                   <div className="flex flex-wrap gap-1 mt-2">
                     {p.allowed_domains.map(d => (
-                      <span key={d} className="text-xs px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">{d}</span>
+                      <span key={d} className="text-xs px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">{d}</span>
                     ))}
                   </div>
                 )}
@@ -123,7 +123,7 @@ export default function EmbedPartnerDashboard() {
             {selectedPartner && analytics ? (
               <Card className="p-6">
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-lg font-bold text-slate-900">{selectedPartner.name} — Analytics</h2>
+                  <h2 className="text-lg font-bold text-slate-900 dark:text-white">{selectedPartner.name} — Analytics</h2>
                   <div className="flex items-center gap-2">
                     <Button variant="ghost" size="sm" onClick={() => setEditPartner(selectedPartner)}>
                       <Pencil className="w-4 h-4 mr-1" /> Edit
@@ -145,35 +145,35 @@ export default function EmbedPartnerDashboard() {
 
                 {/* Stats */}
                 <div className="grid grid-cols-3 gap-4 mb-6">
-                  <div className="bg-slate-50 rounded-xl p-4 text-center">
-                    <p className="text-2xl font-bold text-slate-900">{analytics.total_sessions}</p>
-                    <p className="text-sm text-slate-500">Total Sessions</p>
+                  <div className="bg-slate-50 dark:bg-slate-800 rounded-xl p-4 text-center">
+                    <p className="text-2xl font-bold text-slate-900 dark:text-white">{analytics.total_sessions}</p>
+                    <p className="text-sm text-slate-500 dark:text-slate-400">Total Sessions</p>
                   </div>
-                  <div className="bg-slate-50 rounded-xl p-4 text-center">
-                    <p className="text-2xl font-bold text-savings-600">{analytics.conversions}</p>
-                    <p className="text-sm text-slate-500">Conversions</p>
+                  <div className="bg-slate-50 dark:bg-slate-800 rounded-xl p-4 text-center">
+                    <p className="text-2xl font-bold text-savings-600 dark:text-savings-400">{analytics.conversions}</p>
+                    <p className="text-sm text-slate-500 dark:text-slate-400">Conversions</p>
                   </div>
-                  <div className="bg-slate-50 rounded-xl p-4 text-center">
-                    <p className="text-2xl font-bold text-shield-600">{analytics.conversion_rate}%</p>
-                    <p className="text-sm text-slate-500">Conversion Rate</p>
+                  <div className="bg-slate-50 dark:bg-slate-800 rounded-xl p-4 text-center">
+                    <p className="text-2xl font-bold text-shield-600 dark:text-shield-400">{analytics.conversion_rate}%</p>
+                    <p className="text-sm text-slate-500 dark:text-slate-400">Conversion Rate</p>
                   </div>
                 </div>
 
                 {/* By domain */}
                 {analytics.by_domain.length > 0 && (
                   <div>
-                    <h3 className="text-sm font-bold text-slate-700 mb-3">By Domain</h3>
+                    <h3 className="text-sm font-bold text-slate-700 dark:text-slate-200 mb-3">By Domain</h3>
                     <div className="space-y-2">
                       {analytics.by_domain.map((d, i) => (
-                        <div key={i} className="flex items-center justify-between bg-slate-50 rounded-lg px-4 py-2.5 text-sm">
+                        <div key={i} className="flex items-center justify-between bg-slate-50 dark:bg-slate-800 rounded-lg px-4 py-2.5 text-sm">
                           <div className="flex items-center gap-2">
-                            <Globe className="w-4 h-4 text-slate-400" />
+                            <Globe className="w-4 h-4 text-slate-400 dark:text-slate-500" />
                             <span className="font-medium">{d.source_domain || 'Direct'}</span>
                           </div>
-                          <div className="flex items-center gap-4 text-slate-500">
+                          <div className="flex items-center gap-4 text-slate-500 dark:text-slate-400">
                             <span>{d.total} sessions</span>
                             <span>{d.conversions} conversions</span>
-                            <span className="font-medium text-shield-600">
+                            <span className="font-medium text-shield-600 dark:text-shield-400">
                               {d.total > 0 ? ((d.conversions / d.total) * 100).toFixed(1) : '0'}%
                             </span>
                           </div>
@@ -186,7 +186,7 @@ export default function EmbedPartnerDashboard() {
             ) : (
               <Card className="p-12 text-center">
                 <BarChart3 className="w-10 h-10 text-slate-300 mx-auto mb-2" />
-                <p className="text-slate-400">Select a partner to view analytics</p>
+                <p className="text-slate-400 dark:text-slate-500">Select a partner to view analytics</p>
               </Card>
             )}
           </div>
@@ -223,10 +223,10 @@ export default function EmbedPartnerDashboard() {
       {showApiKey && (
         <Modal isOpen onClose={() => setShowApiKey(null)} title="API Key" size="sm">
           <div className="space-y-4">
-            <p className="text-sm text-slate-600">Save this API key now — it won't be shown again.</p>
-            <div className="flex items-center gap-2 bg-slate-50 rounded-lg p-3">
+            <p className="text-sm text-slate-600 dark:text-slate-300">Save this API key now — it won't be shown again.</p>
+            <div className="flex items-center gap-2 bg-slate-50 dark:bg-slate-800 rounded-lg p-3">
               <code className="text-sm font-mono flex-1 break-all">{showApiKey}</code>
-              <button onClick={() => navigator.clipboard.writeText(showApiKey)} className="text-slate-400 hover:text-slate-600">
+              <button onClick={() => navigator.clipboard.writeText(showApiKey)} className="text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:text-slate-300">
                 <Copy className="w-4 h-4" />
               </button>
             </div>
@@ -239,7 +239,7 @@ export default function EmbedPartnerDashboard() {
       {embedCode && (
         <Modal isOpen onClose={() => setEmbedCode(null)} title="Widget Embed Code" size="md">
           <div className="space-y-4">
-            <p className="text-sm text-slate-600">Add this snippet to your partner's website to embed the insurance widget:</p>
+            <p className="text-sm text-slate-600 dark:text-slate-300">Add this snippet to your partner's website to embed the insurance widget:</p>
             <div className="bg-slate-900 rounded-lg p-4">
               <code className="text-sm text-green-400 font-mono break-all">{embedCode}</code>
             </div>
@@ -323,26 +323,26 @@ function PartnerFormModal({ partner, onClose, onSaved }: {
         <Input label="Commission Share %" type="number" value={commission} onChange={e => setCommission(e.target.value)} />
 
         {/* Widget Customization */}
-        <div className="border-t border-slate-200 pt-4 mt-4">
-          <h3 className="text-sm font-bold text-slate-700 mb-3">Widget Customization</h3>
+        <div className="border-t border-slate-200 dark:border-slate-700/50 pt-4 mt-4">
+          <h3 className="text-sm font-bold text-slate-700 dark:text-slate-200 mb-3">Widget Customization</h3>
           <div className="space-y-3">
             <div className="grid grid-cols-2 gap-3">
               <Input label="Company Name" placeholder="Displayed in widget header" value={companyName} onChange={e => setCompanyName(e.target.value)} />
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Primary Color</label>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1">Primary Color</label>
                 <div className="flex items-center gap-2">
                   <input
                     type="color"
                     value={primaryColor || '#102a43'}
                     onChange={e => setPrimaryColor(e.target.value)}
-                    className="w-10 h-10 rounded border border-slate-200 cursor-pointer p-0.5"
+                    className="w-10 h-10 rounded border border-slate-200 dark:border-slate-700/50 cursor-pointer p-0.5"
                   />
                   <input
                     type="text"
                     placeholder="#102a43"
                     value={primaryColor}
                     onChange={e => setPrimaryColor(e.target.value)}
-                    className="flex-1 text-sm border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-shield-500"
+                    className="flex-1 text-sm border border-slate-200 dark:border-slate-700/50 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-shield-500 dark:focus:ring-shield-400"
                   />
                 </div>
               </div>
@@ -354,9 +354,9 @@ function PartnerFormModal({ partner, onClose, onSaved }: {
                 type="checkbox"
                 checked={hideBranding}
                 onChange={e => setHideBranding(e.target.checked)}
-                className="w-4 h-4 rounded border-slate-300 text-shield-600 focus:ring-shield-500"
+                className="w-4 h-4 rounded border-slate-300 text-shield-600 dark:text-shield-400 focus:ring-shield-500 dark:focus:ring-shield-400"
               />
-              <span className="text-sm text-slate-700">Hide "Powered by Insurons" branding</span>
+              <span className="text-sm text-slate-700 dark:text-slate-200">Hide "Powered by Insurons" branding</span>
             </label>
           </div>
         </div>

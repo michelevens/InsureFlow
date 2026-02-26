@@ -54,8 +54,8 @@ export default function ApiKeyManagement() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">API Keys</h1>
-          <p className="text-slate-500 mt-1">Manage API access for integrations</p>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">API Keys</h1>
+          <p className="text-slate-500 dark:text-slate-400 mt-1">Manage API access for integrations</p>
         </div>
         <Button variant="shield" onClick={() => setShowCreate(true)}>
           <Plus className="w-4 h-4 mr-1" /> Create API Key
@@ -64,14 +64,14 @@ export default function ApiKeyManagement() {
 
       {/* New key alert */}
       {newKeyPlainText && (
-        <Card className="p-4 bg-green-50 border-green-200">
+        <Card className="p-4 bg-green-50 dark:bg-green-900/30 border-green-200">
           <div className="flex items-start gap-3">
-            <Key className="w-5 h-5 text-green-600 mt-0.5" />
+            <Key className="w-5 h-5 text-green-600 dark:text-green-400 mt-0.5" />
             <div className="flex-1">
               <p className="font-medium text-green-900 text-sm">API Key Created</p>
-              <p className="text-xs text-green-700 mt-1">Copy this key now. It won't be shown again.</p>
+              <p className="text-xs text-green-700 dark:text-green-300 mt-1">Copy this key now. It won't be shown again.</p>
               <div className="flex items-center gap-2 mt-2">
-                <code className="bg-white px-3 py-1.5 rounded-lg text-sm font-mono text-green-800 border border-green-200 flex-1 truncate">
+                <code className="bg-white dark:bg-slate-900 px-3 py-1.5 rounded-lg text-sm font-mono text-green-800 border border-green-200 flex-1 truncate">
                   {newKeyPlainText}
                 </code>
                 <Button
@@ -83,7 +83,7 @@ export default function ApiKeyManagement() {
                 </Button>
               </div>
             </div>
-            <button onClick={() => setNewKeyPlainText(null)} className="text-green-600 hover:text-green-800 text-lg">&times;</button>
+            <button onClick={() => setNewKeyPlainText(null)} className="text-green-600 dark:text-green-400 hover:text-green-800 text-lg">&times;</button>
           </div>
         </Card>
       )}
@@ -98,7 +98,7 @@ export default function ApiKeyManagement() {
           ) : keys.length === 0 ? (
             <Card className="p-12 text-center">
               <Key className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-              <p className="text-slate-500 mb-4">No API keys yet</p>
+              <p className="text-slate-500 dark:text-slate-400 mb-4">No API keys yet</p>
               <Button variant="shield" onClick={() => setShowCreate(true)}>
                 <Plus className="w-4 h-4 mr-1" /> Create First Key
               </Button>
@@ -108,19 +108,19 @@ export default function ApiKeyManagement() {
               <Card key={key.id} className={`p-4 cursor-pointer transition-all ${selectedKey?.id === key.id ? 'ring-2 ring-shield-500' : 'hover:shadow-md'}`} onClick={() => viewUsage(key)}>
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center">
-                      <Key className="w-5 h-5 text-slate-600" />
+                    <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+                      <Key className="w-5 h-5 text-slate-600 dark:text-slate-300" />
                     </div>
                     <div>
-                      <h3 className="font-bold text-slate-900 text-sm">{key.name}</h3>
-                      <p className="text-xs text-slate-400 font-mono mt-0.5">{key.key_prefix}...****</p>
+                      <h3 className="font-bold text-slate-900 dark:text-white text-sm">{key.name}</h3>
+                      <p className="text-xs text-slate-400 dark:text-slate-500 font-mono mt-0.5">{key.key_prefix}...****</p>
                     </div>
                   </div>
                   <Badge variant={key.is_active ? 'success' : 'danger'}>
                     {key.is_active ? 'Active' : 'Revoked'}
                   </Badge>
                 </div>
-                <div className="flex items-center gap-4 mt-3 text-xs text-slate-500">
+                <div className="flex items-center gap-4 mt-3 text-xs text-slate-500 dark:text-slate-400">
                   <span className="flex items-center gap-1"><BarChart3 className="w-3 h-3" /> {key.request_count.toLocaleString()} requests</span>
                   <span>Rate: {key.rate_limit}/min</span>
                   {key.last_used_at && (
@@ -129,13 +129,13 @@ export default function ApiKeyManagement() {
                 </div>
                 <div className="flex flex-wrap gap-1 mt-2">
                   {key.permissions.slice(0, 5).map(p => (
-                    <span key={p} className="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full">{p}</span>
+                    <span key={p} className="text-xs bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded-full">{p}</span>
                   ))}
                   {key.permissions.length > 5 && (
-                    <span className="text-xs text-slate-400">+{key.permissions.length - 5} more</span>
+                    <span className="text-xs text-slate-400 dark:text-slate-500">+{key.permissions.length - 5} more</span>
                   )}
                 </div>
-                <div className="flex items-center gap-2 mt-3 pt-2 border-t border-slate-100">
+                <div className="flex items-center gap-2 mt-3 pt-2 border-t border-slate-100 dark:border-slate-700/50">
                   <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); revokeKey(key.id); }}>
                     <Trash2 className="w-3.5 h-3.5 text-red-400 mr-1" /> Revoke
                   </Button>
@@ -152,31 +152,31 @@ export default function ApiKeyManagement() {
         <div>
           {selectedKey && usage ? (
             <Card className="p-5 sticky top-4">
-              <h3 className="font-bold text-slate-900 mb-4">Usage: {selectedKey.name}</h3>
+              <h3 className="font-bold text-slate-900 dark:text-white mb-4">Usage: {selectedKey.name}</h3>
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-3">
-                  <div className="bg-slate-50 rounded-xl p-3">
-                    <p className="text-xs text-slate-500">Total Requests</p>
-                    <p className="text-lg font-bold text-slate-900">{usage.total_requests.toLocaleString()}</p>
+                  <div className="bg-slate-50 dark:bg-slate-800 rounded-xl p-3">
+                    <p className="text-xs text-slate-500 dark:text-slate-400">Total Requests</p>
+                    <p className="text-lg font-bold text-slate-900 dark:text-white">{usage.total_requests.toLocaleString()}</p>
                   </div>
-                  <div className="bg-slate-50 rounded-xl p-3">
-                    <p className="text-xs text-slate-500">Avg Response</p>
-                    <p className="text-lg font-bold text-slate-900">{usage.avg_response_time_ms}ms</p>
+                  <div className="bg-slate-50 dark:bg-slate-800 rounded-xl p-3">
+                    <p className="text-xs text-slate-500 dark:text-slate-400">Avg Response</p>
+                    <p className="text-lg font-bold text-slate-900 dark:text-white">{usage.avg_response_time_ms}ms</p>
                   </div>
-                  <div className="bg-slate-50 rounded-xl p-3 col-span-2">
-                    <p className="text-xs text-slate-500">Error Rate</p>
-                    <p className="text-lg font-bold text-slate-900">{(usage.error_rate * 100).toFixed(2)}%</p>
+                  <div className="bg-slate-50 dark:bg-slate-800 rounded-xl p-3 col-span-2">
+                    <p className="text-xs text-slate-500 dark:text-slate-400">Error Rate</p>
+                    <p className="text-lg font-bold text-slate-900 dark:text-white">{(usage.error_rate * 100).toFixed(2)}%</p>
                   </div>
                 </div>
 
                 {/* Top Endpoints */}
                 <div>
-                  <p className="text-xs font-medium text-slate-500 uppercase mb-2">Top Endpoints</p>
+                  <p className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase mb-2">Top Endpoints</p>
                   <div className="space-y-1.5">
                     {usage.top_endpoints.slice(0, 5).map((ep, i) => (
                       <div key={i} className="flex items-center justify-between text-sm py-1">
-                        <span className="text-slate-700 font-mono text-xs truncate flex-1 mr-2">{ep.endpoint}</span>
-                        <span className="text-slate-500 text-xs">{ep.count}</span>
+                        <span className="text-slate-700 dark:text-slate-200 font-mono text-xs truncate flex-1 mr-2">{ep.endpoint}</span>
+                        <span className="text-slate-500 dark:text-slate-400 text-xs">{ep.count}</span>
                       </div>
                     ))}
                   </div>
@@ -184,7 +184,7 @@ export default function ApiKeyManagement() {
 
                 {/* Status Breakdown */}
                 <div>
-                  <p className="text-xs font-medium text-slate-500 uppercase mb-2">Status Codes</p>
+                  <p className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase mb-2">Status Codes</p>
                   <div className="flex flex-wrap gap-2">
                     {usage.status_breakdown.map(s => (
                       <Badge key={s.status} variant={s.status < 400 ? 'success' : s.status < 500 ? 'warning' : 'danger'}>
@@ -196,7 +196,7 @@ export default function ApiKeyManagement() {
               </div>
             </Card>
           ) : (
-            <Card className="p-8 text-center text-slate-400">
+            <Card className="p-8 text-center text-slate-400 dark:text-slate-500">
               <BarChart3 className="w-8 h-8 mx-auto mb-2 opacity-50" />
               <p className="text-sm">Select a key to view usage</p>
             </Card>
@@ -252,7 +252,7 @@ function CreateKeyModal({ onClose, onCreated }: { onClose: () => void; onCreated
         <Input label="Key Name" placeholder="My Integration" value={name} onChange={e => setName(e.target.value)} />
         <Input label="Rate Limit (requests/min)" type="number" value={rateLimit} onChange={e => setRateLimit(e.target.value)} />
         <div>
-          <label className="text-sm font-medium text-slate-700 block mb-2">Permissions</label>
+          <label className="text-sm font-medium text-slate-700 dark:text-slate-200 block mb-2">Permissions</label>
           <div className="flex flex-wrap gap-2">
             {availablePerms.map(p => (
               <button
@@ -260,8 +260,8 @@ function CreateKeyModal({ onClose, onCreated }: { onClose: () => void; onCreated
                 onClick={() => togglePerm(p)}
                 className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${
                   permissions.includes(p)
-                    ? 'bg-shield-50 border-shield-300 text-shield-700'
-                    : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'
+                    ? 'bg-shield-50 dark:bg-shield-900/30 border-shield-300 text-shield-700 dark:text-shield-300'
+                    : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700/50 text-slate-600 dark:text-slate-300 hover:border-slate-300'
                 }`}
               >
                 {p}

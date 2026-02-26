@@ -194,12 +194,12 @@ export default function Leads() {
           </Button>
           <div className="flex-1">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-shield-100 text-shield-700 flex items-center justify-center text-lg font-bold">
+              <div className="w-12 h-12 rounded-full bg-shield-100 dark:bg-shield-900/30 text-shield-700 dark:text-shield-300 flex items-center justify-center text-lg font-bold">
                 {selectedLead.first_name[0]}{selectedLead.last_name[0]}
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-slate-900">{selectedLead.first_name} {selectedLead.last_name}</h1>
-                <div className="flex items-center gap-3 text-sm text-slate-500">
+                <h1 className="text-2xl font-bold text-slate-900 dark:text-white">{selectedLead.first_name} {selectedLead.last_name}</h1>
+                <div className="flex items-center gap-3 text-sm text-slate-500 dark:text-slate-400">
                   <span>{selectedLead.email}</span>
                   <span>{selectedLead.phone}</span>
                   <Badge variant={statusCfg.variant}>{statusCfg.label}</Badge>
@@ -217,27 +217,27 @@ export default function Leads() {
         {/* Info cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <Card className="p-4">
-            <p className="text-xs text-slate-500 mb-1">Insurance Type</p>
-            <p className="font-medium text-slate-900 capitalize">{selectedLead.insurance_type}</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Insurance Type</p>
+            <p className="font-medium text-slate-900 dark:text-white capitalize">{selectedLead.insurance_type}</p>
           </Card>
           <Card className="p-4">
-            <p className="text-xs text-slate-500 mb-1">Source</p>
-            <p className="font-medium text-slate-900 capitalize">{selectedLead.source}</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Source</p>
+            <p className="font-medium text-slate-900 dark:text-white capitalize">{selectedLead.source}</p>
           </Card>
           <Card className="p-4">
-            <p className="text-xs text-slate-500 mb-1">Scenarios</p>
-            <p className="font-medium text-slate-900">{scenarios.length}</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Scenarios</p>
+            <p className="font-medium text-slate-900 dark:text-white">{scenarios.length}</p>
           </Card>
           <Card className="p-4">
-            <p className="text-xs text-slate-500 mb-1">Created</p>
-            <p className="font-medium text-slate-900">{formatDate(selectedLead.created_at)}</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Created</p>
+            <p className="font-medium text-slate-900 dark:text-white">{formatDate(selectedLead.created_at)}</p>
           </Card>
         </div>
 
         {/* Scenarios header */}
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-            <Layers className="w-5 h-5 text-shield-600" /> Scenarios
+          <h2 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+            <Layers className="w-5 h-5 text-shield-600 dark:text-shield-400" /> Scenarios
           </h2>
           <Button variant="shield" size="sm" onClick={() => setShowNewScenario(true)}>
             <Plus className="w-4 h-4 mr-1" /> New Scenario
@@ -252,7 +252,7 @@ export default function Leads() {
         ) : scenarios.length === 0 ? (
           <Card className="p-8 text-center">
             <Target className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-            <p className="text-slate-500 mb-4">No scenarios yet. Create one to start building coverage options.</p>
+            <p className="text-slate-500 dark:text-slate-400 mb-4">No scenarios yet. Create one to start building coverage options.</p>
             <Button variant="shield" onClick={() => setShowNewScenario(true)}>
               <Plus className="w-4 h-4 mr-1" /> Create First Scenario
             </Button>
@@ -268,26 +268,26 @@ export default function Leads() {
                 <Card key={scenario.id} className="overflow-hidden">
                   {/* Header */}
                   <button
-                    className="w-full flex items-center justify-between p-4 hover:bg-slate-50 transition-colors text-left"
+                    className="w-full flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-800 transition-colors text-left"
                     onClick={() => setExpandedScenario(isExpanded ? null : scenario.id)}
                   >
                     <div className="flex items-center gap-3">
-                      {isExpanded ? <ChevronDown className="w-5 h-5 text-slate-400" /> : <ChevronRight className="w-5 h-5 text-slate-400" />}
+                      {isExpanded ? <ChevronDown className="w-5 h-5 text-slate-400 dark:text-slate-500" /> : <ChevronRight className="w-5 h-5 text-slate-400 dark:text-slate-500" />}
                       <div>
                         <div className="flex items-center gap-2">
-                          <span className="font-semibold text-slate-900">{scenario.scenario_name}</span>
+                          <span className="font-semibold text-slate-900 dark:text-white">{scenario.scenario_name}</span>
                           <Badge variant={sCfg.variant}>{sCfg.label}</Badge>
-                          <span className="text-xs text-slate-400">P{scenario.priority}</span>
+                          <span className="text-xs text-slate-400 dark:text-slate-500">P{scenario.priority}</span>
                         </div>
-                        <p className="text-sm text-slate-500 mt-0.5">{productLabel}</p>
+                        <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">{productLabel}</p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-4 text-sm text-slate-500">
+                    <div className="flex items-center gap-4 text-sm text-slate-500 dark:text-slate-400">
                       {scenario.target_premium_monthly != null && (
                         <span>Target: {formatCurrency(scenario.target_premium_monthly)}/mo</span>
                       )}
                       {scenario.best_quoted_premium != null && (
-                        <span className="text-savings-600 font-medium">Best: {formatCurrency(scenario.best_quoted_premium)}/mo</span>
+                        <span className="text-savings-600 dark:text-savings-400 font-medium">Best: {formatCurrency(scenario.best_quoted_premium)}/mo</span>
                       )}
                       <span>{scenario.insured_objects.length} objects</span>
                       <span>{scenario.coverages.length} coverages</span>
@@ -296,27 +296,27 @@ export default function Leads() {
 
                   {/* Expanded */}
                   {isExpanded && (
-                    <div className="border-t border-slate-100 p-4 space-y-6">
+                    <div className="border-t border-slate-100 dark:border-slate-700/50 p-4 space-y-6">
                       {/* Details grid */}
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                         {scenario.effective_date_desired && (
-                          <div><span className="text-slate-500">Effective Date:</span> <span className="font-medium">{formatDate(scenario.effective_date_desired)}</span></div>
+                          <div><span className="text-slate-500 dark:text-slate-400">Effective Date:</span> <span className="font-medium">{formatDate(scenario.effective_date_desired)}</span></div>
                         )}
                         {scenario.current_carrier && (
-                          <div><span className="text-slate-500">Current Carrier:</span> <span className="font-medium">{scenario.current_carrier}</span></div>
+                          <div><span className="text-slate-500 dark:text-slate-400">Current Carrier:</span> <span className="font-medium">{scenario.current_carrier}</span></div>
                         )}
                         {scenario.current_premium_monthly != null && (
-                          <div><span className="text-slate-500">Current Premium:</span> <span className="font-medium">{formatCurrency(scenario.current_premium_monthly)}/mo</span></div>
+                          <div><span className="text-slate-500 dark:text-slate-400">Current Premium:</span> <span className="font-medium">{formatCurrency(scenario.current_premium_monthly)}/mo</span></div>
                         )}
                         {scenario.current_policy_expiration && (
-                          <div><span className="text-slate-500">Expiration:</span> <span className="font-medium">{formatDate(scenario.current_policy_expiration)}</span></div>
+                          <div><span className="text-slate-500 dark:text-slate-400">Expiration:</span> <span className="font-medium">{formatDate(scenario.current_policy_expiration)}</span></div>
                         )}
                       </div>
 
                       {/* Insured Objects */}
                       <div>
                         <div className="flex items-center justify-between mb-3">
-                          <h3 className="text-sm font-bold text-slate-700 flex items-center gap-1.5">
+                          <h3 className="text-sm font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
                             <User className="w-4 h-4" /> Insured Objects
                           </h3>
                           <Button variant="outline" size="sm" onClick={() => setShowAddObject(scenario.id)}>
@@ -324,19 +324,19 @@ export default function Leads() {
                           </Button>
                         </div>
                         {scenario.insured_objects.length === 0 ? (
-                          <p className="text-sm text-slate-400 italic">No insured objects added yet</p>
+                          <p className="text-sm text-slate-400 dark:text-slate-500 italic">No insured objects added yet</p>
                         ) : (
                           <div className="space-y-2">
                             {scenario.insured_objects.map(obj => {
                               const Icon = objectTypeIcons[obj.object_type] || HelpCircle;
                               return (
-                                <div key={obj.id} className="flex items-center justify-between bg-slate-50 rounded-lg px-3 py-2">
+                                <div key={obj.id} className="flex items-center justify-between bg-slate-50 dark:bg-slate-800 rounded-lg px-3 py-2">
                                   <div className="flex items-center gap-3">
-                                    <Icon className="w-4 h-4 text-shield-600" />
+                                    <Icon className="w-4 h-4 text-shield-600 dark:text-shield-400" />
                                     <div>
-                                      <span className="font-medium text-slate-900 text-sm">{obj.name}</span>
-                                      {obj.relationship && <span className="text-xs text-slate-500 ml-2">({obj.relationship})</span>}
-                                      <div className="text-xs text-slate-400 mt-0.5">
+                                      <span className="font-medium text-slate-900 dark:text-white text-sm">{obj.name}</span>
+                                      {obj.relationship && <span className="text-xs text-slate-500 dark:text-slate-400 ml-2">({obj.relationship})</span>}
+                                      <div className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">
                                         {obj.object_type === 'person' && obj.date_of_birth && `DOB: ${formatDate(obj.date_of_birth)}`}
                                         {obj.object_type === 'vehicle' && obj.vehicle_year && `${obj.vehicle_year} ${obj.vehicle_make} ${obj.vehicle_model}`}
                                         {obj.object_type === 'property' && obj.address_line1 && `${obj.address_line1}, ${obj.city} ${obj.state}`}
@@ -357,7 +357,7 @@ export default function Leads() {
                       {/* Coverages */}
                       <div>
                         <div className="flex items-center justify-between mb-3">
-                          <h3 className="text-sm font-bold text-slate-700 flex items-center gap-1.5">
+                          <h3 className="text-sm font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
                             <Shield className="w-4 h-4" /> Coverages
                           </h3>
                           <Button variant="outline" size="sm" onClick={() => setShowAddCoverage(scenario.id)}>
@@ -365,12 +365,12 @@ export default function Leads() {
                           </Button>
                         </div>
                         {scenario.coverages.length === 0 ? (
-                          <p className="text-sm text-slate-400 italic">No coverages configured yet</p>
+                          <p className="text-sm text-slate-400 dark:text-slate-500 italic">No coverages configured yet</p>
                         ) : (
                           <div className="overflow-x-auto">
                             <table className="w-full text-sm">
                               <thead>
-                                <tr className="text-left text-xs text-slate-500 border-b border-slate-100">
+                                <tr className="text-left text-xs text-slate-500 dark:text-slate-400 border-b border-slate-100 dark:border-slate-700/50">
                                   <th className="pb-2 pr-4">Coverage</th>
                                   <th className="pb-2 pr-4">Category</th>
                                   <th className="pb-2 pr-4 text-right">Limit</th>
@@ -383,13 +383,13 @@ export default function Leads() {
                               <tbody className="divide-y divide-slate-50">
                                 {scenario.coverages.map(cov => (
                                   <tr key={cov.id}>
-                                    <td className="py-2 pr-4 font-medium text-slate-900">{coverageLabel(cov.coverage_type)}</td>
+                                    <td className="py-2 pr-4 font-medium text-slate-900 dark:text-white">{coverageLabel(cov.coverage_type)}</td>
                                     <td className="py-2 pr-4"><Badge variant="default">{cov.coverage_category}</Badge></td>
                                     <td className="py-2 pr-4 text-right">{formatCurrency(cov.limit_amount)}</td>
                                     <td className="py-2 pr-4 text-right">{formatCurrency(cov.deductible_amount)}</td>
                                     <td className="py-2 pr-4 text-right">{formatCurrency(cov.benefit_amount)}</td>
                                     <td className="py-2 text-center">
-                                      {cov.is_included ? <span className="text-savings-600">Yes</span> : <span className="text-slate-400">No</span>}
+                                      {cov.is_included ? <span className="text-savings-600 dark:text-savings-400">Yes</span> : <span className="text-slate-400 dark:text-slate-500">No</span>}
                                     </td>
                                     <td className="py-2 text-right">
                                       <Button variant="ghost" size="sm" onClick={() => deleteCoverage(scenario.id, cov.id)}>
@@ -407,15 +407,15 @@ export default function Leads() {
                       {/* Notes */}
                       {scenario.notes && (
                         <div>
-                          <h3 className="text-sm font-bold text-slate-700 mb-1">Notes</h3>
-                          <p className="text-sm text-slate-600 whitespace-pre-wrap">{scenario.notes}</p>
+                          <h3 className="text-sm font-bold text-slate-700 dark:text-slate-200 mb-1">Notes</h3>
+                          <p className="text-sm text-slate-600 dark:text-slate-300 whitespace-pre-wrap">{scenario.notes}</p>
                         </div>
                       )}
 
                       {/* Carrier Quotes Comparison */}
                       <div>
                         <div className="flex items-center justify-between mb-3">
-                          <h3 className="text-sm font-bold text-slate-700 flex items-center gap-1.5">
+                          <h3 className="text-sm font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
                             <DollarSign className="w-4 h-4" /> Carrier Quotes ({scenario.quotes?.length ?? 0})
                           </h3>
                           <Button variant="outline" size="sm" onClick={() => {
@@ -434,12 +434,12 @@ export default function Leads() {
                           </Button>
                         </div>
                         {(!scenario.quotes || scenario.quotes.length === 0) ? (
-                          <p className="text-sm text-slate-400 italic">No carrier quotes yet. Add quotes to compare options.</p>
+                          <p className="text-sm text-slate-400 dark:text-slate-500 italic">No carrier quotes yet. Add quotes to compare options.</p>
                         ) : (
                           <div className="overflow-x-auto">
                             <table className="w-full text-sm">
                               <thead>
-                                <tr className="text-left text-xs text-slate-500 border-b border-slate-100">
+                                <tr className="text-left text-xs text-slate-500 dark:text-slate-400 border-b border-slate-100 dark:border-slate-700/50">
                                   <th className="pb-2 pr-4">Carrier</th>
                                   <th className="pb-2 pr-4">AM Best</th>
                                   <th className="pb-2 pr-4 text-right">Monthly</th>
@@ -451,24 +451,24 @@ export default function Leads() {
                               </thead>
                               <tbody className="divide-y divide-slate-50">
                                 {scenario.quotes.map((q: ScenarioQuote) => (
-                                  <tr key={q.id} className={q.is_recommended ? 'bg-savings-50/50' : ''}>
+                                  <tr key={q.id} className={q.is_recommended ? 'bg-savings-50 dark:bg-savings-900/30/50' : ''}>
                                     <td className="py-2.5 pr-4">
                                       <div>
-                                        <span className="font-medium text-slate-900">{q.carrier_name}</span>
-                                        {q.product_name && <span className="block text-xs text-slate-400">{q.product_name}</span>}
+                                        <span className="font-medium text-slate-900 dark:text-white">{q.carrier_name}</span>
+                                        {q.product_name && <span className="block text-xs text-slate-400 dark:text-slate-500">{q.product_name}</span>}
                                       </div>
                                     </td>
                                     <td className="py-2.5 pr-4">
                                       {q.am_best_rating ? (
-                                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-shield-50 text-shield-700 text-xs font-medium">
+                                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-shield-50 dark:bg-shield-900/30 text-shield-700 dark:text-shield-300 text-xs font-medium">
                                           <Award className="w-3 h-3" /> {q.am_best_rating}
                                         </span>
-                                      ) : <span className="text-slate-400">—</span>}
+                                      ) : <span className="text-slate-400 dark:text-slate-500">—</span>}
                                     </td>
-                                    <td className="py-2.5 pr-4 text-right font-medium text-slate-900">
+                                    <td className="py-2.5 pr-4 text-right font-medium text-slate-900 dark:text-white">
                                       {q.premium_monthly ? formatCurrency(q.premium_monthly) : '—'}
                                     </td>
-                                    <td className="py-2.5 pr-4 text-right text-slate-600">
+                                    <td className="py-2.5 pr-4 text-right text-slate-600 dark:text-slate-300">
                                       {q.premium_annual ? formatCurrency(q.premium_annual) : '—'}
                                     </td>
                                     <td className="py-2.5 pr-4">
@@ -499,7 +499,7 @@ export default function Leads() {
                                       <div className="flex items-center gap-1">
                                         {q.status === 'quoted' && (
                                           <button
-                                            className="p-1 rounded text-slate-400 hover:text-savings-600 hover:bg-savings-50"
+                                            className="p-1 rounded text-slate-400 dark:text-slate-500 hover:text-savings-600 dark:text-savings-400 hover:bg-savings-50 dark:bg-savings-900/30"
                                             title="Select this quote"
                                             onClick={async () => {
                                               try {
@@ -513,7 +513,7 @@ export default function Leads() {
                                           </button>
                                         )}
                                         <button
-                                          className="p-1 rounded text-slate-400 hover:text-red-500 hover:bg-red-50"
+                                          className="p-1 rounded text-slate-400 dark:text-slate-500 hover:text-red-500 hover:bg-red-50 dark:bg-red-900/30"
                                           title="Delete quote"
                                           onClick={async () => {
                                             try {
@@ -540,10 +540,10 @@ export default function Leads() {
                               const highest = Math.max(...premiums);
                               const diff = highest - lowest;
                               return (
-                                <div className="mt-3 p-3 rounded-lg bg-slate-50 flex items-center gap-6 text-sm">
-                                  <div><span className="text-slate-500">Lowest:</span> <span className="font-bold text-savings-600">{formatCurrency(lowest)}/mo</span></div>
-                                  <div><span className="text-slate-500">Highest:</span> <span className="font-medium text-slate-900">{formatCurrency(highest)}/mo</span></div>
-                                  <div><span className="text-slate-500">Spread:</span> <span className="font-medium text-amber-600">{formatCurrency(diff)}/mo</span></div>
+                                <div className="mt-3 p-3 rounded-lg bg-slate-50 dark:bg-slate-800 flex items-center gap-6 text-sm">
+                                  <div><span className="text-slate-500 dark:text-slate-400">Lowest:</span> <span className="font-bold text-savings-600 dark:text-savings-400">{formatCurrency(lowest)}/mo</span></div>
+                                  <div><span className="text-slate-500 dark:text-slate-400">Highest:</span> <span className="font-medium text-slate-900 dark:text-white">{formatCurrency(highest)}/mo</span></div>
+                                  <div><span className="text-slate-500 dark:text-slate-400">Spread:</span> <span className="font-medium text-amber-600 dark:text-amber-400">{formatCurrency(diff)}/mo</span></div>
                                 </div>
                               );
                             })()}
@@ -554,15 +554,15 @@ export default function Leads() {
                       {/* Applications */}
                       {scenario.applications && scenario.applications.length > 0 && (
                         <div>
-                          <h3 className="text-sm font-bold text-slate-700 flex items-center gap-1.5 mb-2">
+                          <h3 className="text-sm font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5 mb-2">
                             <ClipboardList className="w-4 h-4" /> Applications ({scenario.applications.length})
                           </h3>
                           <div className="space-y-2">
                             {scenario.applications.map(app => (
-                              <div key={app.id} className="flex items-center justify-between bg-slate-50 rounded-lg px-3 py-2 text-sm">
+                              <div key={app.id} className="flex items-center justify-between bg-slate-50 dark:bg-slate-800 rounded-lg px-3 py-2 text-sm">
                                 <div>
                                   <span className="font-medium">{app.reference}</span>
-                                  <span className="text-slate-500 ml-2">{app.carrier_name}</span>
+                                  <span className="text-slate-500 dark:text-slate-400 ml-2">{app.carrier_name}</span>
                                 </div>
                                 <Badge variant="info">{app.status}</Badge>
                               </div>
@@ -572,7 +572,7 @@ export default function Leads() {
                       )}
 
                       {/* Actions */}
-                      <div className="flex items-center gap-2 pt-2 border-t border-slate-100">
+                      <div className="flex items-center gap-2 pt-2 border-t border-slate-100 dark:border-slate-700/50">
                         <Button variant="shield" size="sm" onClick={() => setShowRating(scenario.id)}>
                           <Calculator className="w-4 h-4 mr-1" /> Rate Scenario
                         </Button>
@@ -726,21 +726,21 @@ export default function Leads() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Lead Pipeline</h1>
-          <p className="text-slate-500 mt-1">Manage leads, scenarios, and applications</p>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Lead Pipeline</h1>
+          <p className="text-slate-500 dark:text-slate-400 mt-1">Manage leads, scenarios, and applications</p>
         </div>
         <div className="flex items-center gap-3">
-          <div className="flex bg-slate-100 rounded-lg p-0.5">
+          <div className="flex bg-slate-100 dark:bg-slate-800 rounded-lg p-0.5">
             <button
               onClick={() => setViewMode('list')}
-              className={`p-1.5 rounded-md transition-colors ${viewMode === 'list' ? 'bg-white shadow-sm text-shield-700' : 'text-slate-400 hover:text-slate-600'}`}
+              className={`p-1.5 rounded-md transition-colors ${viewMode === 'list' ? 'bg-white dark:bg-slate-900 shadow-sm dark:shadow-none text-shield-700 dark:text-shield-300' : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:text-slate-300'}`}
               title="List view"
             >
               <LayoutList className="w-4 h-4" />
             </button>
             <button
               onClick={() => setViewMode('board')}
-              className={`p-1.5 rounded-md transition-colors ${viewMode === 'board' ? 'bg-white shadow-sm text-shield-700' : 'text-slate-400 hover:text-slate-600'}`}
+              className={`p-1.5 rounded-md transition-colors ${viewMode === 'board' ? 'bg-white dark:bg-slate-900 shadow-sm dark:shadow-none text-shield-700 dark:text-shield-300' : 'text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:text-slate-300'}`}
               title="Board view"
             >
               <LayoutGrid className="w-4 h-4" />
@@ -755,20 +755,20 @@ export default function Leads() {
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card className="p-4 text-center">
-          <p className="text-2xl font-bold text-slate-900">{counts.total}</p>
-          <p className="text-sm text-slate-500">Total Leads</p>
+          <p className="text-2xl font-bold text-slate-900 dark:text-white">{counts.total}</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400">Total Leads</p>
         </Card>
         <Card className="p-4 text-center">
-          <p className="text-2xl font-bold text-shield-600">{counts.new}</p>
-          <p className="text-sm text-slate-500">New</p>
+          <p className="text-2xl font-bold text-shield-600 dark:text-shield-400">{counts.new}</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400">New</p>
         </Card>
         <Card className="p-4 text-center">
-          <p className="text-2xl font-bold text-confidence-600">{counts.contacted + counts.quoted + counts.applied}</p>
-          <p className="text-sm text-slate-500">In Progress</p>
+          <p className="text-2xl font-bold text-confidence-600 dark:text-confidence-400">{counts.contacted + counts.quoted + counts.applied}</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400">In Progress</p>
         </Card>
         <Card className="p-4 text-center">
-          <p className="text-2xl font-bold text-savings-600">{counts.won}</p>
-          <p className="text-sm text-slate-500">Won</p>
+          <p className="text-2xl font-bold text-savings-600 dark:text-savings-400">{counts.won}</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400">Won</p>
         </Card>
       </div>
 
@@ -784,8 +784,8 @@ export default function Leads() {
 
       {/* Bulk action bar */}
       {selectedIds.size > 0 && (
-        <Card className="p-3 flex items-center gap-4 bg-shield-50 border-shield-200">
-          <span className="text-sm font-medium text-shield-700">{selectedIds.size} selected</span>
+        <Card className="p-3 flex items-center gap-4 bg-shield-50 dark:bg-shield-900/30 border-shield-200">
+          <span className="text-sm font-medium text-shield-700 dark:text-shield-300">{selectedIds.size} selected</span>
           <div className="flex items-center gap-2">
             <Select
               options={statusOptions.filter(o => o.value !== '')}
@@ -819,56 +819,56 @@ export default function Leads() {
             <div className="w-8 h-8 border-4 border-shield-200 border-t-shield-600 rounded-full animate-spin" />
           </div>
         ) : leads.length === 0 ? (
-          <div className="text-center py-12 text-slate-500">No leads found</div>
+          <div className="text-center py-12 text-slate-500 dark:text-slate-400">No leads found</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-slate-100">
+                <tr className="border-b border-slate-100 dark:border-slate-700/50">
                   <th className="p-4 w-10">
                     <input
                       type="checkbox"
-                      className="rounded border-slate-300 text-shield-600 focus:ring-shield-500"
+                      className="rounded border-slate-300 text-shield-600 dark:text-shield-400 focus:ring-shield-500 dark:focus:ring-shield-400"
                       checked={selectedIds.size === leads.length && leads.length > 0}
                       onChange={toggleSelectAll}
                     />
                   </th>
-                  <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider p-4">Lead</th>
-                  <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider p-4">Insurance</th>
-                  <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider p-4">Status</th>
-                  <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider p-4">Source</th>
-                  <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider p-4">Date</th>
-                  <th className="text-right text-xs font-medium text-slate-500 uppercase tracking-wider p-4">Actions</th>
+                  <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider p-4">Lead</th>
+                  <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider p-4">Insurance</th>
+                  <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider p-4">Status</th>
+                  <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider p-4">Source</th>
+                  <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider p-4">Date</th>
+                  <th className="text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider p-4">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
                 {leads.map(lead => {
                   const config = leadStatusConfig[lead.status] || leadStatusConfig.new;
                   return (
-                    <tr key={lead.id} className="hover:bg-slate-50 cursor-pointer" onClick={() => openLead(lead)}>
+                    <tr key={lead.id} className="hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-800 cursor-pointer" onClick={() => openLead(lead)}>
                       <td className="p-4" onClick={e => e.stopPropagation()}>
                         <input
                           type="checkbox"
-                          className="rounded border-slate-300 text-shield-600 focus:ring-shield-500"
+                          className="rounded border-slate-300 text-shield-600 dark:text-shield-400 focus:ring-shield-500 dark:focus:ring-shield-400"
                           checked={selectedIds.has(lead.id)}
                           onChange={() => toggleSelect(lead.id)}
                         />
                       </td>
                       <td className="p-4">
                         <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 rounded-full bg-shield-100 text-shield-700 flex items-center justify-center text-sm font-bold">
+                          <div className="w-9 h-9 rounded-full bg-shield-100 dark:bg-shield-900/30 text-shield-700 dark:text-shield-300 flex items-center justify-center text-sm font-bold">
                             {lead.first_name[0]}{lead.last_name[0]}
                           </div>
                           <div>
-                            <p className="font-medium text-slate-900">{lead.first_name} {lead.last_name}</p>
-                            <p className="text-xs text-slate-500">{lead.email}</p>
+                            <p className="font-medium text-slate-900 dark:text-white">{lead.first_name} {lead.last_name}</p>
+                            <p className="text-xs text-slate-500 dark:text-slate-400">{lead.email}</p>
                           </div>
                         </div>
                       </td>
-                      <td className="p-4 text-sm text-slate-700 capitalize">{lead.insurance_type}</td>
+                      <td className="p-4 text-sm text-slate-700 dark:text-slate-200 capitalize">{lead.insurance_type}</td>
                       <td className="p-4"><Badge variant={config.variant}>{config.label}</Badge></td>
-                      <td className="p-4 text-sm text-slate-500 capitalize">{lead.source}</td>
-                      <td className="p-4 text-sm text-slate-500">{formatDate(lead.created_at)}</td>
+                      <td className="p-4 text-sm text-slate-500 dark:text-slate-400 capitalize">{lead.source}</td>
+                      <td className="p-4 text-sm text-slate-500 dark:text-slate-400">{formatDate(lead.created_at)}</td>
                       <td className="p-4 text-right">
                         <div className="flex items-center justify-end gap-1">
                           <Button variant="ghost" size="sm" onClick={e => { e.stopPropagation(); window.location.href = `tel:${lead.phone}`; }}><Phone className="w-4 h-4" /></Button>
@@ -899,12 +899,12 @@ export default function Leads() {
 // ── Kanban Board ─────────────────────────────────
 
 const kanbanColumns: { status: string; label: string; color: string; bgColor: string }[] = [
-  { status: 'new', label: 'New', color: 'text-shield-700', bgColor: 'bg-shield-50 border-shield-200' },
-  { status: 'contacted', label: 'Contacted', color: 'text-blue-700', bgColor: 'bg-blue-50 border-blue-200' },
-  { status: 'quoted', label: 'Quoted', color: 'text-amber-700', bgColor: 'bg-amber-50 border-amber-200' },
-  { status: 'applied', label: 'Applied', color: 'text-purple-700', bgColor: 'bg-purple-50 border-purple-200' },
-  { status: 'won', label: 'Won', color: 'text-savings-700', bgColor: 'bg-savings-50 border-savings-200' },
-  { status: 'lost', label: 'Lost', color: 'text-red-700', bgColor: 'bg-red-50 border-red-200' },
+  { status: 'new', label: 'New', color: 'text-shield-700 dark:text-shield-300', bgColor: 'bg-shield-50 dark:bg-shield-900/30 border-shield-200' },
+  { status: 'contacted', label: 'Contacted', color: 'text-blue-700 dark:text-blue-300', bgColor: 'bg-blue-50 dark:bg-blue-900/30 border-blue-200' },
+  { status: 'quoted', label: 'Quoted', color: 'text-amber-700 dark:text-amber-300', bgColor: 'bg-amber-50 dark:bg-amber-900/30 border-amber-200' },
+  { status: 'applied', label: 'Applied', color: 'text-purple-700 dark:text-purple-300', bgColor: 'bg-purple-50 dark:bg-purple-900/30 border-purple-200' },
+  { status: 'won', label: 'Won', color: 'text-savings-700 dark:text-savings-300', bgColor: 'bg-savings-50 dark:bg-savings-900/30 border-savings-200' },
+  { status: 'lost', label: 'Lost', color: 'text-red-700 dark:text-red-300', bgColor: 'bg-red-50 dark:bg-red-900/30 border-red-200' },
 ];
 
 function KanbanBoard({ leads, loading, onOpenLead, onStatusChange }: {
@@ -946,7 +946,7 @@ function KanbanBoard({ leads, loading, onOpenLead, onStatusChange }: {
           >
             <div className="flex items-center justify-between mb-3">
               <h3 className={`text-xs font-semibold uppercase tracking-wider ${col.color}`}>{col.label}</h3>
-              <span className={`text-xs font-bold ${col.color} bg-white/60 rounded-full w-5 h-5 flex items-center justify-center`}>{colLeads.length}</span>
+              <span className={`text-xs font-bold ${col.color} bg-white dark:bg-slate-900/60 rounded-full w-5 h-5 flex items-center justify-center`}>{colLeads.length}</span>
             </div>
             <div className="space-y-2">
               {colLeads.map(lead => (
@@ -956,20 +956,20 @@ function KanbanBoard({ leads, loading, onOpenLead, onStatusChange }: {
                   onDragStart={() => setDraggedLead(lead)}
                   onDragEnd={() => { setDraggedLead(null); setDragOverColumn(null); }}
                   onClick={() => onOpenLead(lead)}
-                  className="bg-white rounded-lg p-3 shadow-sm border border-white/80 cursor-grab active:cursor-grabbing hover:shadow-md transition-shadow"
+                  className="bg-white dark:bg-slate-900 rounded-lg p-3 shadow-sm dark:shadow-none border border-white/80 cursor-grab active:cursor-grabbing hover:shadow-md transition-shadow"
                 >
                   <div className="flex items-center gap-2 mb-1">
-                    <div className="w-6 h-6 rounded-full bg-shield-100 text-shield-700 flex items-center justify-center text-[10px] font-bold flex-shrink-0">
+                    <div className="w-6 h-6 rounded-full bg-shield-100 dark:bg-shield-900/30 text-shield-700 dark:text-shield-300 flex items-center justify-center text-[10px] font-bold flex-shrink-0">
                       {lead.first_name[0]}{lead.last_name[0]}
                     </div>
-                    <p className="text-sm font-medium text-slate-900 truncate">{lead.first_name} {lead.last_name}</p>
+                    <p className="text-sm font-medium text-slate-900 dark:text-white truncate">{lead.first_name} {lead.last_name}</p>
                   </div>
-                  <p className="text-xs text-slate-500 capitalize truncate">{lead.insurance_type?.replace(/_/g, ' ')}</p>
-                  <p className="text-[10px] text-slate-400 mt-1">{formatDate(lead.created_at)}</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 capitalize truncate">{lead.insurance_type?.replace(/_/g, ' ')}</p>
+                  <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-1">{formatDate(lead.created_at)}</p>
                 </div>
               ))}
               {colLeads.length === 0 && (
-                <div className="text-center py-6 text-xs text-slate-400">No leads</div>
+                <div className="text-center py-6 text-xs text-slate-400 dark:text-slate-500">No leads</div>
               )}
             </div>
           </div>
@@ -1420,12 +1420,12 @@ function AddCoverageModal({ leadId, scenarioId, scenario, onClose, onCreated }: 
       <div className="space-y-4">
         {quickAddTypes.length > 0 && (
           <div>
-            <p className="text-xs text-slate-500 mb-2">Quick select:</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">Quick select:</p>
             <div className="flex flex-wrap gap-1.5">
               {quickAddTypes.slice(0, 12).map(({ type, category }) => (
                 <button
                   key={type}
-                  className="text-xs px-2 py-1 rounded-full bg-shield-50 text-shield-700 hover:bg-shield-100 transition-colors"
+                  className="text-xs px-2 py-1 rounded-full bg-shield-50 dark:bg-shield-900/30 text-shield-700 dark:text-shield-300 hover:bg-shield-100 dark:bg-shield-900/30 dark:hover:bg-shield-900/40 transition-colors"
                   onClick={() => { setCoverageType(type); setCoverageCategory(category); }}
                 >
                   {coverageLabel(type)}
@@ -1504,7 +1504,7 @@ function ConvertModal({ leadId, scenarioId, onClose, onConverted }: {
   return (
     <Modal isOpen onClose={onClose} title="Convert to Application">
       <div className="space-y-4">
-        <p className="text-sm text-slate-600">
+        <p className="text-sm text-slate-600 dark:text-slate-300">
           This will create a new application from this scenario, copying all insured objects and coverages.
         </p>
         <Input
@@ -1609,7 +1609,7 @@ function RatingPanel({ scenario, onClose, onRated }: {
     <Modal isOpen onClose={onClose} title={`Rate: ${scenario.scenario_name}`} size="lg">
       <div>
         {/* Tabs */}
-        <div className="flex border-b border-slate-200 mb-4">
+        <div className="flex border-b border-slate-200 dark:border-slate-700/50 mb-4">
           {[
             { key: 'rate' as const, label: 'Configure', icon: Calculator },
             { key: 'results' as const, label: 'Results', icon: DollarSign },
@@ -1619,8 +1619,8 @@ function RatingPanel({ scenario, onClose, onRated }: {
               key={t.key}
               className={`flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
                 tab === t.key
-                  ? 'border-shield-600 text-shield-700'
-                  : 'border-transparent text-slate-500 hover:text-slate-700'
+                  ? 'border-shield-600 text-shield-700 dark:text-shield-300'
+                  : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:text-slate-200'
               }`}
               onClick={() => setTab(t.key)}
             >
@@ -1638,25 +1638,25 @@ function RatingPanel({ scenario, onClose, onRated }: {
                 <div className="w-8 h-8 border-4 border-shield-200 border-t-shield-600 rounded-full animate-spin" />
               </div>
             ) : !options ? (
-              <div className="text-center py-8 text-slate-500">
+              <div className="text-center py-8 text-slate-500 dark:text-slate-400">
                 <XCircle className="w-10 h-10 mx-auto mb-2 text-slate-300" />
                 <p>No rate table available for <strong>{scenario.product_type}</strong></p>
               </div>
             ) : (
               <>
                 {/* Product info */}
-                <div className="bg-shield-50 rounded-lg p-3">
+                <div className="bg-shield-50 dark:bg-shield-900/30 rounded-lg p-3">
                   <p className="text-sm font-medium text-shield-800">
                     Product: <span className="capitalize">{scenario.product_type.replace(/_/g, ' ')}</span>
                   </p>
-                  <p className="text-xs text-shield-600 mt-0.5">
+                  <p className="text-xs text-shield-600 dark:text-shield-400 mt-0.5">
                     Rate Table v{options.rate_table_version} &bull; {scenario.insured_objects.length} insured objects &bull; {scenario.coverages.length} coverages
                   </p>
                 </div>
 
                 {/* Payment Mode */}
                 <div>
-                  <label className="text-sm font-medium text-slate-700 block mb-1.5">Payment Mode</label>
+                  <label className="text-sm font-medium text-slate-700 dark:text-slate-200 block mb-1.5">Payment Mode</label>
                   <div className="grid grid-cols-4 gap-2">
                     {(['monthly', 'quarterly', 'semiannual', 'annual'] as const).map(mode => (
                       <button
@@ -1664,7 +1664,7 @@ function RatingPanel({ scenario, onClose, onRated }: {
                         className={`text-sm py-2 rounded-lg font-medium transition-colors ${
                           paymentMode === mode
                             ? 'bg-shield-600 text-white'
-                            : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                            : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:bg-slate-700'
                         }`}
                         onClick={() => setPaymentMode(mode)}
                       >
@@ -1677,17 +1677,17 @@ function RatingPanel({ scenario, onClose, onRated }: {
                 {/* Factors */}
                 {factorGroups.length > 0 && (
                   <div>
-                    <h3 className="text-sm font-bold text-slate-700 mb-3 flex items-center gap-1.5">
+                    <h3 className="text-sm font-bold text-slate-700 dark:text-slate-200 mb-3 flex items-center gap-1.5">
                       <TrendingUp className="w-4 h-4" /> Rating Factors
                     </h3>
                     <div className="grid grid-cols-2 gap-3">
                       {factorGroups.map(([code, group]) => (
                         <div key={code}>
-                          <label className="text-xs font-medium text-slate-600 block mb-1">
+                          <label className="text-xs font-medium text-slate-600 dark:text-slate-300 block mb-1">
                             {group.label || code.replace(/_/g, ' ')}
                           </label>
                           <select
-                            className="w-full text-sm border border-slate-200 rounded-lg px-3 py-2 focus:ring-2 focus:ring-shield-500 focus:border-shield-500"
+                            className="w-full text-sm border border-slate-200 dark:border-slate-700/50 rounded-lg px-3 py-2 focus:ring-2 focus:ring-shield-500 dark:focus:ring-shield-400 focus:border-shield-500"
                             value={factorSelections[code] || ''}
                             onChange={e => setFactorSelections({ ...factorSelections, [code]: e.target.value })}
                           >
@@ -1707,7 +1707,7 @@ function RatingPanel({ scenario, onClose, onRated }: {
                 {/* Riders */}
                 {options.riders.length > 0 && (
                   <div>
-                    <h3 className="text-sm font-bold text-slate-700 mb-3 flex items-center gap-1.5">
+                    <h3 className="text-sm font-bold text-slate-700 dark:text-slate-200 mb-3 flex items-center gap-1.5">
                       <Shield className="w-4 h-4" /> Riders & Endorsements
                     </h3>
                     <div className="space-y-2">
@@ -1717,18 +1717,18 @@ function RatingPanel({ scenario, onClose, onRated }: {
                           <button
                             key={rider.code}
                             className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm transition-colors ${
-                              isOn ? 'bg-shield-50 border border-shield-200' : 'bg-slate-50 border border-slate-100'
+                              isOn ? 'bg-shield-50 dark:bg-shield-900/30 border border-shield-200' : 'bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700/50'
                             }`}
                             onClick={() => setRiderSelections({ ...riderSelections, [rider.code]: !isOn })}
                           >
                             <div className="flex items-center gap-2">
                               {isOn
-                                ? <ToggleRight className="w-5 h-5 text-shield-600" />
-                                : <ToggleLeft className="w-5 h-5 text-slate-400" />
+                                ? <ToggleRight className="w-5 h-5 text-shield-600 dark:text-shield-400" />
+                                : <ToggleLeft className="w-5 h-5 text-slate-400 dark:text-slate-500" />
                               }
-                              <span className={isOn ? 'text-shield-800 font-medium' : 'text-slate-600'}>{rider.label}</span>
+                              <span className={isOn ? 'text-shield-800 font-medium' : 'text-slate-600 dark:text-slate-300'}>{rider.label}</span>
                             </div>
-                            <span className="text-xs text-slate-500">
+                            <span className="text-xs text-slate-500 dark:text-slate-400">
                               {rider.mode === 'add' ? fmtCurrency(rider.value) : `×${rider.value}`}
                             </span>
                           </button>
@@ -1757,15 +1757,15 @@ function RatingPanel({ scenario, onClose, onRated }: {
         {tab === 'results' && (
           <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-1">
             {!result ? (
-              <div className="text-center py-8 text-slate-500">
+              <div className="text-center py-8 text-slate-500 dark:text-slate-400">
                 <Calculator className="w-10 h-10 mx-auto mb-2 text-slate-300" />
                 <p>Run a rating first to see results</p>
               </div>
             ) : !result.eligible ? (
               <div className="text-center py-8">
                 <XCircle className="w-12 h-12 mx-auto mb-3 text-red-400" />
-                <p className="text-lg font-semibold text-red-600">Ineligible</p>
-                <p className="text-sm text-slate-500 mt-1">{result.ineligible_reason}</p>
+                <p className="text-lg font-semibold text-red-600 dark:text-red-400">Ineligible</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">{result.ineligible_reason}</p>
               </div>
             ) : (
               <>
@@ -1782,12 +1782,12 @@ function RatingPanel({ scenario, onClose, onRated }: {
 
                 {/* DI-specific info */}
                 {result.monthly_benefit_approved != null && (
-                  <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+                  <div className="bg-amber-50 dark:bg-amber-900/30 border border-amber-200 rounded-lg p-3">
                     <p className="text-sm font-medium text-amber-800">
                       Monthly Benefit Approved: {fmtCurrency(result.monthly_benefit_approved)}
                     </p>
                     {result.income_replacement_ratio != null && (
-                      <p className="text-xs text-amber-600 mt-0.5">
+                      <p className="text-xs text-amber-600 dark:text-amber-400 mt-0.5">
                         Income Replacement: {(result.income_replacement_ratio * 100).toFixed(0)}%
                         {result.occupation_class && ` | Occ Class: ${result.occupation_class}`}
                       </p>
@@ -1797,18 +1797,18 @@ function RatingPanel({ scenario, onClose, onRated }: {
 
                 {/* Premium breakdown */}
                 <div>
-                  <h4 className="text-sm font-bold text-slate-700 mb-2">Premium Breakdown</h4>
-                  <div className="bg-slate-50 rounded-lg divide-y divide-slate-100">
+                  <h4 className="text-sm font-bold text-slate-700 dark:text-slate-200 mb-2">Premium Breakdown</h4>
+                  <div className="bg-slate-50 dark:bg-slate-800 rounded-lg divide-y divide-slate-100">
                     <div className="flex justify-between px-4 py-2.5 text-sm">
-                      <span className="text-slate-600">Exposure</span>
+                      <span className="text-slate-600 dark:text-slate-300">Exposure</span>
                       <span className="font-medium">{result.exposure.toFixed(4)}</span>
                     </div>
                     <div className="flex justify-between px-4 py-2.5 text-sm">
-                      <span className="text-slate-600">Base Rate ({result.base_rate_key})</span>
+                      <span className="text-slate-600 dark:text-slate-300">Base Rate ({result.base_rate_key})</span>
                       <span className="font-medium">{result.base_rate_value.toFixed(4)}</span>
                     </div>
                     <div className="flex justify-between px-4 py-2.5 text-sm">
-                      <span className="text-slate-600">Base Premium</span>
+                      <span className="text-slate-600 dark:text-slate-300">Base Premium</span>
                       <span className="font-medium">{fmtCurrency(result.base_premium)}</span>
                     </div>
 
@@ -1817,13 +1817,13 @@ function RatingPanel({ scenario, onClose, onRated }: {
                       <>
                         {result.factors_applied.map((f, i) => (
                           <div key={i} className="flex justify-between px-4 py-2 text-sm">
-                            <span className="text-slate-500 pl-4">
+                            <span className="text-slate-500 dark:text-slate-400 pl-4">
                               {f.label}: {f.option} ({f.mode === 'multiply' ? `×${f.value}` : `+${f.value}`})
                             </span>
                           </div>
                         ))}
                         <div className="flex justify-between px-4 py-2.5 text-sm">
-                          <span className="text-slate-600">After Factors</span>
+                          <span className="text-slate-600 dark:text-slate-300">After Factors</span>
                           <span className="font-medium">{fmtCurrency(result.premium_factored)}</span>
                         </div>
                       </>
@@ -1834,12 +1834,12 @@ function RatingPanel({ scenario, onClose, onRated }: {
                       <>
                         {result.riders_applied.map((r, i) => (
                           <div key={i} className="flex justify-between px-4 py-2 text-sm">
-                            <span className="text-slate-500 pl-4">{r.label}</span>
-                            <span className="text-slate-600">{r.charge >= 0 ? '+' : ''}{fmtCurrency(r.charge)}</span>
+                            <span className="text-slate-500 dark:text-slate-400 pl-4">{r.label}</span>
+                            <span className="text-slate-600 dark:text-slate-300">{r.charge >= 0 ? '+' : ''}{fmtCurrency(r.charge)}</span>
                           </div>
                         ))}
                         <div className="flex justify-between px-4 py-2.5 text-sm">
-                          <span className="text-slate-600">After Riders</span>
+                          <span className="text-slate-600 dark:text-slate-300">After Riders</span>
                           <span className="font-medium">{fmtCurrency(result.premium_with_riders)}</span>
                         </div>
                       </>
@@ -1850,10 +1850,10 @@ function RatingPanel({ scenario, onClose, onRated }: {
                       <>
                         {result.fees_applied.map((f, i) => (
                           <div key={i} className="flex justify-between px-4 py-2 text-sm">
-                            <span className={`pl-4 ${f.type === 'credit' ? 'text-savings-600' : 'text-slate-500'}`}>
+                            <span className={`pl-4 ${f.type === 'credit' ? 'text-savings-600 dark:text-savings-400' : 'text-slate-500 dark:text-slate-400'}`}>
                               {f.label} ({f.type})
                             </span>
-                            <span className={f.type === 'credit' ? 'text-savings-600' : 'text-slate-600'}>
+                            <span className={f.type === 'credit' ? 'text-savings-600 dark:text-savings-400' : 'text-slate-600 dark:text-slate-300'}>
                               {f.amount >= 0 ? '+' : ''}{fmtCurrency(f.amount)}
                             </span>
                           </div>
@@ -1861,21 +1861,21 @@ function RatingPanel({ scenario, onClose, onRated }: {
                       </>
                     )}
 
-                    <div className="flex justify-between px-4 py-3 text-sm font-bold bg-shield-50">
+                    <div className="flex justify-between px-4 py-3 text-sm font-bold bg-shield-50 dark:bg-shield-900/30">
                       <span className="text-shield-800">Annual Premium</span>
                       <span className="text-shield-800">{fmtCurrency(result.premium_annual)}</span>
                     </div>
                     <div className="flex justify-between px-4 py-2.5 text-sm">
-                      <span className="text-slate-600">
+                      <span className="text-slate-600 dark:text-slate-300">
                         Modal: {result.modal_mode} (×{result.modal_factor}{result.modal_fee > 0 ? ` +${fmtCurrency(result.modal_fee)}` : ''})
                       </span>
-                      <span className="font-bold text-shield-700">{fmtCurrency(result.premium_modal)}</span>
+                      <span className="font-bold text-shield-700 dark:text-shield-300">{fmtCurrency(result.premium_modal)}</span>
                     </div>
                   </div>
                 </div>
 
                 {/* Meta */}
-                <div className="flex items-center gap-4 text-xs text-slate-400">
+                <div className="flex items-center gap-4 text-xs text-slate-400 dark:text-slate-500">
                   <span>Engine v{result.engine_version}</span>
                   <span>Table v{result.rate_table_version}</span>
                 </div>
@@ -1897,7 +1897,7 @@ function RatingPanel({ scenario, onClose, onRated }: {
                 <div className="w-8 h-8 border-4 border-shield-200 border-t-shield-600 rounded-full animate-spin" />
               </div>
             ) : history.length === 0 ? (
-              <div className="text-center py-8 text-slate-500">
+              <div className="text-center py-8 text-slate-500 dark:text-slate-400">
                 <History className="w-10 h-10 mx-auto mb-2 text-slate-300" />
                 <p>No rating history yet</p>
               </div>
@@ -1907,7 +1907,7 @@ function RatingPanel({ scenario, onClose, onRated }: {
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
                       {run.status === 'success' ? (
-                        <CheckCircle2 className="w-4 h-4 text-savings-600" />
+                        <CheckCircle2 className="w-4 h-4 text-savings-600 dark:text-savings-400" />
                       ) : run.status === 'ineligible' ? (
                         <XCircle className="w-4 h-4 text-amber-500" />
                       ) : (
@@ -1916,26 +1916,26 @@ function RatingPanel({ scenario, onClose, onRated }: {
                       <Badge variant={run.status === 'success' ? 'success' : run.status === 'ineligible' ? 'warning' : 'danger'}>
                         {run.status}
                       </Badge>
-                      <span className="text-xs text-slate-400">{run.duration_ms}ms</span>
+                      <span className="text-xs text-slate-400 dark:text-slate-500">{run.duration_ms}ms</span>
                     </div>
-                    <span className="text-xs text-slate-400">
+                    <span className="text-xs text-slate-400 dark:text-slate-500">
                       {new Date(run.created_at).toLocaleString()}
                     </span>
                   </div>
                   {run.output_snapshot?.eligible && (
                     <div className="flex items-center gap-4 text-sm">
-                      <span className="font-bold text-shield-700">
+                      <span className="font-bold text-shield-700 dark:text-shield-300">
                         {fmtCurrency(run.output_snapshot.premium_modal)}/{run.output_snapshot.modal_mode}
                       </span>
-                      <span className="text-slate-500">
+                      <span className="text-slate-500 dark:text-slate-400">
                         Annual: {fmtCurrency(run.output_snapshot.premium_annual)}
                       </span>
                     </div>
                   )}
                   {run.error_message && (
-                    <p className="text-sm text-red-600 mt-1">{run.error_message}</p>
+                    <p className="text-sm text-red-600 dark:text-red-400 mt-1">{run.error_message}</p>
                   )}
-                  <div className="flex items-center gap-3 mt-1 text-xs text-slate-400">
+                  <div className="flex items-center gap-3 mt-1 text-xs text-slate-400 dark:text-slate-500">
                     <span>v{run.engine_version}</span>
                     <span>Table v{run.rate_table_version}</span>
                   </div>
@@ -1983,20 +1983,20 @@ function SellLeadModal({ lead, onClose, onListed }: { lead: Lead; onClose: () =>
   return (
     <Modal isOpen title="Sell Lead on Marketplace" onClose={onClose}>
       <div className="space-y-4">
-        <Card className="p-4 bg-slate-50">
+        <Card className="p-4 bg-slate-50 dark:bg-slate-800">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-shield-100 text-shield-700 flex items-center justify-center font-bold">
+            <div className="w-10 h-10 rounded-full bg-shield-100 dark:bg-shield-900/30 text-shield-700 dark:text-shield-300 flex items-center justify-center font-bold">
               {lead.first_name[0]}{lead.last_name[0]}
             </div>
             <div>
-              <p className="font-medium text-slate-900">{lead.first_name} {lead.last_name}</p>
-              <p className="text-sm text-slate-500 capitalize">{lead.insurance_type} &middot; {lead.email}</p>
+              <p className="font-medium text-slate-900 dark:text-white">{lead.first_name} {lead.last_name}</p>
+              <p className="text-sm text-slate-500 dark:text-slate-400 capitalize">{lead.insurance_type} &middot; {lead.email}</p>
             </div>
           </div>
         </Card>
 
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">Asking Price ($)</label>
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1">Asking Price ($)</label>
           <Input
             type="number"
             min="1"
@@ -2007,11 +2007,11 @@ function SellLeadModal({ lead, onClose, onListed }: { lead: Lead; onClose: () =>
             onChange={e => setAskingPrice(e.target.value)}
             leftIcon={<DollarSign className="w-4 h-4" />}
           />
-          <p className="text-xs text-slate-400 mt-1">Platform takes a small fee; you receive the remainder.</p>
+          <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">Platform takes a small fee; you receive the remainder.</p>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">Seller Notes (optional)</label>
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1">Seller Notes (optional)</label>
           <Textarea
             placeholder="Any details that help buyers (e.g. 'Hot lead, called 2x, ready to quote')"
             value={notes}
@@ -2021,7 +2021,7 @@ function SellLeadModal({ lead, onClose, onListed }: { lead: Lead; onClose: () =>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">Listing Duration</label>
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1">Listing Duration</label>
           <select
             className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm"
             value={expiresIn}

@@ -80,8 +80,8 @@ export default function AdminProducts() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Platform Products</h1>
-          <p className="text-slate-500 mt-1">Manage which insurance product types are available on the platform</p>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Platform Products</h1>
+          <p className="text-slate-500 dark:text-slate-400 mt-1">Manage which insurance product types are available on the platform</p>
         </div>
         <button
           onClick={handleSync}
@@ -95,36 +95,36 @@ export default function AdminProducts() {
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4">
-        <div className="bg-white rounded-xl border border-slate-200 p-4">
-          <p className="text-sm text-slate-500">Total Products</p>
-          <p className="text-2xl font-bold text-slate-900">{products.length}</p>
+        <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700/50 p-4">
+          <p className="text-sm text-slate-500 dark:text-slate-400">Total Products</p>
+          <p className="text-2xl font-bold text-slate-900 dark:text-white">{products.length}</p>
         </div>
-        <div className="bg-white rounded-xl border border-slate-200 p-4">
-          <p className="text-sm text-slate-500">Active</p>
-          <p className="text-2xl font-bold text-savings-600">{activeCount}</p>
+        <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700/50 p-4">
+          <p className="text-sm text-slate-500 dark:text-slate-400">Active</p>
+          <p className="text-2xl font-bold text-savings-600 dark:text-savings-400">{activeCount}</p>
         </div>
-        <div className="bg-white rounded-xl border border-slate-200 p-4">
-          <p className="text-sm text-slate-500">Categories</p>
-          <p className="text-2xl font-bold text-shield-600">{categories.length}</p>
+        <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700/50 p-4">
+          <p className="text-sm text-slate-500 dark:text-slate-400">Categories</p>
+          <p className="text-2xl font-bold text-shield-600 dark:text-shield-400">{categories.length}</p>
         </div>
       </div>
 
       {/* Search & Filter */}
       <div className="flex gap-3">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 dark:text-slate-500" />
           <input
             type="text"
             placeholder="Search products..."
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-shield-500 focus:border-shield-500"
+            className="w-full pl-10 pr-4 py-2 border border-slate-200 dark:border-slate-700/50 rounded-lg focus:ring-2 focus:ring-shield-500 dark:focus:ring-shield-400 focus:border-shield-500"
           />
         </div>
         <select
           value={selectedCategory}
           onChange={e => setSelectedCategory(e.target.value)}
-          className="px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-shield-500"
+          className="px-4 py-2 border border-slate-200 dark:border-slate-700/50 rounded-lg focus:ring-2 focus:ring-shield-500 dark:focus:ring-shield-400"
         >
           <option value="">All Categories</option>
           {categories.map(cat => (
@@ -145,25 +145,25 @@ export default function AdminProducts() {
             const catActive = categoryProducts.filter(p => p.is_active).length;
 
             return (
-              <div key={category} className="bg-white rounded-xl border border-slate-200 overflow-hidden">
-                <div className="flex items-center justify-between px-6 py-4 bg-slate-50 border-b border-slate-200">
+              <div key={category} className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700/50 overflow-hidden">
+                <div className="flex items-center justify-between px-6 py-4 bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700/50">
                   <div className="flex items-center gap-3">
-                    <Package className="w-5 h-5 text-shield-600" />
-                    <h2 className="font-semibold text-slate-900">{category}</h2>
-                    <span className="text-sm text-slate-500">
+                    <Package className="w-5 h-5 text-shield-600 dark:text-shield-400" />
+                    <h2 className="font-semibold text-slate-900 dark:text-white">{category}</h2>
+                    <span className="text-sm text-slate-500 dark:text-slate-400">
                       {catActive}/{categoryProducts.length} active
                     </span>
                   </div>
                   <div className="flex gap-2">
                     <button
                       onClick={() => handleBulkToggle(category, true)}
-                      className="text-xs px-3 py-1 bg-savings-50 text-savings-700 rounded-full hover:bg-savings-100"
+                      className="text-xs px-3 py-1 bg-savings-50 dark:bg-savings-900/30 text-savings-700 dark:text-savings-300 rounded-full hover:bg-savings-100 dark:bg-savings-900/30 dark:hover:bg-savings-900/40"
                     >
                       Enable All
                     </button>
                     <button
                       onClick={() => handleBulkToggle(category, false)}
-                      className="text-xs px-3 py-1 bg-red-50 text-red-700 rounded-full hover:bg-red-100"
+                      className="text-xs px-3 py-1 bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded-full hover:bg-red-100 dark:bg-red-900/30 dark:hover:bg-red-900/40"
                     >
                       Disable All
                     </button>
@@ -174,29 +174,29 @@ export default function AdminProducts() {
                   {categoryProducts.map(product => (
                     <div
                       key={product.id}
-                      className={`flex items-center justify-between px-6 py-3 hover:bg-slate-50 transition-colors ${
+                      className={`flex items-center justify-between px-6 py-3 hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-800 transition-colors ${
                         !product.is_active ? 'opacity-50' : ''
                       }`}
                     >
                       <div className="flex items-center gap-3">
                         <ShieldCheck className={`w-5 h-5 ${product.is_active ? 'text-savings-500' : 'text-slate-300'}`} />
                         <div>
-                          <p className="font-medium text-slate-900">{product.name}</p>
-                          <p className="text-xs text-slate-400">{product.slug}</p>
+                          <p className="font-medium text-slate-900 dark:text-white">{product.name}</p>
+                          <p className="text-xs text-slate-400 dark:text-slate-500">{product.slug}</p>
                         </div>
                       </div>
                       <div className="flex items-center gap-3">
                         <span className={`text-xs px-2 py-0.5 rounded-full ${
                           product.is_active
-                            ? 'bg-savings-50 text-savings-700'
-                            : 'bg-slate-100 text-slate-500'
+                            ? 'bg-savings-50 dark:bg-savings-900/30 text-savings-700 dark:text-savings-300'
+                            : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
                         }`}>
                           {product.is_active ? 'Active' : 'Inactive'}
                         </span>
-                        <button onClick={() => handleToggle(product)} className="p-1 hover:bg-slate-100 rounded">
+                        <button onClick={() => handleToggle(product)} className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 dark:bg-slate-800 rounded">
                           {product.is_active
                             ? <ToggleRight className="w-6 h-6 text-savings-500" />
-                            : <ToggleLeft className="w-6 h-6 text-slate-400" />
+                            : <ToggleLeft className="w-6 h-6 text-slate-400 dark:text-slate-500" />
                           }
                         </button>
                       </div>

@@ -186,11 +186,11 @@ export default function Documents({ entityType = 'application', entityId }: Prop
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-3">
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-3">
             <FileText className="w-6 h-6 text-teal-600" />
             Documents
           </h1>
-          <p className="text-slate-500 text-sm mt-1">Manage insurance documents and e-signatures</p>
+          <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">Manage insurance documents and e-signatures</p>
         </div>
         {entityId && (
           <Button variant="shield" onClick={() => setShowUpload(true)}>
@@ -201,21 +201,21 @@ export default function Documents({ entityType = 'application', entityId }: Prop
 
       {/* Pending Signatures Banner */}
       {pendingSignatures.length > 0 && (
-        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6">
+        <div className="bg-amber-50 dark:bg-amber-900/30 border border-amber-200 rounded-xl p-4 mb-6">
           <div className="flex items-center gap-2 mb-2">
-            <PenTool className="w-5 h-5 text-amber-600" />
+            <PenTool className="w-5 h-5 text-amber-600 dark:text-amber-400" />
             <h3 className="font-semibold text-amber-900">
               {pendingSignatures.length} Signature{pendingSignatures.length > 1 ? 's' : ''} Pending
             </h3>
           </div>
           <div className="space-y-2">
             {pendingSignatures.map((sig) => (
-              <div key={sig.id} className="flex items-center justify-between bg-white rounded-lg p-3 border border-amber-100">
+              <div key={sig.id} className="flex items-center justify-between bg-white dark:bg-slate-900 rounded-lg p-3 border border-amber-100">
                 <div>
-                  <p className="text-sm font-medium text-slate-900">
+                  <p className="text-sm font-medium text-slate-900 dark:text-white">
                     From {sig.requester?.name || 'Unknown'}
                   </p>
-                  <p className="text-xs text-slate-500">{sig.signer_role} signature</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">{sig.signer_role} signature</p>
                 </div>
                 <Button variant="shield" size="sm" onClick={() => setShowSign(sig)}>
                   <PenTool className="w-3.5 h-3.5 mr-1" /> Sign
@@ -227,53 +227,53 @@ export default function Documents({ entityType = 'application', entityId }: Prop
       )}
 
       {/* Documents List */}
-      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700/50 overflow-hidden">
         {loading ? (
           <div className="flex items-center justify-center py-16">
             <div className="w-6 h-6 border-2 border-teal-200 border-t-teal-600 rounded-full animate-spin" />
           </div>
         ) : documents.length === 0 ? (
           <div className="py-16 text-center">
-            <div className="w-14 h-14 bg-slate-100 rounded-xl flex items-center justify-center mx-auto mb-3">
-              <FileText className="w-7 h-7 text-slate-400" />
+            <div className="w-14 h-14 bg-slate-100 dark:bg-slate-800 rounded-xl flex items-center justify-center mx-auto mb-3">
+              <FileText className="w-7 h-7 text-slate-400 dark:text-slate-500" />
             </div>
-            <p className="text-slate-600 font-medium">No documents yet</p>
-            <p className="text-sm text-slate-400 mt-1">Upload documents to get started</p>
+            <p className="text-slate-600 dark:text-slate-300 font-medium">No documents yet</p>
+            <p className="text-sm text-slate-400 dark:text-slate-500 mt-1">Upload documents to get started</p>
           </div>
         ) : (
           <table className="w-full">
             <thead>
-              <tr className="border-b border-slate-100">
-                <th className="text-left px-5 py-3 text-xs font-semibold text-slate-500 uppercase">Document</th>
-                <th className="text-left px-5 py-3 text-xs font-semibold text-slate-500 uppercase hidden sm:table-cell">Type</th>
-                <th className="text-left px-5 py-3 text-xs font-semibold text-slate-500 uppercase hidden md:table-cell">Size</th>
-                <th className="text-left px-5 py-3 text-xs font-semibold text-slate-500 uppercase hidden md:table-cell">Uploaded By</th>
-                <th className="text-right px-5 py-3 text-xs font-semibold text-slate-500 uppercase">Actions</th>
+              <tr className="border-b border-slate-100 dark:border-slate-700/50">
+                <th className="text-left px-5 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">Document</th>
+                <th className="text-left px-5 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase hidden sm:table-cell">Type</th>
+                <th className="text-left px-5 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase hidden md:table-cell">Size</th>
+                <th className="text-left px-5 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase hidden md:table-cell">Uploaded By</th>
+                <th className="text-right px-5 py-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase">Actions</th>
               </tr>
             </thead>
             <tbody>
               {documents.map((doc) => {
                 const FileIcon = getFileIcon(doc.mime_type);
                 return (
-                  <tr key={doc.id} className="border-b border-slate-50 hover:bg-slate-50">
+                  <tr key={doc.id} className="border-b border-slate-50 hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-800">
                     <td className="px-5 py-3">
                       <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 bg-teal-50 rounded-lg flex items-center justify-center">
+                        <div className="w-9 h-9 bg-teal-50 dark:bg-teal-900/30 rounded-lg flex items-center justify-center">
                           <FileIcon className="w-4.5 h-4.5 text-teal-600" />
                         </div>
                         <div>
-                          <p className="text-sm font-medium text-slate-900">{doc.title}</p>
-                          <p className="text-xs text-slate-400">{doc.file_name}</p>
+                          <p className="text-sm font-medium text-slate-900 dark:text-white">{doc.title}</p>
+                          <p className="text-xs text-slate-400 dark:text-slate-500">{doc.file_name}</p>
                         </div>
                       </div>
                     </td>
                     <td className="px-5 py-3 hidden sm:table-cell">
                       <Badge variant="default" size="sm">{docTypeLabels[doc.type] || doc.type}</Badge>
                     </td>
-                    <td className="px-5 py-3 text-sm text-slate-500 hidden md:table-cell">
+                    <td className="px-5 py-3 text-sm text-slate-500 dark:text-slate-400 hidden md:table-cell">
                       {formatFileSize(doc.file_size)}
                     </td>
-                    <td className="px-5 py-3 text-sm text-slate-500 hidden md:table-cell">
+                    <td className="px-5 py-3 text-sm text-slate-500 dark:text-slate-400 hidden md:table-cell">
                       {doc.uploader?.name || '—'}
                     </td>
                     <td className="px-5 py-3 text-right">
@@ -282,14 +282,14 @@ export default function Documents({ entityType = 'application', entityId }: Prop
                           href={documentService.getDownloadUrl(doc.id)}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="p-1.5 rounded-lg hover:bg-teal-50 text-slate-400 hover:text-teal-600"
+                          className="p-1.5 rounded-lg hover:bg-teal-50 dark:bg-teal-900/30 text-slate-400 dark:text-slate-500 hover:text-teal-600"
                         >
                           <Download className="w-4 h-4" />
                         </a>
                         {(doc.uploaded_by === user?.id || ['admin', 'superadmin'].includes(user?.role || '')) && (
                           <button
                             onClick={() => handleDelete(doc)}
-                            className="p-1.5 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-600"
+                            className="p-1.5 rounded-lg hover:bg-red-50 dark:bg-red-900/30 text-slate-400 dark:text-slate-500 hover:text-red-600 dark:text-red-400"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
@@ -308,11 +308,11 @@ export default function Documents({ entityType = 'application', entityId }: Prop
       <Modal isOpen={showUpload} onClose={() => setShowUpload(false)} title="Upload Document">
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">File</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-1">File</label>
             <input
               type="file"
               onChange={(e) => setUploadFile(e.target.files?.[0] || null)}
-              className="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100"
+              className="w-full text-sm text-slate-500 dark:text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-teal-50 dark:bg-teal-900/30 file:text-teal-700 hover:file:bg-teal-100"
               accept=".pdf,.doc,.docx,.png,.jpg,.jpeg,.xls,.xlsx,.csv"
             />
           </div>
@@ -338,21 +338,21 @@ export default function Documents({ entityType = 'application', entityId }: Prop
       <Modal isOpen={!!showSign} onClose={() => setShowSign(null)} title="Sign Document">
         {showSign && (
           <div className="space-y-4">
-            <div className="bg-slate-50 rounded-xl p-4">
-              <p className="text-sm text-slate-600">
+            <div className="bg-slate-50 dark:bg-slate-800 rounded-xl p-4">
+              <p className="text-sm text-slate-600 dark:text-slate-300">
                 <strong>Requested by:</strong> {showSign.requester?.name || 'Unknown'}
               </p>
-              <p className="text-sm text-slate-600 mt-1">
+              <p className="text-sm text-slate-600 dark:text-slate-300 mt-1">
                 <strong>Role:</strong> {showSign.signer_role.replace('_', ' ')}
               </p>
               {showSign.request_message && (
-                <p className="text-sm text-slate-500 mt-2 italic">"{showSign.request_message}"</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400 mt-2 italic">"{showSign.request_message}"</p>
               )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">Draw your signature below</label>
-              <div className="border-2 border-dashed border-slate-300 rounded-xl overflow-hidden bg-white">
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-200 mb-2">Draw your signature below</label>
+              <div className="border-2 border-dashed border-slate-300 rounded-xl overflow-hidden bg-white dark:bg-slate-900">
                 <canvas
                   ref={canvasRef}
                   width={500}
@@ -367,7 +367,7 @@ export default function Documents({ entityType = 'application', entityId }: Prop
                   onTouchEnd={endDraw}
                 />
               </div>
-              <button onClick={clearCanvas} className="text-xs text-slate-400 hover:text-slate-600 mt-1">
+              <button onClick={clearCanvas} className="text-xs text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:text-slate-300 mt-1">
                 Clear signature
               </button>
             </div>
@@ -389,7 +389,7 @@ export default function Documents({ entityType = 'application', entityId }: Prop
               </Button>
             </div>
 
-            <p className="text-xs text-slate-400 text-center">
+            <p className="text-xs text-slate-400 dark:text-slate-500 text-center">
               By signing, you agree to the terms of this document. Your IP address and browser information will be recorded.
             </p>
           </div>

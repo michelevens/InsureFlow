@@ -70,8 +70,8 @@ export default function AgencyProducts() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Agency Products</h1>
-          <p className="text-slate-500 mt-1">Select which insurance products your agency supports</p>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Agency Products</h1>
+          <p className="text-slate-500 dark:text-slate-400 mt-1">Select which insurance products your agency supports</p>
         </div>
         <button
           onClick={handleSave}
@@ -84,13 +84,13 @@ export default function AgencyProducts() {
       </div>
 
       {/* Stats */}
-      <div className="bg-white rounded-xl border border-slate-200 p-4">
-        <p className="text-sm text-slate-500">
-          <span className="font-semibold text-shield-600">{selectedIds.size}</span> of{' '}
+      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700/50 p-4">
+        <p className="text-sm text-slate-500 dark:text-slate-400">
+          <span className="font-semibold text-shield-600 dark:text-shield-400">{selectedIds.size}</span> of{' '}
           <span className="font-semibold">{products.length}</span> products enabled
         </p>
         {selectedIds.size === 0 && (
-          <p className="text-sm text-amber-600 mt-1">
+          <p className="text-sm text-amber-600 dark:text-amber-400 mt-1">
             Warning: No products selected — your calculator will not show any products to visitors.
           </p>
         )}
@@ -108,18 +108,18 @@ export default function AgencyProducts() {
             const allSelected = catSelected === catProducts.length;
 
             return (
-              <div key={category} className="bg-white rounded-xl border border-slate-200 overflow-hidden">
-                <div className="flex items-center justify-between px-6 py-4 bg-slate-50 border-b border-slate-200">
+              <div key={category} className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700/50 overflow-hidden">
+                <div className="flex items-center justify-between px-6 py-4 bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700/50">
                   <div className="flex items-center gap-3">
-                    <Package className="w-5 h-5 text-shield-600" />
-                    <h2 className="font-semibold text-slate-900">{category}</h2>
-                    <span className="text-sm text-slate-500">
+                    <Package className="w-5 h-5 text-shield-600 dark:text-shield-400" />
+                    <h2 className="font-semibold text-slate-900 dark:text-white">{category}</h2>
+                    <span className="text-sm text-slate-500 dark:text-slate-400">
                       {catSelected}/{catProducts.length} selected
                     </span>
                   </div>
                   <button
                     onClick={() => toggleCategory(category, !allSelected)}
-                    className="text-xs px-3 py-1 bg-shield-50 text-shield-700 rounded-full hover:bg-shield-100"
+                    className="text-xs px-3 py-1 bg-shield-50 dark:bg-shield-900/30 text-shield-700 dark:text-shield-300 rounded-full hover:bg-shield-100 dark:bg-shield-900/30 dark:hover:bg-shield-900/40"
                   >
                     {allSelected ? 'Deselect All' : 'Select All'}
                   </button>
@@ -132,8 +132,8 @@ export default function AgencyProducts() {
                       <button
                         key={product.id}
                         onClick={() => toggle(product.id)}
-                        className={`flex items-center gap-3 px-6 py-3 text-left hover:bg-slate-50 transition-colors border-b sm:border-b-0 sm:border-r border-slate-100 ${
-                          selected ? 'bg-shield-50/50' : ''
+                        className={`flex items-center gap-3 px-6 py-3 text-left hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-800 transition-colors border-b sm:border-b-0 sm:border-r border-slate-100 dark:border-slate-700/50 ${
+                          selected ? 'bg-shield-50 dark:bg-shield-900/30/50' : ''
                         }`}
                       >
                         <div className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 ${
@@ -144,8 +144,8 @@ export default function AgencyProducts() {
                           {selected && <Check className="w-3 h-3 text-white" />}
                         </div>
                         <div className="min-w-0">
-                          <p className="font-medium text-slate-900 text-sm truncate">{product.name}</p>
-                          <p className="text-xs text-slate-400 truncate">{product.slug}</p>
+                          <p className="font-medium text-slate-900 dark:text-white text-sm truncate">{product.name}</p>
+                          <p className="text-xs text-slate-400 dark:text-slate-500 truncate">{product.slug}</p>
                         </div>
                       </button>
                     );

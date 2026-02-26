@@ -68,8 +68,8 @@ export default function WhiteLabelConfigPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">White-Label</h1>
-          <p className="text-slate-500 mt-1">Brand the consumer experience for your agency</p>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">White-Label</h1>
+          <p className="text-slate-500 dark:text-slate-400 mt-1">Brand the consumer experience for your agency</p>
         </div>
         <Button variant="shield" onClick={() => setShowCreate(true)}>
           <Plus className="w-4 h-4 mr-1" /> New Configuration
@@ -83,7 +83,7 @@ export default function WhiteLabelConfigPage() {
       ) : configs.length === 0 ? (
         <Card className="p-12 text-center">
           <Palette className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-          <p className="text-slate-500 mb-4">No white-label configurations yet</p>
+          <p className="text-slate-500 dark:text-slate-400 mb-4">No white-label configurations yet</p>
           <Button variant="shield" onClick={() => setShowCreate(true)}>
             <Plus className="w-4 h-4 mr-1" /> Create First Config
           </Button>
@@ -101,8 +101,8 @@ export default function WhiteLabelConfigPage() {
                     {config.brand_name.charAt(0)}
                   </div>
                   <div>
-                    <h3 className="font-bold text-slate-900">{config.brand_name}</h3>
-                    <p className="text-xs text-slate-500">{config.agency?.name || config.organization?.name}</p>
+                    <h3 className="font-bold text-slate-900 dark:text-white">{config.brand_name}</h3>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">{config.agency?.name || config.organization?.name}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -116,9 +116,9 @@ export default function WhiteLabelConfigPage() {
 
               {/* Color preview */}
               <div className="flex items-center gap-2 mb-3">
-                <div className="w-6 h-6 rounded-full border border-slate-200" style={{ backgroundColor: config.primary_color }} title="Primary" />
-                <div className="w-6 h-6 rounded-full border border-slate-200" style={{ backgroundColor: config.secondary_color }} title="Secondary" />
-                <span className="text-xs text-slate-400 ml-1">{config.primary_color} / {config.secondary_color}</span>
+                <div className="w-6 h-6 rounded-full border border-slate-200 dark:border-slate-700/50" style={{ backgroundColor: config.primary_color }} title="Primary" />
+                <div className="w-6 h-6 rounded-full border border-slate-200 dark:border-slate-700/50" style={{ backgroundColor: config.secondary_color }} title="Secondary" />
+                <span className="text-xs text-slate-400 dark:text-slate-500 ml-1">{config.primary_color} / {config.secondary_color}</span>
               </div>
 
               {/* Domains */}
@@ -127,9 +127,9 @@ export default function WhiteLabelConfigPage() {
                   {config.domains.map(d => {
                     const ssl = sslStatusConfig[d.ssl_status] || sslStatusConfig.pending;
                     return (
-                      <div key={d.id} className="flex items-center justify-between bg-slate-50 rounded-lg px-3 py-2 text-sm">
+                      <div key={d.id} className="flex items-center justify-between bg-slate-50 dark:bg-slate-800 rounded-lg px-3 py-2 text-sm">
                         <div className="flex items-center gap-2">
-                          <Globe className="w-3.5 h-3.5 text-slate-400" />
+                          <Globe className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
                           <span className="font-mono">{d.domain}</span>
                           <Badge variant={ssl.variant}>{ssl.label}</Badge>
                         </div>
@@ -140,7 +140,7 @@ export default function WhiteLabelConfigPage() {
                             </Button>
                           )}
                           {d.txt_record && (
-                            <button onClick={() => navigator.clipboard.writeText(d.txt_record!)} className="text-slate-400 hover:text-slate-600" title="Copy TXT record">
+                            <button onClick={() => navigator.clipboard.writeText(d.txt_record!)} className="text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:text-slate-300" title="Copy TXT record">
                               <Copy className="w-3.5 h-3.5" />
                             </button>
                           )}
@@ -155,7 +155,7 @@ export default function WhiteLabelConfigPage() {
               )}
 
               {/* Actions */}
-              <div className="flex items-center gap-2 pt-2 border-t border-slate-100">
+              <div className="flex items-center gap-2 pt-2 border-t border-slate-100 dark:border-slate-700/50">
                 <Button variant="ghost" size="sm" onClick={() => toggleActive(config)}>
                   {config.is_active ? 'Deactivate' : 'Activate'}
                 </Button>
@@ -196,7 +196,7 @@ export default function WhiteLabelConfigPage() {
         <Modal isOpen onClose={() => { setAddDomainFor(null); setNewDomain(''); }} title="Add Custom Domain" size="sm">
           <div className="space-y-4">
             <Input label="Domain" placeholder="insurance.youragency.com" value={newDomain} onChange={e => setNewDomain(e.target.value)} />
-            <p className="text-xs text-slate-500">After adding, create a CNAME record pointing to <code className="bg-slate-100 px-1 rounded">app.insurons.com</code> and add the TXT verification record.</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400">After adding, create a CNAME record pointing to <code className="bg-slate-100 dark:bg-slate-800 px-1 rounded">app.insurons.com</code> and add the TXT verification record.</p>
             <div className="flex justify-end gap-2">
               <Button variant="ghost" onClick={() => { setAddDomainFor(null); setNewDomain(''); }}>Cancel</Button>
               <Button variant="shield" onClick={handleAddDomain} disabled={!newDomain}>Add Domain</Button>
@@ -240,14 +240,14 @@ function CreateWhiteLabelModal({ onClose, onCreated }: { onClose: () => void; on
         <Input label="Logo URL" placeholder="https://..." value={logoUrl} onChange={e => setLogoUrl(e.target.value)} />
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="text-sm font-medium text-slate-700 block mb-1">Primary Color</label>
+            <label className="text-sm font-medium text-slate-700 dark:text-slate-200 block mb-1">Primary Color</label>
             <div className="flex items-center gap-2">
               <input type="color" value={primaryColor} onChange={e => setPrimaryColor(e.target.value)} className="w-10 h-10 rounded cursor-pointer" />
               <Input value={primaryColor} onChange={e => setPrimaryColor(e.target.value)} />
             </div>
           </div>
           <div>
-            <label className="text-sm font-medium text-slate-700 block mb-1">Secondary Color</label>
+            <label className="text-sm font-medium text-slate-700 dark:text-slate-200 block mb-1">Secondary Color</label>
             <div className="flex items-center gap-2">
               <input type="color" value={secondaryColor} onChange={e => setSecondaryColor(e.target.value)} className="w-10 h-10 rounded cursor-pointer" />
               <Input value={secondaryColor} onChange={e => setSecondaryColor(e.target.value)} />
@@ -255,7 +255,7 @@ function CreateWhiteLabelModal({ onClose, onCreated }: { onClose: () => void; on
           </div>
         </div>
         {/* Preview */}
-        <div className="rounded-xl p-4 border border-slate-200" style={{ background: `linear-gradient(135deg, ${primaryColor}10, ${secondaryColor}10)` }}>
+        <div className="rounded-xl p-4 border border-slate-200 dark:border-slate-700/50" style={{ background: `linear-gradient(135deg, ${primaryColor}10, ${secondaryColor}10)` }}>
           <div className="flex items-center gap-2 mb-2">
             <div className="w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold text-sm" style={{ backgroundColor: primaryColor }}>
               {brandName.charAt(0) || '?'}
@@ -308,14 +308,14 @@ function EditWhiteLabelModal({ config, onClose, onSaved }: { config: WLConfig; o
         <Input label="Logo URL" value={logoUrl} onChange={e => setLogoUrl(e.target.value)} />
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="text-sm font-medium text-slate-700 block mb-1">Primary Color</label>
+            <label className="text-sm font-medium text-slate-700 dark:text-slate-200 block mb-1">Primary Color</label>
             <div className="flex items-center gap-2">
               <input type="color" value={primaryColor} onChange={e => setPrimaryColor(e.target.value)} className="w-10 h-10 rounded cursor-pointer" />
               <Input value={primaryColor} onChange={e => setPrimaryColor(e.target.value)} />
             </div>
           </div>
           <div>
-            <label className="text-sm font-medium text-slate-700 block mb-1">Secondary Color</label>
+            <label className="text-sm font-medium text-slate-700 dark:text-slate-200 block mb-1">Secondary Color</label>
             <div className="flex items-center gap-2">
               <input type="color" value={secondaryColor} onChange={e => setSecondaryColor(e.target.value)} className="w-10 h-10 rounded cursor-pointer" />
               <Input value={secondaryColor} onChange={e => setSecondaryColor(e.target.value)} />
@@ -323,11 +323,11 @@ function EditWhiteLabelModal({ config, onClose, onSaved }: { config: WLConfig; o
           </div>
         </div>
         <div>
-          <label className="text-sm font-medium text-slate-700 block mb-1">Custom CSS</label>
+          <label className="text-sm font-medium text-slate-700 dark:text-slate-200 block mb-1">Custom CSS</label>
           <textarea
             value={customCss}
             onChange={e => setCustomCss(e.target.value)}
-            className="w-full h-24 text-sm font-mono border border-slate-200 rounded-lg p-3 focus:ring-2 focus:ring-shield-500 focus:border-shield-500"
+            className="w-full h-24 text-sm font-mono border border-slate-200 dark:border-slate-700/50 rounded-lg p-3 focus:ring-2 focus:ring-shield-500 dark:focus:ring-shield-400 focus:border-shield-500"
             placeholder=".header { background: #fff; }"
           />
         </div>

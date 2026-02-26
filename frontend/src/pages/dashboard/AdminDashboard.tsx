@@ -43,7 +43,7 @@ export default function AdminDashboard() {
       {/* Welcome */}
       <div>
         <h1 className="text-2xl font-bold text-slate-900">Platform Overview</h1>
-        <p className="text-slate-500 mt-1">Insurons administration dashboard</p>
+        <p className="text-slate-500 dark:text-slate-400 mt-1">Insurons administration dashboard</p>
       </div>
 
       {/* Stats */}
@@ -51,8 +51,8 @@ export default function AdminDashboard() {
         {loading ? (
           Array.from({ length: 5 }).map((_, i) => (
             <Card key={i} className="p-5 animate-pulse">
-              <div className="h-4 w-20 bg-slate-200 rounded mb-2" />
-              <div className="h-7 w-16 bg-slate-200 rounded" />
+              <div className="h-4 w-20 bg-slate-200 dark:bg-slate-700 rounded mb-2" />
+              <div className="h-7 w-16 bg-slate-200 dark:bg-slate-700 rounded" />
             </Card>
           ))
         ) : (
@@ -78,33 +78,33 @@ export default function AdminDashboard() {
                 </div>
               ) : (
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                  <div className="p-4 rounded-xl bg-shield-50">
-                    <p className="text-sm text-slate-500">Total Agents</p>
-                    <p className="text-2xl font-bold text-shield-700 mt-1">{fmt(stats?.total_agents)}</p>
+                  <div className="p-4 rounded-xl bg-shield-50 dark:bg-shield-900/30">
+                    <p className="text-sm text-slate-500 dark:text-slate-400">Total Agents</p>
+                    <p className="text-2xl font-bold text-shield-700 dark:text-shield-300 mt-1">{fmt(stats?.total_agents)}</p>
                   </div>
-                  <div className="p-4 rounded-xl bg-confidence-50">
-                    <p className="text-sm text-slate-500">Applications</p>
-                    <p className="text-2xl font-bold text-confidence-700 mt-1">{fmt(stats?.total_applications)}</p>
+                  <div className="p-4 rounded-xl bg-confidence-50 dark:bg-confidence-900/30">
+                    <p className="text-sm text-slate-500 dark:text-slate-400">Applications</p>
+                    <p className="text-2xl font-bold text-confidence-700 dark:text-confidence-300 mt-1">{fmt(stats?.total_applications)}</p>
                   </div>
-                  <div className="p-4 rounded-xl bg-savings-50">
-                    <p className="text-sm text-slate-500">Conversion Rate</p>
-                    <p className="text-2xl font-bold text-savings-700 mt-1">
+                  <div className="p-4 rounded-xl bg-savings-50 dark:bg-savings-900/30">
+                    <p className="text-sm text-slate-500 dark:text-slate-400">Conversion Rate</p>
+                    <p className="text-2xl font-bold text-savings-700 dark:text-savings-300 mt-1">
                       {stats?.total_leads && stats?.total_policies
                         ? `${((stats.total_policies / stats.total_leads) * 100).toFixed(1)}%`
                         : '0%'}
                     </p>
                   </div>
-                  <div className="p-4 rounded-xl bg-amber-50">
-                    <p className="text-sm text-slate-500">Agencies</p>
-                    <p className="text-2xl font-bold text-amber-700 mt-1">{fmt(stats?.total_agencies)}</p>
+                  <div className="p-4 rounded-xl bg-amber-50 dark:bg-amber-900/30">
+                    <p className="text-sm text-slate-500 dark:text-slate-400">Agencies</p>
+                    <p className="text-2xl font-bold text-amber-700 dark:text-amber-300 mt-1">{fmt(stats?.total_agencies)}</p>
                   </div>
-                  <div className="p-4 rounded-xl bg-purple-50">
-                    <p className="text-sm text-slate-500">Total Leads</p>
-                    <p className="text-2xl font-bold text-purple-700 mt-1">{fmt(stats?.total_leads)}</p>
+                  <div className="p-4 rounded-xl bg-purple-50 dark:bg-purple-900/30">
+                    <p className="text-sm text-slate-500 dark:text-slate-400">Total Leads</p>
+                    <p className="text-2xl font-bold text-purple-700 dark:text-purple-300 mt-1">{fmt(stats?.total_leads)}</p>
                   </div>
-                  <div className="p-4 rounded-xl bg-rose-50">
-                    <p className="text-sm text-slate-500">Policies Bound</p>
-                    <p className="text-2xl font-bold text-rose-700 mt-1">{fmt(stats?.total_policies)}</p>
+                  <div className="p-4 rounded-xl bg-rose-50 dark:bg-rose-900/30">
+                    <p className="text-sm text-slate-500 dark:text-slate-400">Policies Bound</p>
+                    <p className="text-2xl font-bold text-rose-700 dark:text-rose-300 mt-1">{fmt(stats?.total_policies)}</p>
                   </div>
                 </div>
               )}
@@ -117,32 +117,32 @@ export default function AdminDashboard() {
           <div className="p-6">
             <h2 className="text-lg font-semibold text-slate-900 mb-4">Admin Tools</h2>
             <div className="space-y-2">
-              <Link to="/admin/users" className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 transition-colors">
-                <Users className="w-5 h-5 text-shield-600" />
+              <Link to="/admin/users" className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-800 transition-colors">
+                <Users className="w-5 h-5 text-shield-600 dark:text-shield-400" />
                 <div>
                   <p className="text-sm font-medium text-slate-900">User Management</p>
-                  <p className="text-xs text-slate-500">Manage users & roles</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Manage users & roles</p>
                 </div>
               </Link>
-              <Link to="/admin/agencies" className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 transition-colors">
-                <Building2 className="w-5 h-5 text-confidence-600" />
+              <Link to="/admin/agencies" className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-800 transition-colors">
+                <Building2 className="w-5 h-5 text-confidence-600 dark:text-confidence-400" />
                 <div>
                   <p className="text-sm font-medium text-slate-900">Agency Management</p>
-                  <p className="text-xs text-slate-500">Agencies & agents</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Agencies & agents</p>
                 </div>
               </Link>
-              <Link to="/admin/analytics" className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 transition-colors">
-                <BarChart3 className="w-5 h-5 text-savings-600" />
+              <Link to="/admin/analytics" className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-800 transition-colors">
+                <BarChart3 className="w-5 h-5 text-savings-600 dark:text-savings-400" />
                 <div>
                   <p className="text-sm font-medium text-slate-900">Analytics</p>
-                  <p className="text-xs text-slate-500">Platform metrics</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Platform metrics</p>
                 </div>
               </Link>
-              <Link to="/admin/plans" className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 transition-colors">
-                <DollarSign className="w-5 h-5 text-amber-600" />
+              <Link to="/admin/plans" className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-800 transition-colors">
+                <DollarSign className="w-5 h-5 text-amber-600 dark:text-amber-400" />
                 <div>
                   <p className="text-sm font-medium text-slate-900">Subscription Plans</p>
-                  <p className="text-xs text-slate-500">Pricing & billing</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Pricing & billing</p>
                 </div>
               </Link>
             </div>

@@ -35,20 +35,20 @@ export default function Reviews() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900">Reviews</h1>
-        <p className="text-slate-500 mt-1">Client feedback and ratings for your services</p>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Reviews</h1>
+        <p className="text-slate-500 dark:text-slate-400 mt-1">Client feedback and ratings for your services</p>
       </div>
 
       {/* Rating summary */}
       <div className="grid lg:grid-cols-3 gap-6">
         <Card className="p-6 text-center">
-          <p className="text-5xl font-bold text-slate-900 mb-1">{avgRating}</p>
+          <p className="text-5xl font-bold text-slate-900 dark:text-white mb-1">{avgRating}</p>
           <div className="flex items-center justify-center gap-1 mb-2">
             {Array.from({ length: 5 }).map((_, i) => (
               <Star key={i} className={`w-5 h-5 ${i < Math.round(Number(avgRating)) ? 'text-amber-400 fill-amber-400' : 'text-slate-200'}`} />
             ))}
           </div>
-          <p className="text-sm text-slate-500">Based on {mockReviews.length} reviews</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400">Based on {mockReviews.length} reviews</p>
         </Card>
 
         <Card className="p-6 col-span-2">
@@ -56,13 +56,13 @@ export default function Reviews() {
             {ratingCounts.map(r => (
               <div key={r.stars} className="flex items-center gap-3">
                 <div className="flex items-center gap-1 w-20">
-                  <span className="text-sm font-medium text-slate-700">{r.stars}</span>
+                  <span className="text-sm font-medium text-slate-700 dark:text-slate-200">{r.stars}</span>
                   <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
                 </div>
-                <div className="flex-1 h-3 bg-slate-100 rounded-full overflow-hidden">
+                <div className="flex-1 h-3 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
                   <div className="h-full bg-amber-400 rounded-full" style={{ width: `${r.pct}%` }} />
                 </div>
-                <span className="text-sm text-slate-500 w-12 text-right">{r.count}</span>
+                <span className="text-sm text-slate-500 dark:text-slate-400 w-12 text-right">{r.count}</span>
               </div>
             ))}
           </div>
@@ -76,12 +76,12 @@ export default function Reviews() {
             <div className="p-6">
               <div className="flex items-start justify-between mb-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-shield-100 text-shield-700 flex items-center justify-center text-sm font-bold">
+                  <div className="w-10 h-10 rounded-full bg-shield-100 dark:bg-shield-900/30 text-shield-700 dark:text-shield-300 flex items-center justify-center text-sm font-bold">
                     {review.author.split(' ').map(n => n[0]).join('')}
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <p className="font-medium text-slate-900">{review.author}</p>
+                      <p className="font-medium text-slate-900 dark:text-white">{review.author}</p>
                       <Badge variant="outline" className="text-xs">{review.insurance_type}</Badge>
                     </div>
                     <div className="flex items-center gap-2 mt-0.5">
@@ -90,25 +90,25 @@ export default function Reviews() {
                           <Star key={i} className={`w-3.5 h-3.5 ${i < review.rating ? 'text-amber-400 fill-amber-400' : 'text-slate-200'}`} />
                         ))}
                       </div>
-                      <span className="text-xs text-slate-400">{review.date}</span>
+                      <span className="text-xs text-slate-400 dark:text-slate-500">{review.date}</span>
                     </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-1 text-sm text-slate-400">
+                <div className="flex items-center gap-1 text-sm text-slate-400 dark:text-slate-500">
                   <ThumbsUp className="w-4 h-4" />
                   {review.helpful_count}
                 </div>
               </div>
 
-              <p className="text-slate-600 mb-3">{review.text}</p>
+              <p className="text-slate-600 dark:text-slate-300 mb-3">{review.text}</p>
 
               {review.response && (
-                <div className="bg-shield-50 rounded-xl p-4 mt-3">
+                <div className="bg-shield-50 dark:bg-shield-900/30 rounded-xl p-4 mt-3">
                   <div className="flex items-center gap-2 mb-2">
-                    <Reply className="w-4 h-4 text-shield-600" />
-                    <span className="text-sm font-medium text-shield-700">Your Response</span>
+                    <Reply className="w-4 h-4 text-shield-600 dark:text-shield-400" />
+                    <span className="text-sm font-medium text-shield-700 dark:text-shield-300">Your Response</span>
                   </div>
-                  <p className="text-sm text-slate-600">{review.response}</p>
+                  <p className="text-sm text-slate-600 dark:text-slate-300">{review.response}</p>
                 </div>
               )}
 

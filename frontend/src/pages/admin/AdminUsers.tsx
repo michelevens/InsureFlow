@@ -129,8 +129,8 @@ export default function AdminUsers() {
                 {user.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-slate-900">{user.name}</h1>
-                <p className="text-sm text-slate-500">{user.email}</p>
+                <h1 className="text-2xl font-bold text-slate-900 dark:text-white">{user.name}</h1>
+                <p className="text-sm text-slate-500 dark:text-slate-400">{user.email}</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -143,20 +143,20 @@ export default function AdminUsers() {
 
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-6 pt-4 border-t">
             <div>
-              <p className="text-xs text-slate-500">Phone</p>
-              <p className="text-sm font-medium text-slate-900">{user.phone || '—'}</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">Phone</p>
+              <p className="text-sm font-medium text-slate-900 dark:text-white">{user.phone || '—'}</p>
             </div>
             <div>
-              <p className="text-xs text-slate-500">Agency ID</p>
-              <p className="text-sm font-medium text-slate-900">{user.agency_id || '—'}</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">Agency ID</p>
+              <p className="text-sm font-medium text-slate-900 dark:text-white">{user.agency_id || '—'}</p>
             </div>
             <div>
-              <p className="text-xs text-slate-500">Email Verified</p>
-              <p className="text-sm font-medium text-slate-900">{user.email_verified_at ? new Date(user.email_verified_at).toLocaleDateString() : 'Not verified'}</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">Email Verified</p>
+              <p className="text-sm font-medium text-slate-900 dark:text-white">{user.email_verified_at ? new Date(user.email_verified_at).toLocaleDateString() : 'Not verified'}</p>
             </div>
             <div>
-              <p className="text-xs text-slate-500">Joined</p>
-              <p className="text-sm font-medium text-slate-900">{user.created_at ? new Date(user.created_at).toLocaleDateString() : '—'}</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">Joined</p>
+              <p className="text-sm font-medium text-slate-900 dark:text-white">{user.created_at ? new Date(user.created_at).toLocaleDateString() : '—'}</p>
             </div>
           </div>
 
@@ -170,10 +170,10 @@ export default function AdminUsers() {
           </div>
 
           {tempPassword && (
-            <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+            <div className="mt-4 p-3 bg-amber-50 dark:bg-amber-900/30 border border-amber-200 rounded-lg">
               <p className="text-sm font-medium text-amber-800">Temporary Password:</p>
               <p className="text-lg font-mono font-bold text-amber-900 mt-1">{tempPassword}</p>
-              <p className="text-xs text-amber-600 mt-1">Share this with the user. They should change it after logging in.</p>
+              <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">Share this with the user. They should change it after logging in.</p>
             </div>
           )}
         </Card>
@@ -186,32 +186,32 @@ export default function AdminUsers() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">User Management</h1>
-          <p className="text-slate-500 mt-1">Manage platform users and roles</p>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">User Management</h1>
+          <p className="text-slate-500 dark:text-slate-400 mt-1">Manage platform users and roles</p>
         </div>
         <Button variant="shield" leftIcon={<Plus className="w-4 h-4" />} onClick={openCreateModal}>Create User</Button>
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
         <Card className="p-4 text-center">
-          <p className="text-xl font-bold text-slate-900">{totalUsers}</p>
-          <p className="text-sm text-slate-500">Total Users</p>
+          <p className="text-xl font-bold text-slate-900 dark:text-white">{totalUsers}</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400">Total Users</p>
         </Card>
         <Card className="p-4 text-center">
-          <p className="text-xl font-bold text-slate-900">{counts.consumer || 0}</p>
-          <p className="text-sm text-slate-500">Consumers</p>
+          <p className="text-xl font-bold text-slate-900 dark:text-white">{counts.consumer || 0}</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400">Consumers</p>
         </Card>
         <Card className="p-4 text-center">
-          <p className="text-xl font-bold text-slate-900">{counts.agent || 0}</p>
-          <p className="text-sm text-slate-500">Agents</p>
+          <p className="text-xl font-bold text-slate-900 dark:text-white">{counts.agent || 0}</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400">Agents</p>
         </Card>
         <Card className="p-4 text-center">
-          <p className="text-xl font-bold text-slate-900">{counts.agency_owner || 0}</p>
-          <p className="text-sm text-slate-500">Agencies</p>
+          <p className="text-xl font-bold text-slate-900 dark:text-white">{counts.agency_owner || 0}</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400">Agencies</p>
         </Card>
         <Card className="p-4 text-center">
-          <p className="text-xl font-bold text-slate-900">{counts.carrier || 0}</p>
-          <p className="text-sm text-slate-500">Carriers</p>
+          <p className="text-xl font-bold text-slate-900 dark:text-white">{counts.carrier || 0}</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400">Carriers</p>
         </Card>
       </div>
 
@@ -241,7 +241,7 @@ export default function AdminUsers() {
       {loading && (
         <Card className="p-12 text-center">
           <Loader2 className="w-8 h-8 animate-spin text-shield-500 mx-auto" />
-          <p className="text-slate-500 mt-2">Loading users...</p>
+          <p className="text-slate-500 dark:text-slate-400 mt-2">Loading users...</p>
         </Card>
       )}
 
@@ -250,33 +250,33 @@ export default function AdminUsers() {
           {users.length === 0 ? (
             <div className="p-12 text-center">
               <Users className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-              <p className="text-slate-500">No users found</p>
+              <p className="text-slate-500 dark:text-slate-400">No users found</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b border-slate-100">
-                    <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider p-4">User</th>
-                    <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider p-4">Role</th>
-                    <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider p-4">Status</th>
-                    <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider p-4">Joined</th>
-                    <th className="text-right text-xs font-medium text-slate-500 uppercase tracking-wider p-4">Actions</th>
+                  <tr className="border-b border-slate-100 dark:border-slate-700/50">
+                    <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider p-4">User</th>
+                    <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider p-4">Role</th>
+                    <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider p-4">Status</th>
+                    <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider p-4">Joined</th>
+                    <th className="text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider p-4">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-50">
                   {users.map(user => {
                     const isActive = (user as User & { is_active?: boolean }).is_active !== false;
                     return (
-                      <tr key={user.id} className="hover:bg-slate-50 cursor-pointer" onClick={() => setSelectedUser(user)}>
+                      <tr key={user.id} className="hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-800 cursor-pointer" onClick={() => setSelectedUser(user)}>
                         <td className="p-4">
                           <div className="flex items-center gap-3">
                             <div className="w-9 h-9 rounded-full gradient-shield flex items-center justify-center text-white text-sm font-bold">
                               {user.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
                             </div>
                             <div>
-                              <p className="font-medium text-slate-900">{user.name}</p>
-                              <p className="text-xs text-slate-500">{user.email}</p>
+                              <p className="font-medium text-slate-900 dark:text-white">{user.name}</p>
+                              <p className="text-xs text-slate-500 dark:text-slate-400">{user.email}</p>
                             </div>
                           </div>
                         </td>
@@ -288,7 +288,7 @@ export default function AdminUsers() {
                         <td className="p-4">
                           <Badge variant={isActive ? 'success' : 'danger'}>{isActive ? 'active' : 'suspended'}</Badge>
                         </td>
-                        <td className="p-4 text-sm text-slate-500">{user.created_at?.split('T')[0] || '-'}</td>
+                        <td className="p-4 text-sm text-slate-500 dark:text-slate-400">{user.created_at?.split('T')[0] || '-'}</td>
                         <td className="p-4 text-right">
                           <div className="flex items-center justify-end gap-1" onClick={e => e.stopPropagation()}>
                             <Button variant="ghost" size="sm" onClick={() => openEditModal(user)}><Edit className="w-4 h-4" /></Button>
@@ -312,22 +312,22 @@ export default function AdminUsers() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setShowModal(false)}>
           <Card className="w-full max-w-md p-6" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-slate-900">{editingUser ? 'Edit User' : 'Create User'}</h3>
-              <button onClick={() => setShowModal(false)}><X className="w-5 h-5 text-slate-400" /></button>
+              <h3 className="text-lg font-semibold text-slate-900 dark:text-white">{editingUser ? 'Edit User' : 'Create User'}</h3>
+              <button onClick={() => setShowModal(false)}><X className="w-5 h-5 text-slate-400 dark:text-slate-500" /></button>
             </div>
             <div className="space-y-4">
               <div className="space-y-1">
-                <label className="text-sm font-medium text-slate-700">Name</label>
+                <label className="text-sm font-medium text-slate-700 dark:text-slate-200">Name</label>
                 <Input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} placeholder="Full name" />
               </div>
               <div className="space-y-1">
-                <label className="text-sm font-medium text-slate-700">Email</label>
+                <label className="text-sm font-medium text-slate-700 dark:text-slate-200">Email</label>
                 <Input type="email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} placeholder="user@example.com" />
               </div>
               <div className="space-y-1">
-                <label className="text-sm font-medium text-slate-700">Role</label>
+                <label className="text-sm font-medium text-slate-700 dark:text-slate-200">Role</label>
                 <select value={form.role} onChange={e => setForm({ ...form, role: e.target.value })}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-shield-500">
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-shield-500 dark:focus:ring-shield-400">
                   <option value="consumer">Consumer</option>
                   <option value="agent">Agent</option>
                   <option value="agency_owner">Agency Owner</option>
@@ -337,13 +337,13 @@ export default function AdminUsers() {
               </div>
               {!editingUser && (
                 <div className="space-y-1">
-                  <label className="text-sm font-medium text-slate-700">Password</label>
+                  <label className="text-sm font-medium text-slate-700 dark:text-slate-200">Password</label>
                   <Input type="password" value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} placeholder="Minimum 8 characters" />
                 </div>
               )}
               {form.role === 'agent' && (
                 <div className="space-y-1">
-                  <label className="text-sm font-medium text-slate-700">Agency ID (optional)</label>
+                  <label className="text-sm font-medium text-slate-700 dark:text-slate-200">Agency ID (optional)</label>
                   <Input value={form.agency_id} onChange={e => setForm({ ...form, agency_id: e.target.value })} placeholder="Agency ID number" />
                 </div>
               )}

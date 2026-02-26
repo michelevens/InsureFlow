@@ -75,8 +75,8 @@ export default function CampaignBuilder() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Email Campaigns</h1>
-          <p className="text-slate-500 mt-1">Create and send targeted email campaigns</p>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Email Campaigns</h1>
+          <p className="text-slate-500 dark:text-slate-400 mt-1">Create and send targeted email campaigns</p>
         </div>
         <Button variant="shield" onClick={() => setShowCreate(true)}>
           <Plus className="w-4 h-4 mr-1" /> New Campaign
@@ -93,7 +93,7 @@ export default function CampaignBuilder() {
           ) : campaigns.length === 0 ? (
             <Card className="p-12 text-center">
               <Mail className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-              <p className="text-slate-500 mb-4">No campaigns yet</p>
+              <p className="text-slate-500 dark:text-slate-400 mb-4">No campaigns yet</p>
               <Button variant="shield" onClick={() => setShowCreate(true)}>
                 <Plus className="w-4 h-4 mr-1" /> Create First Campaign
               </Button>
@@ -106,18 +106,18 @@ export default function CampaignBuilder() {
             >
               <div className="flex items-start justify-between mb-2">
                 <div>
-                  <h3 className="font-bold text-slate-900">{campaign.name}</h3>
-                  <p className="text-xs text-slate-500 mt-0.5">{campaign.subject}</p>
+                  <h3 className="font-bold text-slate-900 dark:text-white">{campaign.name}</h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{campaign.subject}</p>
                 </div>
                 <Badge variant={statusColors[campaign.status]}>{campaign.status}</Badge>
               </div>
-              <div className="flex items-center gap-4 text-xs text-slate-400">
+              <div className="flex items-center gap-4 text-xs text-slate-400 dark:text-slate-500">
                 {campaign.sent_count > 0 && <span>Sent: {campaign.sent_count}</span>}
                 {campaign.open_count > 0 && <span>Opens: {campaign.open_count}</span>}
                 {campaign.click_count > 0 && <span>Clicks: {campaign.click_count}</span>}
                 <span>{new Date(campaign.created_at).toLocaleDateString()}</span>
               </div>
-              <div className="flex items-center gap-2 mt-3 pt-2 border-t border-slate-100">
+              <div className="flex items-center gap-2 mt-3 pt-2 border-t border-slate-100 dark:border-slate-700/50">
                 {campaign.status === 'draft' && (
                   <Button variant="shield" size="sm" onClick={e => { e.stopPropagation(); sendCampaign(campaign.id); }}>
                     <Send className="w-3.5 h-3.5 mr-1" /> Send
@@ -140,33 +140,33 @@ export default function CampaignBuilder() {
         <div>
           {selectedCampaign ? (
             <Card className="p-5 sticky top-4">
-              <h3 className="font-bold text-slate-900 mb-1">{selectedCampaign.name}</h3>
+              <h3 className="font-bold text-slate-900 dark:text-white mb-1">{selectedCampaign.name}</h3>
               <Badge variant={statusColors[selectedCampaign.status]} className="mb-4">{selectedCampaign.status}</Badge>
 
               {analytics ? (
                 <div className="space-y-4">
                   <div className="grid grid-cols-3 gap-2">
-                    <div className="bg-slate-50 rounded-xl p-3 text-center">
-                      <p className="text-lg font-bold text-shield-600">{(analytics.open_rate * 100).toFixed(1)}%</p>
-                      <p className="text-xs text-slate-500">Open Rate</p>
+                    <div className="bg-slate-50 dark:bg-slate-800 rounded-xl p-3 text-center">
+                      <p className="text-lg font-bold text-shield-600 dark:text-shield-400">{(analytics.open_rate * 100).toFixed(1)}%</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">Open Rate</p>
                     </div>
-                    <div className="bg-slate-50 rounded-xl p-3 text-center">
-                      <p className="text-lg font-bold text-shield-600">{(analytics.click_rate * 100).toFixed(1)}%</p>
-                      <p className="text-xs text-slate-500">Click Rate</p>
+                    <div className="bg-slate-50 dark:bg-slate-800 rounded-xl p-3 text-center">
+                      <p className="text-lg font-bold text-shield-600 dark:text-shield-400">{(analytics.click_rate * 100).toFixed(1)}%</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">Click Rate</p>
                     </div>
-                    <div className="bg-slate-50 rounded-xl p-3 text-center">
+                    <div className="bg-slate-50 dark:bg-slate-800 rounded-xl p-3 text-center">
                       <p className="text-lg font-bold text-red-500">{(analytics.bounce_rate * 100).toFixed(1)}%</p>
-                      <p className="text-xs text-slate-500">Bounce</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">Bounce</p>
                     </div>
                   </div>
 
                   <div>
-                    <p className="text-xs font-medium text-slate-500 uppercase mb-2">Delivery Status</p>
+                    <p className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase mb-2">Delivery Status</p>
                     <div className="space-y-1">
                       {analytics.status_breakdown.map(s => (
                         <div key={s.status} className="flex items-center justify-between text-sm">
-                          <span className="text-slate-600 capitalize">{s.status}</span>
-                          <span className="font-medium text-slate-900">{s.count}</span>
+                          <span className="text-slate-600 dark:text-slate-300 capitalize">{s.status}</span>
+                          <span className="font-medium text-slate-900 dark:text-white">{s.count}</span>
                         </div>
                       ))}
                     </div>
@@ -174,14 +174,14 @@ export default function CampaignBuilder() {
                 </div>
               ) : (
                 <div className="text-center py-4">
-                  <p className="text-sm text-slate-400">
+                  <p className="text-sm text-slate-400 dark:text-slate-500">
                     {selectedCampaign.status === 'draft' ? 'Send campaign to see analytics' : 'Loading analytics...'}
                   </p>
                 </div>
               )}
             </Card>
           ) : (
-            <Card className="p-8 text-center text-slate-400">
+            <Card className="p-8 text-center text-slate-400 dark:text-slate-500">
               <BarChart3 className="w-8 h-8 mx-auto mb-2 opacity-50" />
               <p className="text-sm">Select a campaign to view analytics</p>
             </Card>
@@ -226,11 +226,11 @@ function CreateCampaignModal({ onClose, onCreated }: { onClose: () => void; onCr
         <Input label="Campaign Name" placeholder="Spring Renewal Reminder" value={name} onChange={e => setName(e.target.value)} />
         <Input label="Subject Line" placeholder="Your policy renewal is coming up" value={subject} onChange={e => setSubject(e.target.value)} />
         <div>
-          <label className="text-sm font-medium text-slate-700 block mb-1">Email Body (HTML)</label>
+          <label className="text-sm font-medium text-slate-700 dark:text-slate-200 block mb-1">Email Body (HTML)</label>
           <textarea
             value={bodyHtml}
             onChange={e => setBodyHtml(e.target.value)}
-            className="w-full h-32 text-sm font-mono border border-slate-200 rounded-lg p-3 focus:ring-2 focus:ring-shield-500 focus:border-shield-500"
+            className="w-full h-32 text-sm font-mono border border-slate-200 dark:border-slate-700/50 rounded-lg p-3 focus:ring-2 focus:ring-shield-500 dark:focus:ring-shield-400 focus:border-shield-500"
             placeholder="<h1>Hello {{name}}</h1><p>Your policy renewal...</p>"
           />
         </div>

@@ -52,16 +52,16 @@ export default function AgentProfile() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-shield-600" />
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-800 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-shield-600 dark:text-shield-400" />
       </div>
     );
   }
 
   if (error || !agent) {
     return (
-      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center gap-4">
-        <p className="text-slate-500">Agent not found</p>
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-800 flex flex-col items-center justify-center gap-4">
+        <p className="text-slate-500 dark:text-slate-400">Agent not found</p>
         <Link to="/marketplace"><Button variant="outline">Back to Marketplace</Button></Link>
       </div>
     );
@@ -71,9 +71,9 @@ export default function AgentProfile() {
   const initials = name.split(' ').map(n => n[0]).join('');
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-800">
       {/* Header */}
-      <nav className="bg-white border-b border-slate-100">
+      <nav className="bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-700/50">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2.5">
             <img src="/logo.png" alt="Insurons" className="h-16 w-auto" />
@@ -97,28 +97,28 @@ export default function AgentProfile() {
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
-                      <h1 className="text-2xl font-bold text-slate-900">{name}</h1>
+                      <h1 className="text-2xl font-bold text-slate-900 dark:text-white">{name}</h1>
                       {agent.npn_verified && (
                         <Badge variant="shield"><ShieldCheck className="w-3.5 h-3.5 mr-1" />Verified</Badge>
                       )}
                     </div>
-                    <div className="flex flex-wrap items-center gap-4 text-sm text-slate-600 mt-2">
+                    <div className="flex flex-wrap items-center gap-4 text-sm text-slate-600 dark:text-slate-300 mt-2">
                       {agent.avg_rating > 0 && (
                         <div className="flex items-center gap-1">
                           <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
                           <span className="font-medium">{agent.avg_rating}</span>
-                          <span className="text-slate-400">({agent.review_count} reviews)</span>
+                          <span className="text-slate-400 dark:text-slate-500">({agent.review_count} reviews)</span>
                         </div>
                       )}
                       {agent.city && agent.state && (
                         <div className="flex items-center gap-1">
-                          <MapPin className="w-4 h-4 text-slate-400" />
+                          <MapPin className="w-4 h-4 text-slate-400 dark:text-slate-500" />
                           {agent.city}, {agent.state}
                         </div>
                       )}
                       {agent.years_experience > 0 && (
                         <div className="flex items-center gap-1">
-                          <Award className="w-4 h-4 text-slate-400" />
+                          <Award className="w-4 h-4 text-slate-400 dark:text-slate-500" />
                           {agent.years_experience} years
                         </div>
                       )}
@@ -132,8 +132,8 @@ export default function AgentProfile() {
             {agent.bio && (
               <Card>
                 <div className="p-6">
-                  <h2 className="text-lg font-semibold text-slate-900 mb-3">About</h2>
-                  <p className="text-slate-600 leading-relaxed">{agent.bio}</p>
+                  <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-3">About</h2>
+                  <p className="text-slate-600 dark:text-slate-300 leading-relaxed">{agent.bio}</p>
                 </div>
               </Card>
             )}
@@ -142,7 +142,7 @@ export default function AgentProfile() {
             {agent.specialties?.length > 0 && (
               <Card>
                 <div className="p-6">
-                  <h2 className="text-lg font-semibold text-slate-900 mb-3">Specialties</h2>
+                  <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-3">Specialties</h2>
                   <div className="flex flex-wrap gap-2">
                     {agent.specialties.map(s => (
                       <Badge key={s} variant="outline" className="text-sm px-3 py-1.5">{s}</Badge>
@@ -156,10 +156,10 @@ export default function AgentProfile() {
             {agent.carriers?.length > 0 && (
               <Card>
                 <div className="p-6">
-                  <h2 className="text-lg font-semibold text-slate-900 mb-3">Carrier Partners</h2>
+                  <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-3">Carrier Partners</h2>
                   <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
                     {agent.carriers.map(c => (
-                      <div key={c} className="h-16 bg-slate-50 rounded-xl flex items-center justify-center text-sm font-medium text-slate-600 border border-slate-100">
+                      <div key={c} className="h-16 bg-slate-50 dark:bg-slate-800 rounded-xl flex items-center justify-center text-sm font-medium text-slate-600 dark:text-slate-300 border border-slate-100 dark:border-slate-700/50">
                         {c}
                       </div>
                     ))}
@@ -172,42 +172,42 @@ export default function AgentProfile() {
             <Card>
               <div className="p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-lg font-semibold text-slate-900">Reviews ({agent.review_count})</h2>
+                  <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Reviews ({agent.review_count})</h2>
                   {agent.avg_rating > 0 && (
                     <div className="flex items-center gap-1">
                       <Star className="w-5 h-5 text-amber-400 fill-amber-400" />
-                      <span className="text-lg font-bold text-slate-900">{agent.avg_rating}</span>
+                      <span className="text-lg font-bold text-slate-900 dark:text-white">{agent.avg_rating}</span>
                     </div>
                   )}
                 </div>
                 {agent.reviews?.length > 0 ? (
                   <div className="space-y-4">
                     {agent.reviews.map(review => (
-                      <div key={review.id} className="border-b border-slate-100 pb-4 last:border-0 last:pb-0">
+                      <div key={review.id} className="border-b border-slate-100 dark:border-slate-700/50 pb-4 last:border-0 last:pb-0">
                         <div className="flex items-center justify-between mb-2">
                           <div className="flex items-center gap-2">
-                            <span className="font-medium text-slate-900">{review.user?.name ?? 'Anonymous'}</span>
+                            <span className="font-medium text-slate-900 dark:text-white">{review.user?.name ?? 'Anonymous'}</span>
                             <div className="flex items-center gap-0.5">
                               {Array.from({ length: review.rating }).map((_, i) => (
                                 <Star key={i} className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
                               ))}
                             </div>
                           </div>
-                          <span className="text-xs text-slate-400">
+                          <span className="text-xs text-slate-400 dark:text-slate-500">
                             {new Date(review.created_at).toLocaleDateString()}
                           </span>
                         </div>
-                        {review.comment && <p className="text-sm text-slate-600">{review.comment}</p>}
+                        {review.comment && <p className="text-sm text-slate-600 dark:text-slate-300">{review.comment}</p>}
                         {review.agent_reply && (
                           <div className="mt-2 pl-4 border-l-2 border-shield-200">
-                            <p className="text-sm text-slate-500 italic">{review.agent_reply}</p>
+                            <p className="text-sm text-slate-500 dark:text-slate-400 italic">{review.agent_reply}</p>
                           </div>
                         )}
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <p className="text-sm text-slate-400">No reviews yet</p>
+                  <p className="text-sm text-slate-400 dark:text-slate-500">No reviews yet</p>
                 )}
               </div>
             </Card>
@@ -218,7 +218,7 @@ export default function AgentProfile() {
             {/* Contact card */}
             <Card className="sticky top-6">
               <div className="p-6">
-                <h3 className="text-lg font-semibold text-slate-900 mb-4">Contact {name.split(' ')[0]}</h3>
+                <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Contact {name.split(' ')[0]}</h3>
                 {!showContact ? (
                   <div className="space-y-3">
                     <Button variant="shield" className="w-full" onClick={() => setShowContact(true)}>
@@ -247,22 +247,22 @@ export default function AgentProfile() {
                   </div>
                 )}
 
-                <div className="mt-6 pt-6 border-t border-slate-100 space-y-3">
+                <div className="mt-6 pt-6 border-t border-slate-100 dark:border-slate-700/50 space-y-3">
                   {agent.response_time && (
-                    <div className="flex items-center gap-3 text-sm text-slate-600">
-                      <Clock className="w-4 h-4 text-slate-400" />
+                    <div className="flex items-center gap-3 text-sm text-slate-600 dark:text-slate-300">
+                      <Clock className="w-4 h-4 text-slate-400 dark:text-slate-500" />
                       Responds in {agent.response_time}
                     </div>
                   )}
                   {agent.clients_served > 0 && (
-                    <div className="flex items-center gap-3 text-sm text-slate-600">
-                      <Users className="w-4 h-4 text-slate-400" />
+                    <div className="flex items-center gap-3 text-sm text-slate-600 dark:text-slate-300">
+                      <Users className="w-4 h-4 text-slate-400 dark:text-slate-500" />
                       {agent.clients_served.toLocaleString()} clients served
                     </div>
                   )}
                   {agent.carriers?.length > 0 && (
-                    <div className="flex items-center gap-3 text-sm text-slate-600">
-                      <Briefcase className="w-4 h-4 text-slate-400" />
+                    <div className="flex items-center gap-3 text-sm text-slate-600 dark:text-slate-300">
+                      <Briefcase className="w-4 h-4 text-slate-400 dark:text-slate-500" />
                       {agent.carriers.length} carrier partners
                     </div>
                   )}
@@ -274,7 +274,7 @@ export default function AgentProfile() {
             {agent.license_states?.length > 0 && (
               <Card>
                 <div className="p-6">
-                  <h3 className="font-semibold text-slate-900 mb-3">Licensed States</h3>
+                  <h3 className="font-semibold text-slate-900 dark:text-white mb-3">Licensed States</h3>
                   <div className="flex flex-wrap gap-2">
                     {agent.license_states.map(l => (
                       <Badge key={l} variant="outline">{l}</Badge>

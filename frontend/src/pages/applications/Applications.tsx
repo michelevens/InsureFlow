@@ -61,16 +61,16 @@ export default function Applications() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900">Applications</h1>
-        <p className="text-slate-500 mt-1">Track insurance applications through the pipeline</p>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Applications</h1>
+        <p className="text-slate-500 dark:text-slate-400 mt-1">Track insurance applications through the pipeline</p>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-3 lg:grid-cols-6 gap-4">
         {(Object.entries(statusConfig) as [AppStatus, typeof statusConfig[AppStatus]][]).map(([key, config]) => (
           <Card key={key} className="p-4 text-center">
-            <p className="text-xl font-bold text-slate-900">{counts[key as keyof typeof counts] || 0}</p>
-            <p className="text-xs text-slate-500 capitalize">{config.label}</p>
+            <p className="text-xl font-bold text-slate-900 dark:text-white">{counts[key as keyof typeof counts] || 0}</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 capitalize">{config.label}</p>
           </Card>
         ))}
       </div>
@@ -97,7 +97,7 @@ export default function Applications() {
       {loading && (
         <Card className="p-12 text-center">
           <Loader2 className="w-8 h-8 animate-spin text-shield-500 mx-auto" />
-          <p className="text-slate-500 mt-2">Loading applications...</p>
+          <p className="text-slate-500 dark:text-slate-400 mt-2">Loading applications...</p>
         </Card>
       )}
 
@@ -107,21 +107,21 @@ export default function Applications() {
           {filtered.length === 0 ? (
             <div className="p-12 text-center">
               <FileText className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-              <p className="text-slate-500">No applications found</p>
+              <p className="text-slate-500 dark:text-slate-400">No applications found</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b border-slate-100">
-                    <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider p-4">Reference</th>
-                    <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider p-4">Applicant</th>
-                    <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider p-4">Type</th>
-                    <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider p-4">Carrier</th>
-                    <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider p-4">Premium</th>
-                    <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider p-4">Status</th>
-                    <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider p-4">Date</th>
-                    <th className="text-right text-xs font-medium text-slate-500 uppercase tracking-wider p-4">Actions</th>
+                  <tr className="border-b border-slate-100 dark:border-slate-700/50">
+                    <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider p-4">Reference</th>
+                    <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider p-4">Applicant</th>
+                    <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider p-4">Type</th>
+                    <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider p-4">Carrier</th>
+                    <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider p-4">Premium</th>
+                    <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider p-4">Status</th>
+                    <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider p-4">Date</th>
+                    <th className="text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider p-4">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-50">
@@ -131,16 +131,16 @@ export default function Applications() {
                       ? `${app.applicant_data.first_name || ''} ${app.applicant_data.last_name || ''}`.trim()
                       : (app.user?.name || '-');
                     return (
-                      <tr key={app.id} className="hover:bg-slate-50">
-                        <td className="p-4 font-mono text-sm text-shield-600">{app.reference}</td>
-                        <td className="p-4 font-medium text-slate-900">{applicantName}</td>
-                        <td className="p-4 text-sm text-slate-700 capitalize">{(app.insurance_type || '').replace(/_/g, ' ')}</td>
-                        <td className="p-4 text-sm text-slate-700">{app.carrier_name}</td>
-                        <td className="p-4 text-sm font-medium text-slate-900">${app.monthly_premium}/mo</td>
+                      <tr key={app.id} className="hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-800">
+                        <td className="p-4 font-mono text-sm text-shield-600 dark:text-shield-400">{app.reference}</td>
+                        <td className="p-4 font-medium text-slate-900 dark:text-white">{applicantName}</td>
+                        <td className="p-4 text-sm text-slate-700 dark:text-slate-200 capitalize">{(app.insurance_type || '').replace(/_/g, ' ')}</td>
+                        <td className="p-4 text-sm text-slate-700 dark:text-slate-200">{app.carrier_name}</td>
+                        <td className="p-4 text-sm font-medium text-slate-900 dark:text-white">${app.monthly_premium}/mo</td>
                         <td className="p-4">
                           <Badge variant={config.variant}>{config.label}</Badge>
                         </td>
-                        <td className="p-4 text-sm text-slate-500">{app.submitted_at || app.created_at?.split('T')[0] || '-'}</td>
+                        <td className="p-4 text-sm text-slate-500 dark:text-slate-400">{app.submitted_at || app.created_at?.split('T')[0] || '-'}</td>
                         <td className="p-4 text-right">
                           <Button variant="ghost" size="sm"><Eye className="w-4 h-4" /></Button>
                         </td>

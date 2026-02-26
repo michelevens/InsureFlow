@@ -121,8 +121,8 @@ export default function Tasks() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Tasks</h1>
-          <p className="text-slate-500 mt-1">Manage follow-ups, reminders, and workflow tasks</p>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Tasks</h1>
+          <p className="text-slate-500 dark:text-slate-400 mt-1">Manage follow-ups, reminders, and workflow tasks</p>
         </div>
         <Button variant="shield" leftIcon={<Plus className="w-4 h-4" />} onClick={() => setShowCreate(true)}>
           New Task
@@ -132,24 +132,24 @@ export default function Tasks() {
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
         <Card className="p-4 text-center">
-          <p className="text-2xl font-bold text-slate-900">{counts.total}</p>
-          <p className="text-xs text-slate-500">Total</p>
+          <p className="text-2xl font-bold text-slate-900 dark:text-white">{counts.total}</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400">Total</p>
         </Card>
         <Card className="p-4 text-center">
-          <p className="text-2xl font-bold text-shield-600">{counts.pending}</p>
-          <p className="text-xs text-slate-500">Pending</p>
+          <p className="text-2xl font-bold text-shield-600 dark:text-shield-400">{counts.pending}</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400">Pending</p>
         </Card>
         <Card className={`p-4 text-center ${counts.overdue > 0 ? 'ring-2 ring-red-200' : ''}`}>
-          <p className={`text-2xl font-bold ${counts.overdue > 0 ? 'text-red-600' : 'text-slate-400'}`}>{counts.overdue}</p>
-          <p className="text-xs text-slate-500">Overdue</p>
+          <p className={`text-2xl font-bold ${counts.overdue > 0 ? 'text-red-600 dark:text-red-400' : 'text-slate-400 dark:text-slate-500'}`}>{counts.overdue}</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400">Overdue</p>
         </Card>
         <Card className="p-4 text-center">
-          <p className="text-2xl font-bold text-amber-600">{counts.due_today}</p>
-          <p className="text-xs text-slate-500">Due Today</p>
+          <p className="text-2xl font-bold text-amber-600 dark:text-amber-400">{counts.due_today}</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400">Due Today</p>
         </Card>
         <Card className="p-4 text-center">
-          <p className="text-2xl font-bold text-savings-600">{counts.completed_today}</p>
-          <p className="text-xs text-slate-500">Done Today</p>
+          <p className="text-2xl font-bold text-savings-600 dark:text-savings-400">{counts.completed_today}</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400">Done Today</p>
         </Card>
       </div>
 
@@ -173,7 +173,7 @@ export default function Tasks() {
             <div className="w-8 h-8 border-4 border-shield-200 border-t-shield-600 rounded-full animate-spin" />
           </div>
         ) : filtered.length === 0 ? (
-          <div className="text-center py-12 text-slate-500">
+          <div className="text-center py-12 text-slate-500 dark:text-slate-400">
             {tasks.length === 0 ? 'No tasks yet — create one or set up workflow automation' : 'No tasks match your filters'}
           </div>
         ) : (
@@ -186,12 +186,12 @@ export default function Tasks() {
               const expanded = expandedId === task.id;
 
               return (
-                <div key={task.id} className={`p-4 ${overdue ? 'bg-red-50/50' : ''} ${done ? 'opacity-60' : ''}`}>
+                <div key={task.id} className={`p-4 ${overdue ? 'bg-red-50 dark:bg-red-900/30/50' : ''} ${done ? 'opacity-60' : ''}`}>
                   <div className="flex items-start gap-3">
                     {/* Completion toggle */}
                     <button
                       onClick={() => done ? handleReopen(task) : handleComplete(task)}
-                      className={`mt-0.5 flex-shrink-0 transition-colors ${done ? 'text-savings-600 hover:text-slate-400' : 'text-slate-300 hover:text-savings-500'}`}
+                      className={`mt-0.5 flex-shrink-0 transition-colors ${done ? 'text-savings-600 dark:text-savings-400 hover:text-slate-400 dark:text-slate-500' : 'text-slate-300 hover:text-savings-500'}`}
                     >
                       {done ? <CheckCircle2 className="w-5 h-5" /> : <Circle className="w-5 h-5" />}
                     </button>
@@ -199,12 +199,12 @@ export default function Tasks() {
                     {/* Content */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className={`font-medium ${done ? 'line-through text-slate-400' : 'text-slate-900'}`}>{task.title}</span>
+                        <span className={`font-medium ${done ? 'line-through text-slate-400 dark:text-slate-500' : 'text-slate-900 dark:text-white'}`}>{task.title}</span>
                         <Badge variant={pc.variant} className="text-xs">{pc.icon} {pc.label}</Badge>
                         {overdue && <Badge variant="danger" className="text-xs">Overdue</Badge>}
                         {today && !overdue && !done && <Badge variant="warning" className="text-xs">Due Today</Badge>}
                       </div>
-                      <div className="flex items-center gap-4 mt-1 text-xs text-slate-500">
+                      <div className="flex items-center gap-4 mt-1 text-xs text-slate-500 dark:text-slate-400">
                         <span className="flex items-center gap-1">
                           <Calendar className="w-3 h-3" />
                           {formatDate(task.date)}
@@ -222,7 +222,7 @@ export default function Tasks() {
                           </span>
                         )}
                         {done && task.completed_at && (
-                          <span className="flex items-center gap-1 text-savings-600">
+                          <span className="flex items-center gap-1 text-savings-600 dark:text-savings-400">
                             <CheckCircle2 className="w-3 h-3" />
                             Done {formatDate(task.completed_at)}
                           </span>
@@ -231,7 +231,7 @@ export default function Tasks() {
 
                       {/* Expanded notes */}
                       {expanded && task.notes && (
-                        <div className="mt-2 p-2 bg-slate-50 rounded text-sm text-slate-600 whitespace-pre-wrap">{task.notes}</div>
+                        <div className="mt-2 p-2 bg-slate-50 dark:bg-slate-800 rounded text-sm text-slate-600 dark:text-slate-300 whitespace-pre-wrap">{task.notes}</div>
                       )}
                     </div>
 
@@ -247,7 +247,7 @@ export default function Tasks() {
                           <RotateCcw className="w-4 h-4" />
                         </Button>
                       )}
-                      <Button variant="ghost" size="sm" onClick={() => handleDelete(task)} className="text-red-500 hover:text-red-700">
+                      <Button variant="ghost" size="sm" onClick={() => handleDelete(task)} className="text-red-500 hover:text-red-700 dark:text-red-300">
                         <Trash2 className="w-4 h-4" />
                       </Button>
                     </div>

@@ -97,12 +97,12 @@ export default function AdminCarriers() {
         <Card className="p-6">
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-4">
-              <div className="h-14 w-14 rounded-xl bg-shield-100 flex items-center justify-center">
-                <Building className="h-7 w-7 text-shield-600" />
+              <div className="h-14 w-14 rounded-xl bg-shield-100 dark:bg-shield-900/30 flex items-center justify-center">
+                <Building className="h-7 w-7 text-shield-600 dark:text-shield-400" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-slate-900">{carrier.name}</h1>
-                <p className="text-sm text-slate-500">{carrier.slug}</p>
+                <h1 className="text-2xl font-bold text-slate-900 dark:text-white">{carrier.name}</h1>
+                <p className="text-sm text-slate-500 dark:text-slate-400">{carrier.slug}</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -111,35 +111,35 @@ export default function AdminCarriers() {
               <Button variant="outline" size="sm" leftIcon={<Edit className="w-4 h-4" />} onClick={() => openEditModal(carrier)}>Edit</Button>
             </div>
           </div>
-          {carrier.description && <p className="text-slate-600 mt-4">{carrier.description}</p>}
+          {carrier.description && <p className="text-slate-600 dark:text-slate-300 mt-4">{carrier.description}</p>}
           {carrier.website && (
             <div className="flex items-center gap-2 mt-3 text-sm">
               <Globe className="h-4 w-4 text-shield-500" />
-              <a href={carrier.website} target="_blank" rel="noopener noreferrer" className="text-shield-600 hover:underline">{carrier.website}</a>
+              <a href={carrier.website} target="_blank" rel="noopener noreferrer" className="text-shield-600 dark:text-shield-400 hover:underline">{carrier.website}</a>
             </div>
           )}
         </Card>
 
         <div className="grid grid-cols-2 gap-4">
           <Card className="p-4 text-center">
-            <p className="text-xl font-bold text-slate-900">{carrier.products?.length ?? 0}</p>
-            <p className="text-sm text-slate-500">Products</p>
+            <p className="text-xl font-bold text-slate-900 dark:text-white">{carrier.products?.length ?? 0}</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400">Products</p>
           </Card>
           <Card className="p-4 text-center">
-            <p className="text-xl font-bold text-slate-900">{carrier.agency_appointments_count ?? 0}</p>
-            <p className="text-sm text-slate-500">Agency Appointments</p>
+            <p className="text-xl font-bold text-slate-900 dark:text-white">{carrier.agency_appointments_count ?? 0}</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400">Agency Appointments</p>
           </Card>
         </div>
 
         {carrier.products && (carrier.products as { id: number; name: string; insurance_type: string; is_active: boolean }[]).length > 0 && (
           <Card className="p-6">
-            <h2 className="text-lg font-semibold text-slate-900 mb-4">Products</h2>
+            <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Products</h2>
             <div className="space-y-2">
               {(carrier.products as { id: number; name: string; insurance_type: string; is_active: boolean }[]).map(p => (
                 <div key={p.id} className="flex items-center justify-between py-2 border-b border-slate-50 last:border-0">
                   <div>
-                    <p className="font-medium text-slate-900">{p.name}</p>
-                    <p className="text-xs text-slate-500">{p.insurance_type}</p>
+                    <p className="font-medium text-slate-900 dark:text-white">{p.name}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">{p.insurance_type}</p>
                   </div>
                   <Badge variant={p.is_active ? 'success' : 'default'}>{p.is_active ? 'Active' : 'Inactive'}</Badge>
                 </div>
@@ -156,24 +156,24 @@ export default function AdminCarriers() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Carrier Management</h1>
-          <p className="text-slate-500 mt-1">Manage insurance carriers on the platform</p>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Carrier Management</h1>
+          <p className="text-slate-500 dark:text-slate-400 mt-1">Manage insurance carriers on the platform</p>
         </div>
         <Button variant="shield" leftIcon={<Building className="w-4 h-4" />} onClick={() => openEditModal()}>Add Carrier</Button>
       </div>
 
       <div className="grid grid-cols-3 gap-4">
         <Card className="p-4 text-center">
-          <p className="text-xl font-bold text-slate-900">{carriers.length}</p>
-          <p className="text-sm text-slate-500">Total Carriers</p>
+          <p className="text-xl font-bold text-slate-900 dark:text-white">{carriers.length}</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400">Total Carriers</p>
         </Card>
         <Card className="p-4 text-center">
-          <p className="text-xl font-bold text-savings-600">{activeCount}</p>
-          <p className="text-sm text-slate-500">Active</p>
+          <p className="text-xl font-bold text-savings-600 dark:text-savings-400">{activeCount}</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400">Active</p>
         </Card>
         <Card className="p-4 text-center">
-          <p className="text-xl font-bold text-slate-900">{carriers.length - activeCount}</p>
-          <p className="text-sm text-slate-500">Inactive</p>
+          <p className="text-xl font-bold text-slate-900 dark:text-white">{carriers.length - activeCount}</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400">Inactive</p>
         </Card>
       </div>
 
@@ -185,7 +185,7 @@ export default function AdminCarriers() {
             <Loader2 className="h-8 w-8 animate-spin text-shield-500" />
           </div>
         ) : carriers.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 text-slate-500">
+          <div className="flex flex-col items-center justify-center py-20 text-slate-500 dark:text-slate-400">
             <Building className="h-10 w-10 mb-3 text-slate-300" />
             <p className="font-medium">No carriers found</p>
           </div>
@@ -193,29 +193,29 @@ export default function AdminCarriers() {
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-slate-100">
-                  <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider p-4">Carrier</th>
-                  <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider p-4">AM Best</th>
-                  <th className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider p-4">Status</th>
-                  <th className="text-right text-xs font-medium text-slate-500 uppercase tracking-wider p-4">Actions</th>
+                <tr className="border-b border-slate-100 dark:border-slate-700/50">
+                  <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider p-4">Carrier</th>
+                  <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider p-4">AM Best</th>
+                  <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider p-4">Status</th>
+                  <th className="text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider p-4">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
                 {carriers.map(carrier => (
-                  <tr key={carrier.id} className="hover:bg-slate-50">
+                  <tr key={carrier.id} className="hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-800">
                     <td className="p-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-xl bg-shield-100 text-shield-700 flex items-center justify-center">
+                        <div className="w-9 h-9 rounded-xl bg-shield-100 dark:bg-shield-900/30 text-shield-700 dark:text-shield-300 flex items-center justify-center">
                           <Building className="w-5 h-5" />
                         </div>
                         <div>
-                          <span className="font-medium text-slate-900">{carrier.name}</span>
-                          <p className="text-xs text-slate-400">{carrier.slug}</p>
+                          <span className="font-medium text-slate-900 dark:text-white">{carrier.name}</span>
+                          <p className="text-xs text-slate-400 dark:text-slate-500">{carrier.slug}</p>
                         </div>
                       </div>
                     </td>
                     <td className="p-4">
-                      {carrier.am_best_rating ? <Badge variant="shield">{carrier.am_best_rating}</Badge> : <span className="text-sm text-slate-400">—</span>}
+                      {carrier.am_best_rating ? <Badge variant="shield">{carrier.am_best_rating}</Badge> : <span className="text-sm text-slate-400 dark:text-slate-500">—</span>}
                     </td>
                     <td className="p-4">
                       <Badge variant={carrier.is_active ? 'success' : 'danger'}>{carrier.is_active ? 'Active' : 'Inactive'}</Badge>
@@ -239,37 +239,37 @@ export default function AdminCarriers() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setShowEditModal(false)}>
           <Card className="w-full max-w-md p-6" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-slate-900">{editingId ? 'Edit Carrier' : 'Add Carrier'}</h3>
-              <button onClick={() => setShowEditModal(false)}><X className="w-5 h-5 text-slate-400" /></button>
+              <h3 className="text-lg font-semibold text-slate-900 dark:text-white">{editingId ? 'Edit Carrier' : 'Add Carrier'}</h3>
+              <button onClick={() => setShowEditModal(false)}><X className="w-5 h-5 text-slate-400 dark:text-slate-500" /></button>
             </div>
             <div className="space-y-4">
               <div className="space-y-1">
-                <label className="text-sm font-medium text-slate-700">Name</label>
+                <label className="text-sm font-medium text-slate-700 dark:text-slate-200">Name</label>
                 <Input value={editForm.name} onChange={e => setEditForm({ ...editForm, name: e.target.value })} />
               </div>
               <div className="space-y-1">
-                <label className="text-sm font-medium text-slate-700">Slug</label>
+                <label className="text-sm font-medium text-slate-700 dark:text-slate-200">Slug</label>
                 <Input value={editForm.slug} onChange={e => setEditForm({ ...editForm, slug: e.target.value })} />
               </div>
               <div className="space-y-1">
-                <label className="text-sm font-medium text-slate-700">Description</label>
+                <label className="text-sm font-medium text-slate-700 dark:text-slate-200">Description</label>
                 <textarea value={editForm.description} onChange={e => setEditForm({ ...editForm, description: e.target.value })}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-shield-500 min-h-[60px]" />
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-shield-500 dark:focus:ring-shield-400 min-h-[60px]" />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1">
-                  <label className="text-sm font-medium text-slate-700">Website</label>
+                  <label className="text-sm font-medium text-slate-700 dark:text-slate-200">Website</label>
                   <Input value={editForm.website} onChange={e => setEditForm({ ...editForm, website: e.target.value })} placeholder="https://" />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-sm font-medium text-slate-700">AM Best Rating</label>
+                  <label className="text-sm font-medium text-slate-700 dark:text-slate-200">AM Best Rating</label>
                   <Input value={editForm.am_best_rating} onChange={e => setEditForm({ ...editForm, am_best_rating: e.target.value })} placeholder="A+" />
                 </div>
               </div>
               <label className="flex items-center gap-3">
                 <input type="checkbox" checked={editForm.is_active} onChange={e => setEditForm({ ...editForm, is_active: e.target.checked })}
-                  className="w-4 h-4 rounded border-slate-300 text-shield-600 focus:ring-shield-500" />
-                <span className="text-sm text-slate-700">Active</span>
+                  className="w-4 h-4 rounded border-slate-300 text-shield-600 dark:text-shield-400 focus:ring-shield-500 dark:focus:ring-shield-400" />
+                <span className="text-sm text-slate-700 dark:text-slate-200">Active</span>
               </label>
             </div>
             <div className="flex justify-end gap-2 mt-6">

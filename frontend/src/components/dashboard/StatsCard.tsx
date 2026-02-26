@@ -14,14 +14,14 @@ export interface StatsCardProps {
 
 export function StatsCard({ title, label, value, change, changeType = 'neutral', icon, iconColor, variant = 'default' }: StatsCardProps) {
   const displayTitle = title || label || '';
-  const defaultIconColor = variant === 'savings' ? 'bg-green-100 text-green-600' : 'bg-shield-100 text-shield-600';
+  const defaultIconColor = variant === 'savings' ? 'bg-green-100 text-green-600 dark:bg-green-900/40 dark:text-green-400' : 'bg-shield-100 text-shield-600 dark:bg-shield-900/40 dark:text-shield-400';
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 p-6 hover-lift">
+    <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700/50 p-6 hover-lift">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-sm font-medium text-slate-500">{displayTitle}</p>
-          <p className="text-2xl font-bold text-slate-900 mt-1">{value}</p>
+          <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{displayTitle}</p>
+          <p className="text-2xl font-bold text-slate-900 dark:text-white mt-1">{value}</p>
           {change && (
             <p className={cn(
               'text-sm font-medium mt-1',
