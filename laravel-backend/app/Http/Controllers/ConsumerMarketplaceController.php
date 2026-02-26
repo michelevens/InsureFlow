@@ -222,7 +222,7 @@ class ConsumerMarketplaceController extends Controller
         $leadIds = $leads->pluck('id');
         $scenarios = LeadScenario::whereIn('lead_id', $leadIds)
             ->where('consumer_visible', true)
-            ->with(['agent:id,name', 'coverages', 'lead.agency:id,name'])
+            ->with(['agent:id,name', 'coverages', 'quotes', 'lead.agency:id,name'])
             ->orderByDesc('sent_to_consumer_at')
             ->get();
 
