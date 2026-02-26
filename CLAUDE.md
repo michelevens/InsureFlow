@@ -169,7 +169,7 @@ php artisan serve
 ```
 
 ## Deployment
-- **Frontend:** GitHub Pages (ennhealth.github.io/InsureFlow)
+- **Frontend:** insurons.com
 - **Backend:** Railway (PostgreSQL included)
 - **Railway Project:** ample-empathy / insurons-api
 - **API Domain:** api.insurons.com
@@ -187,9 +187,9 @@ php artisan serve
 - superadmin@insureflow.com (Superadmin)
 
 ## Current Status (as of 2026-02-25)
-- **Frontend:** 65+ pages built, TypeScript passes, Vite build succeeds, **GitHub Pages deployment working** (auto-deploys on push)
+- **Frontend:** 65+ pages built, TypeScript passes, Vite build succeeds, deployed to **insurons.com**
 - **Backend:** Laravel 12 on Railway — **All 14 phases deployed**, all endpoints live
-- **API Domain:** api.insurons.com — WORKING, CORS fixed for ennhealth.github.io
+- **API Domain:** api.insurons.com — WORKING, CORS configured for insurons.com
 - **Database:** All migrations run (100+ total including Phase 10-14), 39 compliance requirements seeded, 160+ ZIP codes seeded
 - **Seed Data:** 5 subscription plans, 10 carriers with products, 6 demo users, 35+ platform products, 10 agencies (50 agents), 70 leads, 3 rate tables (DI LTD, Term Life, LTC) — 180 rate entries + PipelineSeeder (25 applications, 15 policies, 15 commissions, 6 claims, 12 appointments, 20 routing rules) + 39 compliance requirements
 - **Lead Pipeline:** Full InsuranceProfile → Lead → RoutingEngine → LeadScoring pipeline wired for intake submissions
@@ -485,7 +485,7 @@ All 4 core flows tested against production and **PASSING**:
 - **Run backend tests on Railway:** `php artisan test` to verify 10 tests pass on production environment
 - **Test embed widget + webhook:** Create partner with webhook URL (use webhook.site) → complete embed flow → verify webhook fires with signed payload
 - **Test compliance alert banner:** Create overdue compliance_pack_item → log in as agent → verify red banner appears → dismiss → verify sessionStorage persistence
-- **Test Kanban board** drag-and-drop on the live frontend (https://ennhealth.github.io/InsureFlow)
+- **Test Kanban board** drag-and-drop on the live frontend (https://insurons.com)
 
 ### Infrastructure & Config
 - **Add Stripe keys to Railway:** Set `STRIPE_SECRET_KEY`, `STRIPE_PUBLISHABLE_KEY`, `STRIPE_WEBHOOK_SECRET` env vars. Then run `php artisan stripe:sync-plans` to create products/prices in Stripe.
