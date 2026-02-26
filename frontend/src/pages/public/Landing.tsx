@@ -2,10 +2,12 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui';
 import {
-  Calculator, Users, FileText, ShieldCheck, ArrowRight, Star,
+  Calculator, Users, ShieldCheck, ArrowRight, Star,
   CheckCircle2, Building2, BarChart3, Route, Lock, Zap, Globe,
   UserCheck, PieChart, Network, Car, Heart, Activity,
-  Accessibility, Briefcase, Sparkles,
+  Accessibility, Briefcase, Sparkles, Workflow, ListTodo, PenTool,
+  Store, Mail, GraduationCap, Scale, Bot, Code2,
+  ClipboardCheck, TrendingUp, Shield,
 } from 'lucide-react';
 import { api } from '@/services/api';
 
@@ -64,18 +66,20 @@ export default function Landing() {
       </nav>
 
       {/* Hero */}
-      <section className="py-20 lg:py-28 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-shield-50/50 via-white to-sky-50/30" />
+      <section className="py-20 lg:py-32 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-shield-950 to-slate-900" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-shield-600/20 via-transparent to-transparent" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-shield-500/10 rounded-full blur-3xl" />
         <div className="max-w-7xl mx-auto px-6 text-center relative">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-shield-50 text-shield-700 text-sm font-medium mb-6">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm text-shield-300 text-sm font-medium mb-8 border border-white/10">
             <ShieldCheck className="w-4 h-4" />
-            The Insurance Distribution Platform
+            The Complete Insurance Distribution Platform
           </div>
-          <h1 className="text-4xl md:text-6xl font-bold text-slate-900 max-w-5xl mx-auto leading-tight">
-            One platform for <span className="text-shield-600">consumers</span>, <span className="text-shield-600">agents</span>, and <span className="text-shield-600">agencies</span>
+          <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white max-w-5xl mx-auto leading-[1.1] tracking-tight">
+            Insurance, <span className="bg-gradient-to-r from-shield-400 to-sky-400 bg-clip-text text-transparent">reimagined</span> for everyone
           </h1>
-          <p className="text-xl text-slate-600 max-w-3xl mx-auto mt-6 leading-relaxed">
-            Insurons connects insurance buyers with the right coverage through intelligent quote comparison, automated lead routing, and a complete broker operating system — all in one unified platform.
+          <p className="text-xl text-slate-300 max-w-3xl mx-auto mt-6 leading-relaxed">
+            Compare 50+ carriers in seconds. Manage leads with a full CRM. Automate your entire agency workflow. Insurons is the platform where consumers find coverage, agents grow their book, and agencies scale operations.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-10">
             <Link to="/calculator">
@@ -84,21 +88,23 @@ export default function Landing() {
               </Button>
             </Link>
             <Link to="/register">
-              <Button variant="outline" size="xl">Join as a Professional</Button>
+              <Button variant="ghost" size="xl" className="text-white border-white/20 hover:bg-white/10">
+                Join as a Professional
+              </Button>
             </Link>
           </div>
 
           {/* Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-16 max-w-3xl mx-auto">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-20 max-w-4xl mx-auto">
             {[
-              { value: '50+', label: 'Carriers' },
-              { value: String(categoryCount), label: 'Product Categories' },
-              { value: String(productCount), label: 'Insurance Products' },
+              { value: '50+', label: 'Insurance Carriers' },
+              { value: String(productCount) + '+', label: 'Products' },
+              { value: '495+', label: 'API Endpoints' },
               { value: '<60s', label: 'Quote Time' },
             ].map((stat, i) => (
-              <div key={i} className="text-center">
-                <div className="text-2xl font-bold text-shield-600">{stat.value}</div>
-                <div className="text-sm text-slate-500 mt-1">{stat.label}</div>
+              <div key={i} className="text-center p-4 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10">
+                <div className="text-3xl font-bold bg-gradient-to-r from-shield-400 to-sky-400 bg-clip-text text-transparent">{stat.value}</div>
+                <div className="text-sm text-slate-400 mt-1">{stat.label}</div>
               </div>
             ))}
           </div>
@@ -271,10 +277,11 @@ export default function Landing() {
               <div className="space-y-4">
                 {[
                   'Qualified leads auto-routed based on your specialties and location',
-                  'Full pipeline CRM — track every lead from contact to policy bound',
-                  'Commission tracking with carrier integration',
+                  'Full CRM with kanban board — drag leads from contact to policy bound',
+                  'Lead marketplace — buy qualified leads or sell your own surplus',
+                  'Workflow automation — trigger actions on lead, application, and policy events',
+                  'E-signatures, task management, commission tracking, and compliance pack',
                   'Professional profile with ratings, reviews, and marketplace visibility',
-                  'Unified Insurance Profiles — see every consumer\'s complete journey',
                 ].map((item, i) => (
                   <div key={i} className="flex items-start gap-3">
                     <CheckCircle2 className="w-5 h-5 text-savings-500 flex-shrink-0 mt-0.5" />
@@ -307,11 +314,11 @@ export default function Landing() {
               <div className="space-y-4">
                 {[
                   'Multi-tenant isolation — your data stays yours, completely separated',
-                  'Configurable routing rules: round-robin, capacity-based, or direct assignment',
-                  'Team management with role-based permissions (owner, admin, sales, designer)',
-                  'Embeddable quote widget for your own website — leads auto-route to your agents',
-                  'Agency-wide pipeline analytics and conversion tracking',
-                  'White-label ready — your brand, powered by Insurons infrastructure',
+                  'Team management with role-based permissions and email invitations',
+                  'Configurable lead routing: round-robin, capacity-based, or direct assignment',
+                  'Embeddable quote widget — branded, on your website, leads flow to your pipeline',
+                  'Email campaigns, recruitment, compliance tracking, and custom reports',
+                  'White-label ready with custom domain, branding, and SSO integration',
                 ].map((item, i) => (
                   <div key={i} className="flex items-start gap-3">
                     <CheckCircle2 className="w-5 h-5 text-purple-500 flex-shrink-0 mt-0.5" />
@@ -361,27 +368,60 @@ export default function Landing() {
       </section>
 
       {/* Platform features */}
-      <section className="py-20 bg-slate-900 text-white">
-        <div className="max-w-7xl mx-auto px-6">
-          <h2 className="text-3xl font-bold text-center mb-4">Built for the modern insurance industry</h2>
-          <p className="text-lg text-slate-400 text-center max-w-2xl mx-auto mb-12">
-            Enterprise-grade infrastructure that powers every step of the insurance distribution lifecycle
+      <section className="py-20 bg-slate-900 text-white relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,_var(--tw-gradient-stops))] from-shield-900/30 via-transparent to-transparent" />
+        <div className="max-w-7xl mx-auto px-6 relative">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 text-shield-300 text-sm font-medium mb-6 mx-auto block w-fit">
+            <Zap className="w-4 h-4" /> 14 Phases Built &amp; Deployed
+          </div>
+          <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">Everything you need. Nothing you don&apos;t.</h2>
+          <p className="text-lg text-slate-400 text-center max-w-2xl mx-auto mb-14">
+            From instant quotes to policy management — a complete insurance operating system in one platform.
           </p>
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-3 lg:grid-cols-4 gap-5">
             {[
-              { icon: <Lock className="w-6 h-6" />, title: 'Tenant Isolation', desc: 'Complete data separation between agencies. Your clients, your data — always.' },
-              { icon: <Route className="w-6 h-6" />, title: 'Intelligent Routing', desc: 'Auto-assign leads by geography, specialty, capacity, or custom rules.' },
-              { icon: <FileText className="w-6 h-6" />, title: 'Unified Insurance Profiles', desc: 'One canonical record per consumer — from first quote to policy renewal.' },
-              { icon: <Zap className="w-6 h-6" />, title: 'Real-Time Pipeline', desc: 'Track every opportunity through intake → quote → lead → application → policy.' },
-              { icon: <Globe className="w-6 h-6" />, title: 'Embeddable Widgets', desc: 'Put a quote calculator on your agency website. Leads flow into your pipeline.' },
-              { icon: <BarChart3 className="w-6 h-6" />, title: 'Analytics & Reporting', desc: 'Conversion rates, pipeline value, agent performance — all at a glance.' },
+              { icon: <Calculator className="w-5 h-5" />, title: 'Multi-Carrier Quoting', desc: 'Compare 50+ carriers with real-time premium breakdowns in under 60 seconds.' },
+              { icon: <Route className="w-5 h-5" />, title: 'Intelligent Lead Routing', desc: 'Auto-assign by geography, specialty, capacity, or custom round-robin rules.' },
+              { icon: <ListTodo className="w-5 h-5" />, title: 'CRM with Kanban Board', desc: 'Full pipeline management — drag leads through stages from new to bound.' },
+              { icon: <Store className="w-5 h-5" />, title: 'Lead Marketplace', desc: 'Buy qualified leads or sell surplus. Auction bidding with smart pricing.' },
+              { icon: <Workflow className="w-5 h-5" />, title: 'Workflow Automation', desc: '22 trigger events, 8 action types. Build rules that run your business for you.' },
+              { icon: <PenTool className="w-5 h-5" />, title: 'E-Signatures', desc: 'Send applications for signing. Canvas signatures, no login needed.' },
+              { icon: <ClipboardCheck className="w-5 h-5" />, title: 'Task Management', desc: 'Create, assign, and track tasks with priorities, due dates, and completion.' },
+              { icon: <TrendingUp className="w-5 h-5" />, title: 'Commission Tracking', desc: 'Per-policy commissions, splits, Stripe Connect payouts, and revenue trends.' },
+              { icon: <Scale className="w-5 h-5" />, title: 'Compliance Pack', desc: 'Licenses, CE credits, E&O tracking with automated expiration alerts.' },
+              { icon: <Globe className="w-5 h-5" />, title: 'Embeddable Widget', desc: 'One script tag on any partner site. Inline or floating button mode.' },
+              { icon: <Mail className="w-5 h-5" />, title: 'Email Campaigns', desc: 'Templates, drip sequences, scheduling, and per-recipient analytics.' },
+              { icon: <Code2 className="w-5 h-5" />, title: 'White-Label & API', desc: 'Custom domain, branding, SSO. Plus webhooks and full REST API access.' },
+              { icon: <Lock className="w-5 h-5" />, title: 'Tenant Isolation', desc: 'Complete data separation. SOC 2-grade audit logs with old/new diffs.' },
+              { icon: <Bot className="w-5 h-5" />, title: 'AI Chat Assistant', desc: 'Conversational AI for agents — get answers, suggestions, and insights.' },
+              { icon: <GraduationCap className="w-5 h-5" />, title: 'Training & Community', desc: 'Training catalog, discussion forum, events, and partner referral marketplace.' },
+              { icon: <Shield className="w-5 h-5" />, title: 'Carrier API Adapters', desc: 'Plug in any carrier API — GenericRest, Progressive, Travelers, and more.' },
             ].map((f, i) => (
-              <div key={i} className="p-6 rounded-2xl bg-slate-800/50 border border-slate-700/50">
-                <div className="w-12 h-12 rounded-xl bg-shield-600/20 text-shield-400 flex items-center justify-center mb-4">
+              <div key={i} className="p-5 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-shield-500/30 transition-all duration-300 group">
+                <div className="w-10 h-10 rounded-xl bg-shield-500/20 text-shield-400 flex items-center justify-center mb-3 group-hover:bg-shield-500/30 transition-colors">
                   {f.icon}
                 </div>
-                <h3 className="font-semibold text-white mb-2">{f.title}</h3>
-                <p className="text-sm text-slate-400 leading-relaxed">{f.desc}</p>
+                <h3 className="font-semibold text-white text-sm mb-1.5">{f.title}</h3>
+                <p className="text-xs text-slate-400 leading-relaxed">{f.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Social Proof / Numbers */}
+      <section className="py-16 bg-gradient-to-r from-shield-600 to-sky-600">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center text-white">
+            {[
+              { value: '82+', label: 'Database Models' },
+              { value: '65+', label: 'Frontend Pages' },
+              { value: '91', label: 'DB Migrations' },
+              { value: '6', label: 'User Roles' },
+            ].map((s, i) => (
+              <div key={i}>
+                <div className="text-4xl font-bold">{s.value}</div>
+                <div className="text-sm text-white/70 mt-1">{s.label}</div>
               </div>
             ))}
           </div>
@@ -389,11 +429,12 @@ export default function Landing() {
       </section>
 
       {/* CTA */}
-      <section className="py-20">
-        <div className="max-w-4xl mx-auto px-6 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">Ready to transform your insurance workflow?</h2>
+      <section className="py-20 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-shield-50 via-white to-sky-50" />
+        <div className="max-w-4xl mx-auto px-6 text-center relative">
+          <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">The insurance industry has too many middlemen.<br />We built the platform that removes them.</h2>
           <p className="text-lg text-slate-600 mb-8">
-            Whether you're a consumer looking for the best rate, an agent growing your book, or an agency scaling operations — Insurons is built for you.
+            Consumers get instant quotes. Agents get qualified leads. Agencies get a complete operating system. One platform. Zero friction.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link to="/calculator">
