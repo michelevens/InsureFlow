@@ -179,14 +179,14 @@ php artisan serve
 - **Clear caches:** `railway ssh "php artisan config:clear && php artisan route:clear && php artisan view:clear"`
 
 ## Demo Accounts (all password: 'password')
-- consumer@insureflow.com (Consumer)
-- agent@insureflow.com (Agent)
-- agency@insureflow.com (Agency Owner)
-- carrier@insureflow.com (Carrier)
-- admin@insureflow.com (Admin)
-- superadmin@insureflow.com (Superadmin)
+- consumer@insurons.com (Consumer)
+- agent@insurons.com (Agent)
+- agency@insurons.com (Agency Owner)
+- carrier@insurons.com (Carrier)
+- admin@insurons.com (Admin)
+- superadmin@insurons.com (Superadmin)
 
-## Current Status (as of 2026-02-25)
+## Current Status (as of 2026-02-26)
 - **Frontend:** 65+ pages built, TypeScript passes, Vite build succeeds, deployed to **insurons.com**
 - **Backend:** Laravel 12 on Railway — **All 14 phases deployed**, all endpoints live
 - **API Domain:** api.insurons.com — WORKING, CORS configured for insurons.com
@@ -222,6 +222,16 @@ php artisan serve
 - **ZIP Code Autocomplete:** 160+ ZIP codes seeded and lookup working on production
 
 ## Recent Work
+
+### Branding + Cleanup Session (2026-02-26) — New Logo, Favicon, PWA Icons
+- **New SVG logo:** Replaced old 2MB `logo.png` (green/blue gradient) with `logo.svg` (9KB, navy shield + gold molecular nodes + "Insurons" wordmark)
+- **Shield icon:** Created `shield.svg` (icon-only) for favicon and PWA use
+- **Generated PWA icons:** `shield-192.png`, `shield-512.png`, `apple-touch-icon.png` (180x180), `favicon-32.png` — using sharp from source SVG
+- **Updated 17 components:** All `src="/logo.png"` → `src="/logo.svg"` across sidebar, login, register, landing, calculator, quote results, onboarding, SSO, password reset, terms, privacy, pricing, agent profile
+- **Updated index.html:** Favicon from `vite.svg` → `shield.svg` + PNG fallback
+- **Removed old assets:** Deleted `logo.png` (2MB) and `vite.svg` from public/
+- **Fixed demo account emails in CLAUDE.md:** Were showing `@insureflow.com`, corrected to `@insurons.com`
+- **Verified marketplace routes:** `suggest-price` 405 was token expiration during smoke test (route is correctly defined as GET inside auth group). Stats field names are aligned between backend and frontend.
 
 ### Testing + Features Session (2026-02-25) — Test Infrastructure + Webhooks + Compliance Alerts
 - **Frontend test infrastructure:** Installed vitest + @testing-library/react + jest-dom + user-event + jsdom. Created vitest.config.ts, setup.ts (ResizeObserver/matchMedia mocks), test-utils.tsx (MemoryRouter render, makeQuote factory). 15 tests passing.
@@ -481,11 +491,11 @@ All 4 core flows tested against production and **PASSING**:
 ## Next Tasks
 
 ### Immediate
-- **Deploy new migrations:** Webhook columns (embed_partners) need `php artisan migrate` on Railway
-- **Run backend tests on Railway:** `php artisan test` to verify 10 tests pass on production environment
-- **Test embed widget + webhook:** Create partner with webhook URL (use webhook.site) → complete embed flow → verify webhook fires with signed payload
-- **Test compliance alert banner:** Create overdue compliance_pack_item → log in as agent → verify red banner appears → dismiss → verify sessionStorage persistence
+- **Deploy latest commits to Railway:** Logo removal + URL fixes from recent sessions
+- **Verify demo logins work:** `agent@insurons.com` / `password` returned "Invalid credentials" — may need to re-run `DemoUserSeeder` on Railway
+- **Test branding on live site:** Verify new SVG logo renders correctly on insurons.com (sidebar, login, landing, favicon)
 - **Test Kanban board** drag-and-drop on the live frontend (https://insurons.com)
+- **Test embed widget + webhook:** Create partner with webhook URL (use webhook.site) → complete embed flow → verify webhook fires with signed payload
 
 ### Infrastructure & Config
 - **Add Stripe keys to Railway:** Set `STRIPE_SECRET_KEY`, `STRIPE_PUBLISHABLE_KEY`, `STRIPE_WEBHOOK_SECRET` env vars. Then run `php artisan stripe:sync-plans` to create products/prices in Stripe.
