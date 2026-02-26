@@ -8,7 +8,7 @@ export default function Privacy() {
       <header className="bg-white border-b border-slate-200">
         <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
-            <img src="/logo.png" alt="Insurons" className="h-14 w-auto" />
+            <img src="/logo.svg" alt="Insurons" className="h-14 w-auto" />
           </Link>
           <Link to="/" className="flex items-center gap-1 text-sm text-shield-600 hover:text-shield-700">
             <ArrowLeft className="w-4 h-4" /> Back to Home

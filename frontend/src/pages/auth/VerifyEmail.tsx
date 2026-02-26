@@ -33,7 +33,7 @@ export default function VerifyEmail() {
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4">
       <div className="w-full max-w-md text-center">
-        <img src="/logo.png" alt="Insurons" className="h-20 w-auto mx-auto mb-6" />
+        <img src="/logo.svg" alt="Insurons" className="h-20 w-auto mx-auto mb-6" />
 
         <div className="bg-white rounded-2xl border border-slate-200 p-8">
           {status === 'loading' && (

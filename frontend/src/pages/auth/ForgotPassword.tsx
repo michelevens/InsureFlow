@@ -28,7 +28,7 @@ export default function ForgotPassword() {
     <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <img src="/logo.png" alt="Insurons" className="h-20 w-auto mx-auto mb-4" />
+          <img src="/logo.svg" alt="Insurons" className="h-20 w-auto mx-auto mb-4" />
           <h1 className="text-2xl font-bold text-slate-900">Reset your password</h1>
           <p className="text-slate-500 mt-1">
             {sent ? 'Check your email for a reset link' : "Enter your email and we'll send you a reset link"}

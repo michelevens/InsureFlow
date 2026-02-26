@@ -11,7 +11,7 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'shield-192.png', 'shield-512.png'],
+      includeAssets: ['shield.svg', 'favicon-32.png', 'apple-touch-icon.png', 'shield-192.png', 'shield-512.png', 'logo.svg'],
       manifest: {
         name: 'Insurons — Insurance Platform',
         short_name: 'Insurons',

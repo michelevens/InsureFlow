@@ -50,7 +50,7 @@ export default function ResetPassword() {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4 py-12">
         <div className="w-full max-w-md text-center">
-          <img src="/logo.png" alt="Insurons" className="h-20 w-auto mx-auto mb-4" />
+          <img src="/logo.svg" alt="Insurons" className="h-20 w-auto mx-auto mb-4" />
           <div className="bg-white rounded-2xl border border-slate-200 p-8">
             <p className="text-slate-700 mb-4">Invalid or missing reset link.</p>
             <Link to="/forgot-password" className="text-shield-600 font-medium hover:underline">
@@ -66,7 +66,7 @@ export default function ResetPassword() {
     <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <img src="/logo.png" alt="Insurons" className="h-20 w-auto mx-auto mb-4" />
+          <img src="/logo.svg" alt="Insurons" className="h-20 w-auto mx-auto mb-4" />
           <h1 className="text-2xl font-bold text-slate-900">Set new password</h1>
           <p className="text-slate-500 mt-1">Enter your new password below</p>
         </div>

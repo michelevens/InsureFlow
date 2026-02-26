@@ -208,7 +208,7 @@ export function DashboardLayout() {
             <Menu className="w-6 h-6 text-slate-600 dark:text-slate-400" />
           </button>
           <div className="flex items-center gap-2">
-            <img src="/logo.png" alt="Insurons" className="h-16 w-auto" />
+            <img src="/logo.svg" alt="Insurons" className="h-16 w-auto" />
           </div>
           <div className="flex items-center gap-1">
             <button
@@ -264,7 +264,7 @@ export function DashboardLayout() {
         {/* Logo */}
         <div className="flex items-center justify-between px-6 py-3 border-b border-slate-100 dark:border-slate-700/50">
           <Link to="/dashboard" className="flex items-center gap-2.5">
-            <img src="/logo.png" alt="Insurons" className="h-10 w-auto" />
+            <img src="/logo.svg" alt="Insurons" className="h-10 w-auto" />
           </Link>
           <button onClick={() => setSidebarOpen(false)} className="lg:hidden p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800">
             <X className="w-5 h-5 text-slate-400" />

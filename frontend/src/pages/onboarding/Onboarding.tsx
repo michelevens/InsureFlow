@@ -947,7 +947,7 @@ export default function Onboarding() {
       <nav className="bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-700/50">
         <div className="max-w-3xl mx-auto px-6 py-4 flex items-center justify-between">
           <a href="/" className="flex items-center gap-2.5">
-            <img src="/logo.png" alt="Insurons" className="h-14 w-auto" />
+            <img src="/logo.svg" alt="Insurons" className="h-14 w-auto" />
           </a>
           <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
             <ShieldCheck className="w-4 h-4 text-shield-600 dark:text-shield-400" />

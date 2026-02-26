@@ -49,7 +49,7 @@ export default function SsoCallback() {
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4">
       <div className="w-full max-w-md text-center">
-        <img src="/logo.png" alt="Insurons" className="h-20 w-auto mx-auto mb-4" />
+        <img src="/logo.svg" alt="Insurons" className="h-20 w-auto mx-auto mb-4" />
         <h1 className="text-2xl font-bold text-slate-900 mb-2">Completing SSO Login</h1>
         <div className="flex items-center justify-center gap-2 text-slate-500">
           <div className="w-5 h-5 border-2 border-shield-200 border-t-shield-600 rounded-full animate-spin" />

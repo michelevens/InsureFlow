@@ -25,7 +25,7 @@ export default function SsoLogin() {
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-md text-center">
-        <img src="/logo.png" alt="Insurons" className="h-20 w-auto mx-auto mb-4" />
+        <img src="/logo.svg" alt="Insurons" className="h-20 w-auto mx-auto mb-4" />
         <h1 className="text-2xl font-bold text-slate-900 mb-2">Enterprise SSO Login</h1>
         <p className="text-slate-500 mb-8">
           Sign in with your organization's identity provider
