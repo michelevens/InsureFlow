@@ -59,6 +59,7 @@ export interface ConsumerScenario {
     deductible_amount: string | null;
     benefit_amount: string | null;
   }>;
+  quotes?: QuoteComparison[];
 }
 
 export interface ConsumerDashboardResponse {
@@ -110,15 +111,25 @@ export interface PublicScenarioView {
     name: string;
     relationship: string | null;
   }>;
-  quotes: Array<{
-    id: number;
-    carrier_name: string;
-    product_name: string | null;
-    premium_monthly: string;
-    premium_annual: string;
-    am_best_rating: string | null;
-    is_recommended: boolean;
-  }>;
+  quotes: QuoteComparison[];
+}
+
+export interface QuoteComparison {
+  id: number;
+  carrier_name: string;
+  product_name: string | null;
+  premium_monthly: string;
+  premium_annual: string;
+  premium_semi_annual?: string | null;
+  premium_quarterly?: string | null;
+  am_best_rating: string | null;
+  financial_strength_score?: number | null;
+  coverage_details?: Record<string, unknown> | null;
+  endorsements?: string[] | null;
+  exclusions?: string[] | null;
+  discounts_applied?: string[] | null;
+  agent_notes?: string | null;
+  is_recommended: boolean;
 }
 
 export interface PublicApplicationView {

@@ -2,9 +2,10 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, Badge, Button } from '@/components/ui';
 import { EmptyState } from '@/components/dashboard/EmptyState';
-import { ClipboardList, Clock, Calculator, Loader2, User, Building2, Eye } from 'lucide-react';
+import { ClipboardList, Clock, Calculator, Loader2, User, Building2, Eye, BarChart3, ChevronDown, ChevronUp } from 'lucide-react';
 import { marketplaceService, type ConsumerScenario, type MarketplaceQuoteRequest } from '@/services/api';
 import { toast } from 'sonner';
+import { QuoteComparisonMatrix } from '@/components/marketplace/QuoteComparisonMatrix';
 
 const typeLabel = (t: string) => t.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
 const fmtCurrency = (val: string | null) => val ? `$${Number(val).toLocaleString()}` : '—';
@@ -20,6 +21,7 @@ export default function MyQuotes() {
   const [requests, setRequests] = useState<MarketplaceQuoteRequest[]>([]);
   const [scenarios, setScenarios] = useState<ConsumerScenario[]>([]);
   const [loading, setLoading] = useState(true);
+  const [expandedComparison, setExpandedComparison] = useState<number | null>(null);
 
   useEffect(() => {
     marketplaceService.consumerDashboard()
@@ -118,13 +120,31 @@ export default function MyQuotes() {
                     )}
                   </div>
 
-                  {scenario.consumer_token && (
-                    <div className="flex gap-2">
+                  <div className="flex gap-2">
+                    {scenario.consumer_token && (
                       <Link to={`/scenarios/${scenario.consumer_token}/view`} className="flex-1">
                         <Button variant="shield" size="sm" className="w-full" rightIcon={<Eye className="w-4 h-4" />}>
                           View Details
                         </Button>
                       </Link>
+                    )}
+                    {scenario.quotes && scenario.quotes.length > 1 && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        leftIcon={<BarChart3 className="w-4 h-4" />}
+                        rightIcon={expandedComparison === scenario.id ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                        onClick={() => setExpandedComparison(expandedComparison === scenario.id ? null : scenario.id)}
+                      >
+                        Compare
+                      </Button>
+                    )}
+                  </div>
+
+                  {/* Inline comparison matrix */}
+                  {expandedComparison === scenario.id && scenario.quotes && (
+                    <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-700/50">
+                      <QuoteComparisonMatrix quotes={scenario.quotes} compact />
                     </div>
                   )}
                 </div>

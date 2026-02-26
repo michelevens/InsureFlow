@@ -5,6 +5,7 @@ import { Shield, ShieldCheck, ArrowRight, ArrowLeft, Check, Phone, Mail, Award, 
 import { quoteService, authService } from '@/services/api';
 import { useAuth } from '@/hooks/useAuth';
 import type { EstimateQuote, QuoteBreakdown } from '@/services/api/quotes';
+import { CalculatorBreakdownChart } from '@/components/marketplace/PremiumBreakdownChart';
 
 type SortOption = 'recommended' | 'price_asc' | 'price_desc' | 'deductible_asc' | 'rating';
 
@@ -455,6 +456,10 @@ export default function QuoteResults() {
                       const annualSavings = Math.round(monthly * 12 - annual);
                       return (
                         <div className="mt-3 pt-3 border-t border-slate-100">
+                          {/* Visual chart */}
+                          <div className="mb-4">
+                            <CalculatorBreakdownChart breakdown={bd} monthlyPremium={monthly} />
+                          </div>
                           <div className="space-y-2 text-sm">
                             <div className="flex justify-between">
                               <span className="text-slate-500">Base Rate</span>
