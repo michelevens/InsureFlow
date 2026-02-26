@@ -62,6 +62,7 @@ class CompliancePackController extends Controller
 
         $data = $request->validate([
             'status' => 'sometimes|in:pending,in_progress,completed,waived,expired',
+            'due_date' => 'nullable|date',
             'evidence_url' => 'nullable|string|max:500',
             'notes' => 'nullable|string',
         ]);
