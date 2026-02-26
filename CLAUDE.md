@@ -497,7 +497,7 @@ Agent emails follow pattern: `contact+AgencyX.agent1@ennhealth.com` through `con
 
 ## Known Issues
 - **InsuranceAiService:** `$apiKey` gracefully handled (returns "not configured" message) but still needs `ANTHROPIC_API_KEY` env var on Railway for AI chat to work.
-- **Stripe keys needed:** `stripe:sync-plans` command is ready but requires `STRIPE_SECRET_KEY` env var on Railway. Run command after adding keys to create products/prices.
+- **Stripe LIVE:** All keys configured on Railway, 6 products + 12 prices created, webhook active (we_1T586WIu9HZ5QC9gelSuEkva). Checkout flow verified working.
 - **Railway scheduler:** Procfile has `scheduler` process but Railway may need a separate service or cron job configuration. Check if the scheduler process starts after deploy.
 - **Route caching disabled:** `route:cache` removed from nixpacks.toml start command because it was causing new routes to not appear. Slightly slower but always current. Can re-enable once deploy pipeline is stable.
 - **Application `agency_id` column missing:** The `applications` table has no `agency_id` column. Agency scoping is done via the agent's `agency_id`. The PipelineSeeder may need updating if it sets `agency_id` directly on applications.
@@ -532,9 +532,11 @@ All 4 core flows tested against production and **PASSING**:
 ## Next Tasks
 
 ### Immediate — Monetization P0
-- **Add Stripe keys to Railway:** Set `STRIPE_SECRET_KEY`, `STRIPE_PUBLISHABLE_KEY`, `STRIPE_WEBHOOK_SECRET` env vars — nothing is paid until this is done
-- **Run `stripe:sync-plans`:** After Stripe keys are added, create Stripe products/prices for all 7 plans
-- **Test Stripe checkout end-to-end:** Subscribe → verify webhook → check subscription status → verify billing page shows plan
+- ~~**Add Stripe keys to Railway:**~~ DONE — `STRIPE_SECRET_KEY`, `STRIPE_PUBLISHABLE_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PLATFORM_FEE_PERCENT` all set
+- ~~**Create Stripe products/prices:**~~ DONE — 6 products, 12 prices (monthly+annual) created via API, price IDs stored in DB via migration
+- ~~**Webhook endpoint:**~~ DONE — `https://api.insurons.com/api/webhooks/stripe` active, listening for checkout.session.completed, payment_intent.succeeded, customer.subscription.updated, customer.subscription.deleted
+- ~~**Test checkout flow:**~~ DONE — Agent login → checkout → returns live Stripe Checkout URL
+- **Test full subscription lifecycle:** Complete a test purchase → verify webhook creates subscription → check billing page → test cancel/resume
 
 ### Revenue Features (P1)
 - **Credit top-up packs:** Sell additional marketplace credits outside subscription — Starter Pack (10/$29), Pro Pack (25/$59), Bulk Pack (100/$179). Backend: top-up endpoint + Stripe one-time checkout. Frontend: "Buy More Credits" button on billing page + marketplace.
