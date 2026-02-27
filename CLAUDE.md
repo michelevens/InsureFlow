@@ -190,7 +190,8 @@ php artisan serve
 - **Frontend:** 65+ pages built, TypeScript passes, Vite build succeeds, deployed to **insurons.com**
 - **Backend:** Laravel 12 on Railway — **All 14 phases deployed**, all endpoints live
 - **API Domain:** api.insurons.com — WORKING, CORS configured for insurons.com
-- **Database:** All migrations run (100+ total including Phase 10-14) + 2 new migrations pending (enrich_carriers_table, add_product_code_to_carrier_products), 39 compliance requirements seeded, 160+ ZIP codes seeded
+- **Database:** All migrations run (100+ total including Phase 10-14) + 3 pending deploy (enrich_carriers_table, add_product_code_to_carrier_products, create_seller_payouts_tables), 39 compliance requirements seeded, 160+ ZIP codes seeded
+- **Seller Payouts:** Full marketplace earnings payout system — seller_balances + seller_payout_requests tables, balance tracking on every sale, payout request with admin approval, Stripe Connect transfer, Payouts tab in Lead Marketplace UI
 - **Seed Data:** 7 subscription plans (competitive tiers), ~44 real US carriers with NAIC codes (replaces old 10 demo carriers), 6 demo users, 35+ platform products, 10 agencies (50 agents), 70 leads, 3 rate tables (DI LTD, Term Life, LTC) + 6 carrier-specific rate tables (auto+homeowners for State Farm/Progressive/Allstate) — 180+ rate entries + PipelineSeeder (25 applications, 15 policies, 15 commissions, 6 claims, 12 appointments, 20 routing rules) + 39 compliance requirements
 - **Lead Pipeline:** Full InsuranceProfile → Lead → RoutingEngine → LeadScoring pipeline wired for intake submissions
 - **Lead Aging Alerts:** Hourly `leads:check-aging` command — 24h → remind agent, 48h → escalate to agency owner (email + in-app notification)
@@ -226,6 +227,16 @@ php artisan serve
 - **ZIP Code Autocomplete:** 160+ ZIP codes seeded and lookup working on production
 
 ## Recent Work
+
+### Lead Seller Payouts System (2026-02-27)
+Full marketplace earnings payout system for agencies that sell leads:
+- **Migration:** `seller_balances` (per-agency balance tracking: available, pending, lifetime_earned, lifetime_paid) + `seller_payout_requests` (status workflow: pending→approved→processing→completed, or rejected/failed)
+- **Models:** SellerBalance (creditSale, reserveForPayout, releaseReserved, confirmPayout) + SellerPayoutRequest (relationships, scopes)
+- **Controller:** SellerPayoutController — agency endpoints (balance, requestPayout, history) + admin endpoints (list, approve, reject, markCompleted) + Stripe Connect transfer processing
+- **Wiring:** LeadMarketplaceController.completePurchase() now auto-credits seller's SellerBalance on every sale
+- **Frontend:** Payouts tab in LeadMarketplace — balance cards, payout request form ($5 min), history with status badges
+- **Routes:** 7 new API routes (4 agent-facing, 3 admin)
+- **Commit:** `22da7e7`
 
 ### Real Carrier Data & True Quoting — 6-Phase Implementation (2026-02-27)
 Complete overhaul from demo carriers to production-ready quoting:
@@ -543,11 +554,12 @@ All 4 core flows tested against production and **PASSING**:
 
 ## Next Tasks
 
-### Immediate — Deploy Real Carrier Data (P0)
-- **Run 2 new migrations on Railway:** `php artisan migrate` — creates enriched carrier columns + carrier_product columns
+### Immediate — Deploy to Railway (P0)
+- **Run 3 new migrations on Railway:** `php artisan migrate` — creates enriched carrier columns, carrier_product columns, seller_balances + seller_payout_requests tables
 - **Re-seed carriers:** `php artisan db:seed --class=CarrierSeeder` — replaces 10 demo carriers with ~44 real US carriers
 - **Re-seed rate tables:** `php artisan db:seed --class=RateTableSeeder` — adds 6 carrier-specific rate tables (auto+homeowners for State Farm/Progressive/Allstate)
 - **Test two-tier quoting:** `POST /api/calculator/estimate` with State Farm zip → should return `rating_source: 'rate_table'` with factor breakdown. Test carrier without rate table → should return `rating_source: 'estimate'` (fallback).
+- **Test seller payouts:** Sell a lead → check seller balance credited → request payout → admin approve → verify completion
 
 ### Monetization
 - ~~**Add Stripe keys to Railway:**~~ DONE
@@ -557,8 +569,8 @@ All 4 core flows tested against production and **PASSING**:
 - **Test full subscription lifecycle:** Complete a test purchase → verify webhook creates subscription → check billing page → test cancel/resume
 
 ### Revenue Features (P1)
-- **Credit top-up packs:** Sell additional marketplace credits outside subscription — Starter Pack (10/$29), Pro Pack (25/$59), Bulk Pack (100/$179). Backend: top-up endpoint + Stripe one-time checkout. Frontend: "Buy More Credits" button on billing page + marketplace.
-- **Lead seller payouts:** Let agencies withdraw earnings from lead sales — track balance, request payout, admin approval
+- ~~**Credit top-up packs:**~~ DONE — Already built (SubscriptionController.creditTopUp, Billing.tsx pack display)
+- ~~**Lead seller payouts:**~~ DONE — Full system with balance tracking, admin approval, Stripe Connect transfers, Payouts tab in marketplace
 - **Annual plan discount enforcement:** Stripe billing interval switch (monthly ↔ annual) with prorated credit
 
 ### Testing
