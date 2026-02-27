@@ -209,6 +209,12 @@ export default function App() {
                 <Route path="/onboarding" element={<Onboarding />} />
               </Route>
 
+              {/* Protected: Marketplace browsing (no DashboardLayout — standalone pages) */}
+              <Route element={<ProtectedRoute />}>
+                <Route path="/marketplace" element={<Marketplace />} />
+                <Route path="/marketplace/:id" element={<AgentProfile />} />
+              </Route>
+
               {/* Protected routes (auth guard + DashboardLayout) */}
               <Route element={<ProtectedRoute />}>
               <Route element={<DashboardLayout />}>
@@ -221,8 +227,6 @@ export default function App() {
                 <Route path="/portal/policies" element={<MyPolicies />} />
 
                 {/* Agent Marketplace */}
-                <Route path="/marketplace" element={<Marketplace />} />
-                <Route path="/marketplace/:id" element={<AgentProfile />} />
                 <Route path="/marketplace/requests" element={<AgentMarketplace />} />
                 <Route path="/lead-marketplace" element={<LeadMarketplace />} />
 
