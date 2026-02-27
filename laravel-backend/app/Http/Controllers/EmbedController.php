@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\EmbedLeadConvertedMail;
+use App\Mail\EmbedQuoteStartedMail;
 use App\Models\EmbedPartner;
 use App\Models\EmbedSession;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
 class EmbedController extends Controller
@@ -168,6 +171,9 @@ class EmbedController extends Controller
         // Fire session.created webhook
         $this->dispatchWebhook($session, 'embed.session.created');
 
+        // Email partner about new quote session
+        $this->notifyPartner($partner, $session, 'started');
+
         return response()->json([
             'session_token' => $session->session_token,
             'message' => 'Quote session created. Redirect user to complete quote.',
@@ -186,6 +192,21 @@ class EmbedController extends Controller
         ]);
     }
 
+    public function linkSession(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'session_token' => 'required|string',
+            'quote_request_id' => 'required|integer',
+        ]);
+
+        $session = EmbedSession::where('session_token', $data['session_token'])->first();
+        if ($session && !$session->quote_request_id) {
+            $session->update(['quote_request_id' => $data['quote_request_id']]);
+        }
+
+        return response()->json(['ok' => true]);
+    }
+
     public function markConverted(Request $request): JsonResponse
     {
         $sessionToken = $request->input('session_token');
@@ -193,9 +214,15 @@ class EmbedController extends Controller
 
         if ($session && !$session->converted_at) {
             $session->update(['converted_at' => now()]);
+            $session->load(['partner', 'quoteRequest']);
 
-            // Fire webhook if partner has one configured
+            // Fire webhook with enriched data (includes contact info)
             $this->dispatchWebhook($session, 'embed.session.converted');
+
+            // Email partner about the new lead
+            if ($session->partner) {
+                $this->notifyPartner($session->partner, $session, 'converted');
+            }
         }
 
         return response()->json(['ok' => true]);
@@ -236,6 +263,38 @@ class EmbedController extends Controller
         }
     }
 
+    private function notifyPartner(EmbedPartner $partner, EmbedSession $session, string $type): void
+    {
+        if (!$partner->contact_email) {
+            return;
+        }
+
+        try {
+            if ($type === 'started') {
+                Mail::to($partner->contact_email)->queue(new EmbedQuoteStartedMail(
+                    partner: $partner,
+                    insuranceType: $session->insurance_type ?? 'Unknown',
+                    sourceDomain: $session->source_domain ?? 'Direct',
+                    sessionToken: $session->session_token,
+                ));
+            } elseif ($type === 'converted') {
+                $session->loadMissing('quoteRequest');
+                if ($session->quoteRequest) {
+                    Mail::to($partner->contact_email)->queue(new EmbedLeadConvertedMail(
+                        partner: $partner,
+                        session: $session,
+                    ));
+                }
+            }
+        } catch (\Throwable $e) {
+            Log::warning('Embed partner email failed', [
+                'partner_id' => $partner->id,
+                'type' => $type,
+                'error' => $e->getMessage(),
+            ]);
+        }
+    }
+
     private function dispatchWebhook(EmbedSession $session, string $event = 'embed.session.converted'): void
     {
         $partner = $session->partner;
@@ -248,10 +307,27 @@ class EmbedController extends Controller
             'insurance_type' => $session->insurance_type,
             'source_domain' => $session->source_domain,
             'partner_id' => $partner->id,
+            'quote_data' => $session->quote_data,
         ];
 
         if ($session->converted_at) {
             $data['converted_at'] = $session->converted_at->toIso8601String();
+        }
+
+        // Include contact info on conversion if available
+        if ($event === 'embed.session.converted') {
+            $session->loadMissing('quoteRequest');
+            $qr = $session->quoteRequest;
+            if ($qr) {
+                $data['contact'] = [
+                    'first_name' => $qr->first_name,
+                    'last_name' => $qr->last_name,
+                    'email' => $qr->email,
+                    'phone' => $qr->phone,
+                    'zip_code' => $qr->zip_code,
+                    'coverage_level' => $qr->coverage_level,
+                ];
+            }
         }
 
         $payload = [

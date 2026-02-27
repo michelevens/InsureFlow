@@ -243,6 +243,13 @@ export default function EmbedQuoteWidget() {
       });
       setQuotes(result.quotes);
       setQuoteRequestId(result.quote_request_id);
+      // Link embed session to this quote request
+      if (sessionToken && result.quote_request_id) {
+        api.post('/embed/link-session', {
+          session_token: sessionToken,
+          quote_request_id: result.quote_request_id,
+        }).catch(() => {});
+      }
       setStep(3);
       postToParent('insurons:quotes-received', { count: result.quotes.length });
       // Notify parent for auto-resize

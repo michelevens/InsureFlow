@@ -142,6 +142,7 @@ Route::post('/applications/{token}/sign', [PublicSigningController::class, 'sign
 // Embed widget (public — no auth, API key validated in controller)
 Route::get('/embed/config/{apiKey}', [EmbedController::class, 'config']);
 Route::post('/embed/quote', [EmbedController::class, 'quote']);
+Route::post('/embed/link-session', [EmbedController::class, 'linkSession']);
 Route::post('/embed/convert', [EmbedController::class, 'markConverted']);
 
 // Push — VAPID public key (no auth required, it's a public key)
