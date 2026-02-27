@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Card, Badge, Button } from '@/components/ui';
-import { CreditCard, ShoppingCart, ExternalLink, CheckCircle2, AlertCircle, Loader2, ArrowRight, XCircle } from 'lucide-react';
+import { CreditCard, ShoppingCart, ExternalLink, CheckCircle2, AlertCircle, Loader2, ArrowRight, XCircle, Plus, Zap } from 'lucide-react';
 import { subscriptionService } from '@/services/api';
 import type { BillingOverview } from '@/services/api';
+import { CREDIT_PACKS, type CreditTopUpPack } from '@/services/api/subscriptions';
 import { toast } from 'sonner';
 import { useConfirm } from '@/components/ui';
 
@@ -15,6 +16,7 @@ export default function Billing() {
   const confirm = useConfirm();
 
   const success = searchParams.get('success') === 'true';
+  const creditsAdded = searchParams.get('credits');
 
   useEffect(() => {
     loadBilling();
@@ -77,6 +79,17 @@ export default function Billing() {
     }
   };
 
+  const handleCreditTopUp = async (pack: CreditTopUpPack) => {
+    setActionLoading(`topup-${pack}`);
+    try {
+      const res = await subscriptionService.creditTopUp(pack);
+      window.location.href = res.checkout_url;
+    } catch {
+      toast.error('Failed to start credit purchase. Please try again.');
+      setActionLoading(null);
+    }
+  };
+
   if (loading) {
     return (
       <div className="space-y-6">
@@ -113,7 +126,11 @@ export default function Billing() {
       {success && (
         <div className="p-4 bg-savings-50 dark:bg-savings-900/20 border border-savings-200 dark:border-savings-800 rounded-xl flex items-center gap-3 text-savings-800 dark:text-savings-200">
           <CheckCircle2 className="w-5 h-5 flex-shrink-0" />
-          <p className="text-sm">Payment successful! Your subscription is now active.</p>
+          <p className="text-sm">
+            {creditsAdded
+              ? `Payment successful! ${creditsAdded} credits have been added to your account.`
+              : 'Payment successful! Your subscription is now active.'}
+          </p>
         </div>
       )}
 
@@ -260,6 +277,54 @@ export default function Billing() {
           )}
         </Card>
       </div>
+
+      {/* Credit Top-Up Packs */}
+      {hasSub && plan && plan.lead_credits_per_month !== -1 && (
+        <Card className="p-6">
+          <div className="flex items-center gap-3 mb-4">
+            <Plus className="w-5 h-5 text-shield-500" />
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white">Buy More Credits</h2>
+          </div>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
+            Need more marketplace credits? Purchase a top-up pack — credits never expire.
+          </p>
+          <div className="grid sm:grid-cols-3 gap-4">
+            {(Object.entries(CREDIT_PACKS) as [CreditTopUpPack, typeof CREDIT_PACKS[CreditTopUpPack]][]).map(([key, pack]) => (
+              <div
+                key={key}
+                className="relative border border-slate-200 dark:border-slate-700 rounded-xl p-4 hover:border-shield-300 dark:hover:border-shield-600 transition-colors"
+              >
+                {key === 'bulk' && (
+                  <span className="absolute -top-2.5 right-3 bg-amber-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                    BEST VALUE
+                  </span>
+                )}
+                <div className="flex items-center gap-2 mb-2">
+                  <Zap className="w-4 h-4 text-amber-500" />
+                  <span className="font-semibold text-slate-900 dark:text-white text-sm">{pack.label}</span>
+                </div>
+                <div className="flex items-baseline gap-1 mb-1">
+                  <span className="text-2xl font-bold text-slate-900 dark:text-white">{pack.credits}</span>
+                  <span className="text-xs text-slate-500 dark:text-slate-400">credits</span>
+                </div>
+                <p className="text-lg font-bold text-shield-600 dark:text-shield-400 mb-3">${pack.price}</p>
+                <p className="text-xs text-slate-400 dark:text-slate-500 mb-3">
+                  ${(pack.price / pack.credits).toFixed(2)}/credit
+                </p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full"
+                  onClick={() => handleCreditTopUp(key)}
+                  isLoading={actionLoading === `topup-${key}`}
+                >
+                  Buy Now
+                </Button>
+              </div>
+            ))}
+          </div>
+        </Card>
+      )}
 
       {/* Quick Actions */}
       {hasSub && (

@@ -53,6 +53,14 @@ export interface PortalResponse {
   portal_url: string;
 }
 
+export type CreditTopUpPack = 'starter' | 'pro' | 'bulk';
+
+export const CREDIT_PACKS: Record<CreditTopUpPack, { credits: number; price: number; label: string }> = {
+  starter: { credits: 10, price: 29, label: 'Starter Pack' },
+  pro: { credits: 25, price: 59, label: 'Pro Pack' },
+  bulk: { credits: 100, price: 179, label: 'Bulk Pack' },
+};
+
 export const subscriptionService = {
   async getPlans(): Promise<SubscriptionPlan[]> {
     return api.get<SubscriptionPlan[]>('/subscription-plans');
@@ -83,5 +91,9 @@ export const subscriptionService = {
 
   async billingOverview(): Promise<BillingOverview> {
     return api.get<BillingOverview>('/billing/overview');
+  },
+
+  async creditTopUp(pack: CreditTopUpPack): Promise<CheckoutResponse> {
+    return api.post<CheckoutResponse>('/subscriptions/credit-top-up', { pack });
   },
 };

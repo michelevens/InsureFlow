@@ -338,6 +338,7 @@ Route::middleware(['auth:sanctum', 'agency.scope'])->group(function () {
     Route::post('/subscriptions/resume', [SubscriptionController::class, 'resume']);
     Route::post('/subscriptions/portal', [SubscriptionController::class, 'portal']);
     Route::get('/billing/overview', [SubscriptionController::class, 'billingOverview']);
+    Route::post('/subscriptions/credit-top-up', [SubscriptionController::class, 'creditTopUp']);
 
     // Referrals
     Route::get('/referrals/dashboard', [ReferralController::class, 'dashboard']);

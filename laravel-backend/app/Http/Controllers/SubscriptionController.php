@@ -183,6 +183,56 @@ class SubscriptionController extends Controller
         ]);
     }
 
+    public function creditTopUp(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'pack' => 'required|in:starter,pro,bulk',
+        ]);
+
+        $packs = [
+            'starter' => ['credits' => 10, 'price' => 2900, 'label' => 'Starter Pack (10 credits)'],
+            'pro'     => ['credits' => 25, 'price' => 5900, 'label' => 'Pro Pack (25 credits)'],
+            'bulk'    => ['credits' => 100, 'price' => 17900, 'label' => 'Bulk Pack (100 credits)'],
+        ];
+
+        $pack = $packs[$data['pack']];
+
+        $stripeSecret = config('services.stripe.secret');
+        if (!$stripeSecret) {
+            return response()->json(['error' => 'Payment system not configured'], 503);
+        }
+
+        Stripe::setApiKey($stripeSecret);
+
+        try {
+            $session = StripeSession::create([
+                'payment_method_types' => ['card'],
+                'mode' => 'payment',
+                'line_items' => [[
+                    'price_data' => [
+                        'currency' => 'usd',
+                        'unit_amount' => $pack['price'],
+                        'product_data' => ['name' => $pack['label']],
+                    ],
+                    'quantity' => 1,
+                ]],
+                'customer_email' => $request->user()->email,
+                'metadata' => [
+                    'type' => 'credit_top_up',
+                    'user_id' => $request->user()->id,
+                    'pack' => $data['pack'],
+                    'credits' => $pack['credits'],
+                ],
+                'success_url' => rtrim(config('app.frontend_url', env('FRONTEND_URL', 'https://insurons.com')), '/') . '/billing?success=true&credits=' . $pack['credits'],
+                'cancel_url' => rtrim(config('app.frontend_url', env('FRONTEND_URL', 'https://insurons.com')), '/') . '/billing?canceled=true',
+            ]);
+
+            return response()->json(['checkout_url' => $session->url]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Failed to create checkout session'], 503);
+        }
+    }
+
     public function handleWebhook(Request $request): JsonResponse
     {
         $secret = config('services.stripe.webhook_secret');
@@ -204,8 +254,11 @@ class SubscriptionController extends Controller
             case 'checkout.session.completed':
                 $session = $event->data->object;
                 // Route marketplace lead purchases to dedicated handler
-                if (($session->metadata->type ?? null) === 'marketplace_lead_purchase') {
+                $type = $session->metadata->type ?? null;
+                if ($type === 'marketplace_lead_purchase') {
                     $this->handleMarketplacePurchaseCompleted($session);
+                } elseif ($type === 'credit_top_up') {
+                    $this->handleCreditTopUpCompleted($session);
                 } else {
                     $this->handleCheckoutCompleted($session);
                 }
@@ -275,6 +328,32 @@ class SubscriptionController extends Controller
     {
         Subscription::where('stripe_subscription_id', $stripeSubscription->id)
             ->update(['status' => 'canceled', 'canceled_at' => now()]);
+    }
+
+    private function handleCreditTopUpCompleted($session): void
+    {
+        $userId = $session->metadata->user_id ?? null;
+        $credits = (int) ($session->metadata->credits ?? 0);
+        $pack = $session->metadata->pack ?? 'unknown';
+
+        if (!$userId || $credits <= 0) {
+            \Log::warning('Credit top-up webhook missing metadata', ['session_id' => $session->id]);
+            return;
+        }
+
+        $creditRecord = LeadCredit::firstOrCreate(
+            ['user_id' => $userId],
+            ['credits_balance' => 0, 'credits_used' => 0]
+        );
+
+        $creditRecord->addCredits($credits, "Credit top-up: {$pack} pack ({$credits} credits)");
+
+        \Log::info('Credit top-up completed', [
+            'user_id' => $userId,
+            'pack' => $pack,
+            'credits' => $credits,
+            'new_balance' => $creditRecord->fresh()->credits_balance,
+        ]);
     }
 
     /**
