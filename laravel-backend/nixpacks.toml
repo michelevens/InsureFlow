@@ -5,7 +5,7 @@ nixPkgs = ['php84', 'php84Extensions.pgsql', 'php84Extensions.pdo_pgsql', 'php84
 cmds = ['composer install --no-dev --optimize-autoloader']
 
 [phases.build]
-cmds = []
+cmds = ['php artisan route:clear 2>/dev/null; php artisan config:clear 2>/dev/null; echo "Cache cleared"']
 
 [start]
-cmd = 'php artisan config:clear && php artisan route:clear && php artisan config:cache && php artisan migrate --force && php artisan storage:link 2>/dev/null; php artisan serve --host=0.0.0.0 --port=${PORT:-8080}'
+cmd = 'php artisan route:clear && php artisan config:cache && php artisan migrate --force && php artisan storage:link 2>/dev/null; php artisan serve --host=0.0.0.0 --port=${PORT:-8080}'
