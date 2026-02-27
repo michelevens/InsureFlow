@@ -186,17 +186,19 @@ php artisan serve
 - admin@insurons.com (Admin)
 - superadmin@insurons.com (Superadmin)
 
-## Current Status (as of 2026-02-26)
+## Current Status (as of 2026-02-27)
 - **Frontend:** 65+ pages built, TypeScript passes, Vite build succeeds, deployed to **insurons.com**
 - **Backend:** Laravel 12 on Railway — **All 14 phases deployed**, all endpoints live
 - **API Domain:** api.insurons.com — WORKING, CORS configured for insurons.com
-- **Database:** All migrations run (100+ total including Phase 10-14), 39 compliance requirements seeded, 160+ ZIP codes seeded
-- **Seed Data:** 7 subscription plans (competitive tiers), 10 carriers with products, 6 demo users, 35+ platform products, 10 agencies (50 agents), 70 leads, 3 rate tables (DI LTD, Term Life, LTC) — 180 rate entries + PipelineSeeder (25 applications, 15 policies, 15 commissions, 6 claims, 12 appointments, 20 routing rules) + 39 compliance requirements
+- **Database:** All migrations run (100+ total including Phase 10-14) + 2 new migrations pending (enrich_carriers_table, add_product_code_to_carrier_products), 39 compliance requirements seeded, 160+ ZIP codes seeded
+- **Seed Data:** 7 subscription plans (competitive tiers), ~44 real US carriers with NAIC codes (replaces old 10 demo carriers), 6 demo users, 35+ platform products, 10 agencies (50 agents), 70 leads, 3 rate tables (DI LTD, Term Life, LTC) + 6 carrier-specific rate tables (auto+homeowners for State Farm/Progressive/Allstate) — 180+ rate entries + PipelineSeeder (25 applications, 15 policies, 15 commissions, 6 claims, 12 appointments, 20 routing rules) + 39 compliance requirements
 - **Lead Pipeline:** Full InsuranceProfile → Lead → RoutingEngine → LeadScoring pipeline wired for intake submissions
 - **Lead Aging Alerts:** Hourly `leads:check-aging` command — 24h → remind agent, 48h → escalate to agency owner (email + in-app notification)
 - **UTM Attribution:** Frontend reads utm_source/utm_medium/utm_campaign from URL, backend stores in InsuranceProfile details
 - **Lead Marketplace:** Full lead exchange — agencies can only sell own-sourced leads (not marketplace purchases), platform takes 15% fee, auto-routes purchased leads through buyer's RoutingEngine
 - **Rating Engine:** Full plugin architecture with DI/Life/P&C/LTC support, audit trail, versioned rate tables — **tested end-to-end on production**
+- **Two-Tier Quoting:** QuoteController wired to RatingEngine — Tier 1 uses rate tables (real quotes), Tier 2 falls back to min/max estimation. Each quote includes `rating_source: 'rate_table' | 'estimate'` in breakdown.
+- **Real Carrier Data:** ~44 real US carriers with NAIC codes, AM Best/S&P ratings, domicile states, year founded, market segments, distribution models. Enriched carrier profiles visible in admin.
 - **Product Visibility System:** 3-layer platform→agency→carrier appointment model deployed
 - **Demo Agencies:** 10 agencies (A-J) with 5 agents each, 70 leads, carrier appointments — all seeded on Railway
 - **Admin Overhaul Complete:** SuperAdmin dashboard + 7-tab platform settings (incl. Compliance), Agency Owner 7-tab settings
@@ -224,6 +226,16 @@ php artisan serve
 - **ZIP Code Autocomplete:** 160+ ZIP codes seeded and lookup working on production
 
 ## Recent Work
+
+### Real Carrier Data & True Quoting — 6-Phase Implementation (2026-02-27)
+Complete overhaul from demo carriers to production-ready quoting:
+- **Phase 1 — Database Migrations:** 2 new migrations enriching `carriers` table (16 fields: naic_code, sp_rating, am_best_financial_size, year_founded, naic_complaint_ratio, market_segment, lines_of_business, domicile_state, headquarters, total_premium_written, is_admitted, distribution_model, carrier_metadata) and `carrier_products` table (product_code, rate_table_product_type, underwriting_type, eligible_states)
+- **Phase 2 — Real US Carriers:** CarrierSeeder rewritten with ~44 real carriers across P&C (State Farm, GEICO, Progressive, Allstate, USAA, Liberty Mutual, etc.), Life (MetLife, Prudential, NYL, Northwestern Mutual, etc.), Health (UnitedHealthcare, Anthem, Aetna, etc.), Commercial (Zurich, CNA, Berkshire Hathaway, etc.), Disability/LTC (Genworth, Unum, Standard, etc.), Specialty (Lloyd's, AIG, Chubb). All with real NAIC codes, AM Best ratings, domicile states, market segments.
+- **Phase 3 — Two-Tier Quoting:** QuoteController wired to RatingEngine. `tryRateTableRating()` checks for active rate tables, builds RateInput from request data, runs through appropriate plugin. Falls back to min/max estimation when no rate table exists. Each quote includes `rating_source` in breakdown.
+- **Phase 4 — CSV Import Enhancements:** Added `modal_factors` CSV import type, `importPreview()` dry-run endpoint, `carrierImport()` bulk endpoint (auto-creates rate table from multiple CSV files). Fixed route ordering for `carrier-import` before `{rateTable}` wildcard.
+- **Phase 5 — Frontend Updates:** Enriched Carrier type (16+ new fields), updated QuoteBreakdown interface with rating_source/factors_applied/riders_applied/fees_applied. AdminCarriers shows NAIC codes, S&P ratings, complaint ratios (color-coded), market segments. QuoteResults shows Rate Table/Estimate badge and expandable rating details accordion.
+- **Phase 6 — Sample Rate Tables:** Auto + homeowners tables for State Farm, Progressive, Allstate. 51 states × 4 entries per carrier, with factors (driver_age, credit_tier, claims_history for auto; roof_age, protection_class, deductible for home), riders, fees, modal factors.
+- **6 commits pushed:** `c99b35a`..`381ae33`
 
 ### Pricing Deployment + Production Verification (2026-02-26)
 - **Deployed to Railway:** All 3 commits (backend pricing, frontend pricing+billing+gate, CLAUDE.md) pushed and deployed
@@ -531,11 +543,17 @@ All 4 core flows tested against production and **PASSING**:
 
 ## Next Tasks
 
-### Immediate — Monetization P0
-- ~~**Add Stripe keys to Railway:**~~ DONE — `STRIPE_SECRET_KEY`, `STRIPE_PUBLISHABLE_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PLATFORM_FEE_PERCENT` all set
-- ~~**Create Stripe products/prices:**~~ DONE — 6 products, 12 prices (monthly+annual) created via API, price IDs stored in DB via migration
-- ~~**Webhook endpoint:**~~ DONE — `https://api.insurons.com/api/webhooks/stripe` active, listening for checkout.session.completed, payment_intent.succeeded, customer.subscription.updated, customer.subscription.deleted
-- ~~**Test checkout flow:**~~ DONE — Agent login → checkout → returns live Stripe Checkout URL
+### Immediate — Deploy Real Carrier Data (P0)
+- **Run 2 new migrations on Railway:** `php artisan migrate` — creates enriched carrier columns + carrier_product columns
+- **Re-seed carriers:** `php artisan db:seed --class=CarrierSeeder` — replaces 10 demo carriers with ~44 real US carriers
+- **Re-seed rate tables:** `php artisan db:seed --class=RateTableSeeder` — adds 6 carrier-specific rate tables (auto+homeowners for State Farm/Progressive/Allstate)
+- **Test two-tier quoting:** `POST /api/calculator/estimate` with State Farm zip → should return `rating_source: 'rate_table'` with factor breakdown. Test carrier without rate table → should return `rating_source: 'estimate'` (fallback).
+
+### Monetization
+- ~~**Add Stripe keys to Railway:**~~ DONE
+- ~~**Create Stripe products/prices:**~~ DONE
+- ~~**Webhook endpoint:**~~ DONE
+- ~~**Test checkout flow:**~~ DONE
 - **Test full subscription lifecycle:** Complete a test purchase → verify webhook creates subscription → check billing page → test cancel/resume
 
 ### Revenue Features (P1)
