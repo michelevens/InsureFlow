@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class RateTable extends Model
 {
     protected $fillable = [
-        'product_type', 'version', 'name', 'carrier_id',
+        'product_type', 'version', 'name', 'description', 'carrier_id',
         'effective_date', 'expiration_date', 'is_active', 'metadata',
     ];
 

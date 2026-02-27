@@ -74,6 +74,7 @@ class AdminRateTableController extends Controller
             'product_type' => 'required|string|max:60',
             'version' => 'required|string|max:20',
             'name' => 'required|string|max:255',
+            'description' => 'nullable|string|max:1000',
             'carrier_id' => 'nullable|integer|exists:carriers,id',
             'effective_date' => 'nullable|date',
             'expiration_date' => 'nullable|date',
@@ -95,6 +96,7 @@ class AdminRateTableController extends Controller
 
         $data = $request->validate([
             'name' => 'sometimes|string|max:255',
+            'description' => 'sometimes|nullable|string|max:1000',
             'carrier_id' => 'nullable|integer|exists:carriers,id',
             'effective_date' => 'sometimes|nullable|date',
             'expiration_date' => 'sometimes|nullable|date',
@@ -124,6 +126,7 @@ class AdminRateTableController extends Controller
 
         return response()->json([
             'message' => $table->is_active ? 'Rate table activated' : 'Rate table deactivated',
+            'is_active' => $table->is_active,
             'rate_table' => $table,
         ]);
     }

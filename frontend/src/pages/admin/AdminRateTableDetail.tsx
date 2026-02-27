@@ -810,13 +810,14 @@ export default function AdminRateTableDetailPage() {
     try {
       const data = await rateTableAdminService.get(Number(id));
       setTable(data);
-    } catch {
-      toast.error('Failed to load rate table');
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to load rate table');
     } finally {
       setLoading(false);
     }
   };
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { load(); }, [id]);
 
   const handleToggle = async () => {

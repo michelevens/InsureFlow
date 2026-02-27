@@ -207,7 +207,7 @@ export const rateTableAdminService = {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('type', type);
-    return api.post<{ message: string; imported: number; errors: string[] }>(
+    return api.upload<{ message: string; imported: number; errors: string[] }>(
       `/admin/rate-tables/${id}/import-csv`,
       formData,
     );
