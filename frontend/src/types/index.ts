@@ -66,9 +66,27 @@ export interface Carrier {
   slug: string;
   logo: string | null;
   type: InsuranceType;
-  am_best_rating: string;
+  am_best_rating: string | null;
+  sp_rating: string | null;
+  am_best_financial_size: string | null;
+  naic_code: string | null;
+  naic_group_code: string | null;
+  domicile_state: string | null;
+  year_founded: number | null;
+  naic_complaint_ratio: number | null;
+  market_segment: string | null;
+  lines_of_business: string[] | null;
+  headquarters_city: string | null;
+  headquarters_state: string | null;
+  total_premium_written: number | null;
+  is_admitted: boolean;
+  distribution_model: string | null;
+  carrier_metadata: Record<string, unknown> | null;
   description: string | null;
   website: string | null;
+  phone: string | null;
+  email: string | null;
+  states_available: string[] | null;
   is_active: boolean;
 }
 

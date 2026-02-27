@@ -14,6 +14,7 @@ function syntheticBreakdown(monthly: number): QuoteBreakdown {
   const policyFee = 5;
   const baseRate = Math.max(monthly - policyFee, 0);
   return {
+    rating_source: 'estimate',
     base_rate: Math.round(baseRate * 100) / 100,
     coverage_factor: 1,
     state_factor: 1,
@@ -441,29 +442,52 @@ export default function QuoteResults() {
                       </div>
                     </div>
 
-                    {/* Premium breakdown toggle */}
-                    <button
-                      onClick={(e) => { e.stopPropagation(); setExpandedQuote(expandedQuote === quote.id ? null : quote.id); }}
-                      className="mt-4 flex items-center gap-1 text-xs text-shield-600 hover:text-shield-700 font-medium"
-                    >
-                      <ChevronDown className={`w-3.5 h-3.5 transition-transform ${expandedQuote === quote.id ? 'rotate-180' : ''}`} />
-                      Premium Breakdown
-                    </button>
+                    {/* Rating source badge + Premium breakdown toggle */}
+                    <div className="mt-4 flex items-center gap-3">
+                      {quote.breakdown?.rating_source === 'rate_table' ? (
+                        <Badge variant="shield" className="text-xs">Rate Table</Badge>
+                      ) : (
+                        <Badge variant="default" className="text-xs">Estimate</Badge>
+                      )}
+                      <button
+                        onClick={(e) => { e.stopPropagation(); setExpandedQuote(expandedQuote === quote.id ? null : quote.id); }}
+                        className="flex items-center gap-1 text-xs text-shield-600 hover:text-shield-700 font-medium"
+                      >
+                        <ChevronDown className={`w-3.5 h-3.5 transition-transform ${expandedQuote === quote.id ? 'rotate-180' : ''}`} />
+                        {quote.breakdown?.rating_source === 'rate_table' ? 'Rating Details' : 'Premium Breakdown'}
+                      </button>
+                    </div>
 
                     {/* Expanded breakdown */}
                     {expandedQuote === quote.id && (() => {
                       const bd = quote.breakdown || syntheticBreakdown(monthly);
                       const annualSavings = Math.round(monthly * 12 - annual);
+                      const isRateTable = bd.rating_source === 'rate_table';
+                      // Build chart-compatible data
+                      const chartData = {
+                        base_rate: bd.base_rate ?? 0,
+                        coverage_factor: bd.coverage_factor,
+                        state_factor: bd.state_factor ?? 1,
+                        policy_fee: bd.policy_fee ?? 0,
+                        discount: bd.discount ?? 0,
+                        discount_label: bd.discount_label,
+                      };
                       return (
                         <div className="mt-3 pt-3 border-t border-slate-100">
                           {/* Visual chart */}
                           <div className="mb-4">
-                            <CalculatorBreakdownChart breakdown={bd} monthlyPremium={monthly} />
+                            <CalculatorBreakdownChart breakdown={chartData} monthlyPremium={monthly} />
                           </div>
                           <div className="space-y-2 text-sm">
+                            {isRateTable && bd.rate_table_version && (
+                              <div className="flex justify-between text-xs text-slate-400 mb-2">
+                                <span>Rate Table v{bd.rate_table_version}</span>
+                                <span>Engine v{bd.engine_version}</span>
+                              </div>
+                            )}
                             <div className="flex justify-between">
-                              <span className="text-slate-500">Base Rate</span>
-                              <span className="font-medium">${bd.base_rate.toFixed(2)}</span>
+                              <span className="text-slate-500">{isRateTable ? 'Base Premium' : 'Base Rate'}</span>
+                              <span className="font-medium">${(isRateTable ? (bd.base_premium ?? 0) : (bd.base_rate ?? 0)).toFixed(2)}</span>
                             </div>
                             {bd.coverage_factor !== 1 && (
                               <div className="flex justify-between">
@@ -471,14 +495,52 @@ export default function QuoteResults() {
                                 <span className="font-medium">&times;{bd.coverage_factor.toFixed(2)}</span>
                               </div>
                             )}
-                            <div className="flex justify-between">
-                              <span className="text-slate-500">Policy Fee</span>
-                              <span className="font-medium">${bd.policy_fee.toFixed(2)}</span>
-                            </div>
-                            {bd.discount > 0 && (
+                            {/* Rate table factors */}
+                            {isRateTable && bd.factors_applied && bd.factors_applied.length > 0 && (
+                              <>
+                                <div className="text-xs font-medium text-slate-400 uppercase tracking-wider pt-1">Factors</div>
+                                {bd.factors_applied.map((f, i) => (
+                                  <div key={i} className="flex justify-between">
+                                    <span className="text-slate-500">{f.label} ({f.option})</span>
+                                    <span className="font-medium">{f.mode === 'multiply' ? `×${f.value.toFixed(3)}` : `$${f.value.toFixed(2)}`}</span>
+                                  </div>
+                                ))}
+                              </>
+                            )}
+                            {/* Rate table riders */}
+                            {isRateTable && bd.riders_applied && bd.riders_applied.length > 0 && (
+                              <>
+                                <div className="text-xs font-medium text-slate-400 uppercase tracking-wider pt-1">Riders / Endorsements</div>
+                                {bd.riders_applied.map((r, i) => (
+                                  <div key={i} className="flex justify-between">
+                                    <span className="text-slate-500">{r.label}</span>
+                                    <span className="font-medium">+${r.charge.toFixed(2)}</span>
+                                  </div>
+                                ))}
+                              </>
+                            )}
+                            {/* Rate table fees */}
+                            {isRateTable && bd.fees_applied && bd.fees_applied.length > 0 && (
+                              <>
+                                {bd.fees_applied.map((fee, i) => (
+                                  <div key={i} className={`flex justify-between ${fee.type === 'credit' ? 'text-savings-600' : ''}`}>
+                                    <span className={fee.type === 'credit' ? '' : 'text-slate-500'}>{fee.label}</span>
+                                    <span className="font-medium">{fee.amount < 0 ? '-' : '+'}${Math.abs(fee.amount).toFixed(2)}</span>
+                                  </div>
+                                ))}
+                              </>
+                            )}
+                            {/* Estimate-only fields */}
+                            {!isRateTable && (bd.policy_fee ?? 0) > 0 && (
+                              <div className="flex justify-between">
+                                <span className="text-slate-500">Policy Fee</span>
+                                <span className="font-medium">${(bd.policy_fee ?? 0).toFixed(2)}</span>
+                              </div>
+                            )}
+                            {!isRateTable && (bd.discount ?? 0) > 0 && (
                               <div className="flex justify-between text-savings-600">
                                 <span>{bd.discount_label || 'Discount'}</span>
-                                <span className="font-medium">-${bd.discount.toFixed(2)}</span>
+                                <span className="font-medium">-${(bd.discount ?? 0).toFixed(2)}</span>
                               </div>
                             )}
                             <div className="flex justify-between pt-2 border-t border-slate-200 font-semibold">

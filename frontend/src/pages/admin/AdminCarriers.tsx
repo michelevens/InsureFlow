@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, Badge, Button, Input } from '@/components/ui';
-import { Search, ArrowLeft, Loader2, Building, Globe, Edit, X, Package, ArrowRight } from 'lucide-react';
+import { Search, ArrowLeft, Loader2, Building, Globe, Edit, X, Package, ArrowRight, Shield, MapPin, Calendar, AlertTriangle, Tag } from 'lucide-react';
 import { adminService } from '@/services/api/admin';
 import { toast } from 'sonner';
 import type { Carrier } from '@/types';
@@ -121,6 +121,89 @@ export default function AdminCarriers() {
           )}
         </Card>
 
+        {/* Enriched Carrier Profile */}
+        <Card className="p-6">
+          <h2 className="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-4">Carrier Profile</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {carrier.naic_code && (
+              <div className="flex items-start gap-2">
+                <Shield className="w-4 h-4 text-shield-500 mt-0.5 shrink-0" />
+                <div>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">NAIC Code</p>
+                  <p className="font-medium text-slate-900 dark:text-white">{carrier.naic_code}</p>
+                </div>
+              </div>
+            )}
+            {carrier.sp_rating && (
+              <div className="flex items-start gap-2">
+                <Shield className="w-4 h-4 text-blue-500 mt-0.5 shrink-0" />
+                <div>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">S&P Rating</p>
+                  <p className="font-medium text-slate-900 dark:text-white">{carrier.sp_rating}</p>
+                </div>
+              </div>
+            )}
+            {carrier.year_founded && (
+              <div className="flex items-start gap-2">
+                <Calendar className="w-4 h-4 text-slate-400 mt-0.5 shrink-0" />
+                <div>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Founded</p>
+                  <p className="font-medium text-slate-900 dark:text-white">{carrier.year_founded}</p>
+                </div>
+              </div>
+            )}
+            {(carrier.headquarters_city || carrier.headquarters_state) && (
+              <div className="flex items-start gap-2">
+                <MapPin className="w-4 h-4 text-slate-400 mt-0.5 shrink-0" />
+                <div>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Headquarters</p>
+                  <p className="font-medium text-slate-900 dark:text-white">{[carrier.headquarters_city, carrier.headquarters_state].filter(Boolean).join(', ')}</p>
+                </div>
+              </div>
+            )}
+            {carrier.naic_complaint_ratio != null && (
+              <div className="flex items-start gap-2">
+                <AlertTriangle className={`w-4 h-4 mt-0.5 shrink-0 ${carrier.naic_complaint_ratio > 1.5 ? 'text-red-500' : carrier.naic_complaint_ratio > 1.0 ? 'text-amber-500' : 'text-green-500'}`} />
+                <div>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Complaint Ratio</p>
+                  <p className={`font-medium ${carrier.naic_complaint_ratio > 1.5 ? 'text-red-600 dark:text-red-400' : carrier.naic_complaint_ratio > 1.0 ? 'text-amber-600 dark:text-amber-400' : 'text-green-600 dark:text-green-400'}`}>{carrier.naic_complaint_ratio.toFixed(2)}</p>
+                </div>
+              </div>
+            )}
+            {carrier.market_segment && (
+              <div className="flex items-start gap-2">
+                <Tag className="w-4 h-4 text-slate-400 mt-0.5 shrink-0" />
+                <div>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Segment</p>
+                  <p className="font-medium text-slate-900 dark:text-white capitalize">{carrier.market_segment.replace(/_/g, ' ')}</p>
+                </div>
+              </div>
+            )}
+            {carrier.distribution_model && (
+              <div>
+                <p className="text-xs text-slate-500 dark:text-slate-400">Distribution</p>
+                <p className="font-medium text-slate-900 dark:text-white capitalize">{carrier.distribution_model}</p>
+              </div>
+            )}
+            {carrier.domicile_state && (
+              <div>
+                <p className="text-xs text-slate-500 dark:text-slate-400">Domicile State</p>
+                <p className="font-medium text-slate-900 dark:text-white">{carrier.domicile_state}</p>
+              </div>
+            )}
+          </div>
+          {carrier.lines_of_business && carrier.lines_of_business.length > 0 && (
+            <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-700/50">
+              <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">Lines of Business</p>
+              <div className="flex flex-wrap gap-1.5">
+                {carrier.lines_of_business.map(line => (
+                  <Badge key={line} variant="default">{line.replace(/_/g, ' ')}</Badge>
+                ))}
+              </div>
+            </div>
+          )}
+        </Card>
+
         <div className="grid grid-cols-2 gap-4">
           <Card className="p-4 text-center">
             <p className="text-xl font-bold text-slate-900 dark:text-white">{carrier.products?.length ?? 0}</p>
@@ -230,7 +313,9 @@ export default function AdminCarriers() {
               <thead>
                 <tr className="border-b border-slate-100 dark:border-slate-700/50">
                   <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider p-4">Carrier</th>
+                  <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider p-4">NAIC</th>
                   <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider p-4">AM Best</th>
+                  <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider p-4">Segment</th>
                   <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider p-4">Status</th>
                   <th className="text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider p-4">Actions</th>
                 </tr>
@@ -250,7 +335,13 @@ export default function AdminCarriers() {
                       </div>
                     </td>
                     <td className="p-4">
+                      <span className="text-sm text-slate-600 dark:text-slate-300 font-mono">{carrier.naic_code || '—'}</span>
+                    </td>
+                    <td className="p-4">
                       {carrier.am_best_rating ? <Badge variant="shield">{carrier.am_best_rating}</Badge> : <span className="text-sm text-slate-400 dark:text-slate-500">—</span>}
+                    </td>
+                    <td className="p-4">
+                      {carrier.market_segment ? <span className="text-sm text-slate-500 dark:text-slate-400 capitalize">{carrier.market_segment.replace(/_/g, ' ')}</span> : <span className="text-sm text-slate-400">—</span>}
                     </td>
                     <td className="p-4">
                       <Badge variant={carrier.is_active ? 'success' : 'danger'}>{carrier.is_active ? 'Active' : 'Inactive'}</Badge>

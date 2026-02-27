@@ -14,12 +14,22 @@ export interface EstimatePayload {
 }
 
 export interface QuoteBreakdown {
-  base_rate: number;
+  rating_source: 'rate_table' | 'estimate';
+  base_rate: number | null;
+  base_rate_key?: string;
+  base_premium?: number;
   coverage_factor: number;
-  state_factor: number;
-  policy_fee: number;
-  discount: number;
-  discount_label: string | null;
+  state_factor?: number;
+  policy_fee?: number;
+  discount?: number;
+  discount_label?: string | null;
+  factors_applied?: Array<{ code: string; label: string; option: string; mode: string; value: number }>;
+  riders_applied?: Array<{ code: string; label: string; mode: string; value: number; charge: number }>;
+  fees_applied?: Array<{ code: string; label: string; type: string; mode: string; value: number; amount: number }>;
+  rate_table_version?: string;
+  engine_version?: string;
+  modal_mode?: string;
+  modal_factor?: number;
 }
 
 export interface EstimateQuote {
@@ -45,6 +55,10 @@ export interface EstimateQuote {
       slug: string;
       logo: string | null;
       am_best_rating: string | null;
+      sp_rating?: string | null;
+      naic_code?: string | null;
+      year_founded?: number | null;
+      market_segment?: string | null;
     };
   };
 }
