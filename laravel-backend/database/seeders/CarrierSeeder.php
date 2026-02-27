@@ -259,7 +259,7 @@ class CarrierSeeder extends Seeder
             ],
             [
                 'name' => 'Chubb', 'slug' => 'chubb',
-                'naic_code' => '20443', 'naic_group_code' => '0173',
+                'naic_code' => '20281', 'naic_group_code' => '0218',
                 'domicile_state' => 'PA', 'am_best_rating' => 'A++',
                 'am_best_financial_size' => 'XV', 'year_founded' => 1882,
                 'naic_complaint_ratio' => 0.52, 'market_segment' => 'multi',
