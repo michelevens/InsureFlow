@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { Card, Badge, Button, Input } from '@/components/ui';
-import { Search, ArrowLeft, Loader2, Building, Globe, Edit, X } from 'lucide-react';
+import { Search, ArrowLeft, Loader2, Building, Globe, Edit, X, Package, ArrowRight } from 'lucide-react';
 import { adminService } from '@/services/api/admin';
 import { toast } from 'sonner';
 import type { Carrier } from '@/types';
@@ -131,22 +132,56 @@ export default function AdminCarriers() {
           </Card>
         </div>
 
-        {carrier.products && (carrier.products as { id: number; name: string; insurance_type: string; is_active: boolean }[]).length > 0 && (
-          <Card className="p-6">
-            <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Products</h2>
-            <div className="space-y-2">
-              {(carrier.products as { id: number; name: string; insurance_type: string; is_active: boolean }[]).map(p => (
-                <div key={p.id} className="flex items-center justify-between py-2 border-b border-slate-50 last:border-0">
-                  <div>
-                    <p className="font-medium text-slate-900 dark:text-white">{p.name}</p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">{p.insurance_type}</p>
-                  </div>
-                  <Badge variant={p.is_active ? 'success' : 'default'}>{p.is_active ? 'Active' : 'Inactive'}</Badge>
-                </div>
-              ))}
+        <Card className="p-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <Package className="w-5 h-5 text-shield-500" />
+              <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Products</h2>
             </div>
-          </Card>
-        )}
+            <Link to="/admin/products">
+              <Button variant="outline" size="sm" rightIcon={<ArrowRight className="w-4 h-4" />}>
+                Manage All Products
+              </Button>
+            </Link>
+          </div>
+
+          {carrier.products && (carrier.products as { id: number; name: string; insurance_type: string; is_active: boolean }[]).length > 0 ? (
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-slate-100 dark:border-slate-700/50">
+                    <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider py-2 pr-4">Product</th>
+                    <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider py-2 pr-4">Type</th>
+                    <th className="text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider py-2">Status</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-50 dark:divide-slate-700/30">
+                  {(carrier.products as { id: number; name: string; insurance_type: string; is_active: boolean }[]).map(p => (
+                    <tr key={p.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                      <td className="py-3 pr-4">
+                        <span className="font-medium text-slate-900 dark:text-white">{p.name}</span>
+                      </td>
+                      <td className="py-3 pr-4">
+                        <span className="text-sm text-slate-500 dark:text-slate-400">{p.insurance_type}</span>
+                      </td>
+                      <td className="py-3 text-right">
+                        <Badge variant={p.is_active ? 'success' : 'default'}>{p.is_active ? 'Active' : 'Inactive'}</Badge>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div className="text-center py-8 text-slate-400 dark:text-slate-500">
+              <Package className="w-8 h-8 mx-auto mb-2 text-slate-300 dark:text-slate-600" />
+              <p className="text-sm">No products associated with this carrier</p>
+              <Link to="/admin/products" className="text-xs text-shield-600 dark:text-shield-400 hover:underline mt-1 inline-block">
+                Go to Product Management
+              </Link>
+            </div>
+          )}
+        </Card>
       </div>
     );
   }
