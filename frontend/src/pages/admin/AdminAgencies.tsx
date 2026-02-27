@@ -1,8 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Card, Badge, Button, Input } from '@/components/ui';
-import { Building2, Search, ArrowLeft, ShieldCheck, ShieldOff, CheckCircle2, XCircle, Globe, Phone, Mail, MapPin, Loader2, Hash, UserCircle, ExternalLink, ClipboardCheck, AlertCircle } from 'lucide-react';
+import { Building2, Search, ArrowLeft, ShieldCheck, ShieldOff, CheckCircle2, XCircle, Globe, Phone, Mail, MapPin, Loader2, Hash, UserCircle, ExternalLink, ClipboardCheck, AlertCircle, Code } from 'lucide-react';
 import { adminService, type AgencyDetail, type AgentWithProfile } from '@/services/api/admin';
+import { embedService, type EmbedPartner } from '@/services/api/embed';
 import { toast } from 'sonner';
+import { Link } from 'react-router-dom';
 
 const NPN_STATUS_MAP: Record<string, { label: string; variant: 'success' | 'warning' | 'danger' | 'default' }> = {
   verified: { label: 'NPN Verified', variant: 'success' },
@@ -42,6 +44,7 @@ export default function AdminAgencies() {
   const [detailLoading, setDetailLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState<number | null>(null);
   const [npnActionLoading, setNpnActionLoading] = useState<number | null>(null);
+  const [agencyEmbedPartners, setAgencyEmbedPartners] = useState<EmbedPartner[]>([]);
 
   const activeCount = agencies.filter(a => a.is_active).length;
   const verifiedCount = agencies.filter(a => a.is_verified).length;
@@ -70,8 +73,12 @@ export default function AdminAgencies() {
   const handleViewAgency = async (id: number) => {
     setDetailLoading(true);
     try {
-      const agency = await adminService.getAgency(id);
+      const [agency, allPartners] = await Promise.all([
+        adminService.getAgency(id),
+        embedService.list(),
+      ]);
       setSelectedAgency(agency);
+      setAgencyEmbedPartners(allPartners.filter(p => p.agency_id === id));
     } catch {
       toast.error('Failed to load agency details');
     } finally {
@@ -345,6 +352,48 @@ export default function AdminAgencies() {
             </div>
           ) : (
             <p className="text-sm text-slate-500 dark:text-slate-400">No agents found for this agency.</p>
+          )}
+        </Card>
+
+        {/* Embed Widgets */}
+        <Card className="p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Embed Widgets</h2>
+            <Link to="/embed" className="text-sm text-shield-600 dark:text-shield-400 hover:underline flex items-center gap-1">
+              Manage All <ExternalLink className="h-3.5 w-3.5" />
+            </Link>
+          </div>
+          {agencyEmbedPartners.length > 0 ? (
+            <div className="space-y-3">
+              {agencyEmbedPartners.map(ep => (
+                <div key={ep.id} className="flex items-center justify-between p-3 rounded-lg bg-slate-50 dark:bg-slate-800">
+                  <div className="flex items-center gap-3">
+                    <Code className="h-5 w-5 text-shield-500" />
+                    <div>
+                      <p className="font-medium text-sm text-slate-900 dark:text-white">{ep.name}</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">{ep.contact_email}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge variant={ep.embed_type === 'team_signup' ? 'warning' : 'default'}>
+                      {ep.embed_type === 'team_signup' ? 'Team Signup' : 'Quote'}
+                    </Badge>
+                    <Badge variant={ep.is_active ? 'success' : 'danger'}>
+                      {ep.is_active ? 'Active' : 'Inactive'}
+                    </Badge>
+                    <span className="text-xs text-slate-400">{ep.sessions_count ?? 0} sessions</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-6">
+              <Code className="h-8 w-8 text-slate-300 mx-auto mb-2" />
+              <p className="text-sm text-slate-500 dark:text-slate-400">No embed widgets linked to this agency</p>
+              <Link to="/embed" className="text-sm text-shield-600 dark:text-shield-400 hover:underline mt-1 inline-block">
+                Create one in Embed Widgets
+              </Link>
+            </div>
           )}
         </Card>
       </div>

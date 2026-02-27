@@ -4,6 +4,8 @@ export interface EmbedPartner {
   id: number;
   name: string;
   api_key?: string; // only returned on creation
+  agency_id: number | null;
+  embed_type: 'quote' | 'team_signup';
   allowed_domains: string[] | null;
   commission_share_percent: number;
   contact_email: string | null;

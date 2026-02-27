@@ -101,8 +101,16 @@ export default function EmbedPartnerDashboard() {
                     <h3 className="font-bold text-slate-900 dark:text-white">{p.name}</h3>
                     <p className="text-xs text-slate-500 dark:text-slate-400">{p.contact_email}</p>
                   </div>
-                  {p.is_active ? <Badge variant="success">Active</Badge> : <Badge variant="danger">Inactive</Badge>}
+                  <div className="flex items-center gap-1.5">
+                    <Badge variant={p.embed_type === 'team_signup' ? 'warning' : 'default'}>
+                      {p.embed_type === 'team_signup' ? 'Team' : 'Quote'}
+                    </Badge>
+                    {p.is_active ? <Badge variant="success">Active</Badge> : <Badge variant="danger">Inactive</Badge>}
+                  </div>
                 </div>
+                {p.agency_id && (
+                  <p className="text-xs text-shield-600 dark:text-shield-400 mb-1">Agency #{p.agency_id}</p>
+                )}
                 <div className="flex items-center gap-4 text-sm text-slate-500 dark:text-slate-400">
                   <span>{p.sessions_count ?? 0} sessions</span>
                   <span>{p.converted_count ?? 0} conversions</span>
