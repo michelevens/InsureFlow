@@ -196,8 +196,6 @@ export default function App() {
               <Route path="/calculator/results" element={<QuoteResults />} />
               <Route path="/verify-email/:token" element={<VerifyEmail />} />
               <Route path="/invite/:token" element={<AcceptInvite />} />
-              <Route path="/marketplace" element={<Marketplace />} />
-              <Route path="/marketplace/:id" element={<AgentProfile />} />
               <Route path="/intake/:agencyCode" element={<LeadIntake />} />
               <Route path="/insurance/request" element={<InsuranceRequestForm />} />
               <Route path="/scenarios/:token/view" element={<ScenarioPublicView />} />
@@ -223,6 +221,8 @@ export default function App() {
                 <Route path="/portal/policies" element={<MyPolicies />} />
 
                 {/* Agent Marketplace */}
+                <Route path="/marketplace" element={<Marketplace />} />
+                <Route path="/marketplace/:id" element={<AgentProfile />} />
                 <Route path="/marketplace/requests" element={<AgentMarketplace />} />
                 <Route path="/lead-marketplace" element={<LeadMarketplace />} />
 
