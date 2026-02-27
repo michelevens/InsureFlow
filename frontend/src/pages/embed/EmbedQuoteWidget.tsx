@@ -630,9 +630,15 @@ export default function EmbedQuoteWidget() {
           <span className="flex items-center gap-1"><CheckCircle2 className="w-3 h-3" /> No obligation</span>
         </div>
         {!config.hide_branding && (
-          <p className="text-center text-xs text-slate-400 mt-4">
-            Powered by <a href="https://insurons.com" target="_blank" rel="noopener noreferrer" className="text-shield-500 hover:underline">Insurons</a>
-          </p>
+          <div className="text-center mt-4">
+            <p className="text-xs text-slate-400">
+              Powered by <a href="https://insurons.com" target="_blank" rel="noopener noreferrer" className="text-shield-500 hover:underline">Insurons</a>
+            </p>
+            <p className="text-[10px] text-slate-300 mt-1 leading-snug">
+              Quotes are estimates for informational purposes only and are non-binding.{' '}
+              <a href="https://insurons.com/disclosures" target="_blank" rel="noopener noreferrer" className="underline hover:text-slate-400">Disclosures</a>
+            </p>
+          </div>
         )}
       </div>
     </div>

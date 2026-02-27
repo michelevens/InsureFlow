@@ -43,6 +43,7 @@ const Pricing = lazyRetry(() => import('@/pages/public/Pricing'));
 const Billing = lazyRetry(() => import('@/pages/public/Billing'));
 const Privacy = lazyRetry(() => import('@/pages/public/Privacy'));
 const Terms = lazyRetry(() => import('@/pages/public/Terms'));
+const Disclosures = lazyRetry(() => import('@/pages/public/Disclosures'));
 
 // Calculator (public)
 const Calculator = lazyRetry(() => import('@/pages/calculator/Calculator'));
@@ -189,6 +190,7 @@ export default function App() {
               <Route path="/pricing" element={<Pricing />} />
               <Route path="/privacy" element={<Privacy />} />
               <Route path="/terms" element={<Terms />} />
+              <Route path="/disclosures" element={<Disclosures />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />

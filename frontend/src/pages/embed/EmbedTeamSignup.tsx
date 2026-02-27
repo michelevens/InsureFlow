@@ -353,6 +353,10 @@ export default function EmbedTeamSignup() {
         <p style={{ fontSize: 12, color: '#cbd5e1', margin: 0 }}>
           Powered by <a href="https://insurons.com" target="_blank" rel="noopener" style={{ color: primaryColor, textDecoration: 'none', fontWeight: 600 }}>Insurons</a>
         </p>
+        <p style={{ fontSize: 10, color: '#cbd5e1', marginTop: 4, lineHeight: 1.4 }}>
+          Insurons is a technology platform, not an insurance company.{' '}
+          <a href="https://insurons.com/disclosures" target="_blank" rel="noopener" style={{ textDecoration: 'underline' }}>Disclosures</a>
+        </p>
       </div>
     </div>
   );
