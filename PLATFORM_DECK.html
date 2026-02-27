@@ -126,6 +126,19 @@
   }
   .browser-content iframe { width: 100%; height: 100%; border: none; }
 
+  /* Screenshot placeholder */
+  .screenshot-placeholder {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    height: 100%; min-height: 300px; background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
+    color: #64748b; gap: 8px; text-align: center; padding: 24px;
+  }
+  .screenshot-placeholder .ph-icon { font-size: 48px; opacity: 0.4; }
+  .screenshot-placeholder .ph-label { font-size: 16px; font-weight: 600; color: #475569; }
+  .screenshot-placeholder .ph-hint { font-size: 12px; color: #94a3b8; }
+  .screenshot-placeholder code {
+    background: #cbd5e1; padding: 2px 6px; border-radius: 4px; font-size: 11px;
+  }
+
   /* Feature bullets */
   .features { list-style: none; display: flex; flex-direction: column; gap: 12px; }
   .features li {
@@ -275,7 +288,7 @@
             <div class="browser-url">https://insurons.com/calculator</div>
           </div>
           <div class="browser-content">
-            <iframe src="https://insurons.com/calculator" loading="lazy"></iframe>
+            <div class="screenshot-placeholder"><div class="ph-icon">&#128247;</div><div class="ph-label">Screenshot: Calculator</div><div class="ph-hint">Save screenshot as <code>screenshots/calculator.png</code></div></div>
           </div>
         </div>
       </div>
@@ -305,7 +318,7 @@
             <div class="browser-url">https://insurons.com/calculator/results</div>
           </div>
           <div class="browser-content">
-            <iframe src="https://insurons.com/calculator" loading="lazy"></iframe>
+            <div class="screenshot-placeholder"><div class="ph-icon">&#128247;</div><div class="ph-label">Screenshot: Calculator</div><div class="ph-hint">Save screenshot as <code>screenshots/calculator.png</code></div></div>
           </div>
         </div>
       </div>
@@ -333,7 +346,7 @@
             <div class="browser-url">https://insurons.com/pricing</div>
           </div>
           <div class="browser-content">
-            <iframe src="https://insurons.com/pricing" loading="lazy"></iframe>
+            <div class="screenshot-placeholder"><div class="ph-icon">&#128247;</div><div class="ph-label">Screenshot: Pricing Page</div><div class="ph-hint">Save screenshot as <code>screenshots/pricing.png</code></div></div>
           </div>
         </div>
       </div>
@@ -363,7 +376,7 @@
             <div class="browser-url">https://insurons.com/dashboard</div>
           </div>
           <div class="browser-content">
-            <iframe src="https://insurons.com/login" loading="lazy"></iframe>
+            <div class="screenshot-placeholder"><div class="ph-icon">&#128247;</div><div class="ph-label">Screenshot: Agent Dashboard</div><div class="ph-hint">Save screenshot as <code>screenshots/dashboard.png</code></div></div>
           </div>
         </div>
       </div>
@@ -397,7 +410,7 @@
             <div class="browser-url">https://insurons.com/crm/leads</div>
           </div>
           <div class="browser-content">
-            <iframe src="https://insurons.com/login" loading="lazy"></iframe>
+            <div class="screenshot-placeholder"><div class="ph-icon">&#128247;</div><div class="ph-label">Screenshot: CRM Lead Pipeline</div><div class="ph-hint">Save screenshot as <code>screenshots/leads.png</code></div></div>
           </div>
         </div>
       </div>
@@ -584,7 +597,7 @@
             <div class="browser-url">https://insurons.com/admin/analytics</div>
           </div>
           <div class="browser-content">
-            <iframe src="https://insurons.com/login" loading="lazy"></iframe>
+            <div class="screenshot-placeholder"><div class="ph-icon">&#128247;</div><div class="ph-label">Screenshot: Admin Dashboard</div><div class="ph-hint">Save screenshot as <code>screenshots/admin.png</code></div></div>
           </div>
         </div>
       </div>
@@ -675,6 +688,29 @@
   document.addEventListener('touchend', e => {
     const diff = touchStart - e.changedTouches[0].clientX;
     if (Math.abs(diff) > 50) go(diff > 0 ? 1 : -1);
+  });
+
+  // Auto-load screenshots if they exist in screenshots/ folder
+  const screenshotMap = {
+    'Screenshot: Calculator': 'screenshots/calculator.png',
+    'Screenshot: Calculator': 'screenshots/results.png',
+    'Screenshot: Pricing Page': 'screenshots/pricing.png',
+    'Screenshot: Agent Dashboard': 'screenshots/dashboard.png',
+    'Screenshot: CRM Lead Pipeline': 'screenshots/leads.png',
+    'Screenshot: Admin Dashboard': 'screenshots/admin.png',
+  };
+  document.querySelectorAll('.screenshot-placeholder').forEach(ph => {
+    const label = ph.querySelector('.ph-label')?.textContent || '';
+    const src = screenshotMap[label];
+    if (!src) return;
+    const img = new Image();
+    img.onload = () => {
+      ph.innerHTML = '';
+      img.style.cssText = 'width:100%;height:100%;object-fit:cover;object-position:top;';
+      ph.style.cssText = 'height:100%;padding:0;';
+      ph.appendChild(img);
+    };
+    img.src = src;
   });
 
   // Init
