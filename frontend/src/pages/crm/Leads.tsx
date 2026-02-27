@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Card, Badge, Button, Input, Select, Modal, Textarea } from '@/components/ui';
-import { crmService, scenarioService, ratingService, marketplaceService } from '@/services/api';
-import type { Lead } from '@/types';
+import { crmService, scenarioService, ratingService, marketplaceService, carrierService } from '@/services/api';
+import type { Lead, Carrier } from '@/types';
 import type {
   LeadScenario, Coverage, ScenarioQuote,
   CreateScenarioPayload, ScenarioStatus, ObjectType, ProductTypeMap,
@@ -1140,6 +1140,14 @@ function NewScenarioModal({ leadId, productOptions, onClose, onCreated }: {
     notes: '',
   });
   const [saving, setSaving] = useState(false);
+  const [carriers, setCarriers] = useState<Carrier[]>([]);
+
+  useEffect(() => {
+    carrierService.list().then(res => {
+      const list = Array.isArray(res) ? res : (res as { items?: Carrier[] }).items || [];
+      setCarriers(list);
+    }).catch(() => {});
+  }, []);
 
   const handleSubmit = async () => {
     if (!form.scenario_name || !form.product_type) return;
@@ -1192,9 +1200,12 @@ function NewScenarioModal({ leadId, productOptions, onClose, onCreated }: {
             value={form.effective_date_desired || ''}
             onChange={e => setForm({ ...form, effective_date_desired: e.target.value || null })}
           />
-          <Input
+          <Select
             label="Current Carrier"
-            placeholder="e.g. State Farm"
+            options={[
+              { value: '', label: 'Select carrier...' },
+              ...carriers.map(c => ({ value: c.name, label: c.name })),
+            ]}
             value={form.current_carrier || ''}
             onChange={e => setForm({ ...form, current_carrier: e.target.value || null })}
           />
@@ -1486,6 +1497,14 @@ function ConvertModal({ leadId, scenarioId, onClose, onConverted }: {
 }) {
   const [carrierName, setCarrierName] = useState('');
   const [saving, setSaving] = useState(false);
+  const [carriers, setCarriers] = useState<Carrier[]>([]);
+
+  useEffect(() => {
+    carrierService.list().then(res => {
+      const list = Array.isArray(res) ? res : (res as { items?: Carrier[] }).items || [];
+      setCarriers(list);
+    }).catch(() => {});
+  }, []);
 
   const handleSubmit = async () => {
     if (!carrierName) return;
@@ -1507,9 +1526,12 @@ function ConvertModal({ leadId, scenarioId, onClose, onConverted }: {
         <p className="text-sm text-slate-600 dark:text-slate-300">
           This will create a new application from this scenario, copying all insured objects and coverages.
         </p>
-        <Input
-          label="Carrier Name"
-          placeholder="e.g. State Farm, Progressive, Mutual of Omaha"
+        <Select
+          label="Carrier"
+          options={[
+            { value: '', label: 'Select carrier...' },
+            ...carriers.map(c => ({ value: c.name, label: c.name })),
+          ]}
           value={carrierName}
           onChange={e => setCarrierName(e.target.value)}
         />

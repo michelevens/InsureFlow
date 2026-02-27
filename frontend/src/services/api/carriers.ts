@@ -2,8 +2,8 @@ import { api } from './client';
 import type { Carrier, CarrierProduct } from '@/types';
 
 export const carrierService = {
-  async list(): Promise<{ items: Carrier[] }> {
-    return api.get<{ items: Carrier[] }>('/marketplace/carriers');
+  async list(): Promise<Carrier[]> {
+    return api.get<Carrier[]>('/carriers');
   },
 
   async get(id: number): Promise<{ item: Carrier; products: CarrierProduct[] }> {
