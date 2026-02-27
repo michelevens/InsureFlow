@@ -4,14 +4,19 @@ namespace App\Http\Controllers;
 
 use App\Mail\EmbedLeadConvertedMail;
 use App\Mail\EmbedQuoteStartedMail;
+use App\Mail\InvitationMail;
+use App\Models\Agency;
 use App\Models\EmbedPartner;
 use App\Models\EmbedSession;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rules\Password;
 
 class EmbedController extends Controller
 {
@@ -196,15 +201,144 @@ class EmbedController extends Controller
     {
         $data = $request->validate([
             'session_token' => 'required|string',
-            'quote_request_id' => 'required|integer',
+            'quote_request_id' => 'required|integer|exists:quote_requests,id',
         ]);
 
         $session = EmbedSession::where('session_token', $data['session_token'])->first();
         if ($session && !$session->quote_request_id) {
-            $session->update(['quote_request_id' => $data['quote_request_id']]);
+            try {
+                $session->update(['quote_request_id' => $data['quote_request_id']]);
+            } catch (\Throwable $e) {
+                Log::warning('Link session failed', ['error' => $e->getMessage()]);
+            }
         }
 
         return response()->json(['ok' => true]);
+    }
+
+    // --- Embed Team Signup (public — API key validated) ---
+
+    public function teamConfig(string $apiKey): JsonResponse
+    {
+        $partner = EmbedPartner::where('api_key', $apiKey)
+            ->where('is_active', true)
+            ->where('embed_type', 'team_signup')
+            ->with('agency:id,name,city,state,description')
+            ->first();
+
+        if (!$partner || !$partner->agency) {
+            return response()->json(['error' => 'Invalid or inactive widget key'], 403);
+        }
+
+        return response()->json([
+            'partner_name' => $partner->name,
+            'agency' => [
+                'name' => $partner->agency->name,
+                'city' => $partner->agency->city,
+                'state' => $partner->agency->state,
+                'description' => $partner->agency->description,
+            ],
+            'widget_config' => $partner->widget_config,
+        ]);
+    }
+
+    public function teamSignup(Request $request): JsonResponse
+    {
+        $apiKey = $request->input('api_key');
+        $partner = EmbedPartner::where('api_key', $apiKey)
+            ->where('is_active', true)
+            ->where('embed_type', 'team_signup')
+            ->first();
+
+        if (!$partner || !$partner->agency_id) {
+            return response()->json(['error' => 'Invalid or inactive widget key'], 403);
+        }
+
+        $data = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
+            'phone' => 'nullable|string|max:30',
+            'password' => ['required', 'confirmed', Password::min(8)],
+        ]);
+
+        // Check if user already exists
+        $existing = User::where('email', $data['email'])->first();
+        if ($existing) {
+            if ($existing->agency_id === $partner->agency_id) {
+                return response()->json(['error' => 'You are already a member of this agency'], 422);
+            }
+            return response()->json(['error' => 'An account with this email already exists. Please log in at insurons.com'], 422);
+        }
+
+        $agency = Agency::find($partner->agency_id);
+        if (!$agency) {
+            return response()->json(['error' => 'Agency not found'], 404);
+        }
+
+        // Create the agent account
+        $user = User::create([
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'phone' => $data['phone'] ?? null,
+            'password' => Hash::make($data['password']),
+            'role' => 'agent',
+            'agency_id' => $partner->agency_id,
+            'is_active' => false, // Requires agency owner approval
+            'email_verified_at' => now(), // Verified via embed signup
+        ]);
+
+        // Notify partner (agency) about new signup
+        if ($partner->contact_email) {
+            try {
+                Mail::to($partner->contact_email)->queue(new \App\Mail\EmbedTeamSignupMail(
+                    partner: $partner,
+                    agency: $agency,
+                    agent: $user,
+                    sourceDomain: $request->header('Origin') ?? 'Direct',
+                ));
+            } catch (\Throwable $e) {
+                Log::warning('Team signup email failed', ['error' => $e->getMessage()]);
+            }
+        }
+
+        // Fire webhook
+        if ($partner->webhook_url) {
+            $payload = [
+                'event' => 'embed.team.signup',
+                'data' => [
+                    'partner_id' => $partner->id,
+                    'agency_id' => $agency->id,
+                    'agency_name' => $agency->name,
+                    'agent' => [
+                        'name' => $user->name,
+                        'email' => $user->email,
+                        'phone' => $user->phone,
+                    ],
+                    'source_domain' => $request->header('Origin'),
+                ],
+                'timestamp' => now()->toIso8601String(),
+            ];
+
+            $signature = hash_hmac('sha256', json_encode($payload), $partner->webhook_secret ?? '');
+
+            try {
+                Http::timeout(10)
+                    ->withHeaders([
+                        'X-Webhook-Signature' => $signature,
+                        'X-Webhook-Event' => 'embed.team.signup',
+                    ])
+                    ->post($partner->webhook_url, $payload);
+            } catch (\Throwable $e) {
+                Log::warning('Team signup webhook failed', ['error' => $e->getMessage()]);
+            }
+        }
+
+        return response()->json([
+            'ok' => true,
+            'message' => 'Application submitted! The agency will review and activate your account.',
+            'agent_name' => $user->name,
+            'agency_name' => $agency->name,
+        ], 201);
     }
 
     public function markConverted(Request $request): JsonResponse

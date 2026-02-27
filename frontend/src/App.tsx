@@ -137,6 +137,7 @@ const WhiteLabelConfigPage = lazyRetry(() => import('@/pages/whitelabel/WhiteLab
 // Embed Partners
 const EmbedPartnerDashboard = lazyRetry(() => import('@/pages/embed/EmbedPartnerDashboard'));
 const EmbedQuoteWidget = lazyRetry(() => import('@/pages/embed/EmbedQuoteWidget'));
+const EmbedTeamSignup = lazyRetry(() => import('@/pages/embed/EmbedTeamSignup'));
 
 // Compliance
 const ComplianceDashboard = lazyRetry(() => import('@/pages/compliance/ComplianceDashboard'));
@@ -203,6 +204,7 @@ export default function App() {
               <Route path="/sso/login/:agencySlug" element={<SsoLogin />} />
               <Route path="/sso/callback" element={<SsoCallback />} />
               <Route path="/embed/quote" element={<EmbedQuoteWidget />} />
+              <Route path="/embed/join" element={<EmbedTeamSignup />} />
 
               {/* Protected: Onboarding (no DashboardLayout) */}
               <Route element={<ProtectedRoute skipOnboardingCheck />}>

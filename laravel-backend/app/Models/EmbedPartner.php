@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
 
@@ -11,9 +12,9 @@ class EmbedPartner extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'name', 'api_key', 'allowed_domains', 'commission_share_percent',
-        'contact_email', 'contact_name', 'is_active', 'widget_config',
-        'webhook_url', 'webhook_secret',
+        'name', 'agency_id', 'embed_type', 'api_key', 'allowed_domains',
+        'commission_share_percent', 'contact_email', 'contact_name',
+        'is_active', 'widget_config', 'webhook_url', 'webhook_secret',
     ];
 
     protected $casts = [
@@ -28,6 +29,11 @@ class EmbedPartner extends Model
     public function sessions(): HasMany
     {
         return $this->hasMany(EmbedSession::class, 'embed_partner_id');
+    }
+
+    public function agency(): BelongsTo
+    {
+        return $this->belongsTo(Agency::class);
     }
 
     public static function boot(): void

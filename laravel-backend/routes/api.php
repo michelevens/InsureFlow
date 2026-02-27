@@ -145,6 +145,10 @@ Route::post('/embed/quote', [EmbedController::class, 'quote']);
 Route::post('/embed/link-session', [EmbedController::class, 'linkSession']);
 Route::post('/embed/convert', [EmbedController::class, 'markConverted']);
 
+// Embed team signup (public — API key validated in controller)
+Route::get('/embed/team-config/{apiKey}', [EmbedController::class, 'teamConfig']);
+Route::post('/embed/team-signup', [EmbedController::class, 'teamSignup']);
+
 // Push — VAPID public key (no auth required, it's a public key)
 Route::get('/push/vapid-key', [PushSubscriptionController::class, 'vapidKey']);
 
