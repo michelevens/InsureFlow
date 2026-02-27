@@ -16,8 +16,8 @@
 (function () {
   'use strict';
 
-  // Find our own script tag
-  var scripts = document.querySelectorAll('script[data-key]');
+  // Find our own script tag (exclude team-widget scripts)
+  var scripts = document.querySelectorAll('script[data-key]:not([src*="team-widget"])');
   var scriptEl = scripts[scripts.length - 1];
   if (!scriptEl) return;
 

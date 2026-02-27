@@ -61,7 +61,9 @@ export default function EmbedTeamSignup() {
     return () => obs.disconnect();
   }, []);
 
-  const primaryColor = (agency?.widget_config as Record<string, string>)?.primary_color || '#2563eb';
+  const widgetConfig = agency?.widget_config as Record<string, string> | null;
+  const primaryColor = widgetConfig?.primary_color || '#2563eb';
+  const displayName = widgetConfig?.company_name || agency?.agency.name || '';
 
   const passwordStrength = (() => {
     if (password.length < 8) return 0;
@@ -155,7 +157,7 @@ export default function EmbedTeamSignup() {
         </h2>
         <p style={{ fontSize: 15, color: '#64748b', lineHeight: 1.6, margin: '0 0 24px' }}>
           Thank you, <strong>{name}</strong>. Your application to join{' '}
-          <strong>{agency?.agency.name}</strong> has been received.
+          <strong>{displayName}</strong> has been received.
         </p>
         <div style={{
           background: '#f0f9ff', border: '1px solid #bae6fd', borderRadius: 12,
@@ -193,7 +195,7 @@ export default function EmbedTeamSignup() {
           <Building2 size={28} color={primaryColor} />
         </div>
         <h1 style={{ fontSize: 22, fontWeight: 700, color: '#0f172a', margin: '0 0 4px' }}>
-          Join {agency?.agency.name}
+          Join {displayName}
         </h1>
         {agency?.agency.city && agency?.agency.state && (
           <p style={{ fontSize: 13, color: '#94a3b8', margin: '0 0 4px' }}>
