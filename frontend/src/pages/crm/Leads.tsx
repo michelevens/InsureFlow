@@ -818,10 +818,16 @@ export default function Leads() {
       {/* Lead list or board view */}
       {viewMode === 'board' ? (
         <KanbanBoard leads={leads} loading={loading} onOpenLead={openLead} onStatusChange={async (leadId, newStatus) => {
+          // Optimistic update — move card immediately, revert on error
+          const prev = leads;
+          setLeads(leads.map(l => l.id === leadId ? ({ ...l, status: newStatus } as Lead) : l));
           try {
             await crmService.updateLead(leadId, { status: newStatus } as Partial<Lead>);
-            fetchLeads();
-          } catch { toast.error('Failed to move lead'); }
+            fetchLeads(); // sync with server
+          } catch {
+            setLeads(prev); // revert
+            toast.error('Failed to move lead');
+          }
         }} />
       ) : (
       <Card>

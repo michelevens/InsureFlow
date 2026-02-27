@@ -143,6 +143,9 @@ Route::get('/embed/config/{apiKey}', [EmbedController::class, 'config']);
 Route::post('/embed/quote', [EmbedController::class, 'quote']);
 Route::post('/embed/convert', [EmbedController::class, 'markConverted']);
 
+// Push — VAPID public key (no auth required, it's a public key)
+Route::get('/push/vapid-key', [PushSubscriptionController::class, 'vapidKey']);
+
 /*
 |--------------------------------------------------------------------------
 | Protected Routes (auth:sanctum + agency scope)
@@ -244,13 +247,13 @@ Route::middleware(['auth:sanctum', 'agency.scope'])->group(function () {
     Route::get('/renewals/{renewal}', [RenewalController::class, 'show']);
     Route::put('/renewals/{renewal}/status', [RenewalController::class, 'updateStatus']);
 
-    // CRM - Leads
+    // CRM - Leads (bulk-status MUST come before {lead} wildcard)
+    Route::put('/crm/leads/bulk-status', [LeadController::class, 'bulkUpdateStatus']);
     Route::get('/crm/leads', [LeadController::class, 'index']);
     Route::post('/crm/leads', [LeadController::class, 'store']);
     Route::get('/crm/leads/{lead}', [LeadController::class, 'show']);
     Route::put('/crm/leads/{lead}', [LeadController::class, 'update']);
     Route::post('/crm/leads/{lead}/activity', [LeadController::class, 'addActivity']);
-    Route::put('/crm/leads/bulk-status', [LeadController::class, 'bulkUpdateStatus']);
 
     // Lead Scenarios (nested under leads)
     Route::get('/crm/leads/{lead}/scenarios', [LeadScenarioController::class, 'index']);
@@ -361,8 +364,7 @@ Route::middleware(['auth:sanctum', 'agency.scope'])->group(function () {
     Route::put('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
     Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead']);
 
-    // Push Subscriptions
-    Route::get('/push/vapid-key', [PushSubscriptionController::class, 'vapidKey']);
+    // Push Subscriptions (vapid-key is public, see above)
     Route::post('/push/subscribe', [PushSubscriptionController::class, 'subscribe']);
     Route::post('/push/unsubscribe', [PushSubscriptionController::class, 'unsubscribe']);
 

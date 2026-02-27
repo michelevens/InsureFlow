@@ -165,7 +165,9 @@ class EmbedController extends Controller
             'user_agent' => $request->userAgent(),
         ]);
 
-        // Use the existing QuoteController estimate logic (simplified here)
+        // Fire session.created webhook
+        $this->dispatchWebhook($session, 'embed.session.created');
+
         return response()->json([
             'session_token' => $session->session_token,
             'message' => 'Quote session created. Redirect user to complete quote.',
@@ -193,7 +195,7 @@ class EmbedController extends Controller
             $session->update(['converted_at' => now()]);
 
             // Fire webhook if partner has one configured
-            $this->dispatchWebhook($session);
+            $this->dispatchWebhook($session, 'embed.session.converted');
         }
 
         return response()->json(['ok' => true]);
@@ -234,37 +236,55 @@ class EmbedController extends Controller
         }
     }
 
-    private function dispatchWebhook(EmbedSession $session): void
+    private function dispatchWebhook(EmbedSession $session, string $event = 'embed.session.converted'): void
     {
         $partner = $session->partner;
         if (!$partner || !$partner->webhook_url) {
             return;
         }
 
+        $data = [
+            'session_token' => $session->session_token,
+            'insurance_type' => $session->insurance_type,
+            'source_domain' => $session->source_domain,
+            'partner_id' => $partner->id,
+        ];
+
+        if ($session->converted_at) {
+            $data['converted_at'] = $session->converted_at->toIso8601String();
+        }
+
         $payload = [
-            'event' => 'embed.session.converted',
-            'data' => [
-                'session_token' => $session->session_token,
-                'insurance_type' => $session->insurance_type,
-                'source_domain' => $session->source_domain,
-                'converted_at' => $session->converted_at->toIso8601String(),
-                'partner_id' => $partner->id,
-            ],
+            'event' => $event,
+            'data' => $data,
             'timestamp' => now()->toIso8601String(),
         ];
 
         $signature = hash_hmac('sha256', json_encode($payload), $partner->webhook_secret ?? '');
 
-        // Fire-and-forget via async HTTP (non-blocking)
+        $startTime = microtime(true);
         try {
-            Http::timeout(10)
-                ->withHeaders(['X-Webhook-Signature' => $signature])
+            $response = Http::timeout(10)
+                ->withHeaders([
+                    'X-Webhook-Signature' => $signature,
+                    'X-Webhook-Event' => $event,
+                ])
                 ->post($partner->webhook_url, $payload);
+
+            Log::info('Embed webhook dispatched', [
+                'event' => $event,
+                'partner_id' => $partner->id,
+                'status' => $response->status(),
+                'success' => $response->successful(),
+                'response_time_ms' => (int) ((microtime(true) - $startTime) * 1000),
+            ]);
         } catch (\Throwable $e) {
             Log::warning('Embed webhook failed', [
+                'event' => $event,
                 'partner_id' => $partner->id,
                 'url' => $partner->webhook_url,
                 'error' => $e->getMessage(),
+                'response_time_ms' => (int) ((microtime(true) - $startTime) * 1000),
             ]);
         }
     }

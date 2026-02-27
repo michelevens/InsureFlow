@@ -102,14 +102,17 @@ class LeadController extends Controller
         return response()->json($lead, 201);
     }
 
-    public function show(Lead $lead)
+    public function show(Request $request, Lead $lead)
     {
+        $this->authorizeLeadAccess($request, $lead);
         $lead->load('activities.user');
         return response()->json($lead);
     }
 
     public function update(Request $request, Lead $lead)
     {
+        $this->authorizeLeadAccess($request, $lead);
+
         $data = $request->validate([
             'first_name' => 'sometimes|string|max:255',
             'last_name' => 'sometimes|string|max:255',
@@ -148,6 +151,8 @@ class LeadController extends Controller
 
     public function addActivity(Request $request, Lead $lead)
     {
+        $this->authorizeLeadAccess($request, $lead);
+
         $data = $request->validate([
             'type' => 'required|in:note,call,email,meeting,status_change',
             'description' => 'required|string',
@@ -161,6 +166,27 @@ class LeadController extends Controller
         ]);
 
         return response()->json($activity, 201);
+    }
+
+    /**
+     * Verify the current user has access to this lead (same agency or admin).
+     */
+    private function authorizeLeadAccess(Request $request, Lead $lead): void
+    {
+        $agencyId = $request->attributes->get('agency_id');
+        $isAdmin = $request->attributes->get('is_platform_admin');
+
+        if ($isAdmin) return;
+
+        if ($agencyId && $lead->agency_id !== $agencyId) {
+            abort(403, 'You do not have access to this lead.');
+        }
+
+        // Agents can only access their own leads
+        $user = $request->user();
+        if ($user->role === 'agent' && $lead->agent_id !== $user->id) {
+            abort(403, 'You do not have access to this lead.');
+        }
     }
 
     /**
