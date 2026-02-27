@@ -306,6 +306,20 @@ export const marketplaceService = {
   async bulkList(data: BulkListRequest): Promise<BulkListResponse> {
     return api.post<BulkListResponse>('/lead-marketplace/bulk-list', data);
   },
+
+  // ── Seller Payouts ──
+
+  async sellerBalance(): Promise<SellerBalanceResponse> {
+    return api.get<SellerBalanceResponse>('/seller-payouts/balance');
+  },
+
+  async requestPayout(amount: number, payout_method?: string): Promise<PayoutRequestResponse> {
+    return api.post<PayoutRequestResponse>('/seller-payouts/request', { amount, payout_method });
+  },
+
+  async payoutHistory(page = 1): Promise<PayoutHistoryResponse> {
+    return api.get<PayoutHistoryResponse>(`/seller-payouts/history?page=${page}`);
+  },
 };
 
 // ── Lead Marketplace Types ──
@@ -433,4 +447,42 @@ export interface BulkListResponse {
   created: number;
   skipped: number;
   errors: string[];
+}
+
+// ── Seller Payout Types ──
+
+export interface SellerBalanceResponse {
+  available: number;
+  pending: number;
+  lifetime_earned: number;
+  lifetime_paid: number;
+}
+
+export interface SellerPayoutRequest {
+  id: number;
+  agency_id: number;
+  requested_by: number;
+  amount: string;
+  status: 'pending' | 'approved' | 'rejected' | 'processing' | 'completed' | 'failed';
+  payout_method: string;
+  stripe_transfer_id: string | null;
+  admin_notes: string | null;
+  failure_reason: string | null;
+  reviewed_at: string | null;
+  paid_at: string | null;
+  created_at: string;
+  reviewer?: { id: number; name: string } | null;
+}
+
+export interface PayoutRequestResponse {
+  message: string;
+  request: SellerPayoutRequest;
+  new_available_balance: number;
+}
+
+export interface PayoutHistoryResponse {
+  data: SellerPayoutRequest[];
+  current_page: number;
+  last_page: number;
+  total: number;
 }

@@ -21,6 +21,7 @@ use App\Http\Controllers\RoutingRuleController;
 use App\Http\Controllers\SignatureController;
 use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\PayoutController;
+use App\Http\Controllers\SellerPayoutController;
 use App\Http\Controllers\SubscriptionController;
 use App\Http\Controllers\AiChatController;
 use App\Http\Controllers\LeadScoringController;
@@ -714,6 +715,12 @@ Route::middleware(['auth:sanctum', 'agency.scope'])->group(function () {
         Route::get('/carriers/{carrier}', [AdminController::class, 'showCarrier']);
         Route::put('/carriers/{carrier}', [AdminController::class, 'updateCarrier']);
 
+        // Seller Payouts (admin approval)
+        Route::get('/seller-payouts', [SellerPayoutController::class, 'adminIndex']);
+        Route::put('/seller-payouts/{payoutRequest}/approve', [SellerPayoutController::class, 'approve']);
+        Route::put('/seller-payouts/{payoutRequest}/reject', [SellerPayoutController::class, 'reject']);
+        Route::put('/seller-payouts/{payoutRequest}/complete', [SellerPayoutController::class, 'markCompleted']);
+
         // NPN Verification
         Route::post('/agents/{profile}/verify-npn', [AdminController::class, 'verifyNpn']);
         Route::post('/agencies/{agency}/verify-npn', [AdminController::class, 'verifyAgencyNpn']);
@@ -778,6 +785,13 @@ Route::middleware(['auth:sanctum', 'agency.scope'])->group(function () {
         Route::post('/listings/{listing}/pay-intent', [LeadMarketplaceController::class, 'createPaymentIntent']);
         Route::get('/suggest-price', [LeadMarketplaceController::class, 'suggestPrice']);
         Route::post('/bulk-list', [LeadMarketplaceController::class, 'bulkList']);
+    });
+
+    // Seller Payouts (marketplace earnings withdrawal)
+    Route::prefix('seller-payouts')->group(function () {
+        Route::get('/balance', [SellerPayoutController::class, 'balance']);
+        Route::post('/request', [SellerPayoutController::class, 'requestPayout']);
+        Route::get('/history', [SellerPayoutController::class, 'history']);
     });
 
     // Testimonials (authenticated - submit feedback)

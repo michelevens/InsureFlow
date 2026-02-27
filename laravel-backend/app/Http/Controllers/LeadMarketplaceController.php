@@ -10,6 +10,7 @@ use App\Models\LeadEngagementEvent;
 use App\Models\LeadMarketplaceBid;
 use App\Models\LeadMarketplaceListing;
 use App\Models\LeadMarketplaceTransaction;
+use App\Models\SellerBalance;
 use App\Models\Subscription;
 use App\Services\LeadScoringService;
 use App\Services\NotificationService;
@@ -413,6 +414,13 @@ class LeadMarketplaceController extends Controller
                     'paid_at' => now(),
                 ]);
             }
+
+            // Credit seller balance
+            $sellerBal = SellerBalance::firstOrCreate(
+                ['agency_id' => $listing->seller_agency_id],
+                ['pending_amount' => 0, 'available_amount' => 0, 'lifetime_earned' => 0, 'lifetime_paid' => 0]
+            );
+            $sellerBal->creditSale($sellerPayout);
 
             // Mark listing as sold
             $listing->update([

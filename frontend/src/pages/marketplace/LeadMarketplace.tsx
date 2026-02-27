@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Card, Badge, Button, Input, useConfirm } from '@/components/ui';
-import { Search, ShoppingCart, Tag, MapPin, Clock, Star, TrendingUp, Phone, Mail, RefreshCw, ArrowUpDown, Gavel, Package, CreditCard, Loader2, ShieldAlert, ArrowRight } from 'lucide-react';
-import { marketplaceService, type LeadMarketplaceListing, type LeadMarketplaceStats, type LeadMarketplaceTransaction } from '@/services/api/marketplace';
+import { Search, ShoppingCart, Tag, MapPin, Clock, Star, TrendingUp, Phone, Mail, RefreshCw, ArrowUpDown, Gavel, Package, CreditCard, Loader2, ShieldAlert, ArrowRight, Wallet, DollarSign, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
+import { marketplaceService, type LeadMarketplaceListing, type LeadMarketplaceStats, type LeadMarketplaceTransaction, type SellerBalanceResponse, type SellerPayoutRequest } from '@/services/api/marketplace';
 import { toast } from 'sonner';
 
 const GRADE_COLORS: Record<string, 'default' | 'success' | 'warning' | 'danger'> = {
@@ -16,7 +16,7 @@ const SORT_OPTIONS = [
   { value: 'score_desc', label: 'Best Score' },
 ];
 
-type Tab = 'browse' | 'my-listings' | 'transactions';
+type Tab = 'browse' | 'my-listings' | 'transactions' | 'payouts';
 
 export default function LeadMarketplace() {
   const confirm = useConfirm();
@@ -101,7 +101,7 @@ export default function LeadMarketplace() {
   useEffect(() => {
     if (tab === 'browse') fetchBrowse();
     else if (tab === 'my-listings') fetchMyListings();
-    else setLoading(false);
+    else setLoading(false); // transactions & payouts manage their own loading
   }, [tab, fetchBrowse, fetchMyListings]);
 
   const handlePurchase = async (listing: LeadMarketplaceListing) => {
@@ -256,7 +256,7 @@ export default function LeadMarketplace() {
       {/* Tabs — hidden when upgrade required */}
       {!requiresUpgrade && (
         <div className="flex gap-1 border-b border-slate-200 dark:border-slate-700/50">
-          {([['browse', 'Browse Leads'], ['my-listings', 'My Listings'], ['transactions', 'Transactions']] as [Tab, string][]).map(([key, label]) => (
+          {([['browse', 'Browse Leads'], ['my-listings', 'My Listings'], ['transactions', 'Transactions'], ['payouts', 'Payouts']] as [Tab, string][]).map(([key, label]) => (
             <button key={key} onClick={() => setTab(key)}
               className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${tab === key ? 'border-shield-500 text-shield-600 dark:text-shield-400' : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:text-slate-200'}`}>
               {label}
@@ -387,6 +387,9 @@ export default function LeadMarketplace() {
 
       {/* Transactions Tab */}
       {!requiresUpgrade && tab === 'transactions' && <TransactionsTab />}
+
+      {/* Payouts Tab */}
+      {!requiresUpgrade && tab === 'payouts' && <PayoutsTab />}
     </div>
   );
 }
@@ -490,6 +493,155 @@ function ListingCard({ listing, onPurchase, onBid, purchasing, bidding }: {
         </Button>
       )}
     </Card>
+  );
+}
+
+function PayoutsTab() {
+  const confirm = useConfirm();
+  const [balance, setBalance] = useState<SellerBalanceResponse | null>(null);
+  const [history, setHistory] = useState<SellerPayoutRequest[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [requesting, setRequesting] = useState(false);
+  const [amount, setAmount] = useState('');
+
+  useEffect(() => {
+    Promise.all([
+      marketplaceService.sellerBalance(),
+      marketplaceService.payoutHistory(),
+    ]).then(([bal, hist]) => {
+      setBalance(bal);
+      setHistory(hist.data);
+    }).catch(() => toast.error('Failed to load payout data'))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const handleRequest = async () => {
+    const val = parseFloat(amount);
+    if (!val || val < 5) { toast.error('Minimum payout is $5.00'); return; }
+    if (balance && val > balance.available) { toast.error('Amount exceeds available balance'); return; }
+
+    const ok = await confirm({
+      title: 'Request Payout',
+      message: `Request a payout of $${val.toFixed(2)}? This will be reviewed by an admin before processing.`,
+      variant: 'info',
+    });
+    if (!ok) return;
+
+    setRequesting(true);
+    try {
+      const res = await marketplaceService.requestPayout(val);
+      toast.success(res.message);
+      setBalance(prev => prev ? { ...prev, available: res.new_available_balance } : prev);
+      setHistory(prev => [res.request, ...prev]);
+      setAmount('');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to request payout';
+      toast.error(msg);
+    } finally {
+      setRequesting(false);
+    }
+  };
+
+  if (loading) return <div className="text-center py-12 text-slate-400 dark:text-slate-500">Loading payout data...</div>;
+
+  const STATUS_CONFIG: Record<string, { icon: React.ReactNode; variant: 'success' | 'warning' | 'danger' | 'info' | 'default' }> = {
+    pending: { icon: <Clock className="w-3 h-3" />, variant: 'warning' },
+    approved: { icon: <CheckCircle className="w-3 h-3" />, variant: 'info' },
+    processing: { icon: <Loader2 className="w-3 h-3 animate-spin" />, variant: 'info' },
+    completed: { icon: <CheckCircle className="w-3 h-3" />, variant: 'success' },
+    rejected: { icon: <XCircle className="w-3 h-3" />, variant: 'danger' },
+    failed: { icon: <AlertCircle className="w-3 h-3" />, variant: 'danger' },
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Balance Cards */}
+      {balance && (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <Card className="p-4 text-center border-2 border-savings-200 dark:border-savings-800 bg-savings-50 dark:bg-savings-900/10">
+            <Wallet className="w-5 h-5 text-savings-600 dark:text-savings-400 mx-auto mb-1" />
+            <p className="text-2xl font-bold text-savings-600 dark:text-savings-400">${balance.available.toFixed(2)}</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400">Available to Withdraw</p>
+          </Card>
+          <Card className="p-4 text-center">
+            <p className="text-2xl font-bold text-amber-600 dark:text-amber-400">${balance.pending.toFixed(2)}</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400">Pending</p>
+          </Card>
+          <Card className="p-4 text-center">
+            <p className="text-2xl font-bold text-shield-600 dark:text-shield-400">${balance.lifetime_earned.toFixed(2)}</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400">Lifetime Earned</p>
+          </Card>
+          <Card className="p-4 text-center">
+            <p className="text-2xl font-bold text-slate-600 dark:text-slate-300">${balance.lifetime_paid.toFixed(2)}</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400">Total Paid Out</p>
+          </Card>
+        </div>
+      )}
+
+      {/* Request Payout */}
+      {balance && balance.available >= 5 && (
+        <Card className="p-5">
+          <h3 className="font-semibold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
+            <DollarSign className="w-4 h-4" /> Request Payout
+          </h3>
+          <div className="flex gap-3 items-end">
+            <div className="flex-1">
+              <label className="text-sm text-slate-500 dark:text-slate-400 mb-1 block">Amount ($5.00 min)</label>
+              <Input type="number" min="5" max={balance.available} step="0.01"
+                placeholder={`Up to $${balance.available.toFixed(2)}`}
+                value={amount} onChange={e => setAmount(e.target.value)} />
+            </div>
+            <Button variant="shield" onClick={handleRequest} disabled={requesting || !amount}>
+              {requesting ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Wallet className="w-4 h-4 mr-1" />}
+              {requesting ? 'Submitting...' : 'Request Payout'}
+            </Button>
+          </div>
+          <p className="text-xs text-slate-400 dark:text-slate-500 mt-2">Payouts are reviewed by admin before processing via Stripe Connect.</p>
+        </Card>
+      )}
+
+      {/* Payout History */}
+      <div>
+        <h3 className="font-semibold text-slate-900 dark:text-white mb-3">Payout History</h3>
+        {history.length === 0 ? (
+          <Card className="p-8 text-center">
+            <p className="text-slate-500 dark:text-slate-400">No payout requests yet. Sell leads to earn marketplace revenue.</p>
+          </Card>
+        ) : (
+          <div className="space-y-2">
+            {history.map(req => {
+              const cfg = STATUS_CONFIG[req.status] || STATUS_CONFIG.pending;
+              return (
+                <Card key={req.id} className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <Badge variant={cfg.variant}>
+                        <span className="flex items-center gap-1">{cfg.icon} {req.status}</span>
+                      </Badge>
+                      <span className="font-bold text-lg">${parseFloat(req.amount).toFixed(2)}</span>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm text-slate-500 dark:text-slate-400">
+                        {new Date(req.created_at).toLocaleDateString()}
+                      </p>
+                      {req.paid_at && (
+                        <p className="text-xs text-savings-600 dark:text-savings-400">Paid {new Date(req.paid_at).toLocaleDateString()}</p>
+                      )}
+                    </div>
+                  </div>
+                  {req.admin_notes && (
+                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-2 italic">Admin: {req.admin_notes}</p>
+                  )}
+                  {req.failure_reason && (
+                    <p className="text-sm text-red-500 mt-2">Error: {req.failure_reason}</p>
+                  )}
+                </Card>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    </div>
   );
 }
 
