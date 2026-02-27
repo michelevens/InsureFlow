@@ -14,6 +14,10 @@ use App\Models\PlatformProduct;
 use App\Models\Quote;
 use App\Models\QuoteRequest;
 use App\Helpers\ZipToState;
+use App\Models\RateTable;
+use App\Services\Rating\RatingEngine;
+use App\Services\Rating\RateInput;
+use App\Services\Rating\RateOutput;
 use App\Services\RoutingEngine;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -23,6 +27,7 @@ class QuoteController extends Controller
 {
     public function __construct(
         private RoutingEngine $router,
+        private RatingEngine $ratingEngine,
     ) {}
 
     public function estimate(Request $request)
@@ -114,31 +119,53 @@ class QuoteController extends Controller
         };
 
         foreach ($products as $i => $product) {
-            $basePremium = ($product->min_premium + $product->max_premium) / 2;
-            $monthly = round($basePremium * $coverageMultiplier + rand(-20, 20), 2);
-            $annual = round($monthly * 11.5, 2);
+            // ── Tier 1: Try rate table rating ──
+            $rateResult = $this->tryRateTableRating($product, $data, $state);
 
-            // Build premium breakdown showing how the premium was calculated
-            $baseRate = round($product->base_rate ?? ($monthly * 0.85), 2);
-            $stateFactor = 1.0; // Could vary by state in future
-            $policyFee = round($product->policy_fee ?? 5.00, 2);
-            $discount = 0;
-            $discountLabel = null;
+            if ($rateResult) {
+                // Rate table produced a real quote
+                $monthly = $rateResult->premiumModal;
+                $annual = round($rateResult->premiumAnnual, 2);
+                $breakdown = [
+                    'rating_source' => 'rate_table',
+                    'base_rate' => $rateResult->baseRateValue,
+                    'base_rate_key' => $rateResult->baseRateKey,
+                    'base_premium' => round($rateResult->basePremium, 2),
+                    'coverage_factor' => $coverageMultiplier,
+                    'factors_applied' => $rateResult->factorsApplied,
+                    'riders_applied' => $rateResult->ridersApplied,
+                    'fees_applied' => $rateResult->feesApplied,
+                    'rate_table_version' => $rateResult->rateTableVersion,
+                    'engine_version' => $rateResult->engineVersion,
+                    'modal_mode' => $rateResult->modalMode,
+                    'modal_factor' => $rateResult->modalFactor,
+                ];
+            } else {
+                // ── Tier 2: Fallback to min/max estimate ──
+                $basePremium = ($product->min_premium + $product->max_premium) / 2;
+                $monthly = round($basePremium * $coverageMultiplier + rand(-20, 20), 2);
+                $annual = round($monthly * 11.5, 2);
 
-            // Multi-policy discount (if user has multiple quotes in same request)
-            if ($i > 0) {
-                $discount = round($monthly * 0.05, 2);
-                $discountLabel = 'Multi-policy discount (5%)';
+                $baseRate = round($product->base_rate ?? ($monthly * 0.85), 2);
+                $policyFee = round($product->policy_fee ?? 5.00, 2);
+                $discount = 0;
+                $discountLabel = null;
+
+                if ($i > 0) {
+                    $discount = round($monthly * 0.05, 2);
+                    $discountLabel = 'Multi-policy discount (5%)';
+                }
+
+                $breakdown = [
+                    'rating_source' => 'estimate',
+                    'base_rate' => $baseRate,
+                    'coverage_factor' => $coverageMultiplier,
+                    'state_factor' => 1.0,
+                    'policy_fee' => $policyFee,
+                    'discount' => $discount,
+                    'discount_label' => $discountLabel,
+                ];
             }
-
-            $breakdown = [
-                'base_rate' => $baseRate,
-                'coverage_factor' => $coverageMultiplier,
-                'state_factor' => $stateFactor,
-                'policy_fee' => $policyFee,
-                'discount' => $discount,
-                'discount_label' => $discountLabel,
-            ];
 
             $quote = Quote::create([
                 'quote_request_id' => $quoteRequest->id,
@@ -155,7 +182,6 @@ class QuoteController extends Controller
 
             $quote->load('carrierProduct.carrier');
 
-            // Append the breakdown to the quote response (not persisted in DB, but returned in API)
             $quoteData = $quote->toArray();
             $quoteData['breakdown'] = $breakdown;
             $quotes[] = $quoteData;
@@ -430,6 +456,245 @@ class QuoteController extends Controller
             'name' => "{$lead->first_name} {$lead->last_name} Business",
             'sort_order' => 0,
         ]);
+    }
+
+    /**
+     * Attempt to rate a CarrierProduct via the RatingEngine using rate tables.
+     * Returns a RateOutput on success, or null if no rate table exists.
+     */
+    private function tryRateTableRating(CarrierProduct $product, array $data, ?string $state): ?RateOutput
+    {
+        $productType = $product->rate_table_product_type ?? $this->mapProductType($product->insurance_type);
+
+        // Check if a rate table exists for this carrier + product type
+        $rateTable = RateTable::activeFor($productType, $product->carrier_id);
+        if (!$rateTable) {
+            return null;
+        }
+
+        // Check if a plugin is registered for this product type
+        if (!in_array($productType, $this->ratingEngine->registeredProducts())) {
+            return null;
+        }
+
+        $input = $this->buildRateInputFromRequest($productType, $product, $data, $state);
+
+        try {
+            $plugin = $this->resolvePlugin($productType);
+            if (!$plugin) {
+                return null;
+            }
+
+            $output = $plugin->rateProduct($input);
+
+            if (!$output->eligible || $output->premiumModal <= 0) {
+                return null;
+            }
+
+            return $output;
+        } catch (\Throwable $e) {
+            \Log::warning('Rate table rating failed, falling back to estimate', [
+                'carrier' => $product->carrier?->name,
+                'product_type' => $productType,
+                'error' => $e->getMessage(),
+            ]);
+            return null;
+        }
+    }
+
+    /**
+     * Resolve a rating plugin by product type (mirrors RatingEngine logic).
+     */
+    private function resolvePlugin(string $productType): ?\App\Services\Rating\ProductPlugin
+    {
+        $pluginMap = [];
+        foreach ([
+            \App\Services\Rating\Plugins\DisabilityPlugin::class,
+            \App\Services\Rating\Plugins\LifePlugin::class,
+            \App\Services\Rating\Plugins\PropertyCasualtyPlugin::class,
+        ] as $class) {
+            foreach ($class::productTypes() as $pt) {
+                $pluginMap[$pt] = $class;
+            }
+        }
+        $class = $pluginMap[$productType] ?? null;
+        return $class ? new $class() : null;
+    }
+
+    /**
+     * Build a RateInput from the calculator request data (no LeadScenario context).
+     */
+    private function buildRateInputFromRequest(string $productType, CarrierProduct $product, array $data, ?string $state): RateInput
+    {
+        $input = new RateInput();
+        $input->productType = $productType;
+        $input->carrierId = $product->carrier_id;
+        $input->state = $state;
+        $input->paymentMode = 'monthly';
+
+        $details = $data['details'] ?? [];
+
+        // Demographics
+        if (!empty($data['date_of_birth'])) {
+            $input->age = (int) now()->diffInYears($data['date_of_birth']);
+        } elseif (!empty($details['age'])) {
+            $input->age = (int) $details['age'];
+        }
+        $input->sex = $details['sex'] ?? $details['gender'] ?? null;
+        $input->tobaccoUse = isset($details['tobacco_use']) ? (bool) $details['tobacco_use'] : null;
+        $input->occupation = $details['occupation'] ?? null;
+        $input->annualIncome = isset($details['annual_income']) ? (float) $details['annual_income'] : null;
+
+        // Build insured objects from details
+        $input->insuredObjects = $this->buildInsuredObjectsFromDetails($data['insurance_type'], $details, $data);
+        $input->coverages = $this->buildCoveragesFromDetails($data['insurance_type'], $details);
+
+        // DI / LTC specifics
+        if (!empty($details['monthly_benefit'])) {
+            $input->monthlyBenefitRequested = (float) $details['monthly_benefit'];
+        }
+        if (!empty($details['daily_benefit'])) {
+            $input->dailyBenefit = (float) $details['daily_benefit'];
+        }
+        if (!empty($details['elimination_period'])) {
+            $input->eliminationPeriodDays = (int) $details['elimination_period'];
+        }
+        if (!empty($details['benefit_period'])) {
+            $input->benefitPeriod = $details['benefit_period'];
+        }
+        if (!empty($details['occupation_class'])) {
+            $input->occupationClass = $details['occupation_class'];
+        }
+
+        // Life specifics
+        if (!empty($details['face_amount'])) {
+            $input->metadata['face_amount'] = (float) $details['face_amount'];
+        }
+        if (!empty($details['term_length'])) {
+            $input->metadata['term_length'] = (int) $details['term_length'];
+        }
+
+        // Factor/rider selections from details
+        if (!empty($details['factor_selections'])) {
+            $input->factorSelections = $details['factor_selections'];
+        }
+        if (!empty($details['rider_selections'])) {
+            $input->riderSelections = $details['rider_selections'];
+        }
+
+        $input->metadata = array_merge($input->metadata, $details);
+
+        return $input;
+    }
+
+    /**
+     * Build insured objects array from calculator request details.
+     */
+    private function buildInsuredObjectsFromDetails(string $insuranceType, array $details, array $data): array
+    {
+        $objects = [];
+
+        switch ($insuranceType) {
+            case 'auto':
+                $objects[] = [
+                    'object_type' => 'person',
+                    'name' => trim(($data['first_name'] ?? '') . ' ' . ($data['last_name'] ?? '')) ?: 'Primary Driver',
+                    'relationship' => 'primary',
+                    'date_of_birth' => $data['date_of_birth'] ?? null,
+                ];
+                if (!empty($details['vehicle_year']) || !empty($details['vehicle_make'])) {
+                    $objects[] = [
+                        'object_type' => 'vehicle',
+                        'name' => trim(($details['vehicle_year'] ?? '') . ' ' . ($details['vehicle_make'] ?? '') . ' ' . ($details['vehicle_model'] ?? '')),
+                        'vehicle_year' => $details['vehicle_year'] ?? null,
+                        'vehicle_make' => $details['vehicle_make'] ?? null,
+                        'vehicle_model' => $details['vehicle_model'] ?? null,
+                    ];
+                }
+                break;
+
+            case 'home':
+            case 'renters':
+                $objects[] = [
+                    'object_type' => 'property',
+                    'name' => 'Primary Residence',
+                    'zip' => $data['zip_code'],
+                    'year_built' => $details['year_built'] ?? null,
+                    'square_footage' => $details['square_footage'] ?? null,
+                    'construction_type' => $details['construction_type'] ?? null,
+                ];
+                break;
+
+            case 'business':
+                $objects[] = [
+                    'object_type' => 'business',
+                    'name' => $details['business_name'] ?? 'Business',
+                    'annual_revenue' => $details['annual_revenue'] ?? null,
+                    'employee_count' => $details['employee_count'] ?? null,
+                ];
+                break;
+
+            default:
+                // Person-based: life, health, disability, ltc
+                $objects[] = [
+                    'object_type' => 'person',
+                    'name' => trim(($data['first_name'] ?? '') . ' ' . ($data['last_name'] ?? '')) ?: 'Primary Insured',
+                    'relationship' => 'primary',
+                    'date_of_birth' => $data['date_of_birth'] ?? null,
+                    'gender' => $details['sex'] ?? $details['gender'] ?? null,
+                    'tobacco_use' => $details['tobacco_use'] ?? null,
+                    'occupation' => $details['occupation'] ?? null,
+                    'annual_income' => $details['annual_income'] ?? null,
+                    'state' => null, // set from zip
+                ];
+                break;
+        }
+
+        return $objects;
+    }
+
+    /**
+     * Build coverages array from calculator request details.
+     */
+    private function buildCoveragesFromDetails(string $insuranceType, array $details): array
+    {
+        $coverages = [];
+
+        switch ($insuranceType) {
+            case 'auto':
+                $coverages[] = ['coverage_type' => 'bodily_injury', 'coverage_category' => 'liability', 'limit_amount' => $details['liability_limit'] ?? 100000];
+                $coverages[] = ['coverage_type' => 'collision', 'coverage_category' => 'property', 'deductible_amount' => $details['deductible'] ?? 500];
+                $coverages[] = ['coverage_type' => 'comprehensive', 'coverage_category' => 'property', 'deductible_amount' => $details['deductible'] ?? 500];
+                break;
+
+            case 'home':
+                $coverages[] = ['coverage_type' => 'dwelling', 'coverage_category' => 'property', 'limit_amount' => $details['home_value'] ?? $details['dwelling_coverage'] ?? 300000];
+                $coverages[] = ['coverage_type' => 'liability', 'coverage_category' => 'liability', 'limit_amount' => $details['liability_limit'] ?? 100000];
+                break;
+
+            case 'renters':
+                $coverages[] = ['coverage_type' => 'personal_property', 'coverage_category' => 'property', 'limit_amount' => $details['personal_property'] ?? 30000];
+                $coverages[] = ['coverage_type' => 'liability', 'coverage_category' => 'liability', 'limit_amount' => $details['liability_limit'] ?? 100000];
+                break;
+
+            case 'life':
+                $coverages[] = ['coverage_type' => 'death_benefit', 'coverage_category' => 'life', 'benefit_amount' => $details['face_amount'] ?? 500000];
+                break;
+
+            case 'disability':
+                $coverages[] = ['coverage_type' => 'monthly_disability_benefit', 'coverage_category' => 'disability', 'benefit_amount' => $details['monthly_benefit'] ?? 5000, 'elimination_period_days' => $details['elimination_period'] ?? 90, 'benefit_period' => $details['benefit_period'] ?? 'to_age_65'];
+                break;
+
+            case 'ltc':
+                $coverages[] = ['coverage_type' => 'daily_ltc_benefit', 'coverage_category' => 'specialty', 'benefit_amount' => $details['daily_benefit'] ?? 150, 'benefit_period' => $details['benefit_period'] ?? '3_years', 'elimination_period_days' => $details['elimination_period'] ?? 90];
+                break;
+
+            case 'business':
+                $coverages[] = ['coverage_type' => 'general_liability', 'coverage_category' => 'liability', 'limit_amount' => $details['liability_limit'] ?? 1000000, 'aggregate_limit' => $details['aggregate_limit'] ?? 2000000];
+                break;
+        }
+
+        return $coverages;
     }
 
     private function createDefaultCoverages(LeadScenario $scenario, QuoteRequest $quoteRequest, ?Quote $bestQuote): void
