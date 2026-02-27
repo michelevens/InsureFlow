@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Carrier;
 use App\Models\RateFactor;
 use App\Models\RateFee;
 use App\Models\RateModalFactor;
@@ -20,6 +21,10 @@ class RateTableSeeder extends Seeder
         $this->seedMutualOfOmahaLTC();
         $this->seedNglLTC();
         $this->seedNylLTC();
+
+        // Carrier-specific P&C rate tables for real quoting
+        $this->seedCarrierAutoTables();
+        $this->seedCarrierHomeownersTables();
     }
 
     /**
@@ -723,6 +728,284 @@ class RateTableSeeder extends Seeder
         ];
         foreach ($modals as $m) {
             RateModalFactor::create(array_merge($m, ['rate_table_id' => $table->id]));
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // Carrier-specific P&C Rate Tables (demo rates, not actuarial)
+    // ═══════════════════════════════════════════════════════════
+
+    /**
+     * Auto insurance rate tables for State Farm, Progressive, Allstate.
+     * Rate per vehicle by state|vehicle_age_band.
+     */
+    private function seedCarrierAutoTables(): void
+    {
+        $carriers = [
+            'state-farm'   => ['name' => 'State Farm Auto', 'base_multiplier' => 1.00],
+            'progressive'  => ['name' => 'Progressive Auto', 'base_multiplier' => 0.92],
+            'allstate'     => ['name' => 'Allstate Auto', 'base_multiplier' => 1.05],
+        ];
+
+        // Base rates by state (annual per vehicle) — representative demo values
+        $stateRates = [
+            'CA' => 1850, 'TX' => 1650, 'FL' => 2100, 'NY' => 2400, 'IL' => 1500,
+            'PA' => 1550, 'OH' => 1200, 'GA' => 1700, 'NC' => 1350, 'MI' => 2200,
+            'NJ' => 2050, 'VA' => 1400, 'WA' => 1450, 'AZ' => 1600, 'MA' => 1750,
+            'TN' => 1500, 'MO' => 1550, 'MD' => 1800, 'WI' => 1200, 'MN' => 1350,
+            'CO' => 1650, 'AL' => 1550, 'SC' => 1600, 'LA' => 2300, 'KY' => 1650,
+            'OR' => 1400, 'OK' => 1700, 'CT' => 1800, 'UT' => 1350, 'IA' => 1150,
+            'NV' => 1750, 'AR' => 1500, 'MS' => 1600, 'KS' => 1400, 'NM' => 1550,
+            'NE' => 1300, 'ID' => 1200, 'WV' => 1450, 'HI' => 1300, 'NH' => 1250,
+            'ME' => 1150, 'RI' => 1900, 'MT' => 1300, 'DE' => 1650, 'SD' => 1150,
+            'ND' => 1100, 'AK' => 1400, 'VT' => 1200, 'WY' => 1250, 'DC' => 1950,
+            'IN' => 1350,
+        ];
+
+        foreach ($carriers as $slug => $config) {
+            $carrier = Carrier::where('slug', $slug)->first();
+            if (!$carrier) continue;
+
+            $table = RateTable::updateOrCreate(
+                ['product_type' => 'auto', 'version' => '2026-Q1', 'carrier_id' => $carrier->id],
+                [
+                    'name' => $config['name'] . ' - 2026 Q1',
+                    'effective_date' => '2026-01-01',
+                    'expiration_date' => '2026-12-31',
+                    'is_active' => true,
+                ]
+            );
+
+            $table->entries()->delete();
+            $table->factors()->delete();
+            $table->riders()->delete();
+            $table->fees()->delete();
+            $table->modalFactors()->delete();
+
+            // Entries: state|vehicle_age_band → annual rate per vehicle
+            foreach ($stateRates as $st => $baseRate) {
+                $adjusted = round($baseRate * $config['base_multiplier']);
+                foreach (['new' => 1.15, 'mid' => 1.00, 'old' => 0.88] as $band => $factor) {
+                    RateTableEntry::create([
+                        'rate_table_id' => $table->id,
+                        'rate_key' => "{$st}|{$band}",
+                        'rate_value' => round($adjusted * $factor, 2),
+                    ]);
+                }
+                // Wildcard fallback
+                RateTableEntry::create([
+                    'rate_table_id' => $table->id,
+                    'rate_key' => "{$st}|*",
+                    'rate_value' => $adjusted,
+                ]);
+            }
+
+            // Factors
+            $factors = [
+                ['factor_code' => 'driver_age', 'factor_label' => 'Driver Age', 'options' => [
+                    ['option_value' => '16-25', 'factor_value' => 1.45, 'sort_order' => 1],
+                    ['option_value' => '26-35', 'factor_value' => 1.10, 'sort_order' => 2],
+                    ['option_value' => '36-55', 'factor_value' => 1.00, 'sort_order' => 3],
+                    ['option_value' => '56-65', 'factor_value' => 0.95, 'sort_order' => 4],
+                    ['option_value' => '66+',   'factor_value' => 1.15, 'sort_order' => 5],
+                ]],
+                ['factor_code' => 'credit_tier', 'factor_label' => 'Credit Tier', 'options' => [
+                    ['option_value' => 'excellent', 'factor_value' => 0.85, 'sort_order' => 1],
+                    ['option_value' => 'good',      'factor_value' => 1.00, 'sort_order' => 2],
+                    ['option_value' => 'fair',       'factor_value' => 1.20, 'sort_order' => 3],
+                    ['option_value' => 'poor',       'factor_value' => 1.45, 'sort_order' => 4],
+                ]],
+                ['factor_code' => 'claims_history', 'factor_label' => 'Claims History (3yr)', 'options' => [
+                    ['option_value' => 'clean',       'factor_value' => 0.90, 'sort_order' => 1],
+                    ['option_value' => '1_claim',     'factor_value' => 1.00, 'sort_order' => 2],
+                    ['option_value' => '2_claims',    'factor_value' => 1.25, 'sort_order' => 3],
+                    ['option_value' => '3_plus',      'factor_value' => 1.50, 'sort_order' => 4],
+                ]],
+            ];
+
+            foreach ($factors as $fg) {
+                foreach ($fg['options'] as $opt) {
+                    RateFactor::create([
+                        'rate_table_id' => $table->id,
+                        'factor_code' => $fg['factor_code'],
+                        'factor_label' => $fg['factor_label'],
+                        'option_value' => $opt['option_value'],
+                        'apply_mode' => 'multiply',
+                        'factor_value' => $opt['factor_value'],
+                        'sort_order' => $opt['sort_order'],
+                    ]);
+                }
+            }
+
+            // Riders
+            $riders = [
+                ['rider_code' => 'roadside', 'rider_label' => 'Roadside Assistance', 'rider_value' => 35, 'is_default' => false],
+                ['rider_code' => 'rental_reimb', 'rider_label' => 'Rental Reimbursement', 'rider_value' => 50, 'is_default' => false],
+                ['rider_code' => 'gap_coverage', 'rider_label' => 'GAP Coverage', 'rider_value' => 75, 'is_default' => false],
+            ];
+            foreach ($riders as $i => $r) {
+                RateRider::create(array_merge($r, [
+                    'rate_table_id' => $table->id,
+                    'apply_mode' => 'add',
+                    'sort_order' => $i + 1,
+                ]));
+            }
+
+            // Fees
+            RateFee::create(['rate_table_id' => $table->id, 'fee_code' => 'policy_fee', 'fee_label' => 'Policy Fee', 'fee_type' => 'fee', 'apply_mode' => 'add', 'fee_value' => 25, 'sort_order' => 1]);
+            RateFee::create(['rate_table_id' => $table->id, 'fee_code' => 'multi_policy', 'fee_label' => 'Multi-Policy Discount', 'fee_type' => 'credit', 'apply_mode' => 'percent', 'fee_value' => 5, 'sort_order' => 2]);
+
+            // Modal factors
+            foreach ([
+                ['mode' => 'annual',     'factor' => 1.000, 'flat_fee' => 0],
+                ['mode' => 'semiannual', 'factor' => 0.520, 'flat_fee' => 5],
+                ['mode' => 'quarterly',  'factor' => 0.265, 'flat_fee' => 5],
+                ['mode' => 'monthly',    'factor' => 0.088, 'flat_fee' => 3],
+            ] as $m) {
+                RateModalFactor::create(array_merge($m, ['rate_table_id' => $table->id]));
+            }
+        }
+    }
+
+    /**
+     * Homeowners insurance rate tables for State Farm, Progressive, Allstate.
+     * Rate per $1000 insured value by state.
+     */
+    private function seedCarrierHomeownersTables(): void
+    {
+        $carriers = [
+            'state-farm'   => ['name' => 'State Farm Homeowners', 'base_multiplier' => 1.00],
+            'progressive'  => ['name' => 'Progressive Homeowners', 'base_multiplier' => 0.95],
+            'allstate'     => ['name' => 'Allstate Homeowners', 'base_multiplier' => 1.08],
+        ];
+
+        // Rate per $1,000 dwelling coverage by state — representative demo values
+        $stateRates = [
+            'CA' => 3.50, 'TX' => 5.20, 'FL' => 6.80, 'NY' => 3.20, 'IL' => 3.00,
+            'PA' => 2.80, 'OH' => 2.60, 'GA' => 3.80, 'NC' => 3.50, 'MI' => 3.10,
+            'NJ' => 3.30, 'VA' => 2.70, 'WA' => 2.50, 'AZ' => 2.90, 'MA' => 3.40,
+            'TN' => 3.60, 'MO' => 4.00, 'MD' => 3.10, 'WI' => 2.40, 'MN' => 2.80,
+            'CO' => 4.50, 'AL' => 4.80, 'SC' => 4.20, 'LA' => 6.50, 'KY' => 3.30,
+            'OR' => 2.60, 'OK' => 5.80, 'CT' => 3.20, 'UT' => 2.50, 'IA' => 3.40,
+            'NV' => 2.80, 'AR' => 4.50, 'MS' => 5.50, 'KS' => 5.00, 'NM' => 3.20,
+            'NE' => 4.20, 'ID' => 2.40, 'WV' => 3.00, 'HI' => 2.80, 'NH' => 2.30,
+            'ME' => 2.50, 'RI' => 3.60, 'MT' => 3.00, 'DE' => 2.70, 'SD' => 3.80,
+            'ND' => 3.50, 'AK' => 3.20, 'VT' => 2.60, 'WY' => 3.00, 'DC' => 2.90,
+            'IN' => 2.80,
+        ];
+
+        foreach ($carriers as $slug => $config) {
+            $carrier = Carrier::where('slug', $slug)->first();
+            if (!$carrier) continue;
+
+            $table = RateTable::updateOrCreate(
+                ['product_type' => 'homeowners', 'version' => '2026-Q1', 'carrier_id' => $carrier->id],
+                [
+                    'name' => $config['name'] . ' - 2026 Q1',
+                    'effective_date' => '2026-01-01',
+                    'expiration_date' => '2026-12-31',
+                    'is_active' => true,
+                ]
+            );
+
+            $table->entries()->delete();
+            $table->factors()->delete();
+            $table->riders()->delete();
+            $table->fees()->delete();
+            $table->modalFactors()->delete();
+
+            // Entries: state → rate per $1,000 dwelling (exposure = dwelling / 1000)
+            foreach ($stateRates as $st => $baseRate) {
+                $adjusted = round($baseRate * $config['base_multiplier'], 4);
+                // With construction type variants
+                foreach (['frame' => 1.00, 'masonry' => 0.90, 'superior' => 0.80] as $const => $factor) {
+                    RateTableEntry::create([
+                        'rate_table_id' => $table->id,
+                        'rate_key' => "{$st}|{$const}",
+                        'rate_value' => round($adjusted * $factor, 4),
+                    ]);
+                }
+                // Wildcard fallback (frame default)
+                RateTableEntry::create([
+                    'rate_table_id' => $table->id,
+                    'rate_key' => "{$st}|*",
+                    'rate_value' => $adjusted,
+                ]);
+            }
+
+            // Factors
+            $factors = [
+                ['factor_code' => 'roof_age', 'factor_label' => 'Roof Age', 'options' => [
+                    ['option_value' => '0-5',   'factor_value' => 0.90, 'sort_order' => 1],
+                    ['option_value' => '6-10',  'factor_value' => 1.00, 'sort_order' => 2],
+                    ['option_value' => '11-15', 'factor_value' => 1.15, 'sort_order' => 3],
+                    ['option_value' => '16-20', 'factor_value' => 1.30, 'sort_order' => 4],
+                    ['option_value' => '21+',   'factor_value' => 1.50, 'sort_order' => 5],
+                ]],
+                ['factor_code' => 'protection_class', 'factor_label' => 'Fire Protection Class', 'options' => [
+                    ['option_value' => '1-3',  'factor_value' => 0.85, 'sort_order' => 1],
+                    ['option_value' => '4-6',  'factor_value' => 1.00, 'sort_order' => 2],
+                    ['option_value' => '7-8',  'factor_value' => 1.20, 'sort_order' => 3],
+                    ['option_value' => '9-10', 'factor_value' => 1.50, 'sort_order' => 4],
+                ]],
+                ['factor_code' => 'deductible', 'factor_label' => 'Deductible', 'options' => [
+                    ['option_value' => '500',  'factor_value' => 1.10, 'sort_order' => 1],
+                    ['option_value' => '1000', 'factor_value' => 1.00, 'sort_order' => 2],
+                    ['option_value' => '2500', 'factor_value' => 0.88, 'sort_order' => 3],
+                    ['option_value' => '5000', 'factor_value' => 0.78, 'sort_order' => 4],
+                ]],
+                ['factor_code' => 'claims_history', 'factor_label' => 'Claims History (5yr)', 'options' => [
+                    ['option_value' => 'clean',    'factor_value' => 0.92, 'sort_order' => 1],
+                    ['option_value' => '1_claim',  'factor_value' => 1.00, 'sort_order' => 2],
+                    ['option_value' => '2_claims', 'factor_value' => 1.30, 'sort_order' => 3],
+                    ['option_value' => '3_plus',   'factor_value' => 1.60, 'sort_order' => 4],
+                ]],
+            ];
+
+            foreach ($factors as $fg) {
+                foreach ($fg['options'] as $opt) {
+                    RateFactor::create([
+                        'rate_table_id' => $table->id,
+                        'factor_code' => $fg['factor_code'],
+                        'factor_label' => $fg['factor_label'],
+                        'option_value' => $opt['option_value'],
+                        'apply_mode' => 'multiply',
+                        'factor_value' => $opt['factor_value'],
+                        'sort_order' => $opt['sort_order'],
+                    ]);
+                }
+            }
+
+            // Riders
+            $riders = [
+                ['rider_code' => 'water_backup', 'rider_label' => 'Water Backup Coverage', 'rider_value' => 0.15, 'is_default' => false],
+                ['rider_code' => 'identity_theft', 'rider_label' => 'Identity Theft Protection', 'rider_value' => 0.05, 'is_default' => false],
+                ['rider_code' => 'equipment_breakdown', 'rider_label' => 'Equipment Breakdown', 'rider_value' => 0.08, 'is_default' => false],
+                ['rider_code' => 'replacement_cost', 'rider_label' => 'Replacement Cost Guarantee', 'rider_value' => 1.12, 'is_default' => true],
+            ];
+            foreach ($riders as $i => $r) {
+                $mode = $r['rider_value'] >= 1 ? 'multiply' : 'add';
+                RateRider::create(array_merge($r, [
+                    'rate_table_id' => $table->id,
+                    'apply_mode' => $mode,
+                    'sort_order' => $i + 1,
+                ]));
+            }
+
+            // Fees
+            RateFee::create(['rate_table_id' => $table->id, 'fee_code' => 'policy_fee', 'fee_label' => 'Policy Fee', 'fee_type' => 'fee', 'apply_mode' => 'add', 'fee_value' => 35, 'sort_order' => 1]);
+            RateFee::create(['rate_table_id' => $table->id, 'fee_code' => 'wind_surcharge', 'fee_label' => 'Windstorm Surcharge', 'fee_type' => 'fee', 'apply_mode' => 'percent', 'fee_value' => 2, 'sort_order' => 2]);
+            RateFee::create(['rate_table_id' => $table->id, 'fee_code' => 'loyalty_discount', 'fee_label' => 'Loyalty Discount', 'fee_type' => 'credit', 'apply_mode' => 'percent', 'fee_value' => 3, 'sort_order' => 3]);
+
+            // Modal factors
+            foreach ([
+                ['mode' => 'annual',     'factor' => 1.000, 'flat_fee' => 0],
+                ['mode' => 'semiannual', 'factor' => 0.515, 'flat_fee' => 5],
+                ['mode' => 'quarterly',  'factor' => 0.262, 'flat_fee' => 5],
+                ['mode' => 'monthly',    'factor' => 0.088, 'flat_fee' => 3],
+            ] as $m) {
+                RateModalFactor::create(array_merge($m, ['rate_table_id' => $table->id]));
+            }
         }
     }
 }
