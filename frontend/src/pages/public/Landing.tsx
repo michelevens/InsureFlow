@@ -781,7 +781,7 @@ export default function Landing() {
           </div>
           <div className="border-t border-slate-200 pt-6 flex flex-col md:flex-row items-center justify-between gap-4">
             <span className="text-sm text-slate-400">&copy; {new Date().getFullYear()} Insurons. All rights reserved.</span>
-            <span className="text-xs text-slate-400">Insurons is a technology platform operated by EnnHealth LLC. Insurons is not an insurance company and does not sell or underwrite insurance. Quotes are estimates and are non-binding. <Link to="/disclosures" className="underline hover:text-slate-500">Disclosures</Link></span>
+            <span className="text-xs text-slate-400">Insurons is a technology platform operated by Acsyom Analytics LLC. Insurons is not an insurance company and does not sell or underwrite insurance. Quotes are estimates and are non-binding. <Link to="/disclosures" className="underline hover:text-slate-500">Disclosures</Link></span>
           </div>
         </div>
       </footer>

@@ -32,7 +32,7 @@ export default function Disclosures() {
           <section>
             <h2 className="text-lg font-bold text-slate-900 mb-3">1. About Insurons</h2>
             <p>
-              Insurons is a technology platform operated by EnnHealth LLC that connects consumers with licensed insurance agents and agencies. <strong>Insurons is not an insurance company, insurance carrier, or licensed insurance broker.</strong> Insurons does not underwrite, bind, or sell insurance policies.
+              Insurons is a technology platform operated by Acsyom Analytics LLC that connects consumers with licensed insurance agents and agencies. <strong>Insurons is not an insurance company, insurance carrier, or licensed insurance broker.</strong> Insurons does not underwrite, bind, or sell insurance policies.
             </p>
             <p className="mt-2">
               All insurance products and services displayed on the Insurons platform are offered and sold exclusively through independent licensed insurance agents and agencies who use the Insurons platform to manage their business operations.
@@ -135,7 +135,7 @@ export default function Disclosures() {
               If you have questions about these disclosures or need additional information, please contact us at:
             </p>
             <div className="mt-3 bg-slate-50 rounded-xl p-4">
-              <p className="font-semibold text-slate-900">EnnHealth LLC — Insurons</p>
+              <p className="font-semibold text-slate-900">Acsyom Analytics LLC — Insurons</p>
               <p className="mt-1">Email: <a href="mailto:legal@insurons.com" className="text-shield-600 hover:underline">legal@insurons.com</a></p>
               <p>Website: <a href="https://insurons.com" className="text-shield-600 hover:underline">insurons.com</a></p>
             </div>
