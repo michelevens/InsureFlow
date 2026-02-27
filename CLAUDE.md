@@ -228,6 +228,21 @@ php artisan serve
 
 ## Recent Work
 
+### Partner Notification System + Demo Agency Websites (2026-02-27)
+- **3 demo agency websites** created as separate GitHub repos with GitHub Pages:
+  - [Maximus Insurance](https://michelevens.github.io/maximus-insurance/) — Navy/Gold premium theme
+  - [Clearstone Insurance](https://michelevens.github.io/clearstone-insurance/) — Emerald/Green transparency theme
+  - [Bamboo Insurance](https://michelevens.github.io/bamboo-insurance/) — Teal modern digital theme
+  - Each integrates the Insurons embed widget with real API keys
+- **3 embed partners created** via API with real keys (Maximus: `emb_OGj...`, Clearstone: `emb_dIo...`, Bamboo: `emb_lkJ...`)
+- **Partner email notifications:** 2 new Mailable classes + blade views
+  - `EmbedQuoteStartedMail` — notifies partner when visitor starts a quote
+  - `EmbedLeadConvertedMail` — notifies partner with full contact + quote details on conversion
+- **Enriched webhook payloads:** `quote_data` included in all webhooks, `contact` object (name, email, phone, zip, coverage) on conversion
+- **Session-to-QuoteRequest linking:** New `/embed/link-session` endpoint + frontend call to connect embed sessions with quote requests
+- **Landing page screenshot carousel:** Replaced static Agency Dashboard mockup with auto-rotating 6-slide carousel (Calculator, Quote Results, Dashboard, CRM, Marketplace, Admin)
+- **Commits:** `1542ea6` (carousel), `d7b4992` (notifications)
+
 ### Railway Deployment — Real Carriers, Rate Tables, Seller Payouts (2026-02-27)
 - Deployed 4 new migrations to Railway (enriched carriers, carrier_products, seller_payouts, rate_tables unique constraint)
 - Re-seeded 44+ real US carriers with NAIC codes, AM Best ratings, domicile states
@@ -586,6 +601,8 @@ All 4 core flows tested against production and **PASSING**:
 - **Test push notifications end-to-end:** Log in on insurons.com → enable push in NotificationBell → trigger a notification → verify browser push appears
 - **Test Kanban board** drag-and-drop on the live frontend (https://insurons.com)
 - **Test embed widget + webhook:** Create partner with webhook URL (use webhook.site) → complete embed flow → verify webhook fires with signed payload
+- **Test partner email notifications:** Visit a demo agency site (Maximus/Clearstone/Bamboo) → complete quote → verify partner receives "New Quote Started" email → submit contact info → verify "New Lead Captured" email
+- **Deploy partner notifications to Railway:** Push + redeploy so email notifications and enriched webhooks work in production
 - Test marketplace auction: create auction listing → place bids → verify min increment enforcement
 - Test `compliance:check-overdue` with overdue test items
 - Test `leads:check-aging` with stale test leads (needs scheduler running)
