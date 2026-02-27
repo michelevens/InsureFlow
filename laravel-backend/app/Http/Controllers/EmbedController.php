@@ -71,6 +71,8 @@ class EmbedController extends Controller
     {
         $data = $request->validate([
             'name' => 'sometimes|string|max:255',
+            'agency_id' => 'nullable|integer|exists:agencies,id',
+            'embed_type' => 'sometimes|string|in:quote,team_signup',
             'allowed_domains' => 'nullable|array',
             'commission_share_percent' => 'nullable|numeric|min:0|max:100',
             'contact_email' => 'nullable|email|max:255',
