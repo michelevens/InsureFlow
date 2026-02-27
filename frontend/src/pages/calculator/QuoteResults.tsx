@@ -1,13 +1,43 @@
 import { useState, useMemo } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button, Card, Badge, Input } from '@/components/ui';
-import { Shield, ShieldCheck, ArrowRight, ArrowLeft, Check, Phone, Mail, Award, CheckCircle2, User, Lock, ArrowUpDown, LayoutGrid, Table2, ChevronDown } from 'lucide-react';
+import { Shield, ShieldCheck, ArrowRight, ArrowLeft, Check, Phone, Mail, Award, CheckCircle2, User, Lock, ArrowUpDown, LayoutGrid, Table2, ChevronDown, Eye, EyeOff, CheckCircle, AlertCircle, XCircle } from 'lucide-react';
 import { quoteService, authService } from '@/services/api';
 import { useAuth } from '@/hooks/useAuth';
 import type { EstimateQuote, QuoteBreakdown } from '@/services/api/quotes';
 import { CalculatorBreakdownChart } from '@/components/marketplace/PremiumBreakdownChart';
 
 type SortOption = 'recommended' | 'price_asc' | 'price_desc' | 'deductible_asc' | 'rating';
+
+function getPasswordStrength(password: string) {
+  const checks = [
+    { label: '8+ characters', met: password.length >= 8 },
+    { label: 'Uppercase letter', met: /[A-Z]/.test(password) },
+    { label: 'Lowercase letter', met: /[a-z]/.test(password) },
+    { label: 'Number', met: /[0-9]/.test(password) },
+    { label: 'Special character', met: /[^A-Za-z0-9]/.test(password) },
+  ];
+  const score = checks.filter(c => c.met).length;
+  if (score <= 2) return { score, label: 'Weak', color: 'bg-red-500', checks };
+  if (score <= 3) return { score, label: 'Fair', color: 'bg-amber-500', checks };
+  if (score <= 4) return { score, label: 'Good', color: 'bg-teal-500', checks };
+  return { score, label: 'Strong', color: 'bg-green-500', checks };
+}
+
+function generateStrongPassword(): string {
+  const upper = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+  const lower = 'abcdefghjkmnpqrstuvwxyz';
+  const nums = '23456789';
+  const special = '!@#$%&*?';
+  const all = upper + lower + nums + special;
+  let pw = '';
+  pw += upper[Math.floor(Math.random() * upper.length)];
+  pw += lower[Math.floor(Math.random() * lower.length)];
+  pw += nums[Math.floor(Math.random() * nums.length)];
+  pw += special[Math.floor(Math.random() * special.length)];
+  for (let i = 4; i < 14; i++) pw += all[Math.floor(Math.random() * all.length)];
+  return pw.split('').sort(() => Math.random() - 0.5).join('');
+}
 
 /** Synthetic fallback for quotes without a server-side breakdown (e.g. cached / older quotes) */
 function syntheticBreakdown(monthly: number): QuoteBreakdown {
@@ -40,6 +70,7 @@ export default function QuoteResults() {
   const [signingUp, setSigningUp] = useState(false);
   const [signedUp, setSignedUp] = useState(false);
   const [signupError, setSignupError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [sortBy, setSortBy] = useState<SortOption>('recommended');
   const [viewMode, setViewMode] = useState<'cards' | 'compare'>('cards');
   const [expandedQuote, setExpandedQuote] = useState<number | null>(null);
@@ -105,6 +136,14 @@ export default function QuoteResults() {
     } finally {
       setSaving(false);
     }
+  };
+
+  const passwordStrength = getPasswordStrength(signupForm.password);
+
+  const handleSuggestPassword = () => {
+    const pw = generateStrongPassword();
+    setSignupForm(f => ({ ...f, password: pw, password_confirmation: pw }));
+    setShowPassword(true);
   };
 
   const handleSignup = async () => {
@@ -610,22 +649,78 @@ export default function QuoteResults() {
                         <p><span className="font-medium">Email:</span> {contact.email}</p>
                       </div>
                       {signupError && <div className="p-3 rounded-lg bg-red-50 text-red-700 text-sm">{signupError}</div>}
-                      <Input
-                        label="Password"
-                        type="password"
-                        placeholder="Create a password (8+ characters)"
-                        value={signupForm.password}
-                        onChange={e => setSignupForm(f => ({ ...f, password: e.target.value }))}
-                        leftIcon={<Lock className="w-4 h-4" />}
-                      />
-                      <Input
-                        label="Confirm Password"
-                        type="password"
-                        placeholder="Confirm your password"
-                        value={signupForm.password_confirmation}
-                        onChange={e => setSignupForm(f => ({ ...f, password_confirmation: e.target.value }))}
-                        leftIcon={<Lock className="w-4 h-4" />}
-                      />
+                      <div>
+                        <div className="flex items-center justify-between mb-1">
+                          <label className="block text-sm font-medium text-slate-700">Password</label>
+                          <button
+                            type="button"
+                            onClick={handleSuggestPassword}
+                            className="text-xs text-teal-600 hover:text-teal-700 font-medium"
+                          >
+                            Suggest strong password
+                          </button>
+                        </div>
+                        <div className="relative">
+                          <Input
+                            type={showPassword ? 'text' : 'password'}
+                            placeholder="Create a password"
+                            value={signupForm.password}
+                            onChange={e => setSignupForm(f => ({ ...f, password: e.target.value }))}
+                            leftIcon={<Lock className="w-4 h-4" />}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                          >
+                            {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                          </button>
+                        </div>
+                        {signupForm.password.length > 0 && (
+                          <div className="mt-2">
+                            <div className="flex gap-1 mb-1.5">
+                              {[1, 2, 3, 4, 5].map(i => (
+                                <div
+                                  key={i}
+                                  className={`h-1.5 flex-1 rounded-full transition-colors ${
+                                    i <= passwordStrength.score ? passwordStrength.color : 'bg-slate-200'
+                                  }`}
+                                />
+                              ))}
+                            </div>
+                            <p className={`text-xs font-medium ${
+                              passwordStrength.score <= 2 ? 'text-red-600' :
+                              passwordStrength.score <= 3 ? 'text-amber-600' :
+                              'text-green-600'
+                            }`}>
+                              {passwordStrength.label}
+                            </p>
+                            <div className="flex flex-wrap gap-x-3 gap-y-0.5 mt-1">
+                              {passwordStrength.checks.map(c => (
+                                <span key={c.label} className={`text-xs flex items-center gap-0.5 ${c.met ? 'text-green-600' : 'text-slate-400'}`}>
+                                  {c.met ? <CheckCircle className="w-3 h-3" /> : <AlertCircle className="w-3 h-3" />}
+                                  {c.label}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                      <div>
+                        <Input
+                          label="Confirm Password"
+                          type={showPassword ? 'text' : 'password'}
+                          placeholder="Confirm your password"
+                          value={signupForm.password_confirmation}
+                          onChange={e => setSignupForm(f => ({ ...f, password_confirmation: e.target.value }))}
+                          leftIcon={<Lock className="w-4 h-4" />}
+                        />
+                        {signupForm.password_confirmation && signupForm.password !== signupForm.password_confirmation && (
+                          <p className="text-xs text-red-600 flex items-center gap-1 mt-1">
+                            <XCircle className="w-3.5 h-3.5" /> Passwords do not match
+                          </p>
+                        )}
+                      </div>
                       <Button
                         variant="shield"
                         className="w-full"
