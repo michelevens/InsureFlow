@@ -190,7 +190,7 @@ php artisan serve
 - **Frontend:** 65+ pages built, TypeScript passes, Vite build succeeds, deployed to **insurons.com**
 - **Backend:** Laravel 12 on Railway — **All 14 phases deployed**, all endpoints live
 - **API Domain:** api.insurons.com — WORKING, CORS configured for insurons.com
-- **Database:** All migrations run (100+ total including Phase 10-14) + 3 pending deploy (enrich_carriers_table, add_product_code_to_carrier_products, create_seller_payouts_tables), 39 compliance requirements seeded, 160+ ZIP codes seeded
+- **Database:** All migrations run (100+ total, 32 batches), 39 compliance requirements seeded, 160+ ZIP codes seeded
 - **Seller Payouts:** Full marketplace earnings payout system — seller_balances + seller_payout_requests tables, balance tracking on every sale, payout request with admin approval, Stripe Connect transfer, Payouts tab in Lead Marketplace UI
 - **Seed Data:** 7 subscription plans (competitive tiers), ~44 real US carriers with NAIC codes (replaces old 10 demo carriers), 6 demo users, 35+ platform products, 10 agencies (50 agents), 70 leads, 3 rate tables (DI LTD, Term Life, LTC) + 6 carrier-specific rate tables (auto+homeowners for State Farm/Progressive/Allstate) — 180+ rate entries + PipelineSeeder (25 applications, 15 policies, 15 commissions, 6 claims, 12 appointments, 20 routing rules) + 39 compliance requirements
 - **Lead Pipeline:** Full InsuranceProfile → Lead → RoutingEngine → LeadScoring pipeline wired for intake submissions
@@ -227,6 +227,15 @@ php artisan serve
 - **ZIP Code Autocomplete:** 160+ ZIP codes seeded and lookup working on production
 
 ## Recent Work
+
+### Railway Deployment — Real Carriers, Rate Tables, Seller Payouts (2026-02-27)
+- Deployed 4 new migrations to Railway (enriched carriers, carrier_products, seller_payouts, rate_tables unique constraint)
+- Re-seeded 44+ real US carriers with NAIC codes, AM Best ratings, domicile states
+- Re-seeded 9 rate tables (3 generic + 6 carrier-specific for State Farm/Progressive/Allstate)
+- Fixed duplicate NAIC code: Chubb corrected to `20281` (Federal Insurance Company)
+- Fixed `rate_tables` unique constraint to include `carrier_id` (allows per-carrier rate tables)
+- Verified two-tier quoting on production: State Farm/Progressive/Allstate → `rate_table`, others → `estimate`
+- Verified seller payouts endpoints: balance, history, admin list — all returning correct data
 
 ### Lead Seller Payouts System (2026-02-27)
 Full marketplace earnings payout system for agencies that sell leads:
@@ -554,12 +563,12 @@ All 4 core flows tested against production and **PASSING**:
 
 ## Next Tasks
 
-### Immediate — Deploy to Railway (P0)
-- **Run 3 new migrations on Railway:** `php artisan migrate` — creates enriched carrier columns, carrier_product columns, seller_balances + seller_payout_requests tables
-- **Re-seed carriers:** `php artisan db:seed --class=CarrierSeeder` — replaces 10 demo carriers with ~44 real US carriers
-- **Re-seed rate tables:** `php artisan db:seed --class=RateTableSeeder` — adds 6 carrier-specific rate tables (auto+homeowners for State Farm/Progressive/Allstate)
-- **Test two-tier quoting:** `POST /api/calculator/estimate` with State Farm zip → should return `rating_source: 'rate_table'` with factor breakdown. Test carrier without rate table → should return `rating_source: 'estimate'` (fallback).
-- **Test seller payouts:** Sell a lead → check seller balance credited → request payout → admin approve → verify completion
+### ~~Immediate — Deploy to Railway (P0)~~ DONE
+- ~~Run 4 migrations on Railway~~ DONE — enriched carriers, carrier_products, seller_payouts, rate_tables unique constraint fix
+- ~~Re-seed carriers~~ DONE — 44+ real US carriers with NAIC codes live on production
+- ~~Re-seed rate tables~~ DONE — 9 rate tables (3 generic + 6 carrier-specific) live
+- ~~Test two-tier quoting~~ DONE — State Farm/Progressive/Allstate return `rating_source: 'rate_table'`, others return `estimate`
+- ~~Test seller payouts~~ DONE — balance, history, admin endpoints all verified on production
 
 ### Monetization
 - ~~**Add Stripe keys to Railway:**~~ DONE
