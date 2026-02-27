@@ -15,7 +15,7 @@ import {
   User, Car, Home, Building2, HelpCircle, Shield, Trash2, FileText, ArrowRight,
   Layers, Target, ClipboardList, Calculator, DollarSign, History, CheckCircle2,
   XCircle, TrendingUp, ToggleLeft, ToggleRight, RefreshCw, ShoppingCart, FileDown, Star, Award,
-  LayoutList, LayoutGrid,
+  LayoutList, LayoutGrid, Send,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -104,6 +104,7 @@ export default function Leads() {
   const [showConvert, setShowConvert] = useState<number | null>(null);
   const [showRating, setShowRating] = useState<number | null>(null);
   const [showSellLead, setShowSellLead] = useState(false);
+  const [showAddQuote, setShowAddQuote] = useState<number | null>(null);
 
   // Reference data
   const [productTypes, setProductTypes] = useState<ProductTypeMap>({});
@@ -418,18 +419,7 @@ export default function Leads() {
                           <h3 className="text-sm font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
                             <DollarSign className="w-4 h-4" /> Carrier Quotes ({scenario.quotes?.length ?? 0})
                           </h3>
-                          <Button variant="outline" size="sm" onClick={() => {
-                            const carrier = prompt('Carrier name:');
-                            if (!carrier) return;
-                            const premium = prompt('Monthly premium:');
-                            if (!premium) return;
-                            scenarioService.addQuote(selectedLead!.id, scenario.id, {
-                              carrier_name: carrier,
-                              premium_monthly: parseFloat(premium),
-                              status: 'quoted',
-                            }).then(() => { toast.success('Quote added'); refreshScenarios(); })
-                              .catch(() => toast.error('Failed to add quote'));
-                          }}>
+                          <Button variant="outline" size="sm" onClick={() => setShowAddQuote(scenario.id)}>
                             <Plus className="w-3 h-3 mr-1" /> Add Quote
                           </Button>
                         </div>
@@ -581,6 +571,18 @@ export default function Leads() {
                         </Button>
                         <Button variant="outline" size="sm" onClick={async () => {
                           try {
+                            const res = await marketplaceService.sendToConsumer(selectedLead!.id, scenario.id);
+                            await navigator.clipboard.writeText(res.view_url);
+                            toast.success('Sent to consumer! Link copied to clipboard.');
+                            refreshScenarios();
+                          } catch (e: unknown) {
+                            toast.error(e instanceof Error ? e.message : 'Failed to send');
+                          }
+                        }}>
+                          <Send className="w-4 h-4 mr-1" /> Send to Consumer
+                        </Button>
+                        <Button variant="outline" size="sm" onClick={async () => {
+                          try {
                             await scenarioService.generateProposal(selectedLead!.id, scenario.id);
                             toast.success('Proposal PDF downloaded');
                           } catch (e: unknown) {
@@ -653,6 +655,15 @@ export default function Leads() {
             lead={selectedLead}
             onClose={() => setShowSellLead(false)}
             onListed={() => { setShowSellLead(false); toast.success('Lead listed on marketplace!'); }}
+          />
+        )}
+
+        {showAddQuote !== null && (
+          <AddQuoteModal
+            leadId={selectedLead.id}
+            scenarioId={showAddQuote}
+            onClose={() => setShowAddQuote(null)}
+            onAdded={() => { setShowAddQuote(null); refreshScenarios(); }}
           />
         )}
       </div>
@@ -1966,6 +1977,113 @@ function RatingPanel({ scenario, onClose, onRated }: {
             )}
           </div>
         )}
+      </div>
+    </Modal>
+  );
+}
+
+// ── Add Quote Modal ────────────────────────────────
+
+function AddQuoteModal({ leadId, scenarioId, onClose, onAdded }: {
+  leadId: number; scenarioId: number; onClose: () => void; onAdded: () => void;
+}) {
+  const [carriers, setCarriers] = useState<Carrier[]>([]);
+  const [form, setForm] = useState({
+    carrier_id: '' as string,
+    carrier_name: '',
+    product_name: '',
+    premium_monthly: '',
+    premium_annual: '',
+    am_best_rating: '',
+    financial_strength_score: '',
+    agent_notes: '',
+    is_recommended: false,
+  });
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    carrierService.list().then(list => setCarriers(list)).catch(() => {});
+  }, []);
+
+  const handleCarrierSelect = (val: string) => {
+    setForm(prev => {
+      const carrier = carriers.find(c => c.id === Number(val));
+      return { ...prev, carrier_id: val, carrier_name: carrier?.name || prev.carrier_name, am_best_rating: carrier?.am_best_rating || prev.am_best_rating };
+    });
+  };
+
+  const handleSubmit = async () => {
+    if (!form.carrier_name.trim()) { toast.error('Carrier name is required'); return; }
+    if (!form.premium_monthly) { toast.error('Monthly premium is required'); return; }
+    setSaving(true);
+    try {
+      const monthly = parseFloat(form.premium_monthly);
+      const annual = form.premium_annual ? parseFloat(form.premium_annual) : monthly * 12;
+      await scenarioService.addQuote(leadId, scenarioId, {
+        carrier_id: form.carrier_id ? Number(form.carrier_id) : null,
+        carrier_name: form.carrier_name,
+        product_name: form.product_name || null,
+        premium_monthly: monthly,
+        premium_annual: annual,
+        am_best_rating: form.am_best_rating || null,
+        financial_strength_score: form.financial_strength_score ? Number(form.financial_strength_score) : null,
+        agent_notes: form.agent_notes || null,
+        is_recommended: form.is_recommended,
+        status: 'quoted',
+      });
+      toast.success('Quote added');
+      onAdded();
+    } catch {
+      toast.error('Failed to add quote');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const set = (field: string, value: string | boolean) => setForm(prev => ({ ...prev, [field]: value }));
+
+  return (
+    <Modal isOpen onClose={onClose} title="Add Carrier Quote">
+      <div className="space-y-4">
+        <div>
+          <Select
+            label="Carrier"
+            options={[
+              { value: '', label: 'Select a carrier...' },
+              ...carriers.map(c => ({ value: String(c.id), label: `${c.name}${c.am_best_rating ? ` (${c.am_best_rating})` : ''}` })),
+            ]}
+            value={form.carrier_id}
+            onChange={e => handleCarrierSelect(e.target.value)}
+          />
+          {!form.carrier_id && (
+            <Input className="mt-2" value={form.carrier_name} onChange={e => set('carrier_name', e.target.value)} placeholder="Or type carrier name manually" />
+          )}
+        </div>
+
+        <Input label="Product Name" value={form.product_name} onChange={e => set('product_name', e.target.value)} placeholder="e.g. Preferred LTC Plan" />
+
+        <div className="grid grid-cols-2 gap-3">
+          <Input label="Monthly Premium *" type="number" value={form.premium_monthly} onChange={e => set('premium_monthly', e.target.value)} placeholder="0.00" />
+          <Input label="Annual Premium" type="number" value={form.premium_annual} onChange={e => set('premium_annual', e.target.value)} placeholder="Auto-calculated if blank" />
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
+          <Input label="AM Best Rating" value={form.am_best_rating} onChange={e => set('am_best_rating', e.target.value)} placeholder="A+" />
+          <Input label="Financial Strength (0-10)" type="number" value={form.financial_strength_score} onChange={e => set('financial_strength_score', e.target.value)} placeholder="8" />
+        </div>
+
+        <Textarea label="Agent Notes" value={form.agent_notes} onChange={e => set('agent_notes', e.target.value)} placeholder="Internal notes about this quote..." rows={2} />
+
+        <label className="flex items-center gap-2 text-sm">
+          <input type="checkbox" checked={form.is_recommended} onChange={e => set('is_recommended', e.target.checked)}
+            className="w-4 h-4 rounded border-slate-300 text-shield-600 focus:ring-shield-500" />
+          <span className="text-slate-700 dark:text-slate-200">Recommend this quote</span>
+        </label>
+      </div>
+
+      <div className="flex justify-end gap-2 mt-6">
+        <Button variant="outline" onClick={onClose}>Cancel</Button>
+        <Button variant="shield" onClick={handleSubmit} disabled={saving}>{saving ? 'Adding...' : 'Add Quote'}</Button>
       </div>
     </Modal>
   );
