@@ -340,7 +340,7 @@ class AdminRateTableController extends Controller
 
         $request->validate([
             'file' => 'required|file|mimes:csv,txt|max:5120',
-            'type' => 'required|in:entries,factors,riders,fees',
+            'type' => 'required|in:entries,factors,riders,fees,modal_factors',
         ]);
 
         $file = $request->file('file');
@@ -408,11 +408,216 @@ class AdminRateTableController extends Controller
                 );
                 $imported++;
             }
+        } elseif ($type === 'modal_factors') {
+            foreach ($rows as $row) {
+                $data = array_combine($headers, $row);
+                if (!isset($data['mode'], $data['factor'])) continue;
+                RateModalFactor::updateOrCreate(
+                    ['rate_table_id' => $table->id, 'mode' => trim($data['mode'])],
+                    [
+                        'factor' => (float) $data['factor'],
+                        'flat_fee' => (float) ($data['flat_fee'] ?? 0),
+                    ]
+                );
+                $imported++;
+            }
         }
 
         return response()->json([
             'message' => "Imported {$imported} {$type}",
             'imported' => $imported,
         ]);
+    }
+
+    // ── Import Preview (dry-run) ────────────────────
+
+    public function importPreview(Request $request, int $tableId): JsonResponse
+    {
+        RateTable::findOrFail($tableId);
+
+        $request->validate([
+            'file' => 'required|file|mimes:csv,txt|max:5120',
+            'type' => 'required|in:entries,factors,riders,fees,modal_factors',
+        ]);
+
+        $file = $request->file('file');
+        $type = $request->type;
+        $rows = array_map('str_getcsv', file($file->getPathname()));
+        $headers = array_shift($rows);
+        $headers = array_map('trim', $headers);
+
+        $validRows = 0;
+        $invalidRows = 0;
+        $sampleData = [];
+
+        $requiredFields = match ($type) {
+            'entries' => ['rate_key', 'rate_value'],
+            'factors' => ['factor_code', 'option_value', 'factor_value'],
+            'riders' => ['rider_code', 'rider_value'],
+            'fees' => ['fee_code', 'fee_value'],
+            'modal_factors' => ['mode', 'factor'],
+        };
+
+        // Check headers
+        $missingHeaders = array_diff($requiredFields, $headers);
+        if (!empty($missingHeaders)) {
+            return response()->json([
+                'valid' => false,
+                'error' => 'Missing required columns: ' . implode(', ', $missingHeaders),
+                'headers_found' => $headers,
+                'headers_required' => $requiredFields,
+            ], 422);
+        }
+
+        foreach ($rows as $row) {
+            if (count($row) !== count($headers)) {
+                $invalidRows++;
+                continue;
+            }
+            $data = array_combine($headers, $row);
+            $hasRequired = true;
+            foreach ($requiredFields as $field) {
+                if (!isset($data[$field]) || trim($data[$field]) === '') {
+                    $hasRequired = false;
+                    break;
+                }
+            }
+            if ($hasRequired) {
+                $validRows++;
+                if (count($sampleData) < 5) {
+                    $sampleData[] = $data;
+                }
+            } else {
+                $invalidRows++;
+            }
+        }
+
+        return response()->json([
+            'valid' => true,
+            'type' => $type,
+            'total_rows' => count($rows),
+            'valid_rows' => $validRows,
+            'invalid_rows' => $invalidRows,
+            'headers' => $headers,
+            'sample_data' => $sampleData,
+        ]);
+    }
+
+    // ── Bulk Carrier Import ─────────────────────────
+
+    public function carrierImport(Request $request): JsonResponse
+    {
+        $request->validate([
+            'carrier_id' => 'required|integer|exists:carriers,id',
+            'product_type' => 'required|string|max:60',
+            'version' => 'required|string|max:20',
+            'name' => 'required|string|max:255',
+            'effective_date' => 'nullable|date',
+            'entries_file' => 'required|file|mimes:csv,txt|max:5120',
+            'factors_file' => 'nullable|file|mimes:csv,txt|max:5120',
+            'riders_file' => 'nullable|file|mimes:csv,txt|max:5120',
+            'fees_file' => 'nullable|file|mimes:csv,txt|max:5120',
+            'modal_factors_file' => 'nullable|file|mimes:csv,txt|max:5120',
+        ]);
+
+        $table = RateTable::create([
+            'product_type' => $request->product_type,
+            'version' => $request->version,
+            'name' => $request->name,
+            'carrier_id' => $request->carrier_id,
+            'effective_date' => $request->effective_date ?? now(),
+            'is_active' => true,
+        ]);
+
+        $results = [];
+
+        // Import entries (required)
+        $results['entries'] = $this->importFileToTable($table, $request->file('entries_file'), 'entries');
+
+        // Import optional sub-resources
+        foreach (['factors', 'riders', 'fees', 'modal_factors'] as $type) {
+            $fileKey = $type . '_file';
+            if ($request->hasFile($fileKey)) {
+                $results[$type] = $this->importFileToTable($table, $request->file($fileKey), $type);
+            }
+        }
+
+        return response()->json([
+            'message' => 'Carrier rate table created with imported data',
+            'rate_table' => $table->load('carrier:id,name,slug')->loadCount('entries'),
+            'import_results' => $results,
+        ], 201);
+    }
+
+    private function importFileToTable(RateTable $table, $file, string $type): array
+    {
+        $rows = array_map('str_getcsv', file($file->getPathname()));
+        $headers = array_map('trim', array_shift($rows));
+        $imported = 0;
+
+        foreach ($rows as $row) {
+            if (count($row) !== count($headers)) continue;
+            $data = array_combine($headers, $row);
+
+            switch ($type) {
+                case 'entries':
+                    if (!isset($data['rate_key'], $data['rate_value'])) continue 2;
+                    RateTableEntry::create([
+                        'rate_table_id' => $table->id,
+                        'rate_key' => trim($data['rate_key']),
+                        'rate_value' => (float) $data['rate_value'],
+                        'dimensions' => isset($data['dimensions']) ? json_decode($data['dimensions'], true) : null,
+                    ]);
+                    break;
+                case 'factors':
+                    if (!isset($data['factor_code'], $data['option_value'], $data['factor_value'])) continue 2;
+                    RateFactor::create([
+                        'rate_table_id' => $table->id,
+                        'factor_code' => trim($data['factor_code']),
+                        'factor_label' => trim($data['factor_label'] ?? $data['factor_code']),
+                        'option_value' => trim($data['option_value']),
+                        'apply_mode' => trim($data['apply_mode'] ?? 'multiply'),
+                        'factor_value' => (float) $data['factor_value'],
+                        'sort_order' => (int) ($data['sort_order'] ?? 0),
+                    ]);
+                    break;
+                case 'riders':
+                    if (!isset($data['rider_code'], $data['rider_value'])) continue 2;
+                    RateRider::create([
+                        'rate_table_id' => $table->id,
+                        'rider_code' => trim($data['rider_code']),
+                        'rider_label' => trim($data['rider_label'] ?? $data['rider_code']),
+                        'apply_mode' => trim($data['apply_mode'] ?? 'add'),
+                        'rider_value' => (float) $data['rider_value'],
+                        'is_default' => filter_var($data['is_default'] ?? false, FILTER_VALIDATE_BOOLEAN),
+                        'sort_order' => (int) ($data['sort_order'] ?? 0),
+                    ]);
+                    break;
+                case 'fees':
+                    if (!isset($data['fee_code'], $data['fee_value'])) continue 2;
+                    RateFee::create([
+                        'rate_table_id' => $table->id,
+                        'fee_code' => trim($data['fee_code']),
+                        'fee_label' => trim($data['fee_label'] ?? $data['fee_code']),
+                        'fee_type' => trim($data['fee_type'] ?? 'fee'),
+                        'apply_mode' => trim($data['apply_mode'] ?? 'add'),
+                        'fee_value' => (float) $data['fee_value'],
+                        'sort_order' => (int) ($data['sort_order'] ?? 0),
+                    ]);
+                    break;
+                case 'modal_factors':
+                    if (!isset($data['mode'], $data['factor'])) continue 2;
+                    RateModalFactor::create([
+                        'rate_table_id' => $table->id,
+                        'mode' => trim($data['mode']),
+                        'factor' => (float) $data['factor'],
+                        'flat_fee' => (float) ($data['flat_fee'] ?? 0),
+                    ]);
+                    break;
+            }
+            $imported++;
+        }
+
+        return ['type' => $type, 'imported' => $imported];
     }
 }

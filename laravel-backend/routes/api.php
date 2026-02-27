@@ -738,6 +738,7 @@ Route::middleware(['auth:sanctum', 'agency.scope'])->group(function () {
 
         // Rate Table Management
         Route::get('/rate-tables/carriers', [AdminRateTableController::class, 'carriers']);
+        Route::post('/rate-tables/carrier-import', [AdminRateTableController::class, 'carrierImport']);
         Route::get('/rate-tables', [AdminRateTableController::class, 'index']);
         Route::post('/rate-tables', [AdminRateTableController::class, 'store']);
         Route::get('/rate-tables/{rateTable}', [AdminRateTableController::class, 'show']);
@@ -746,6 +747,7 @@ Route::middleware(['auth:sanctum', 'agency.scope'])->group(function () {
         Route::put('/rate-tables/{rateTable}/toggle-status', [AdminRateTableController::class, 'toggleStatus']);
         Route::post('/rate-tables/{rateTable}/clone', [AdminRateTableController::class, 'cloneTable']);
         Route::post('/rate-tables/{rateTable}/import-csv', [AdminRateTableController::class, 'importCsv']);
+        Route::post('/rate-tables/{rateTable}/import-preview', [AdminRateTableController::class, 'importPreview']);
         // Rate Table sub-resources
         Route::post('/rate-tables/{rateTable}/entries', [AdminRateTableController::class, 'storeEntry']);
         Route::put('/rate-tables/{rateTable}/entries/{entry}', [AdminRateTableController::class, 'updateEntry']);
