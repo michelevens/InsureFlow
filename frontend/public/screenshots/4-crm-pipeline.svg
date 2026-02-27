@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" fill="none">
+  <defs>
+    <linearGradient id="bg4" x1="0" y1="0" x2="800" y2="500" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#f8fafc"/>
+      <stop offset="1" stop-color="#e2e8f0"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="500" rx="12" fill="url(#bg4)"/>
+  <!-- Sidebar -->
+  <rect width="200" height="500" rx="12" fill="#1e293b"/>
+  <rect x="12" width="188" height="500" fill="#1e293b"/>
+  <circle cx="40" cy="32" r="14" fill="#3b82f6" opacity="0.8"/>
+  <text x="62" y="37" font-family="system-ui,sans-serif" font-size="14" font-weight="700" fill="white">Insurons</text>
+  <text x="48" y="93" font-family="system-ui,sans-serif" font-size="12" fill="#94a3b8">Dashboard</text>
+  <rect x="16" y="105" width="168" height="36" rx="8" fill="#334155"/>
+  <text x="48" y="128" font-family="system-ui,sans-serif" font-size="12" font-weight="600" fill="white">Leads</text>
+  <circle cx="32" cy="123" r="4" fill="#3b82f6"/>
+  <text x="48" y="158" font-family="system-ui,sans-serif" font-size="12" fill="#94a3b8">Pipeline</text>
+  <text x="48" y="186" font-family="system-ui,sans-serif" font-size="12" fill="#94a3b8">Quotes</text>
+  <text x="48" y="214" font-family="system-ui,sans-serif" font-size="12" fill="#94a3b8">Messages</text>
+  <!-- Top bar -->
+  <rect x="200" y="0" width="600" height="56" fill="white" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="230" y="34" font-family="system-ui,sans-serif" font-size="18" font-weight="700" fill="#1e293b">CRM Pipeline</text>
+  <rect x="620" y="16" width="80" height="28" rx="8" fill="#2563eb"/>
+  <text x="660" y="35" font-family="system-ui,sans-serif" font-size="11" font-weight="600" fill="white" text-anchor="middle">+ Add Lead</text>
+  <!-- Kanban columns -->
+  <!-- New Leads -->
+  <rect x="215" y="70" width="135" height="420" rx="10" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="230" y="92" font-family="system-ui,sans-serif" font-size="11" font-weight="700" fill="#1e293b">New Leads</text>
+  <rect x="300" y="80" width="28" height="18" rx="9" fill="#dbeafe"/>
+  <text x="314" y="93" font-family="system-ui,sans-serif" font-size="10" font-weight="600" fill="#2563eb" text-anchor="middle">12</text>
+  <!-- Card 1 -->
+  <rect x="223" y="105" width="119" height="80" rx="8" fill="white" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="233" y="123" font-family="system-ui,sans-serif" font-size="11" font-weight="600" fill="#1e293b">John Doe</text>
+  <text x="233" y="138" font-family="system-ui,sans-serif" font-size="9" fill="#64748b">Auto • $250K</text>
+  <rect x="233" y="148" width="40" height="16" rx="8" fill="#dcfce7"/>
+  <text x="253" y="160" font-family="system-ui,sans-serif" font-size="8" font-weight="600" fill="#16a34a" text-anchor="middle">A</text>
+  <text x="233" y="178" font-family="system-ui,sans-serif" font-size="8" fill="#94a3b8">2 min ago</text>
+  <!-- Card 2 -->
+  <rect x="223" y="195" width="119" height="80" rx="8" fill="white" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="233" y="213" font-family="system-ui,sans-serif" font-size="11" font-weight="600" fill="#1e293b">Sarah Miller</text>
+  <text x="233" y="228" font-family="system-ui,sans-serif" font-size="9" fill="#64748b">Home • $500K</text>
+  <rect x="233" y="238" width="40" height="16" rx="8" fill="#fef3c7"/>
+  <text x="253" y="250" font-family="system-ui,sans-serif" font-size="8" font-weight="600" fill="#d97706" text-anchor="middle">B</text>
+  <text x="233" y="268" font-family="system-ui,sans-serif" font-size="8" fill="#94a3b8">15 min ago</text>
+  <!-- Contacted -->
+  <rect x="358" y="70" width="135" height="420" rx="10" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="373" y="92" font-family="system-ui,sans-serif" font-size="11" font-weight="700" fill="#1e293b">Contacted</text>
+  <rect x="445" y="80" width="28" height="18" rx="9" fill="#fef3c7"/>
+  <text x="459" y="93" font-family="system-ui,sans-serif" font-size="10" font-weight="600" fill="#d97706" text-anchor="middle">8</text>
+  <rect x="366" y="105" width="119" height="80" rx="8" fill="white" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="376" y="123" font-family="system-ui,sans-serif" font-size="11" font-weight="600" fill="#1e293b">Tom Wilson</text>
+  <text x="376" y="138" font-family="system-ui,sans-serif" font-size="9" fill="#64748b">Life • $1M</text>
+  <rect x="376" y="148" width="40" height="16" rx="8" fill="#dcfce7"/>
+  <text x="396" y="160" font-family="system-ui,sans-serif" font-size="8" font-weight="600" fill="#16a34a" text-anchor="middle">A</text>
+  <text x="376" y="178" font-family="system-ui,sans-serif" font-size="8" fill="#94a3b8">1 hour ago</text>
+  <!-- Quoted -->
+  <rect x="501" y="70" width="135" height="420" rx="10" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="516" y="92" font-family="system-ui,sans-serif" font-size="11" font-weight="700" fill="#1e293b">Quoted</text>
+  <rect x="568" y="80" width="28" height="18" rx="9" fill="#e0e7ff"/>
+  <text x="582" y="93" font-family="system-ui,sans-serif" font-size="10" font-weight="600" fill="#4f46e5" text-anchor="middle">5</text>
+  <rect x="509" y="105" width="119" height="80" rx="8" fill="white" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="519" y="123" font-family="system-ui,sans-serif" font-size="11" font-weight="600" fill="#1e293b">Amy Roberts</text>
+  <text x="519" y="138" font-family="system-ui,sans-serif" font-size="9" fill="#64748b">Home • $350K</text>
+  <rect x="519" y="148" width="40" height="16" rx="8" fill="#dcfce7"/>
+  <text x="539" y="160" font-family="system-ui,sans-serif" font-size="8" font-weight="600" fill="#16a34a" text-anchor="middle">A+</text>
+  <text x="519" y="178" font-family="system-ui,sans-serif" font-size="8" fill="#94a3b8">Yesterday</text>
+  <!-- Bound -->
+  <rect x="644" y="70" width="135" height="420" rx="10" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="659" y="92" font-family="system-ui,sans-serif" font-size="11" font-weight="700" fill="#1e293b">Bound</text>
+  <rect x="706" y="80" width="28" height="18" rx="9" fill="#dcfce7"/>
+  <text x="720" y="93" font-family="system-ui,sans-serif" font-size="10" font-weight="600" fill="#16a34a" text-anchor="middle">3</text>
+  <rect x="652" y="105" width="119" height="80" rx="8" fill="white" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="662" y="123" font-family="system-ui,sans-serif" font-size="11" font-weight="600" fill="#1e293b">Lisa Chen</text>
+  <text x="662" y="138" font-family="system-ui,sans-serif" font-size="9" fill="#64748b">Auto • $100K</text>
+  <rect x="662" y="148" width="40" height="16" rx="8" fill="#dcfce7"/>
+  <text x="682" y="160" font-family="system-ui,sans-serif" font-size="8" font-weight="600" fill="#16a34a" text-anchor="middle">A</text>
+  <text x="662" y="178" font-family="system-ui,sans-serif" font-size="8" fill="#94a3b8">2 days ago</text>
+</svg>

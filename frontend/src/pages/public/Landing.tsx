@@ -1,11 +1,11 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui';
-import { motion, useInView, useMotionValue, useTransform, animate } from 'framer-motion';
+import { motion, useInView, useMotionValue, useTransform, animate, AnimatePresence } from 'framer-motion';
 import {
   Calculator, Users, ShieldCheck, ArrowRight, Star,
   CheckCircle2, Building2, BarChart3, Route, Lock, Zap, Globe,
-  UserCheck, PieChart, Network, Car, Heart, Activity,
+  UserCheck, Car, Heart, Activity,
   Accessibility, Briefcase, Sparkles, Workflow, ListTodo, PenTool,
   Store, Mail, GraduationCap, Scale, Bot, Code2,
   ClipboardCheck, TrendingUp, Shield,
@@ -87,6 +87,76 @@ const categoryIcons: Record<string, React.ReactNode> = {
   'Commercial Lines': <Briefcase className="w-6 h-6" />,
   'Specialty': <Sparkles className="w-6 h-6" />,
 };
+
+/* ─── platform screenshot carousel ─── */
+const platformSlides = [
+  { src: '/screenshots/1-calculator.svg', label: 'Quote Calculator', desc: 'Instant quotes from 50+ carriers' },
+  { src: '/screenshots/2-quote-results.svg', label: 'Quote Results', desc: 'Side-by-side carrier comparison' },
+  { src: '/screenshots/3-dashboard.svg', label: 'Agent Dashboard', desc: 'Full pipeline visibility & analytics' },
+  { src: '/screenshots/4-crm-pipeline.svg', label: 'CRM Pipeline', desc: 'Kanban-style lead management' },
+  { src: '/screenshots/5-marketplace.svg', label: 'Agent Marketplace', desc: 'Verified agent directory' },
+  { src: '/screenshots/6-admin.svg', label: 'Admin Panel', desc: 'Platform oversight & revenue tracking' },
+];
+
+function PlatformScreenshotCarousel() {
+  const [current, setCurrent] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const advance = useCallback(() => {
+    setCurrent(prev => (prev + 1) % platformSlides.length);
+  }, []);
+
+  useEffect(() => {
+    if (paused) return;
+    timerRef.current = setInterval(advance, 4000);
+    return () => { if (timerRef.current) clearInterval(timerRef.current); };
+  }, [paused, advance]);
+
+  return (
+    <motion.div
+      variants={scaleIn}
+      className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-purple-50 to-shield-50 shadow-lg"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+    >
+      {/* Screenshot display */}
+      <div className="relative aspect-[8/5] overflow-hidden">
+        <AnimatePresence mode="wait">
+          <motion.img
+            key={current}
+            src={platformSlides[current].src}
+            alt={platformSlides[current].label}
+            className="absolute inset-0 w-full h-full object-cover"
+            initial={{ opacity: 0, scale: 1.02 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.98 }}
+            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+          />
+        </AnimatePresence>
+      </div>
+
+      {/* Bottom bar with label + dots */}
+      <div className="px-5 py-3 bg-white/90 backdrop-blur-sm flex items-center justify-between">
+        <div>
+          <div className="text-sm font-semibold text-slate-900">{platformSlides[current].label}</div>
+          <div className="text-xs text-slate-500">{platformSlides[current].desc}</div>
+        </div>
+        <div className="flex items-center gap-1.5">
+          {platformSlides.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setCurrent(i)}
+              className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                i === current ? 'bg-shield-600 w-5' : 'bg-slate-300 hover:bg-slate-400'
+              }`}
+            />
+          ))}
+        </div>
+      </div>
+    </motion.div>
+  );
+}
 
 /* ─── main component ─── */
 export default function Landing() {
@@ -488,51 +558,7 @@ export default function Landing() {
               </Link>
             </motion.div>
 
-            <motion.div variants={scaleIn} className="bg-gradient-to-br from-purple-50 to-shield-50 rounded-2xl p-8">
-              <div className="text-sm font-semibold text-slate-700 mb-4">Agency Dashboard</div>
-              <motion.div variants={stagger} className="grid grid-cols-2 gap-3 mb-4">
-                {[
-                  { label: 'Active Leads', value: 127, icon: <Users className="w-4 h-4" /> },
-                  { label: 'Policies Bound', value: 43, icon: <ShieldCheck className="w-4 h-4" /> },
-                  { label: 'Team Members', value: 8, icon: <Network className="w-4 h-4" /> },
-                  { label: 'Conversion', value: 34, suffix: '%', icon: <PieChart className="w-4 h-4" /> },
-                ].map((m, i) => (
-                  <motion.div
-                    key={i}
-                    variants={scaleIn}
-                    whileHover={{ scale: 1.05 }}
-                    className="bg-white rounded-lg p-3 shadow-sm border border-slate-100 cursor-default"
-                  >
-                    <div className="flex items-center gap-2 text-slate-400 mb-1">{m.icon}<span className="text-xs">{m.label}</span></div>
-                    <div className="text-lg font-bold text-slate-900">
-                      <AnimatedCounter target={m.value} suffix={m.suffix || ''} duration={1.2} />
-                    </div>
-                  </motion.div>
-                ))}
-              </motion.div>
-              <motion.div variants={fadeUp} className="bg-white rounded-lg p-3 shadow-sm border border-slate-100">
-                <div className="text-xs text-slate-400 mb-2">Routing Rules</div>
-                <div className="space-y-2">
-                  {[
-                    { name: 'Auto leads → Round Robin', status: 'Active', color: 'text-savings-600 bg-savings-50' },
-                    { name: 'Home leads (90xxx) → J. Smith', status: 'Active', color: 'text-savings-600 bg-savings-50' },
-                    { name: 'Life leads → Capacity-based', status: 'Active', color: 'text-savings-600 bg-savings-50' },
-                  ].map((r, i) => (
-                    <motion.div
-                      key={i}
-                      initial={{ opacity: 0, x: -10 }}
-                      whileInView={{ opacity: 1, x: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ delay: i * 0.1 }}
-                      className="flex items-center justify-between text-xs"
-                    >
-                      <span className="text-slate-600">{r.name}</span>
-                      <span className={`px-2 py-0.5 rounded-full font-medium ${r.color}`}>{r.status}</span>
-                    </motion.div>
-                  ))}
-                </div>
-              </motion.div>
-            </motion.div>
+            <PlatformScreenshotCarousel />
           </div>
         </div>
       </Section>
