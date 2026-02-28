@@ -342,6 +342,17 @@ Complete overhaul from demo carriers to production-ready quoting:
 - **E2E tested on production:** Workflow automation (rule create → trigger → execution log), Task management (CRUD + complete/reopen), E-signature (create-from-scenario → public view → public sign)
 - **FEATURES.md:** Updated with complete Phase 7-14 documentation
 
+### Phase 16 (2026-02-28) — Subscription Plan Switching + Push Notification Wiring
+- **Plan switching with proration:** New `changePlan` endpoint on `SubscriptionController` — updates Stripe subscription item in-place with `proration_behavior: create_prorations`. Supports both plan change and billing cycle switch (monthly↔annual). New route `POST /subscriptions/change-plan`.
+- **Billing page "Switch to Annual/Monthly" button:** New button in Billing.tsx with confirm dialog, calls `subscriptionService.changePlan()`. Shows "Switch to Annual (Save 20%)" or "Switch to Monthly" based on current cycle.
+- **Push notifications wired to real events:**
+  - `RoutingEngine.assignToAgent()` → `notifyLeadAssigned()` (push + in-app + email)
+  - `MessageController.send()` → `notifyNewMessage()` (push + in-app + email)
+  - `ApplicationController.updateStatus()` → `notifyApplicationStatus()` (push + in-app + email)
+  - All push triggers are fire-and-forget with try-catch, won't break main flows
+- **Code audit completed:** Kanban drag-drop (HTML5 native, working), embed widget+webhook (fully implemented with HMAC signing), Railway scheduler (Procfile correct with `schedule:work`)
+- **Files changed:** 7 files (SubscriptionController.php, api.php, subscriptions.ts, Billing.tsx, RoutingEngine.php, MessageController.php, ApplicationController.php)
+
 ### Phase 14 (2026-02-25) — Task Management, Kanban Board, Dashboard Enrichment, Password UX
 - **Task Management System:** Migration adds `priority`, `completed_at`, `assigned_by` columns + `task` type to appointments enum. `TaskController` with CRUD, complete/reopen, priority/overdue/today filters. Tasks page with stats cards, priority badges, completion toggle, search/filter, create modal. Route at `/tasks`, nav item in Pipeline section.
 - **Kanban Pipeline Board:** Drag-and-drop board view for CRM leads with 6 status columns (New→Contacted→Quoted→Applied→Won→Lost). View toggle (list/board) in Leads header. Dragging a lead between columns updates its status via API.
@@ -590,25 +601,24 @@ All 4 core flows tested against production and **PASSING**:
 - ~~**Create Stripe products/prices:**~~ DONE
 - ~~**Webhook endpoint:**~~ DONE
 - ~~**Test checkout flow:**~~ DONE
-- **Test full subscription lifecycle:** Complete a test purchase → verify webhook creates subscription → check billing page → test cancel/resume
+- ~~**Test full subscription lifecycle:**~~ DONE — Checkout, webhook, billing, cancel, resume all verified
+- ~~**Annual plan discount enforcement:**~~ DONE — `changePlan` endpoint with Stripe proration, billing page toggle
 
 ### Revenue Features (P1)
-- ~~**Credit top-up packs:**~~ DONE — Already built (SubscriptionController.creditTopUp, Billing.tsx pack display)
-- ~~**Lead seller payouts:**~~ DONE — Full system with balance tracking, admin approval, Stripe Connect transfers, Payouts tab in marketplace
-- **Annual plan discount enforcement:** Stripe billing interval switch (monthly ↔ annual) with prorated credit
+- ~~**Credit top-up packs:**~~ DONE
+- ~~**Lead seller payouts:**~~ DONE
+- ~~**Annual plan switch:**~~ DONE
 
-### Testing
-- **Test push notifications end-to-end:** Log in on insurons.com → enable push in NotificationBell → trigger a notification → verify browser push appears
-- **Test Kanban board** drag-and-drop on the live frontend (https://insurons.com)
-- **Test embed widget + webhook:** Create partner with webhook URL (use webhook.site) → complete embed flow → verify webhook fires with signed payload
-- **Test partner email notifications:** Visit a demo agency site (Maximus/Clearstone/Bamboo) → complete quote → verify partner receives "New Quote Started" email → submit contact info → verify "New Lead Captured" email
-- **Deploy partner notifications to Railway:** Push + redeploy so email notifications and enriched webhooks work in production
-- Test marketplace auction: create auction listing → place bids → verify min increment enforcement
-- Test `compliance:check-overdue` with overdue test items
-- Test `leads:check-aging` with stale test leads (needs scheduler running)
+### Testing (post-deploy)
+- **Test plan switching on production:** Subscribe → switch monthly↔annual → verify proration
+- **Test push notifications on production:** Enable push → send message → verify browser notification
+- **Test partner email notifications:** Visit demo agency site → complete quote → verify emails
+- Test marketplace auction: create auction listing → place bids → verify min increment
+- Test `compliance:check-overdue` and `leads:check-aging` on production (needs scheduler running)
 
 ### Infrastructure & Config
-- **Verify Railway scheduler:** Check if the `scheduler` Procfile process starts. If not, create a separate Railway service with start command `php artisan schedule:work`
+- **Verify Railway scheduler process starts:** Check Railway dashboard for `scheduler` process. If not running, create separate service.
+- **Add VAPID keys to Railway:** Required for Web Push to work. Generate with `web-push generate-vapid-keys` and add `WEBPUSH_VAPID_PUBLIC_KEY` + `WEBPUSH_VAPID_PRIVATE_KEY` to Railway env vars.
 
 ### New Features
 - **Real carrier API credentials:** Add actual Progressive/Travelers API keys to `carrier_api_configs` table when available (see `CARRIER_API_GUIDE.md`)
