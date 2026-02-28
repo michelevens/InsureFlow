@@ -10,7 +10,7 @@ import {
   Building2, BarChart3, UserCircle, Settings, LogOut, Menu, X,
   ClipboardList, Target, DollarSign, Star, ShieldCheck, ChevronDown, MessageSquare, Activity, AlertTriangle, RefreshCw, TrendingUp, Key, Plug, Network, CalendarDays, Palette, Code, Award, Database, BookOpen, HelpCircle,
   MessagesSquare, Calendar, Handshake, Mail, FileBarChart, Video, ShoppingCart, Zap, ListChecks,
-  Moon, Sun, MessageSquarePlus, Quote, CreditCard,
+  Moon, Sun, MessageSquarePlus, Quote, CreditCard, Gift,
 } from 'lucide-react';
 import { useTheme } from '@/contexts/ThemeContext';
 import type { ReactNode } from 'react';
@@ -111,6 +111,7 @@ const navSections: NavSection[] = [
       { label: 'Analytics', href: '/analytics', icon: <TrendingUp className="w-5 h-5" />, roles: ['agent', 'agency_owner'] },
       { label: 'My ROI', href: '/analytics/roi', icon: <BarChart3 className="w-5 h-5" />, roles: ['agent', 'agency_owner'] },
       { label: 'Seller Analytics', href: '/analytics/seller', icon: <Activity className="w-5 h-5" />, roles: ['agent', 'agency_owner'] },
+      { label: 'Referrals', href: '/referrals', icon: <Gift className="w-5 h-5" />, roles: ['agent', 'agency_owner'] },
       { label: 'Compliance', href: '/compliance', icon: <Award className="w-5 h-5" />, roles: ['agent', 'agency_owner'] },
       { label: 'Billing', href: '/billing', icon: <CreditCard className="w-5 h-5" />, roles: ['agent', 'agency_owner'] },
     ],

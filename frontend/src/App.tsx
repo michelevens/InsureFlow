@@ -102,6 +102,9 @@ const AdvancedAnalytics = lazyRetry(() => import('@/pages/analytics/AdvancedAnal
 const AgentRoi = lazyRetry(() => import('@/pages/analytics/AgentRoi'));
 const SellerAnalytics = lazyRetry(() => import('@/pages/analytics/SellerAnalytics'));
 
+// Referrals
+const Referrals = lazyRetry(() => import('@/pages/referrals/Referrals'));
+
 // Admin
 const AdminUsers = lazyRetry(() => import('@/pages/admin/AdminUsers'));
 const AdminAgencies = lazyRetry(() => import('@/pages/admin/AdminAgencies'));
@@ -257,6 +260,9 @@ export default function App() {
                 <Route path="/analytics" element={<AdvancedAnalytics />} />
                 <Route path="/analytics/roi" element={<AgentRoi />} />
                 <Route path="/analytics/seller" element={<SellerAnalytics />} />
+
+                {/* Referrals */}
+                <Route path="/referrals" element={<Referrals />} />
 
                 {/* Documents & E-Signature */}
                 <Route path="/documents" element={<DocumentsPage />} />

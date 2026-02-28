@@ -10,6 +10,7 @@ use App\Models\Policy;
 use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
+use App\Http\Controllers\ReferralController;
 
 class ApplicationController extends Controller
 {
@@ -107,6 +108,13 @@ class ApplicationController extends Controller
             'status' => 'submitted',
             'submitted_at' => now(),
         ]);
+
+        // Qualify referral on first submitted application
+        try {
+            ReferralController::qualifyReferral($application->user_id);
+        } catch (\Throwable $e) {
+            \Log::debug('Referral qualification check: ' . $e->getMessage());
+        }
 
         return response()->json($application);
     }

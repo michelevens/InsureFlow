@@ -85,3 +85,5 @@ export type { AdminRateTable, RateTableDetail, RateTableEntry, RateFactor, RateR
 export type { MarketplaceRequest, MarketplaceQuoteRequest, ConsumerScenario, ConsumerDashboardResponse, PublicScenarioView, PublicApplicationView, CreditBalance } from './marketplace';
 export { taskService } from './tasks';
 export type { Task, TaskCounts } from './tasks';
+export { referralService } from './referrals';
+export type { ReferralDashboardResponse, LeaderboardEntry } from './referrals';
