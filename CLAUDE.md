@@ -228,6 +228,13 @@ php artisan serve
 
 ## Recent Work
 
+### Seller Analytics, Referral Rewards & Dynamic Credit Pricing (2026-02-28)
+- **Dynamic credit pricing:** Lead marketplace now charges different credit amounts by insurance type (auto/home/renters=1, health/life/disability/ltc=2, commercial/workers_comp/cyber=3). Backend `CREDIT_COSTS` constant + `creditCostFor()` method, frontend shows cost on listing cards and purchase dialogs, `/credit-costs` endpoint for frontend to fetch pricing.
+- **Seller Analytics dashboard:** Full seller insights page at `/analytics/seller` — KPI cards (total listings, sold, conversion rate, avg days to sell), revenue/balance cards, revenue by insurance type bar chart, 6-month trend table, credit cost reference. Backend `marketplaceSeller()` endpoint on AnalyticsController.
+- **Referral Rewards dashboard:** Full referrals page at `/referrals` — share code/link with copy buttons, KPI cards (total referrals, rewarded, total earned, credit balance), referral list with status badges, top referrers leaderboard, credit history table, how-it-works section. New `referralService` API service.
+- **Referral qualification trigger:** Auto-qualifies referral ($25 reward to referrer) when referred user submits their first application (ApplicationController).
+- **Commits:** `df24e54` (dynamic credit pricing), `76a4e41` (seller analytics), `ca9d244` (referral rewards)
+
 ### Partner Notification System + Demo Agency Websites (2026-02-27)
 - **3 demo agency websites** created as separate GitHub repos with GitHub Pages:
   - [Maximus Insurance](https://michelevens.github.io/maximus-insurance/) — Navy/Gold premium theme
@@ -632,4 +639,7 @@ All 4 core flows tested against production and **PASSING**:
 ### New Features
 - **Real carrier API credentials:** Add actual Progressive/Travelers API keys to `carrier_api_configs` table when available (see `CARRIER_API_GUIDE.md`)
 - ~~**Usage analytics for agents:**~~ DONE — Agent ROI dashboard with KPIs, revenue, pipeline, trends at `/analytics/roi`
-- **Dynamic credit pricing:** Price marketplace credits differently by lead type (auto vs home vs life) based on conversion data
+- ~~**Dynamic credit pricing:**~~ DONE — 3-tier pricing (1/2/3 credits by insurance type), `/credit-costs` endpoint, frontend integration
+- ~~**Seller analytics:**~~ DONE — Full dashboard at `/analytics/seller` with KPIs, revenue, trends
+- ~~**Referral rewards UI:**~~ DONE — Dashboard at `/referrals` with share code, leaderboard, credit history
+- **Referral qualification trigger:** Auto-qualifies on first application submit; consider adding more triggers (first policy bind, first lead purchase)
