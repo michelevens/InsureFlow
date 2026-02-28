@@ -228,6 +228,12 @@ php artisan serve
 
 ## Recent Work
 
+### Quote Type Matching Fix & Test Users (2026-02-28)
+- **Quote type matching fix:** Added `expandInsuranceTypes()` to map simplified types (home→homeowners, life→life_term/life_whole, health→health_individual, etc.) and `whereIn` query so all carrier product variants match. Relaxed PlatformProduct validation threshold to prevent blocking quotes when seeder is incomplete.
+- **Platform product re-seed migration:** Created `2026_02_28_100001_reseed_platform_products` to auto-run PlatformProductSeeder on deploy (production had only 13 of 40+ products, blocking health/commercial/disability quotes).
+- **5 test users created on production:** Alice Consumer, Bob Agent, Carol Agency Owner (Suncoast Insurance Group, code QKXY8PGC), Dave Carrier, Admin User. All active with seeded data: 6 CRM leads, 3 public intake leads, 2 applications, 1 policy, 3 conversations, agent profiles, carrier products.
+- **Commits:** `85e7dfe` (expand types), `bb4192c` (relax validation), `dd6273e` (re-seed migration)
+
 ### Seller Analytics, Referral Rewards & Dynamic Credit Pricing (2026-02-28)
 - **Dynamic credit pricing:** Lead marketplace now charges different credit amounts by insurance type (auto/home/renters=1, health/life/disability/ltc=2, commercial/workers_comp/cyber=3). Backend `CREDIT_COSTS` constant + `creditCostFor()` method, frontend shows cost on listing cards and purchase dialogs, `/credit-costs` endpoint for frontend to fetch pricing.
 - **Seller Analytics dashboard:** Full seller insights page at `/analytics/seller` — KPI cards (total listings, sold, conversion rate, avg days to sell), revenue/balance cards, revenue by insurance type bar chart, 6-month trend table, credit cost reference. Backend `marketplaceSeller()` endpoint on AnalyticsController.
@@ -643,3 +649,6 @@ All 4 core flows tested against production and **PASSING**:
 - ~~**Seller analytics:**~~ DONE — Full dashboard at `/analytics/seller` with KPIs, revenue, trends
 - ~~**Referral rewards UI:**~~ DONE — Dashboard at `/referrals` with share code, leaderboard, credit history
 - **Referral qualification trigger:** Auto-qualifies on first application submit; consider adding more triggers (first policy bind, first lead purchase)
+- ~~**Quote type matching:**~~ DONE — `expandInsuranceTypes()` maps simplified→specific types, re-seed migration for platform products
+- **Verify all 40+ product types return quotes:** After Railway deploy of `dd6273e`, test health/commercial/disability quotes
+- **Test user accounts on production:** 5 accounts (consumer/agent/agency_owner/carrier/admin) with seeded data — see Recent Work section
