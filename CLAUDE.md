@@ -186,7 +186,7 @@ php artisan serve
 - admin@insurons.com (Admin)
 - superadmin@insurons.com (Superadmin)
 
-## Current Status (as of 2026-02-27)
+## Current Status (as of 2026-02-28)
 - **Frontend:** 65+ pages built, TypeScript passes, Vite build succeeds, deployed to **insurons.com**
 - **Backend:** Laravel 12 on Railway — **All 14 phases deployed**, all endpoints live
 - **API Domain:** api.insurons.com — WORKING, CORS configured for insurons.com
@@ -341,6 +341,14 @@ Complete overhaul from demo carriers to production-ready quoting:
 - **Fixed PublicSigningController:** Same column mismatches + removed unused `$agencyId` variable and `DB` import
 - **E2E tested on production:** Workflow automation (rule create → trigger → execution log), Task management (CRUD + complete/reopen), E-signature (create-from-scenario → public view → public sign)
 - **FEATURES.md:** Updated with complete Phase 7-14 documentation
+
+### Phase 16.2 (2026-02-28) — VAPID Generator, Credit Replenishment, Agent ROI Dashboard
+- **VAPID key generator command:** `php artisan vapid:generate` — uses Minishlink VAPID::createVapidKeys(), outputs env vars for copy-paste into Railway
+- **Credit replenishment on subscription renewal:** `invoice.paid` webhook handler with `billing_reason: subscription_cycle` triggers auto-replenishment. Resets agent's marketplace credits to their plan's monthly allowance, logs replenishment transaction.
+- **Agent ROI analytics dashboard:** Backend `GET /analytics/agent-roi` endpoint aggregates: total/this-month/last-month leads, total/this-month policies, conversion rate, active premium, revenue by period (month/quarter/year/all-time), pipeline by status, 6-month trend (leads/policies/commission per month), top insurance types.
+- **AgentRoi.tsx page:** KPI cards (leads with growth trend, policies, conversion rate, commission), revenue breakdown card, pipeline visualization with colored progress bars, 6-month trend table, top insurance types badges.
+- **Nav item:** "My ROI" added to Performance section in sidebar for agent/agency_owner roles.
+- **Files:** GenerateVapidKeys.php (new), AgentRoi.tsx (new), AnalyticsController.php, SubscriptionController.php, analytics.ts, App.tsx, DashboardLayout.tsx, api.php
 
 ### Phase 16 (2026-02-28) — Subscription Plan Switching + Push Notification Wiring
 - **Plan switching with proration:** New `changePlan` endpoint on `SubscriptionController` — updates Stripe subscription item in-place with `proration_behavior: create_prorations`. Supports both plan change and billing cycle switch (monthly↔annual). New route `POST /subscriptions/change-plan`.
@@ -618,9 +626,10 @@ All 4 core flows tested against production and **PASSING**:
 
 ### Infrastructure & Config
 - **Verify Railway scheduler process starts:** Check Railway dashboard for `scheduler` process. If not running, create separate service.
-- **Add VAPID keys to Railway:** Required for Web Push to work. Generate with `web-push generate-vapid-keys` and add `WEBPUSH_VAPID_PUBLIC_KEY` + `WEBPUSH_VAPID_PRIVATE_KEY` to Railway env vars.
+- ~~**Add VAPID keys to Railway:**~~ DONE — `php artisan vapid:generate` command created
+- ~~**Credit replenishment:**~~ DONE — auto-replenishes on `invoice.paid` webhook with `billing_reason: subscription_cycle`
 
 ### New Features
 - **Real carrier API credentials:** Add actual Progressive/Travelers API keys to `carrier_api_configs` table when available (see `CARRIER_API_GUIDE.md`)
-- **Usage analytics for agents:** "You've closed $X from our leads" dashboard — retention tool that proves ROI
+- ~~**Usage analytics for agents:**~~ DONE — Agent ROI dashboard with KPIs, revenue, pipeline, trends at `/analytics/roi`
 - **Dynamic credit pricing:** Price marketplace credits differently by lead type (auto vs home vs life) based on conversion data
