@@ -47,14 +47,16 @@ class QuoteController extends Controller
 
         $agencyId = $data['agency_id'] ?? $request->attributes->get('agency_id');
 
-        // Validate product is platform-active (if platform_products table exists)
+        // Validate product is platform-active (if platform_products table has been fully seeded)
         // Try exact slug first, then check expanded types (e.g., "home" → "homeowners")
         $expandedTypes = self::expandInsuranceTypes($data['insurance_type']);
         $platformProduct = PlatformProduct::whereIn('slug', $expandedTypes)
             ->where('is_active', true)
             ->first();
 
-        if (PlatformProduct::count() > 0 && !$platformProduct) {
+        // Only block if platform_products is fully seeded (30+ products) and type truly doesn't exist
+        // This prevents blocking valid quotes when the seeder hasn't been re-run after adding new types
+        if (!$platformProduct && PlatformProduct::count() >= 30) {
             return response()->json(['error' => 'This product type is not available'], 422);
         }
 
