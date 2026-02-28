@@ -345,6 +345,7 @@ Route::middleware(['auth:sanctum', 'agency.scope'])->group(function () {
     Route::post('/subscriptions/checkout', [SubscriptionController::class, 'checkout']);
     Route::post('/subscriptions/cancel', [SubscriptionController::class, 'cancel']);
     Route::post('/subscriptions/resume', [SubscriptionController::class, 'resume']);
+    Route::post('/subscriptions/change-plan', [SubscriptionController::class, 'changePlan']);
     Route::post('/subscriptions/portal', [SubscriptionController::class, 'portal']);
     Route::get('/billing/overview', [SubscriptionController::class, 'billingOverview']);
     Route::post('/subscriptions/credit-top-up', [SubscriptionController::class, 'creditTopUp']);

@@ -7,6 +7,7 @@ use App\Models\Conversation;
 use App\Models\InsuranceProfile;
 use App\Models\Lead;
 use App\Models\User;
+use App\Services\NotificationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -15,6 +16,8 @@ use Illuminate\Support\Facades\Mail;
 
 class MessageController extends Controller
 {
+    public function __construct(protected NotificationService $notifications) {}
+
     /**
      * List all conversations for the authenticated user.
      * GET /conversations
@@ -107,8 +110,17 @@ class MessageController extends Controller
         ]);
         $conv->update(['last_message_at' => now()]);
 
-        // Send email notification (non-blocking)
+        // Send notifications (non-blocking)
         $recipient = $conv->getOtherUser($userId);
+
+        // Push + in-app notification
+        try {
+            $this->notifications->notifyNewMessage($recipient->id, $request->user()->name, $id);
+        } catch (\Throwable $e) {
+            Log::debug('Push notification failed for message: ' . $e->getMessage());
+        }
+
+        // Email notification
         try {
             Mail::to($recipient->email)->send(new NewMessageMail(
                 senderName: $request->user()->name,

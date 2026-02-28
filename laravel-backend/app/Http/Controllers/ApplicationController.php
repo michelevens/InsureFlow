@@ -7,11 +7,14 @@ use App\Models\Application;
 use App\Models\Commission;
 use App\Models\InsuranceProfile;
 use App\Models\Policy;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 
 class ApplicationController extends Controller
 {
+    public function __construct(protected NotificationService $notifications) {}
+
     public function index(Request $request)
     {
         $user = $request->user();
@@ -116,9 +119,17 @@ class ApplicationController extends Controller
 
         $application->update($data);
 
-        // Send status email to the applicant
+        // Send notifications to the applicant
         $application->load('user');
         if ($application->user) {
+            // Push + in-app notification
+            try {
+                $this->notifications->notifyApplicationStatus($application->user_id, $data['status'], $application->id);
+            } catch (\Throwable $e) {
+                \Log::debug('Push notification failed for application status: ' . $e->getMessage());
+            }
+
+            // Email notification
             try {
                 Mail::to($application->user->email)->send(new ApplicationStatusMail(
                     user: $application->user,

@@ -7,10 +7,18 @@ use App\Models\InsuranceProfile;
 use App\Models\Lead;
 use App\Models\RoutingRule;
 use App\Models\User;
+use App\Services\NotificationService;
 use Illuminate\Support\Facades\Mail;
 
 class RoutingEngine
 {
+    protected NotificationService $notifications;
+
+    public function __construct(NotificationService $notifications)
+    {
+        $this->notifications = $notifications;
+    }
+
     /**
      * Route an insurance profile to the best-matching agent.
      * Returns the assigned agent ID or null if no rule matched.
@@ -98,16 +106,25 @@ class RoutingEngine
         // Notify the agent
         $agent = User::find($agentId);
         if ($agent) {
+            $leadName = $profile->first_name . ' ' . $profile->last_name;
+
+            // Push + in-app notification
+            try {
+                $this->notifications->notifyLeadAssigned($agentId, $leadName, $profile->lead_id ?? $profile->id);
+            } catch (\Throwable $e) {
+                \Log::debug('Push notification failed for lead assignment: ' . $e->getMessage());
+            }
+
+            // Email notification
             try {
                 Mail::to($agent->email)->send(new LeadAssignedMail(
                     agent: $agent,
-                    leadName: $profile->first_name . ' ' . $profile->last_name,
+                    leadName: $leadName,
                     leadEmail: $profile->email,
                     insuranceType: $profile->insurance_type,
                     estimatedValue: $profile->estimated_value ?? '0.00',
                 ));
             } catch (\Exception $e) {
-                // Don't fail routing if email fails
                 \Log::warning('Failed to send lead assignment email', [
                     'agent_id' => $agentId,
                     'profile_id' => $profile->id,

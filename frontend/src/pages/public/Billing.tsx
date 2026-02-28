@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Card, Badge, Button } from '@/components/ui';
-import { CreditCard, ShoppingCart, ExternalLink, CheckCircle2, AlertCircle, Loader2, ArrowRight, XCircle, Plus, Zap } from 'lucide-react';
+import { CreditCard, ShoppingCart, ExternalLink, CheckCircle2, AlertCircle, Loader2, ArrowRight, XCircle, Plus, Zap, RefreshCw } from 'lucide-react';
 import { subscriptionService } from '@/services/api';
 import type { BillingOverview } from '@/services/api';
 import { CREDIT_PACKS, type CreditTopUpPack } from '@/services/api/subscriptions';
@@ -74,6 +74,30 @@ export default function Billing() {
       loadBilling();
     } catch {
       toast.error('Failed to resume subscription');
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleSwitchBillingCycle = async () => {
+    if (!sub || !plan) return;
+    const newCycle = sub.billing_cycle === 'monthly' ? 'annual' : 'monthly';
+    const label = newCycle === 'annual' ? 'annual (save 20%)' : 'monthly';
+    const ok = await confirm({
+      title: 'Switch Billing Cycle',
+      message: `Switch to ${label} billing? Your current balance will be prorated.`,
+      confirmLabel: `Switch to ${newCycle === 'annual' ? 'Annual' : 'Monthly'}`,
+      variant: 'warning',
+    });
+    if (!ok) return;
+
+    setActionLoading('switch-cycle');
+    try {
+      await subscriptionService.changePlan(plan.id, newCycle);
+      toast.success(`Switched to ${newCycle} billing. Prorated charges applied.`);
+      loadBilling();
+    } catch {
+      toast.error('Failed to switch billing cycle');
     } finally {
       setActionLoading(null);
     }
@@ -190,12 +214,23 @@ export default function Billing() {
                 </p>
               )}
 
-              <div className="flex items-center gap-3 mt-6">
+              <div className="flex items-center gap-3 mt-6 flex-wrap">
                 <Link to="/pricing">
                   <Button variant="outline" size="sm" rightIcon={<ArrowRight className="w-4 h-4" />}>
                     Change Plan
                   </Button>
                 </Link>
+                {!isCanceled && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleSwitchBillingCycle}
+                    isLoading={actionLoading === 'switch-cycle'}
+                  >
+                    <RefreshCw className="w-4 h-4 mr-1" />
+                    Switch to {sub.billing_cycle === 'monthly' ? 'Annual (Save 20%)' : 'Monthly'}
+                  </Button>
+                )}
                 {isCanceled ? (
                   <Button variant="shield" size="sm" onClick={handleResume} isLoading={actionLoading === 'resume'}>
                     Resume Subscription

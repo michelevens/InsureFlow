@@ -96,4 +96,8 @@ export const subscriptionService = {
   async creditTopUp(pack: CreditTopUpPack): Promise<CheckoutResponse> {
     return api.post<CheckoutResponse>('/subscriptions/credit-top-up', { pack });
   },
+
+  async changePlan(planId: number, billingCycle: 'monthly' | 'annual'): Promise<{ message: string; plan: string; billing_cycle: string }> {
+    return api.post('/subscriptions/change-plan', { plan_id: planId, billing_cycle: billingCycle });
+  },
 };

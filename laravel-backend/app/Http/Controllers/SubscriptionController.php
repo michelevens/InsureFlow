@@ -130,6 +130,63 @@ class SubscriptionController extends Controller
         }
     }
 
+    public function changePlan(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'plan_id' => 'required|exists:subscription_plans,id',
+            'billing_cycle' => 'required|in:monthly,annual',
+        ]);
+
+        $subscription = Subscription::where('user_id', $request->user()->id)
+            ->where('status', 'active')
+            ->first();
+
+        if (!$subscription || !$subscription->stripe_subscription_id) {
+            return response()->json(['error' => 'No active subscription found'], 404);
+        }
+
+        $newPlan = SubscriptionPlan::findOrFail($data['plan_id']);
+        $newPriceId = $data['billing_cycle'] === 'annual'
+            ? $newPlan->stripe_price_id_annual
+            : $newPlan->stripe_price_id_monthly;
+
+        if (!$newPriceId) {
+            return response()->json(['error' => 'Stripe price not configured for this plan/cycle'], 422);
+        }
+
+        try {
+            Stripe::setApiKey(config('services.stripe.secret'));
+            $stripeSub = \Stripe\Subscription::retrieve($subscription->stripe_subscription_id);
+
+            // Update the subscription item with proration
+            \Stripe\Subscription::update($subscription->stripe_subscription_id, [
+                'items' => [[
+                    'id' => $stripeSub->items->data[0]->id,
+                    'price' => $newPriceId,
+                ]],
+                'proration_behavior' => 'create_prorations',
+                'metadata' => [
+                    'plan_id' => $newPlan->id,
+                    'billing_cycle' => $data['billing_cycle'],
+                ],
+            ]);
+
+            $subscription->update([
+                'subscription_plan_id' => $newPlan->id,
+                'billing_cycle' => $data['billing_cycle'],
+            ]);
+
+            return response()->json([
+                'message' => 'Plan updated successfully. Billing has been prorated.',
+                'plan' => $newPlan->name,
+                'billing_cycle' => $data['billing_cycle'],
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Failed to change plan', ['error' => $e->getMessage()]);
+            return response()->json(['error' => 'Failed to update plan. Please try again.'], 503);
+        }
+    }
+
     public function portal(Request $request): JsonResponse
     {
         $user = $request->user();
