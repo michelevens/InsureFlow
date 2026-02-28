@@ -311,6 +311,10 @@ export const marketplaceService = {
     return api.get<CreditCostsResponse>('/lead-marketplace/credit-costs');
   },
 
+  async sellerAnalytics(): Promise<SellerAnalyticsResponse> {
+    return api.get<SellerAnalyticsResponse>('/lead-marketplace/seller-analytics');
+  },
+
   // ── Seller Payouts ──
 
   async sellerBalance(): Promise<SellerBalanceResponse> {
@@ -494,4 +498,27 @@ export interface PayoutHistoryResponse {
 export interface CreditCostsResponse {
   costs: Record<string, number>;
   default: number;
+}
+
+export interface SellerAnalyticsResponse {
+  overview: {
+    total_listings: number;
+    active_listings: number;
+    sold_listings: number;
+    expired_listings: number;
+    conversion_rate: number;
+    avg_days_to_sell: number;
+  };
+  revenue: {
+    total: number;
+    this_month: number;
+    avg_sale_price: number;
+  };
+  balance: {
+    available: number;
+    pending: number;
+    lifetime_paid: number;
+  };
+  by_type: { type: string; sales: number; revenue: number }[];
+  monthly_trend: { month: string; listed: number; sold: number; revenue: number }[];
 }

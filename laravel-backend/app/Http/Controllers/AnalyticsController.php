@@ -5,8 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\Application;
 use App\Models\Claim;
 use App\Models\Lead;
+use App\Models\LeadMarketplaceListing;
+use App\Models\LeadMarketplaceTransaction;
 use App\Models\Policy;
 use App\Models\RenewalOpportunity;
+use App\Models\SellerBalance;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -339,6 +342,109 @@ class AnalyticsController extends Controller
             'total_policies' => Policy::count(),
             'total_applications' => Application::count(),
             'platform_revenue' => Policy::where('status', 'active')->sum('annual_premium'),
+        ]);
+    }
+
+    /**
+     * Marketplace seller analytics — listing performance, revenue trends, type breakdown.
+     */
+    public function marketplaceSeller(Request $request)
+    {
+        $user = $request->user();
+        $agencyId = $user->agency_id ?? $user->ownedAgency?->id;
+        if (!$agencyId) {
+            return response()->json(['message' => 'No agency found'], 404);
+        }
+
+        // Overview stats
+        $totalListings = LeadMarketplaceListing::where('seller_agency_id', $agencyId)->count();
+        $activeListings = LeadMarketplaceListing::where('seller_agency_id', $agencyId)->where('status', 'active')->count();
+        $soldListings = LeadMarketplaceListing::where('seller_agency_id', $agencyId)->where('status', 'sold')->count();
+        $expiredListings = LeadMarketplaceListing::where('seller_agency_id', $agencyId)->where('status', 'expired')->count();
+        $conversionRate = $totalListings > 0 ? round(($soldListings / $totalListings) * 100, 1) : 0;
+
+        // Revenue
+        $totalRevenue = LeadMarketplaceTransaction::where('seller_agency_id', $agencyId)
+            ->where('payment_status', 'completed')
+            ->sum('seller_payout');
+        $thisMonthRevenue = LeadMarketplaceTransaction::where('seller_agency_id', $agencyId)
+            ->where('payment_status', 'completed')
+            ->where('created_at', '>=', now()->startOfMonth())
+            ->sum('seller_payout');
+        $avgSalePrice = LeadMarketplaceTransaction::where('seller_agency_id', $agencyId)
+            ->where('payment_status', 'completed')
+            ->avg('purchase_price') ?? 0;
+
+        // Average time to sell (days between listing creation and sold_at)
+        $avgDaysToSell = LeadMarketplaceListing::where('seller_agency_id', $agencyId)
+            ->where('status', 'sold')
+            ->whereNotNull('sold_at')
+            ->selectRaw('AVG(EXTRACT(EPOCH FROM (sold_at - created_at)) / 86400) as avg_days')
+            ->value('avg_days') ?? 0;
+
+        // Revenue by insurance type
+        $revenueByType = LeadMarketplaceTransaction::where('lead_marketplace_transactions.seller_agency_id', $agencyId)
+            ->where('lead_marketplace_transactions.payment_status', 'completed')
+            ->join('lead_marketplace_listings', 'lead_marketplace_listings.id', '=', 'lead_marketplace_transactions.listing_id')
+            ->selectRaw('lead_marketplace_listings.insurance_type, COUNT(*) as sales, SUM(lead_marketplace_transactions.seller_payout) as revenue')
+            ->groupBy('lead_marketplace_listings.insurance_type')
+            ->orderByDesc('revenue')
+            ->get()
+            ->map(fn ($r) => [
+                'type' => $r->insurance_type,
+                'sales' => (int) $r->sales,
+                'revenue' => round((float) $r->revenue, 2),
+            ]);
+
+        // Monthly trend (last 6 months)
+        $monthlyTrend = [];
+        for ($i = 5; $i >= 0; $i--) {
+            $month = now()->subMonths($i);
+            $start = $month->copy()->startOfMonth();
+            $end = $month->copy()->endOfMonth();
+
+            $listed = LeadMarketplaceListing::where('seller_agency_id', $agencyId)
+                ->whereBetween('created_at', [$start, $end])->count();
+            $sold = LeadMarketplaceListing::where('seller_agency_id', $agencyId)
+                ->where('status', 'sold')
+                ->whereBetween('sold_at', [$start, $end])->count();
+            $rev = LeadMarketplaceTransaction::where('seller_agency_id', $agencyId)
+                ->where('payment_status', 'completed')
+                ->whereBetween('created_at', [$start, $end])
+                ->sum('seller_payout');
+
+            $monthlyTrend[] = [
+                'month' => $month->format('M Y'),
+                'listed' => $listed,
+                'sold' => $sold,
+                'revenue' => round((float) $rev, 2),
+            ];
+        }
+
+        // Seller balance
+        $balance = SellerBalance::where('agency_id', $agencyId)->first();
+
+        return response()->json([
+            'overview' => [
+                'total_listings' => $totalListings,
+                'active_listings' => $activeListings,
+                'sold_listings' => $soldListings,
+                'expired_listings' => $expiredListings,
+                'conversion_rate' => $conversionRate,
+                'avg_days_to_sell' => round((float) $avgDaysToSell, 1),
+            ],
+            'revenue' => [
+                'total' => round((float) $totalRevenue, 2),
+                'this_month' => round((float) $thisMonthRevenue, 2),
+                'avg_sale_price' => round((float) $avgSalePrice, 2),
+            ],
+            'balance' => [
+                'available' => round((float) ($balance?->available_amount ?? 0), 2),
+                'pending' => round((float) ($balance?->pending_amount ?? 0), 2),
+                'lifetime_paid' => round((float) ($balance?->lifetime_paid ?? 0), 2),
+            ],
+            'by_type' => $revenueByType,
+            'monthly_trend' => $monthlyTrend,
         ]);
     }
 }

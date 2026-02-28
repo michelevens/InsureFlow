@@ -100,6 +100,7 @@ const CarrierApiConfigPage = lazyRetry(() => import('@/pages/carriers/CarrierApi
 // Analytics
 const AdvancedAnalytics = lazyRetry(() => import('@/pages/analytics/AdvancedAnalytics'));
 const AgentRoi = lazyRetry(() => import('@/pages/analytics/AgentRoi'));
+const SellerAnalytics = lazyRetry(() => import('@/pages/analytics/SellerAnalytics'));
 
 // Admin
 const AdminUsers = lazyRetry(() => import('@/pages/admin/AdminUsers'));
@@ -255,6 +256,7 @@ export default function App() {
                 {/* Advanced Analytics */}
                 <Route path="/analytics" element={<AdvancedAnalytics />} />
                 <Route path="/analytics/roi" element={<AgentRoi />} />
+                <Route path="/analytics/seller" element={<SellerAnalytics />} />
 
                 {/* Documents & E-Signature */}
                 <Route path="/documents" element={<DocumentsPage />} />
