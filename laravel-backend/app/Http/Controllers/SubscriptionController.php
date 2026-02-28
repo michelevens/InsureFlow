@@ -326,6 +326,12 @@ class SubscriptionController extends Controller
                     $this->handleMarketplacePaymentIntentSucceeded($paymentIntent);
                 }
                 break;
+            case 'invoice.paid':
+                $invoice = $event->data->object;
+                if ($invoice->billing_reason === 'subscription_cycle') {
+                    $this->handleSubscriptionRenewal($invoice);
+                }
+                break;
             case 'customer.subscription.updated':
                 $stripeSubscription = $event->data->object;
                 $this->handleSubscriptionUpdated($stripeSubscription);
@@ -410,6 +416,45 @@ class SubscriptionController extends Controller
             'pack' => $pack,
             'credits' => $credits,
             'new_balance' => $creditRecord->fresh()->credits_balance,
+        ]);
+    }
+
+    private function handleSubscriptionRenewal($invoice): void
+    {
+        $stripeSubId = $invoice->subscription ?? null;
+        if (!$stripeSubId) return;
+
+        $subscription = Subscription::where('stripe_subscription_id', $stripeSubId)
+            ->with('plan')
+            ->first();
+
+        if (!$subscription || !$subscription->plan) return;
+
+        $allowance = $subscription->plan->lead_credits_per_month;
+        if ($allowance <= 0) return; // Free plan or unlimited (-1)
+
+        $credit = LeadCredit::firstOrCreate(
+            ['user_id' => $subscription->user_id],
+            ['credits_balance' => 0, 'credits_used' => 0]
+        );
+
+        $credit->update([
+            'credits_balance' => $allowance,
+            'credits_used' => 0,
+            'last_replenished_at' => now(),
+        ]);
+
+        $credit->transactions()->create([
+            'user_id' => $subscription->user_id,
+            'type' => 'replenish',
+            'amount' => $allowance,
+            'description' => "Monthly credit replenishment ({$subscription->plan->name})",
+        ]);
+
+        \Log::info('Credits replenished on renewal', [
+            'user_id' => $subscription->user_id,
+            'plan' => $subscription->plan->name,
+            'credits' => $allowance,
         ]);
     }
 

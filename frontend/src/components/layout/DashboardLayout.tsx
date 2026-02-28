@@ -109,6 +109,7 @@ const navSections: NavSection[] = [
       { label: 'Commissions', href: '/commissions', icon: <DollarSign className="w-5 h-5" />, roles: ['agent', 'agency_owner'] },
       { label: 'Reviews', href: '/reviews', icon: <Star className="w-5 h-5" />, roles: ['agent', 'agency_owner'] },
       { label: 'Analytics', href: '/analytics', icon: <TrendingUp className="w-5 h-5" />, roles: ['agent', 'agency_owner'] },
+      { label: 'My ROI', href: '/analytics/roi', icon: <BarChart3 className="w-5 h-5" />, roles: ['agent', 'agency_owner'] },
       { label: 'Compliance', href: '/compliance', icon: <Award className="w-5 h-5" />, roles: ['agent', 'agency_owner'] },
       { label: 'Billing', href: '/billing', icon: <CreditCard className="w-5 h-5" />, roles: ['agent', 'agency_owner'] },
     ],

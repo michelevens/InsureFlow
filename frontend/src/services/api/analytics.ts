@@ -34,6 +34,10 @@ export const analyticsService = {
   async getClaimsAnalytics(months = 6): Promise<ClaimsAnalyticsResponse> {
     return api.get<ClaimsAnalyticsResponse>(`/analytics/claims?months=${months}`);
   },
+
+  async getAgentRoi(): Promise<AgentRoiResponse> {
+    return api.get<AgentRoiResponse>('/analytics/agent-roi');
+  },
 };
 
 export interface FunnelStage {
@@ -77,4 +81,25 @@ export interface ClaimsAnalyticsResponse {
   settled_claims: number;
   total_settlement: string;
   avg_settlement: number;
+}
+
+export interface AgentRoiResponse {
+  summary: {
+    total_leads: number;
+    leads_this_month: number;
+    leads_last_month: number;
+    total_policies: number;
+    policies_this_month: number;
+    conversion_rate: number;
+    active_premium: number;
+  };
+  revenue: {
+    total_commission: number;
+    this_month: number;
+    this_quarter: number;
+    this_year: number;
+  };
+  pipeline: Record<string, number>;
+  monthly_trend: { month: string; leads: number; policies: number; commission: number }[];
+  top_insurance_types: Record<string, number>;
 }

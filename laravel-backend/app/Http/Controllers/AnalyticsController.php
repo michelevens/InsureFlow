@@ -153,6 +153,90 @@ class AnalyticsController extends Controller
         ]);
     }
 
+    /**
+     * Agent ROI dashboard — proves platform value with real numbers.
+     */
+    public function agentRoi(Request $request)
+    {
+        $user = $request->user();
+        $agencyId = $request->attributes->get('agency_id');
+
+        // Time periods
+        $thisMonth = now()->startOfMonth();
+        $lastMonth = now()->subMonth()->startOfMonth();
+        $thisQuarter = now()->startOfQuarter();
+        $thisYear = now()->startOfYear();
+
+        $agentId = $user->id;
+
+        // Core metrics
+        $totalLeads = Lead::where('agent_id', $agentId)->count();
+        $leadsThisMonth = Lead::where('agent_id', $agentId)->where('created_at', '>=', $thisMonth)->count();
+        $leadsLastMonth = Lead::where('agent_id', $agentId)
+            ->whereBetween('created_at', [$lastMonth, $thisMonth])->count();
+
+        $totalPolicies = Policy::where('agent_id', $agentId)->count();
+        $policiesThisMonth = Policy::where('agent_id', $agentId)->where('created_at', '>=', $thisMonth)->count();
+
+        $conversionRate = $totalLeads > 0 ? round(($totalPolicies / $totalLeads) * 100, 1) : 0;
+
+        // Revenue
+        $totalCommission = $user->commissions()->sum('commission_amount');
+        $commissionThisMonth = $user->commissions()->where('created_at', '>=', $thisMonth)->sum('commission_amount');
+        $commissionThisQuarter = $user->commissions()->where('created_at', '>=', $thisQuarter)->sum('commission_amount');
+        $commissionThisYear = $user->commissions()->where('created_at', '>=', $thisYear)->sum('commission_amount');
+
+        $activePremium = Policy::where('agent_id', $agentId)->where('status', 'active')->sum('annual_premium');
+
+        // Pipeline
+        $pipelineByStatus = Lead::where('agent_id', $agentId)
+            ->select('status', DB::raw('COUNT(*) as count'))
+            ->groupBy('status')
+            ->pluck('count', 'status');
+
+        // Monthly trend (last 6 months)
+        $monthlyTrend = collect(range(5, 0))->map(function ($i) use ($agentId) {
+            $start = now()->subMonths($i)->startOfMonth();
+            $end = now()->subMonths($i)->endOfMonth();
+            return [
+                'month' => $start->format('M Y'),
+                'leads' => Lead::where('agent_id', $agentId)->whereBetween('created_at', [$start, $end])->count(),
+                'policies' => Policy::where('agent_id', $agentId)->whereBetween('created_at', [$start, $end])->count(),
+                'commission' => round((float) \App\Models\Commission::where('agent_id', $agentId)
+                    ->whereBetween('created_at', [$start, $end])->sum('commission_amount'), 2),
+            ];
+        })->values();
+
+        // Top insurance types
+        $topTypes = Lead::where('agent_id', $agentId)
+            ->select('insurance_type', DB::raw('COUNT(*) as count'))
+            ->groupBy('insurance_type')
+            ->orderByDesc('count')
+            ->limit(5)
+            ->pluck('count', 'insurance_type');
+
+        return response()->json([
+            'summary' => [
+                'total_leads' => $totalLeads,
+                'leads_this_month' => $leadsThisMonth,
+                'leads_last_month' => $leadsLastMonth,
+                'total_policies' => $totalPolicies,
+                'policies_this_month' => $policiesThisMonth,
+                'conversion_rate' => $conversionRate,
+                'active_premium' => round((float) $activePremium, 2),
+            ],
+            'revenue' => [
+                'total_commission' => round((float) $totalCommission, 2),
+                'this_month' => round((float) $commissionThisMonth, 2),
+                'this_quarter' => round((float) $commissionThisQuarter, 2),
+                'this_year' => round((float) $commissionThisYear, 2),
+            ],
+            'pipeline' => $pipelineByStatus,
+            'monthly_trend' => $monthlyTrend,
+            'top_insurance_types' => $topTypes,
+        ]);
+    }
+
     private function consumerStats($user)
     {
         return response()->json([

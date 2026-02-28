@@ -185,6 +185,7 @@ Route::middleware(['auth:sanctum', 'agency.scope'])->group(function () {
     Route::get('/analytics/conversion-funnel', [AnalyticsController::class, 'conversionFunnel']);
     Route::get('/analytics/revenue-trends', [AnalyticsController::class, 'revenueTrends']);
     Route::get('/analytics/agent-performance', [AnalyticsController::class, 'agentPerformance']);
+    Route::get('/analytics/agent-roi', [AnalyticsController::class, 'agentRoi']);
     Route::get('/analytics/claims', [AnalyticsController::class, 'claimsAnalytics']);
 
     // Consumer Marketplace (protected)
