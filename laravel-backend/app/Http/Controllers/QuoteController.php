@@ -48,7 +48,9 @@ class QuoteController extends Controller
         $agencyId = $data['agency_id'] ?? $request->attributes->get('agency_id');
 
         // Validate product is platform-active (if platform_products table exists)
-        $platformProduct = PlatformProduct::where('slug', $data['insurance_type'])
+        // Try exact slug first, then check expanded types (e.g., "home" → "homeowners")
+        $expandedTypes = self::expandInsuranceTypes($data['insurance_type']);
+        $platformProduct = PlatformProduct::whereIn('slug', $expandedTypes)
             ->where('is_active', true)
             ->first();
 
@@ -86,8 +88,11 @@ class QuoteController extends Controller
         // Derive state from ZIP code for geographic filtering
         $state = ZipToState::resolve($data['zip_code']);
 
+        // Map simplified calculator types to all matching carrier product types
+        $productTypes = self::expandInsuranceTypes($data['insurance_type']);
+
         // Get matching carrier products, filtered by agency appointments if applicable
-        $query = CarrierProduct::where('insurance_type', $data['insurance_type'])
+        $query = CarrierProduct::whereIn('insurance_type', $productTypes)
             ->where('is_active', true)
             ->whereHas('carrier', function ($q) use ($state) {
                 $q->where('is_active', true);
@@ -351,6 +356,26 @@ class QuoteController extends Controller
             'ltc' => 'ltc_traditional',
             default => $insuranceType,
         };
+    }
+
+    /**
+     * Expand a calculator insurance_type into all matching carrier product types.
+     * E.g., "life" → ["life", "life_term", "life_whole", "life_universal"]
+     */
+    private static function expandInsuranceTypes(string $type): array
+    {
+        $map = [
+            'home'       => ['home', 'homeowners'],
+            'life'       => ['life', 'life_term', 'life_whole', 'life_universal', 'life_variable'],
+            'health'     => ['health', 'health_individual', 'health_group', 'health_supplement'],
+            'commercial' => ['commercial', 'commercial_auto', 'bop', 'commercial_property', 'general_liability'],
+            'business'   => ['business', 'bop', 'commercial_auto', 'commercial_property', 'general_liability'],
+            'disability' => ['disability', 'disability_short_term', 'disability_long_term'],
+            'ltc'        => ['ltc', 'ltc_traditional', 'ltc_hybrid'],
+            'umbrella'   => ['umbrella', 'umbrella_personal', 'umbrella_commercial'],
+        ];
+
+        return $map[$type] ?? [$type];
     }
 
     /**
