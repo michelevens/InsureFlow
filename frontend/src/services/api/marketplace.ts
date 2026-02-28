@@ -307,6 +307,10 @@ export const marketplaceService = {
     return api.post<BulkListResponse>('/lead-marketplace/bulk-list', data);
   },
 
+  async getCreditCosts(): Promise<CreditCostsResponse> {
+    return api.get<CreditCostsResponse>('/lead-marketplace/credit-costs');
+  },
+
   // ── Seller Payouts ──
 
   async sellerBalance(): Promise<SellerBalanceResponse> {
@@ -485,4 +489,9 @@ export interface PayoutHistoryResponse {
   current_page: number;
   last_page: number;
   total: number;
+}
+
+export interface CreditCostsResponse {
+  costs: Record<string, number>;
+  default: number;
 }

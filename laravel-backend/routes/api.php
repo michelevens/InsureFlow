@@ -791,6 +791,7 @@ Route::middleware(['auth:sanctum', 'agency.scope'])->group(function () {
         Route::post('/listings/{listing}/checkout', [LeadMarketplaceController::class, 'createCheckoutForLead']);
         Route::post('/listings/{listing}/pay-intent', [LeadMarketplaceController::class, 'createPaymentIntent']);
         Route::get('/suggest-price', [LeadMarketplaceController::class, 'suggestPrice']);
+        Route::get('/credit-costs', [LeadMarketplaceController::class, 'creditCosts']);
         Route::post('/bulk-list', [LeadMarketplaceController::class, 'bulkList']);
     });
 

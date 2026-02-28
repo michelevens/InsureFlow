@@ -26,11 +26,41 @@ use Stripe\Stripe;
 
 class LeadMarketplaceController extends Controller
 {
+    /**
+     * Credit cost per insurance type. Higher-value lead types cost more credits.
+     * -1 plan credits (unlimited) skip this entirely.
+     */
+    public const CREDIT_COSTS = [
+        'auto'        => 1,
+        'home'        => 1,
+        'renters'     => 1,
+        'health'      => 2,
+        'life'        => 2,
+        'disability'  => 2,
+        'ltc'         => 2,
+        'commercial'  => 3,
+        'workers_comp' => 3,
+        'cyber'       => 3,
+        'umbrella'    => 1,
+        'pet'         => 1,
+        'travel'      => 1,
+    ];
+
+    public const DEFAULT_CREDIT_COST = 1;
+
     public function __construct(
         private LeadScoringService $scorer,
         private RoutingEngine $router,
         private NotificationService $notifications,
     ) {}
+
+    /**
+     * Get the credit cost for a given insurance type.
+     */
+    public static function creditCostFor(string $insuranceType): int
+    {
+        return self::CREDIT_COSTS[strtolower($insuranceType)] ?? self::DEFAULT_CREDIT_COST;
+    }
 
     /**
      * Browse active marketplace listings (buyers).
@@ -129,15 +159,17 @@ class LeadMarketplaceController extends Controller
             return response()->json(['message' => 'This listing has expired'], 410);
         }
 
-        // Check marketplace credits
+        // Check marketplace credits (dynamic cost by insurance type)
         $subscription = Subscription::where('user_id', $user->id)->with('plan')->latest()->first();
         $planCredits = $subscription?->plan?->lead_credits_per_month ?? 0;
+        $creditCost = self::creditCostFor($listing->insurance_type ?? 'auto');
         if ($planCredits !== -1) {
             $credit = LeadCredit::where('user_id', $user->id)->first();
-            if (!$credit || $credit->credits_balance <= 0) {
+            if (!$credit || $credit->credits_balance < $creditCost) {
                 return response()->json([
-                    'message' => 'No marketplace credits remaining. Upgrade your plan for more credits.',
-                    'credits_remaining' => 0,
+                    'message' => "This {$listing->insurance_type} lead costs {$creditCost} credit(s). You need more credits.",
+                    'credits_remaining' => $credit?->credits_balance ?? 0,
+                    'credits_required' => $creditCost,
                     'requires_credits' => true,
                 ], 402);
             }
@@ -482,15 +514,16 @@ class LeadMarketplaceController extends Controller
                 \Log::warning('Failed to send marketplace purchase email', ['error' => $e->getMessage()]);
             }
 
-            // Deduct marketplace credit
+            // Deduct marketplace credits (dynamic cost by insurance type)
             $sub = Subscription::where('user_id', $user->id)->with('plan')->latest()->first();
             $planCredits = $sub?->plan?->lead_credits_per_month ?? 0;
+            $creditCost = self::creditCostFor($listing->insurance_type ?? 'auto');
             if ($planCredits !== -1) {
                 $credit = LeadCredit::firstOrCreate(
                     ['user_id' => $user->id, 'agency_id' => $user->agency_id],
                     ['credits_balance' => 0, 'credits_used' => 0]
                 );
-                $credit->deduct(1, "Marketplace lead purchase - listing #{$listing->id}",
+                $credit->deduct($creditCost, "Marketplace lead purchase - {$listing->insurance_type} listing #{$listing->id} ({$creditCost} credits)",
                     LeadMarketplaceListing::class, $listing->id);
             }
 
@@ -832,6 +865,17 @@ class LeadMarketplaceController extends Controller
                 'low' => round($suggested * 0.7, 2),
                 'high' => round($suggested * 1.3, 2),
             ],
+        ]);
+    }
+
+    /**
+     * Return credit costs per insurance type so the frontend can display them.
+     */
+    public function creditCosts()
+    {
+        return response()->json([
+            'costs' => self::CREDIT_COSTS,
+            'default' => self::DEFAULT_CREDIT_COST,
         ]);
     }
 

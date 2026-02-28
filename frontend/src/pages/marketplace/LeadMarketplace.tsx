@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Card, Badge, Button, Input, useConfirm } from '@/components/ui';
 import { Search, ShoppingCart, Tag, MapPin, Clock, Star, TrendingUp, Phone, Mail, RefreshCw, ArrowUpDown, Gavel, Package, CreditCard, Loader2, ShieldAlert, ArrowRight, Wallet, DollarSign, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
-import { marketplaceService, type LeadMarketplaceListing, type LeadMarketplaceStats, type LeadMarketplaceTransaction, type SellerBalanceResponse, type SellerPayoutRequest } from '@/services/api/marketplace';
+import { marketplaceService, type LeadMarketplaceListing, type LeadMarketplaceStats, type LeadMarketplaceTransaction, type SellerBalanceResponse, type SellerPayoutRequest, type CreditCostsResponse } from '@/services/api/marketplace';
 import { toast } from 'sonner';
 
 const GRADE_COLORS: Record<string, 'default' | 'success' | 'warning' | 'danger'> = {
@@ -30,12 +30,16 @@ export default function LeadMarketplace() {
   const [biddingId, setBiddingId] = useState<number | null>(null);
   const [requiresUpgrade, setRequiresUpgrade] = useState(false);
   const [creditBalance, setCreditBalance] = useState<number | null>(null);
+  const [creditCosts, setCreditCosts] = useState<CreditCostsResponse | null>(null);
 
   // Filters
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState('');
   const [stateFilter, setStateFilter] = useState('');
   const [sort, setSort] = useState('newest');
+
+  const getCreditCost = (insuranceType: string) =>
+    creditCosts?.costs[insuranceType.toLowerCase()] ?? creditCosts?.default ?? 1;
 
   // Handle Stripe return params
   useEffect(() => {
@@ -92,6 +96,10 @@ export default function LeadMarketplace() {
       const cb = await marketplaceService.creditBalance();
       setCreditBalance(cb.credits_balance ?? null);
     } catch { /* ignore */ }
+    try {
+      const cc = await marketplaceService.getCreditCosts();
+      setCreditCosts(cc);
+    } catch { /* ignore */ }
   }, []);
 
   useEffect(() => {
@@ -105,15 +113,17 @@ export default function LeadMarketplace() {
   }, [tab, fetchBrowse, fetchMyListings]);
 
   const handlePurchase = async (listing: LeadMarketplaceListing) => {
+    const cost = getCreditCost(listing.insurance_type);
+
     // Check credit balance before purchase
-    if (creditBalance !== null && creditBalance <= 0) {
-      toast.error('No marketplace credits remaining. Upgrade your plan for more credits.');
+    if (creditBalance !== null && creditBalance < cost) {
+      toast.error(`This ${listing.insurance_type} lead costs ${cost} credit(s). You need more credits.`);
       return;
     }
 
     const ok = await confirm({
       title: 'Purchase Lead',
-      message: `Purchase this ${listing.insurance_type.replace(/_/g, ' ')} lead for $${Number(listing.asking_price).toFixed(2)}?${creditBalance !== null ? `\n\nCredits remaining after purchase: ${creditBalance - 1}` : ''}`,
+      message: `Purchase this ${listing.insurance_type.replace(/_/g, ' ')} lead for $${Number(listing.asking_price).toFixed(2)}?\n\nCredit cost: ${cost} credit(s)${creditBalance !== null ? `\nCredits remaining after purchase: ${creditBalance - cost}` : ''}`,
       confirmLabel: 'Buy Now',
       cancelLabel: 'Cancel',
       variant: 'info',
@@ -130,19 +140,19 @@ export default function LeadMarketplace() {
       }
       // If no checkout_url returned (Stripe not configured), it completed directly
       toast.success('Lead purchased! Check your CRM.');
-      if (creditBalance !== null) setCreditBalance(creditBalance - 1);
+      if (creditBalance !== null) setCreditBalance(creditBalance - cost);
       fetchBrowse();
       fetchStats();
     } catch (err) {
       const msg = err instanceof Error ? err.message : '';
       if (msg.includes('credits') || msg.includes('HTTP 402')) {
-        toast.error('No marketplace credits remaining. Upgrade your plan for more credits.');
+        toast.error(`Not enough credits. This lead costs ${cost} credit(s).`);
       } else {
         // If checkout returns a direct purchase response (Stripe not configured, fallback)
         const errorData = err && typeof err === 'object' && 'message' in err ? err : null;
         if (errorData && 'lead' in (errorData as Record<string, unknown>)) {
           toast.success('Lead purchased! Check your CRM.');
-          if (creditBalance !== null) setCreditBalance(creditBalance - 1);
+          if (creditBalance !== null) setCreditBalance(creditBalance - cost);
           fetchBrowse();
           fetchStats();
         } else {
@@ -311,7 +321,8 @@ export default function LeadMarketplace() {
                   onPurchase={() => handlePurchase(listing)}
                   onBid={() => handleBid(listing)}
                   purchasing={purchasing === listing.id}
-                  bidding={biddingId === listing.id} />
+                  bidding={biddingId === listing.id}
+                  creditCost={getCreditCost(listing.insurance_type)} />
               ))}
             </div>
           )}
@@ -394,12 +405,13 @@ export default function LeadMarketplace() {
   );
 }
 
-function ListingCard({ listing, onPurchase, onBid, purchasing, bidding }: {
+function ListingCard({ listing, onPurchase, onBid, purchasing, bidding, creditCost = 1 }: {
   listing: LeadMarketplaceListing;
   onPurchase: () => void;
   onBid: () => void;
   purchasing: boolean;
   bidding: boolean;
+  creditCost?: number;
 }) {
   const isAuction = listing.listing_type === 'auction';
 
@@ -475,6 +487,12 @@ function ListingCard({ listing, onPurchase, onBid, purchasing, bidding }: {
 
       {listing.seller_agency && (
         <p className="text-xs text-slate-400 dark:text-slate-500 mb-3">From: {listing.seller_agency.name}</p>
+      )}
+
+      {!isAuction && creditCost > 1 && (
+        <p className="text-xs text-amber-600 dark:text-amber-400 mb-2 flex items-center gap-1">
+          <Tag className="w-3 h-3" /> {creditCost} credits required
+        </p>
       )}
 
       {isAuction ? (
