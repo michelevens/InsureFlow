@@ -108,7 +108,7 @@ return new class extends Migration
                 'agency_id' => $agencyId,
                 'first_name' => $firstName,
                 'last_name' => $lastName,
-                'email' => "michelevens+client{$i}@insurons.com",
+                'email' => "michelevens+client{$i}@gmail.com",
                 'phone' => sprintf('(%03d) %03d-%04d', mt_rand(200, 999), mt_rand(200, 999), mt_rand(1000, 9999)),
                 'insurance_type' => $type,
                 'status' => $status,
@@ -135,7 +135,7 @@ return new class extends Migration
     public function down(): void
     {
         DB::table('leads')
-            ->where('email', 'like', 'michelevens+client%@insurons.com')
+            ->where('email', 'like', 'michelevens+client%@gmail.com')
             ->delete();
     }
 };
