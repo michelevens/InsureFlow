@@ -85,6 +85,17 @@ Route::post('/auth/reset-password', [AuthController::class, 'resetPassword']);
 Route::post('/auth/check-email', [AuthController::class, 'checkEmail']);
 Route::post('/auth/demo-login', [AuthController::class, 'demoLogin']);
 
+// Deploy version check (remove after debugging)
+Route::get('/deploy-check', function () {
+    return response()->json([
+        'version' => 'b65c3d4-2026-02-28',
+        'platform_products' => \App\Models\PlatformProduct::count(),
+        'has_homeowners' => \App\Models\PlatformProduct::where('slug', 'homeowners')->exists(),
+        'has_health_individual' => \App\Models\PlatformProduct::where('slug', 'health_individual')->exists(),
+        'timestamp' => now()->toIso8601String(),
+    ]);
+});
+
 // Calculator / Quote
 Route::post('/calculator/estimate', [QuoteController::class, 'estimate']);
 Route::put('/calculator/{quoteRequest}/contact', [QuoteController::class, 'saveContact']);
