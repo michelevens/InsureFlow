@@ -364,7 +364,7 @@ class QuoteController extends Controller
      * Expand a calculator insurance_type into all matching carrier product types.
      * E.g., "life" → ["life", "life_term", "life_whole", "life_universal"]
      */
-    private static function expandInsuranceTypes(string $type): array
+    public static function expandInsuranceTypes(string $type): array
     {
         $map = [
             'home'       => ['home', 'homeowners'],
