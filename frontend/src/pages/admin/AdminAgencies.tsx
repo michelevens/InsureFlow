@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Card, Badge, Button, Input } from '@/components/ui';
-import { Building2, Search, ArrowLeft, ShieldCheck, ShieldOff, CheckCircle2, XCircle, Globe, Phone, Mail, MapPin, Loader2, Hash, UserCircle, ExternalLink, ClipboardCheck, AlertCircle, Code } from 'lucide-react';
+import { Building2, Search, ArrowLeft, ShieldCheck, ShieldOff, CheckCircle2, XCircle, Globe, Phone, Mail, MapPin, Loader2, Hash, UserCircle, ExternalLink, ClipboardCheck, AlertCircle, Code, Send, X } from 'lucide-react';
 import { adminService, type AgencyDetail, type AgentWithProfile } from '@/services/api/admin';
 import { embedService, type EmbedPartner } from '@/services/api/embed';
 import { toast } from 'sonner';
@@ -45,6 +45,9 @@ export default function AdminAgencies() {
   const [actionLoading, setActionLoading] = useState<number | null>(null);
   const [npnActionLoading, setNpnActionLoading] = useState<number | null>(null);
   const [agencyEmbedPartners, setAgencyEmbedPartners] = useState<EmbedPartner[]>([]);
+  const [showInviteModal, setShowInviteModal] = useState(false);
+  const [inviteForm, setInviteForm] = useState({ agency_name: '', contact_name: '', email: '', custom_message: '' });
+  const [inviteLoading, setInviteLoading] = useState(false);
 
   const activeCount = agencies.filter(a => a.is_active).length;
   const verifiedCount = agencies.filter(a => a.is_verified).length;
@@ -131,6 +134,30 @@ export default function AdminAgencies() {
       toast.error('Failed to update NPN status');
     } finally {
       setNpnActionLoading(null);
+    }
+  };
+
+  const handleInviteAgency = async () => {
+    if (!inviteForm.email || !inviteForm.agency_name || !inviteForm.contact_name) {
+      toast.error('Please fill in all required fields');
+      return;
+    }
+    setInviteLoading(true);
+    try {
+      const res = await adminService.inviteAgency({
+        email: inviteForm.email,
+        agency_name: inviteForm.agency_name,
+        contact_name: inviteForm.contact_name,
+        custom_message: inviteForm.custom_message || undefined,
+      });
+      toast.success(res.message || 'Recruitment invitation sent!');
+      setShowInviteModal(false);
+      setInviteForm({ agency_name: '', contact_name: '', email: '', custom_message: '' });
+    } catch (err: unknown) {
+      const msg = err && typeof err === 'object' && 'message' in err ? (err as { message: string }).message : 'Failed to send invitation';
+      toast.error(msg);
+    } finally {
+      setInviteLoading(false);
     }
   };
 
@@ -403,10 +430,65 @@ export default function AdminAgencies() {
   // ========== List View ==========
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Agency Management</h1>
-        <p className="text-slate-500 dark:text-slate-400 mt-1">Manage and monitor all agencies on the platform</p>
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Agency Management</h1>
+          <p className="text-slate-500 dark:text-slate-400 mt-1">Manage and monitor all agencies on the platform</p>
+        </div>
+        <Button variant="primary" size="sm" onClick={() => setShowInviteModal(true)}>
+          <Send className="h-4 w-4 mr-1.5" /> Invite Agency
+        </Button>
       </div>
+
+      {/* Invite Agency Modal */}
+      {showInviteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" onClick={() => setShowInviteModal(false)}>
+          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden" onClick={e => e.stopPropagation()}>
+            <div className="bg-gradient-to-r from-shield-600 to-blue-600 px-6 py-5">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-lg font-bold text-white">Invite Agency</h2>
+                  <p className="text-sm text-white/70 mt-0.5">Send a recruitment invitation</p>
+                </div>
+                <button onClick={() => setShowInviteModal(false)} className="text-white/70 hover:text-white">
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+            </div>
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Agency Name *</label>
+                <Input placeholder="e.g. Pacific Coast Insurance" value={inviteForm.agency_name} onChange={e => setInviteForm(f => ({ ...f, agency_name: e.target.value }))} />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Contact Name *</label>
+                <Input placeholder="e.g. John Smith" value={inviteForm.contact_name} onChange={e => setInviteForm(f => ({ ...f, contact_name: e.target.value }))} />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Email Address *</label>
+                <Input type="email" placeholder="owner@agency.com" value={inviteForm.email} onChange={e => setInviteForm(f => ({ ...f, email: e.target.value }))} />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Personal Message <span className="text-slate-400 font-normal">(optional)</span></label>
+                <textarea
+                  className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-shield-500 resize-none"
+                  rows={3}
+                  placeholder="Add a personal note to your invitation..."
+                  value={inviteForm.custom_message}
+                  onChange={e => setInviteForm(f => ({ ...f, custom_message: e.target.value }))}
+                />
+              </div>
+              <div className="flex gap-3 pt-2">
+                <Button variant="outline" className="flex-1" onClick={() => setShowInviteModal(false)}>Cancel</Button>
+                <Button variant="primary" className="flex-1" onClick={handleInviteAgency} disabled={inviteLoading}>
+                  {inviteLoading ? <Loader2 className="h-4 w-4 mr-1.5 animate-spin" /> : <Send className="h-4 w-4 mr-1.5" />}
+                  Send Invitation
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <Card className="p-4 text-center">

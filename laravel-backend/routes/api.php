@@ -110,9 +110,11 @@ Route::get('/testimonials', [TestimonialController::class, 'published']);
 // Stripe webhook (no auth)
 Route::post('/webhooks/stripe', [SubscriptionController::class, 'handleWebhook']);
 
-// Invites (public — for viewing and accepting)
+// Invites (public — for viewing, accepting, and tracking)
 Route::get('/invites/{token}', [InviteController::class, 'show']);
 Route::post('/invites/{token}/accept', [InviteController::class, 'accept']);
+Route::get('/invites/{token}/pixel', [InviteController::class, 'trackOpen']);
+Route::get('/invites/{token}/click', [InviteController::class, 'trackClick']);
 
 // SSO (public — SAML login, ACS callback, metadata)
 Route::get('/sso/login/{agencySlug}', [SamlController::class, 'login']);

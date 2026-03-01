@@ -8,7 +8,9 @@ class Invite extends Model
 {
     protected $fillable = [
         'email', 'token', 'role', 'agency_id', 'invited_by',
+        'agency_name', 'contact_name', 'custom_message',
         'accepted_at', 'expires_at',
+        'email_opened_at', 'link_clicked_at', 'open_count', 'click_count',
     ];
 
     protected function casts(): array
@@ -16,6 +18,8 @@ class Invite extends Model
         return [
             'accepted_at' => 'datetime',
             'expires_at' => 'datetime',
+            'email_opened_at' => 'datetime',
+            'link_clicked_at' => 'datetime',
         ];
     }
 

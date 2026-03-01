@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\AgencyRecruitmentMail;
 use App\Mail\InvitationMail;
 use App\Models\Agency;
 use App\Models\Invite;
@@ -31,6 +32,9 @@ class InviteController extends Controller
             'email' => 'required|email',
             'role' => 'required|in:agent,agency_owner,carrier',
             'agency_id' => 'nullable|integer|exists:agencies,id',
+            'agency_name' => 'nullable|string|max:255',
+            'contact_name' => 'nullable|string|max:255',
+            'custom_message' => 'nullable|string|max:1000',
         ]);
 
         // Don't invite existing users
@@ -48,11 +52,16 @@ class InviteController extends Controller
             return response()->json(['message' => 'An active invite already exists for this email'], 422);
         }
 
+        $isRecruitment = $data['role'] === 'agency_owner' && !empty($data['agency_name']);
+
         $invite = Invite::create([
             'email' => $data['email'],
             'token' => Str::random(64),
             'role' => $data['role'],
             'agency_id' => $data['agency_id'] ?? null,
+            'agency_name' => $data['agency_name'] ?? null,
+            'contact_name' => $data['contact_name'] ?? null,
+            'custom_message' => $data['custom_message'] ?? null,
             'invited_by' => $user->id,
             'expires_at' => now()->addDays(7),
         ]);
@@ -60,23 +69,27 @@ class InviteController extends Controller
         $inviteUrl = rtrim(config('app.frontend_url', 'https://insurons.com'), '/')
             . '/invite/' . $invite->token;
 
-        $agencyName = $invite->agency_id
-            ? Agency::find($invite->agency_id)?->name ?? 'Insurons'
-            : 'Insurons';
-
         try {
-            Mail::to($data['email'])->send(new InvitationMail(
-                inviterName: $user->name,
-                agencyName: $agencyName,
-                inviteUrl: $inviteUrl,
-                role: $data['role'],
-            ));
+            if ($isRecruitment) {
+                Mail::to($data['email'])->send(new AgencyRecruitmentMail($invite));
+            } else {
+                $agencyName = $invite->agency_id
+                    ? Agency::find($invite->agency_id)?->name ?? 'Insurons'
+                    : 'Insurons';
+
+                Mail::to($data['email'])->send(new InvitationMail(
+                    inviterName: $user->name,
+                    agencyName: $agencyName,
+                    inviteUrl: $inviteUrl,
+                    role: $data['role'],
+                ));
+            }
         } catch (\Exception $e) {
             \Log::warning('Invite email failed: ' . $e->getMessage());
         }
 
         return response()->json([
-            'message' => 'Invitation sent',
+            'message' => $isRecruitment ? 'Agency recruitment invitation sent' : 'Invitation sent',
             'invite' => $invite,
             'invite_url' => $inviteUrl,
         ], 201);
@@ -197,8 +210,9 @@ class InviteController extends Controller
         return response()->json([
             'email' => $invite->email,
             'role' => $invite->role,
-            'agency_name' => $invite->agency?->name ?? 'Insurons',
+            'agency_name' => $invite->agency_name ?? $invite->agency?->name ?? 'Insurons',
             'inviter_name' => $invite->inviter?->name ?? 'Admin',
+            'is_recruitment' => !empty($invite->agency_name),
         ]);
     }
 
@@ -248,6 +262,20 @@ class InviteController extends Controller
             'email_verified_at' => now(), // Verified via invite email
         ]);
 
+        // If recruitment invite, auto-create Agency for the new owner
+        if ($invite->role === 'agency_owner' && $invite->agency_name && !$invite->agency_id) {
+            $slug = Str::slug($invite->agency_name);
+            $agency = Agency::create([
+                'name' => $invite->agency_name,
+                'slug' => Agency::where('slug', $slug)->exists() ? $slug . '-' . $user->id : $slug,
+                'agency_code' => strtoupper(Str::random(8)),
+                'owner_id' => $user->id,
+                'email' => $invite->email,
+                'is_active' => true,
+            ]);
+            $user->update(['agency_id' => $agency->id]);
+        }
+
         $invite->update(['accepted_at' => now()]);
 
         $authToken = $user->createToken('auth-token')->plainTextToken;
@@ -280,5 +308,47 @@ class InviteController extends Controller
         $invites = $query->orderByDesc('created_at')->paginate(20);
 
         return response()->json($invites);
+    }
+
+    /**
+     * Track email open via 1x1 pixel.
+     * GET /invites/{token}/pixel
+     */
+    public function trackOpen(string $token)
+    {
+        $invite = Invite::where('token', $token)->first();
+        if ($invite) {
+            $invite->increment('open_count');
+            if (!$invite->email_opened_at) {
+                $invite->update(['email_opened_at' => now()]);
+            }
+        }
+
+        // Return 1x1 transparent GIF
+        $pixel = base64_decode('R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7');
+        return response($pixel, 200, [
+            'Content-Type' => 'image/gif',
+            'Cache-Control' => 'no-store, no-cache, must-revalidate',
+        ]);
+    }
+
+    /**
+     * Track link click and redirect to accept page.
+     * GET /invites/{token}/click
+     */
+    public function trackClick(string $token)
+    {
+        $invite = Invite::where('token', $token)->first();
+        if ($invite) {
+            $invite->increment('click_count');
+            if (!$invite->link_clicked_at) {
+                $invite->update(['link_clicked_at' => now()]);
+            }
+        }
+
+        $frontendUrl = rtrim(config('app.frontend_url', 'https://insurons.com'), '/')
+            . '/invite/' . $token;
+
+        return redirect($frontendUrl);
     }
 }

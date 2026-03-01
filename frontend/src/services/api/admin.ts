@@ -215,6 +215,11 @@ export const adminService = {
     return api.get('/admin/profiles/sources');
   },
 
+  // --- Agency Invites ---
+  async inviteAgency(data: { email: string; agency_name: string; contact_name: string; custom_message?: string }): Promise<{ message: string; invite_url: string }> {
+    return api.post('/admin/invites', { ...data, role: 'agency_owner' });
+  },
+
   // --- Analytics ---
   async getAnalytics(): Promise<{ monthly_users: Array<{ month: string; count: number }>; total_users: number; active_users: number }> {
     return api.get('/admin/analytics');
