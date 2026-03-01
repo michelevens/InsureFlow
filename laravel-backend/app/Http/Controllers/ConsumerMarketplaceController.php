@@ -55,7 +55,26 @@ class ConsumerMarketplaceController extends Controller
                 'expires_at' => now()->addDays(30),
             ]);
 
-            // Find matching agencies: active, in the consumer's state, offering the product
+            // Create ONE pool lead — agencies will find it via browse + claim
+            $lead = Lead::create([
+                'quote_request_id' => $quoteRequest->id,
+                'consumer_id' => $request->user()?->id,
+                'first_name' => $data['first_name'],
+                'last_name' => $data['last_name'],
+                'email' => $data['email'],
+                'phone' => $data['phone'] ?? null,
+                'zip_code' => $data['zip_code'],
+                'state' => $data['state'],
+                'insurance_type' => $data['insurance_type'],
+                'status' => 'new',
+                'source' => 'marketplace',
+                'notes' => $data['description'] ?? null,
+                'is_pool' => true,
+                'pool_status' => 'open',
+                'pool_expires_at' => now()->addDays(7),
+            ]);
+
+            // Notify matching agencies so they know to check the pool
             $matchedAgencies = Agency::where('is_active', true)
                 ->where('is_verified', true)
                 ->where(function ($q) use ($data) {
@@ -68,31 +87,11 @@ class ConsumerMarketplaceController extends Controller
                 })
                 ->get();
 
-            $leadsCreated = 0;
-
+            $agentsNotified = 0;
             foreach ($matchedAgencies as $agency) {
-                // Find the primary agent (owner) for this agency
                 $agent = $agency->owner;
                 if (!$agent) continue;
 
-                // Create a lead for each matched agency
-                Lead::create([
-                    'agent_id' => $agent->id,
-                    'agency_id' => $agency->id,
-                    'quote_request_id' => $quoteRequest->id,
-                    'first_name' => $data['first_name'],
-                    'last_name' => $data['last_name'],
-                    'email' => $data['email'],
-                    'phone' => $data['phone'] ?? null,
-                    'insurance_type' => $data['insurance_type'],
-                    'status' => 'new',
-                    'source' => 'marketplace',
-                    'notes' => $data['description'] ?? null,
-                ]);
-
-                $leadsCreated++;
-
-                // Notify the agency owner
                 try {
                     Mail::to($agent->email)->queue(new MarketplaceRequestNotificationMail(
                         agentName: $agent->name,
@@ -100,15 +99,17 @@ class ConsumerMarketplaceController extends Controller
                         insuranceType: $data['insurance_type'],
                         state: $data['state'],
                     ));
+                    $agentsNotified++;
                 } catch (\Throwable $e) {
                     // Don't fail the request if email fails
                 }
             }
 
             return response()->json([
-                'message' => 'Your insurance request has been submitted.',
+                'message' => 'Your insurance request has been submitted to the marketplace.',
                 'quote_request_id' => $quoteRequest->id,
-                'agents_matched' => $leadsCreated,
+                'lead_id' => $lead->id,
+                'agents_notified' => $agentsNotified,
             ], 201);
         });
     }

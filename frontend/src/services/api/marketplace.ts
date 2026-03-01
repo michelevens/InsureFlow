@@ -225,7 +225,43 @@ export const marketplaceService = {
     return api.get(`/credits/history?page=${page}`);
   },
 
-  // ── Lead Marketplace ──
+  // ── Lead Pool (competitive marketplace) ──
+
+  async browsePool(params?: {
+    insurance_type?: string;
+    state?: string;
+    sort?: string;
+    page?: number;
+  }): Promise<PoolBrowseResponse> {
+    const query = new URLSearchParams();
+    if (params?.insurance_type) query.set('insurance_type', params.insurance_type);
+    if (params?.state) query.set('state', params.state);
+    if (params?.sort) query.set('sort', params.sort);
+    if (params?.page) query.set('page', String(params.page));
+    return api.get(`/lead-pool/browse?${query.toString()}`);
+  },
+
+  async claimPoolLead(leadId: number): Promise<PoolClaimResponse> {
+    return api.post<PoolClaimResponse>(`/lead-pool/${leadId}/claim`);
+  },
+
+  async submitPoolQuote(leadId: number): Promise<{ claim: PoolClaim }> {
+    return api.post(`/lead-pool/${leadId}/submit-quote`);
+  },
+
+  async getPoolClaims(page = 1): Promise<PoolClaimsResponse> {
+    return api.get(`/lead-pool/my-claims?page=${page}`);
+  },
+
+  async awardPoolLead(leadId: number, agencyId: number): Promise<{ message: string }> {
+    return api.post(`/lead-pool/${leadId}/award`, { agency_id: agencyId });
+  },
+
+  async poolStats(): Promise<PoolStats> {
+    return api.get<PoolStats>('/lead-pool/stats');
+  },
+
+  // ── Lead Marketplace (resale) ──
 
   async browseLeads(params?: {
     insurance_type?: string;
@@ -521,4 +557,63 @@ export interface SellerAnalyticsResponse {
   };
   by_type: { type: string; sales: number; revenue: number }[];
   monthly_trend: { month: string; listed: number; sold: number; revenue: number }[];
+}
+
+// ── Lead Pool Types ──
+
+export interface PoolLead {
+  id: number;
+  insurance_type: string;
+  state: string | null;
+  zip_prefix: string | null;
+  estimated_value: string | null;
+  created_at: string;
+  current_claims: number;
+  max_claims: number;
+  pool_status: string;
+  credit_cost: number;
+}
+
+export interface PoolBrowseResponse {
+  data: PoolLead[];
+  current_page: number;
+  last_page: number;
+  total: number;
+  message?: string;
+}
+
+export interface PoolClaim {
+  id: number;
+  lead_id: number;
+  agency_id: number;
+  claimed_by: number;
+  status: 'claimed' | 'quoted' | 'awarded' | 'expired' | 'released';
+  claimed_at: string;
+  quote_deadline: string | null;
+  quoted_at: string | null;
+  credits_spent: number;
+  created_at: string;
+  lead?: Partial<PoolLead>;
+}
+
+export interface PoolClaimResponse {
+  claim: PoolClaim;
+  lead: Record<string, unknown>;
+  credits_spent: number;
+}
+
+export interface PoolClaimsResponse {
+  data: PoolClaim[];
+  current_page: number;
+  last_page: number;
+  total: number;
+}
+
+export interface PoolStats {
+  total_claims: number;
+  active_claims: number;
+  quoted: number;
+  awarded: number;
+  expired: number;
+  total_credits_spent: number;
 }

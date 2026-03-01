@@ -58,6 +58,7 @@ use App\Http\Controllers\ProductVisibilityController;
 use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\LeadIntakeController;
 use App\Http\Controllers\LeadMarketplaceController;
+use App\Http\Controllers\LeadPoolController;
 use App\Http\Controllers\ProfileClaimController;
 use App\Http\Controllers\ConsumerMarketplaceController;
 use App\Http\Controllers\PublicSigningController;
@@ -783,7 +784,17 @@ Route::middleware(['auth:sanctum', 'agency.scope'])->group(function () {
         Route::delete('/rate-tables/{rateTable}/fees/{fee}', [AdminRateTableController::class, 'destroyFee']);
     });
 
-    // Lead Marketplace
+    // Lead Pool (competitive marketplace — agencies browse + claim shared leads)
+    Route::prefix('lead-pool')->group(function () {
+        Route::get('/browse', [LeadPoolController::class, 'browse']);
+        Route::post('/{lead}/claim', [LeadPoolController::class, 'claim']);
+        Route::post('/{lead}/submit-quote', [LeadPoolController::class, 'submitQuote']);
+        Route::get('/my-claims', [LeadPoolController::class, 'myClaims']);
+        Route::post('/{lead}/award', [LeadPoolController::class, 'award']);
+        Route::get('/stats', [LeadPoolController::class, 'stats']);
+    });
+
+    // Lead Marketplace (agency-to-agency resale)
     Route::prefix('lead-marketplace')->group(function () {
         Route::get('/browse', [LeadMarketplaceController::class, 'browse']);
         Route::get('/listings/{listing}', [LeadMarketplaceController::class, 'show']);

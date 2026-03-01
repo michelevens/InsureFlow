@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Card, Badge, Button, Input, useConfirm } from '@/components/ui';
-import { Search, ShoppingCart, Tag, MapPin, Clock, Star, TrendingUp, Phone, Mail, RefreshCw, ArrowUpDown, Gavel, Package, CreditCard, Loader2, ShieldAlert, ArrowRight, Wallet, DollarSign, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
-import { marketplaceService, type LeadMarketplaceListing, type LeadMarketplaceStats, type LeadMarketplaceTransaction, type SellerBalanceResponse, type SellerPayoutRequest, type CreditCostsResponse } from '@/services/api/marketplace';
+import { Search, ShoppingCart, Tag, MapPin, Clock, Star, TrendingUp, Phone, Mail, RefreshCw, ArrowUpDown, Gavel, Package, CreditCard, Loader2, ShieldAlert, ArrowRight, Wallet, DollarSign, CheckCircle, XCircle, AlertCircle, Users, Zap } from 'lucide-react';
+import { marketplaceService, type LeadMarketplaceListing, type LeadMarketplaceStats, type LeadMarketplaceTransaction, type SellerBalanceResponse, type SellerPayoutRequest, type CreditCostsResponse, type PoolLead, type PoolClaim, type PoolStats } from '@/services/api/marketplace';
 import { toast } from 'sonner';
 
 const GRADE_COLORS: Record<string, 'default' | 'success' | 'warning' | 'danger'> = {
@@ -16,12 +16,12 @@ const SORT_OPTIONS = [
   { value: 'score_desc', label: 'Best Score' },
 ];
 
-type Tab = 'browse' | 'my-listings' | 'transactions' | 'payouts';
+type Tab = 'pool' | 'browse' | 'my-listings' | 'transactions' | 'payouts';
 
 export default function LeadMarketplace() {
   const confirm = useConfirm();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [tab, setTab] = useState<Tab>('browse');
+  const [tab, setTab] = useState<Tab>('pool');
   const [listings, setListings] = useState<LeadMarketplaceListing[]>([]);
   const [myListings, setMyListings] = useState<LeadMarketplaceListing[]>([]);
   const [stats, setStats] = useState<LeadMarketplaceStats | null>(null);
@@ -266,7 +266,7 @@ export default function LeadMarketplace() {
       {/* Tabs — hidden when upgrade required */}
       {!requiresUpgrade && (
         <div className="flex gap-1 border-b border-slate-200 dark:border-slate-700/50">
-          {([['browse', 'Browse Leads'], ['my-listings', 'My Listings'], ['transactions', 'Transactions'], ['payouts', 'Payouts']] as [Tab, string][]).map(([key, label]) => (
+          {([['pool', 'Lead Pool'], ['browse', 'Buy Leads'], ['my-listings', 'My Listings'], ['transactions', 'Transactions'], ['payouts', 'Payouts']] as [Tab, string][]).map(([key, label]) => (
             <button key={key} onClick={() => setTab(key)}
               className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${tab === key ? 'border-shield-500 text-shield-600 dark:text-shield-400' : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:text-slate-200'}`}>
               {label}
@@ -274,6 +274,9 @@ export default function LeadMarketplace() {
           ))}
         </div>
       )}
+
+      {/* Lead Pool Tab */}
+      {!requiresUpgrade && tab === 'pool' && <PoolTab creditBalance={creditBalance} onCreditsChange={setCreditBalance} />}
 
       {/* Browse Tab */}
       {!requiresUpgrade && tab === 'browse' && (
@@ -659,6 +662,300 @@ function PayoutsTab() {
           </div>
         )}
       </div>
+    </div>
+  );
+}
+
+function PoolTab({ creditBalance, onCreditsChange }: { creditBalance: number | null; onCreditsChange: (v: number) => void }) {
+  const confirm = useConfirm();
+  const [poolLeads, setPoolLeads] = useState<PoolLead[]>([]);
+  const [claims, setClaims] = useState<PoolClaim[]>([]);
+  const [poolStatsData, setPoolStatsData] = useState<PoolStats | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [claiming, setClaiming] = useState<number | null>(null);
+  const [subTab, setSubTab] = useState<'browse' | 'claims'>('browse');
+  const [typeFilter, setTypeFilter] = useState('');
+  const [stateFilter, setStateFilter] = useState('');
+  const [sort, setSort] = useState('newest');
+  const [noProducts, setNoProducts] = useState(false);
+
+  const fetchPool = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await marketplaceService.browsePool({
+        insurance_type: typeFilter || undefined,
+        state: stateFilter || undefined,
+        sort,
+      });
+      setPoolLeads(res.data);
+      setNoProducts(!!res.message && res.data.length === 0);
+    } catch {
+      toast.error('Failed to load lead pool');
+    } finally {
+      setLoading(false);
+    }
+  }, [typeFilter, stateFilter, sort]);
+
+  const fetchClaims = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await marketplaceService.getPoolClaims();
+      setClaims(res.data);
+    } catch {
+      toast.error('Failed to load claims');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const fetchPoolStats = useCallback(async () => {
+    try {
+      const s = await marketplaceService.poolStats();
+      setPoolStatsData(s);
+    } catch { /* ignore */ }
+  }, []);
+
+  useEffect(() => {
+    fetchPoolStats();
+  }, [fetchPoolStats]);
+
+  useEffect(() => {
+    if (subTab === 'browse') fetchPool();
+    else fetchClaims();
+  }, [subTab, fetchPool, fetchClaims]);
+
+  const handleClaim = async (lead: PoolLead) => {
+    if (creditBalance !== null && creditBalance < lead.credit_cost) {
+      toast.error(`This lead costs ${lead.credit_cost} credit(s). You don't have enough.`);
+      return;
+    }
+
+    const ok = await confirm({
+      title: 'Claim Lead',
+      message: `Claim this ${lead.insurance_type.replace(/_/g, ' ')} lead in ${lead.state || 'unknown state'}?\n\nCost: ${lead.credit_cost} credit(s)\nYou have 24 hours to submit a quote after claiming.\n${lead.current_claims}/${lead.max_claims} agencies have already claimed this lead.`,
+      confirmLabel: 'Claim Now',
+      variant: 'info',
+    });
+    if (!ok) return;
+
+    setClaiming(lead.id);
+    try {
+      const res = await marketplaceService.claimPoolLead(lead.id);
+      toast.success(`Lead claimed! ${res.credits_spent} credit(s) deducted. View it in your CRM.`);
+      if (creditBalance !== null) onCreditsChange(creditBalance - res.credits_spent);
+      fetchPool();
+      fetchPoolStats();
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : '';
+      if (msg.includes('credits') || msg.includes('402')) {
+        toast.error('Insufficient credits to claim this lead.');
+      } else if (msg.includes('already claimed')) {
+        toast.error('Your agency has already claimed this lead.');
+      } else if (msg.includes('slots')) {
+        toast.error('All claim slots are taken for this lead.');
+      } else {
+        toast.error('Failed to claim lead. It may no longer be available.');
+      }
+    } finally {
+      setClaiming(null);
+    }
+  };
+
+  const daysAgo = (dateStr: string) => {
+    const d = Math.floor((Date.now() - new Date(dateStr).getTime()) / 86400000);
+    return d === 0 ? 'Today' : `${d}d ago`;
+  };
+
+  return (
+    <div className="space-y-4">
+      {/* Pool Stats */}
+      {poolStatsData && (
+        <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
+          <Card className="p-3 text-center">
+            <p className="text-xl font-bold text-shield-600 dark:text-shield-400">{poolStatsData.total_claims}</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400">Total Claims</p>
+          </Card>
+          <Card className="p-3 text-center">
+            <p className="text-xl font-bold text-blue-600 dark:text-blue-400">{poolStatsData.active_claims}</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400">Active</p>
+          </Card>
+          <Card className="p-3 text-center">
+            <p className="text-xl font-bold text-amber-600 dark:text-amber-400">{poolStatsData.quoted}</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400">Quoted</p>
+          </Card>
+          <Card className="p-3 text-center">
+            <p className="text-xl font-bold text-savings-600 dark:text-savings-400">{poolStatsData.awarded}</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400">Won</p>
+          </Card>
+          <Card className="p-3 text-center">
+            <p className="text-xl font-bold text-slate-500 dark:text-slate-400">{poolStatsData.expired}</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400">Expired</p>
+          </Card>
+          <Card className="p-3 text-center">
+            <p className="text-xl font-bold text-red-500 dark:text-red-400">{poolStatsData.total_credits_spent}</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400">Credits Used</p>
+          </Card>
+        </div>
+      )}
+
+      {/* Sub-tabs */}
+      <div className="flex gap-2">
+        <button onClick={() => setSubTab('browse')}
+          className={`px-3 py-1.5 text-sm rounded-lg flex items-center gap-1.5 ${subTab === 'browse' ? 'bg-shield-100 dark:bg-shield-900/30 text-shield-700 dark:text-shield-300 font-medium' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
+          <Zap className="w-3.5 h-3.5" /> Browse Pool
+        </button>
+        <button onClick={() => setSubTab('claims')}
+          className={`px-3 py-1.5 text-sm rounded-lg flex items-center gap-1.5 ${subTab === 'claims' ? 'bg-shield-100 dark:bg-shield-900/30 text-shield-700 dark:text-shield-300 font-medium' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
+          <Users className="w-3.5 h-3.5" /> My Claims
+        </button>
+      </div>
+
+      {/* Browse Pool */}
+      {subTab === 'browse' && (
+        <>
+          <div className="flex flex-wrap gap-3">
+            <select value={typeFilter} onChange={e => setTypeFilter(e.target.value)}
+              className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm dark:bg-slate-800 dark:text-slate-200">
+              <option value="">All Products</option>
+              {['auto', 'homeowners', 'renters', 'health_individual', 'health_family', 'life_term', 'life_whole', 'commercial_general', 'commercial_bop', 'disability_short_term', 'disability_long_term', 'umbrella'].map(t =>
+                <option key={t} value={t}>{t.replace(/_/g, ' ')}</option>
+              )}
+            </select>
+            <select value={stateFilter} onChange={e => setStateFilter(e.target.value)}
+              className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm dark:bg-slate-800 dark:text-slate-200">
+              <option value="">All States</option>
+              {['FL', 'TX', 'CA', 'NY', 'GA', 'IL', 'VA', 'AZ', 'OH', 'PA', 'NC', 'MI', 'NJ', 'WA', 'CO', 'MA'].map(s =>
+                <option key={s} value={s}>{s}</option>
+              )}
+            </select>
+            <select value={sort} onChange={e => setSort(e.target.value)}
+              className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm dark:bg-slate-800 dark:text-slate-200">
+              <option value="newest">Newest First</option>
+              <option value="oldest">Oldest First</option>
+              <option value="value_desc">Highest Value</option>
+              <option value="value_asc">Lowest Value</option>
+            </select>
+            <Button variant="ghost" size="sm" onClick={fetchPool}>
+              <RefreshCw className="w-4 h-4" />
+            </Button>
+          </div>
+
+          {loading ? (
+            <div className="text-center py-12 text-slate-400 dark:text-slate-500">Loading pool leads...</div>
+          ) : noProducts ? (
+            <Card className="p-12 text-center">
+              <ShieldAlert className="w-12 h-12 text-amber-400 mx-auto mb-3" />
+              <p className="text-slate-700 dark:text-slate-200 font-medium">No products configured</p>
+              <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">Add products in your agency settings to see matching leads in the pool.</p>
+            </Card>
+          ) : poolLeads.length === 0 ? (
+            <Card className="p-12 text-center">
+              <ShoppingCart className="w-12 h-12 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
+              <p className="text-slate-500 dark:text-slate-400 font-medium">No leads available</p>
+              <p className="text-slate-400 dark:text-slate-500 text-sm mt-1">New leads matching your products will appear here</p>
+            </Card>
+          ) : (
+            <div className="grid md:grid-cols-2 gap-4">
+              {poolLeads.map(lead => (
+                <Card key={lead.id} className="p-5 hover:shadow-lg transition-shadow">
+                  <div className="flex items-start justify-between mb-3">
+                    <Badge>{lead.insurance_type.replace(/_/g, ' ')}</Badge>
+                    {lead.estimated_value && (
+                      <span className="text-lg font-bold text-shield-600 dark:text-shield-400">
+                        ${Number(lead.estimated_value).toLocaleString()}
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2 text-sm mb-4">
+                    {lead.state && (
+                      <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
+                        <MapPin className="w-3.5 h-3.5" /> {lead.state} {lead.zip_prefix && `(${lead.zip_prefix})`}
+                      </div>
+                    )}
+                    <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
+                      <Clock className="w-3.5 h-3.5" /> {daysAgo(lead.created_at)}
+                    </div>
+                    <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
+                      <Users className="w-3.5 h-3.5" /> {lead.current_claims}/{lead.max_claims} claimed
+                    </div>
+                    <div className="flex items-center gap-1.5 text-amber-600 dark:text-amber-400">
+                      <Tag className="w-3.5 h-3.5" /> {lead.credit_cost} credit{lead.credit_cost !== 1 ? 's' : ''}
+                    </div>
+                  </div>
+
+                  <Button className="w-full" variant="shield" onClick={() => handleClaim(lead)}
+                    disabled={claiming === lead.id}>
+                    {claiming === lead.id ? (
+                      <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                    ) : (
+                      <Zap className="w-4 h-4 mr-1" />
+                    )}
+                    {claiming === lead.id ? 'Claiming...' : 'Claim Lead'}
+                  </Button>
+                </Card>
+              ))}
+            </div>
+          )}
+        </>
+      )}
+
+      {/* My Claims */}
+      {subTab === 'claims' && (
+        loading ? (
+          <div className="text-center py-12 text-slate-400 dark:text-slate-500">Loading claims...</div>
+        ) : claims.length === 0 ? (
+          <Card className="p-12 text-center">
+            <Users className="w-12 h-12 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
+            <p className="text-slate-500 dark:text-slate-400 font-medium">No claims yet</p>
+            <p className="text-slate-400 dark:text-slate-500 text-sm mt-1">Claim leads from the pool to start competing</p>
+          </Card>
+        ) : (
+          <div className="space-y-3">
+            {claims.map(claim => {
+              const statusColors: Record<string, string> = {
+                claimed: 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
+                quoted: 'bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300',
+                awarded: 'bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-300',
+                expired: 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400',
+                released: 'bg-red-50 text-red-600 dark:bg-red-900/30 dark:text-red-400',
+              };
+              const deadline = claim.quote_deadline ? new Date(claim.quote_deadline) : null;
+              const isOverdue = deadline && deadline < new Date() && claim.status === 'claimed';
+
+              return (
+                <Card key={claim.id} className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${statusColors[claim.status] || statusColors.claimed}`}>
+                        {claim.status === 'awarded' ? 'Won' : claim.status}
+                      </span>
+                      <span className="font-medium text-slate-900 dark:text-white">
+                        {(claim.lead as Record<string, unknown>)?.insurance_type
+                          ? String((claim.lead as Record<string, unknown>).insurance_type).replace(/_/g, ' ')
+                          : `Lead #${claim.lead_id}`}
+                      </span>
+                      {(claim.lead as Record<string, unknown>)?.state ? (
+                        <span className="text-sm text-slate-500 dark:text-slate-400">{String((claim.lead as Record<string, unknown>).state)}</span>
+                      ) : null}
+                    </div>
+                    <div className="text-right">
+                      {claim.status === 'claimed' && deadline && (
+                        <p className={`text-xs ${isOverdue ? 'text-red-600 dark:text-red-400 font-semibold' : 'text-slate-500 dark:text-slate-400'}`}>
+                          {isOverdue ? 'Deadline passed' : `Due: ${deadline.toLocaleDateString()} ${deadline.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`}
+                        </p>
+                      )}
+                      <p className="text-xs text-slate-400 dark:text-slate-500">
+                        {claim.credits_spent} credit{claim.credits_spent !== 1 ? 's' : ''} spent
+                      </p>
+                    </div>
+                  </div>
+                </Card>
+              );
+            })}
+          </div>
+        )
+      )}
     </div>
   );
 }
