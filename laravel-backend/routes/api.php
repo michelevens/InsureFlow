@@ -84,6 +84,7 @@ Route::post('/auth/forgot-password', [AuthController::class, 'forgotPassword']);
 Route::post('/auth/reset-password', [AuthController::class, 'resetPassword']);
 Route::post('/auth/check-email', [AuthController::class, 'checkEmail']);
 Route::post('/auth/demo-login', [AuthController::class, 'demoLogin']);
+Route::post('/auth/mfa/verify', [AuthController::class, 'mfaVerify']);
 
 // Calculator / Quote
 Route::post('/calculator/estimate', [QuoteController::class, 'estimate']);
@@ -168,6 +169,9 @@ Route::middleware(['auth:sanctum', 'agency.scope'])->group(function () {
     Route::put('/auth/profile', [AuthController::class, 'updateProfile']);
     Route::put('/auth/password', [AuthController::class, 'changePassword']);
     Route::post('/auth/resend-verification', [AuthController::class, 'resendVerification']);
+    Route::get('/auth/mfa/setup', [AuthController::class, 'mfaSetup']);
+    Route::post('/auth/mfa/enable', [AuthController::class, 'mfaEnable']);
+    Route::post('/auth/mfa/disable', [AuthController::class, 'mfaDisable']);
 
     // Onboarding
     Route::get('/onboarding/status', [OnboardingController::class, 'status']);

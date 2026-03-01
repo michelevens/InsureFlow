@@ -11,11 +11,13 @@ use App\Models\QuoteRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password;
+use PragmaRX\Google2FA\Google2FA;
 
 class AuthController extends Controller
 {
@@ -107,6 +109,17 @@ class AuthController extends Controller
             return response()->json(['message' => 'Account is deactivated or pending approval'], 403);
         }
 
+        // MFA check: if enabled, require TOTP verification before issuing token
+        if ($user->mfa_enabled) {
+            $mfaToken = Str::random(64);
+            Cache::put('mfa_pending:' . $mfaToken, $user->id, now()->addMinutes(5));
+
+            return response()->json([
+                'mfa_required' => true,
+                'mfa_token' => $mfaToken,
+            ]);
+        }
+
         $token = $user->createToken('auth-token')->plainTextToken;
 
         return response()->json([
@@ -149,7 +162,7 @@ class AuthController extends Controller
     {
         $data = $request->validate([
             'current_password' => 'required',
-            'password' => ['required', 'confirmed', Password::min(8)],
+            'password' => ['required', 'confirmed', Password::min(8)->mixedCase()->numbers()->symbols()],
         ]);
 
         $user = $request->user();
@@ -373,6 +386,152 @@ class AuthController extends Controller
             'token' => $token,
             'email_verified' => !is_null($user->email_verified_at),
         ]);
+    }
+
+    // ── MFA ─────────────────────────────────────────────────
+
+    /**
+     * Generate MFA secret + QR URI for setup.
+     * GET /auth/mfa/setup
+     */
+    public function mfaSetup(Request $request)
+    {
+        $user = $request->user();
+        $google2fa = new Google2FA();
+        $secret = $google2fa->generateSecretKey();
+
+        $qrUri = $google2fa->getQRCodeUrl(
+            'Insurons',
+            $user->email,
+            $secret,
+        );
+
+        return response()->json([
+            'secret' => $secret,
+            'qr_uri' => $qrUri,
+        ]);
+    }
+
+    /**
+     * Verify TOTP code and enable MFA.
+     * POST /auth/mfa/enable
+     */
+    public function mfaEnable(Request $request)
+    {
+        $data = $request->validate([
+            'secret' => 'required|string',
+            'code' => 'required|string|size:6',
+        ]);
+
+        $google2fa = new Google2FA();
+        $valid = $google2fa->verifyKey($data['secret'], $data['code']);
+
+        if (!$valid) {
+            return response()->json(['message' => 'Invalid verification code'], 422);
+        }
+
+        // Generate 8 backup codes
+        $backupCodes = [];
+        $hashedCodes = [];
+        for ($i = 0; $i < 8; $i++) {
+            $code = strtoupper(Str::random(8));
+            $backupCodes[] = $code;
+            $hashedCodes[] = Hash::make($code);
+        }
+
+        $user = $request->user();
+        $user->update([
+            'mfa_secret' => encrypt($data['secret']),
+            'mfa_enabled' => true,
+            'mfa_backup_codes' => json_encode($hashedCodes),
+        ]);
+
+        return response()->json([
+            'message' => 'Two-factor authentication enabled',
+            'backup_codes' => $backupCodes,
+        ]);
+    }
+
+    /**
+     * Verify MFA code during login.
+     * POST /auth/mfa/verify
+     */
+    public function mfaVerify(Request $request)
+    {
+        $data = $request->validate([
+            'mfa_token' => 'required|string',
+            'code' => 'required|string',
+        ]);
+
+        $userId = Cache::pull('mfa_pending:' . $data['mfa_token']);
+
+        if (!$userId) {
+            return response()->json(['message' => 'MFA session expired. Please log in again.'], 422);
+        }
+
+        $user = User::findOrFail($userId);
+        $code = $data['code'];
+
+        // Try TOTP first (6-digit codes)
+        if (strlen($code) === 6 && ctype_digit($code)) {
+            $google2fa = new Google2FA();
+            $secret = decrypt($user->mfa_secret);
+            $valid = $google2fa->verifyKey($secret, $code);
+
+            if (!$valid) {
+                return response()->json(['message' => 'Invalid verification code'], 422);
+            }
+        } else {
+            // Try backup code
+            $backupCodes = json_decode($user->mfa_backup_codes, true) ?? [];
+            $matched = false;
+
+            foreach ($backupCodes as $i => $hashedCode) {
+                if (Hash::check(strtoupper($code), $hashedCode)) {
+                    unset($backupCodes[$i]);
+                    $user->update(['mfa_backup_codes' => json_encode(array_values($backupCodes))]);
+                    $matched = true;
+                    break;
+                }
+            }
+
+            if (!$matched) {
+                return response()->json(['message' => 'Invalid backup code'], 422);
+            }
+        }
+
+        $token = $user->createToken('auth-token')->plainTextToken;
+
+        return response()->json([
+            'user' => $user,
+            'token' => $token,
+            'email_verified' => !is_null($user->email_verified_at),
+        ]);
+    }
+
+    /**
+     * Disable MFA (requires password confirmation).
+     * POST /auth/mfa/disable
+     */
+    public function mfaDisable(Request $request)
+    {
+        $data = $request->validate([
+            'password' => 'required|string',
+        ]);
+
+        $user = $request->user();
+
+        if (!Hash::check($data['password'], $user->password)) {
+            return response()->json(['message' => 'Incorrect password'], 422);
+        }
+
+        $user->update([
+            'mfa_secret' => null,
+            'mfa_enabled' => false,
+            'mfa_backup_codes' => null,
+        ]);
+
+        return response()->json(['message' => 'Two-factor authentication disabled']);
     }
 
     private function applyReferralCode(User $user, string $code): void

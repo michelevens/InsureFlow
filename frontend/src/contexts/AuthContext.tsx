@@ -9,8 +9,12 @@ interface AuthState {
   isLoading: boolean;
 }
 
+interface MfaPending {
+  mfa_token: string;
+}
+
 interface AuthContextType extends AuthState {
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<MfaPending | void>;
   demoLogin: (email: string) => Promise<void>;
   register: (data: {
     name: string;
@@ -23,6 +27,7 @@ interface AuthContextType extends AuthState {
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
   setToken: (token: string) => Promise<void>;
+  verifyMfa: (mfaToken: string, code: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -70,8 +75,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => window.removeEventListener('auth:unauthorized', handleUnauthorized);
   }, [clearAuth]);
 
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, password: string): Promise<MfaPending | void> => {
     const response = await authService.login(email, password);
+    if (response.mfa_required && response.mfa_token) {
+      return { mfa_token: response.mfa_token };
+    }
+    localStorage.setItem('auth_token', response.token);
+    setState({ user: response.user, isAuthenticated: true, isLoading: false });
+  };
+
+  const verifyMfa = async (mfaToken: string, code: string) => {
+    const response = await authService.mfaVerify({ mfa_token: mfaToken, code });
     localStorage.setItem('auth_token', response.token);
     setState({ user: response.user, isAuthenticated: true, isLoading: false });
   };
@@ -109,7 +123,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ ...state, login, demoLogin, register, logout, refreshUser, setToken }}>
+    <AuthContext.Provider value={{ ...state, login, demoLogin, register, logout, refreshUser, setToken, verifyMfa }}>
       {children}
     </AuthContext.Provider>
   );

@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button, Input } from '@/components/ui';
-import { Shield, Mail, Lock, User, Building2, Briefcase, ShieldCheck, Zap } from 'lucide-react';
+import { Shield, Mail, Lock, User, Building2, Briefcase, ShieldCheck, Zap, ArrowLeft, KeyRound } from 'lucide-react';
 
 const demoAccounts = [
   { email: 'consumer@insurons.com', label: 'Consumer', icon: User, color: 'bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100' },
@@ -13,7 +13,7 @@ const demoAccounts = [
 ];
 
 export default function Login() {
-  const { login, demoLogin } = useAuth();
+  const { login, demoLogin, verifyMfa } = useAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -21,17 +21,66 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [demoLoading, setDemoLoading] = useState<string | null>(null);
 
+  // MFA state
+  const [mfaToken, setMfaToken] = useState<string | null>(null);
+  const [mfaCode, setMfaCode] = useState('');
+  const [useBackupCode, setUseBackupCode] = useState(false);
+  const mfaInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (mfaToken && mfaInputRef.current) {
+      mfaInputRef.current.focus();
+    }
+  }, [mfaToken, useBackupCode]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setLoading(true);
     try {
-      await login(email, password);
-      navigate('/dashboard');
+      const result = await login(email, password);
+      if (result?.mfa_token) {
+        setMfaToken(result.mfa_token);
+      } else {
+        navigate('/dashboard');
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleMfaSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!mfaToken || !mfaCode.trim()) return;
+    setError('');
+    setLoading(true);
+    try {
+      await verifyMfa(mfaToken, mfaCode.trim());
+      navigate('/dashboard');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Invalid verification code');
+      setMfaCode('');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleMfaCodeChange = (value: string) => {
+    const cleaned = useBackupCode ? value : value.replace(/\D/g, '').slice(0, 6);
+    setMfaCode(cleaned);
+    // Auto-submit on 6 digits for TOTP
+    if (!useBackupCode && cleaned.length === 6 && mfaToken) {
+      setError('');
+      setLoading(true);
+      verifyMfa(mfaToken, cleaned)
+        .then(() => navigate('/dashboard'))
+        .catch((err) => {
+          setError(err instanceof Error ? err.message : 'Invalid verification code');
+          setMfaCode('');
+        })
+        .finally(() => setLoading(false));
     }
   };
 
@@ -47,6 +96,85 @@ export default function Login() {
       setDemoLoading(null);
     }
   };
+
+  // MFA verification screen
+  if (mfaToken) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4 py-12">
+        <div className="w-full max-w-md">
+          <div className="text-center mb-8">
+            <div className="w-16 h-16 rounded-2xl bg-shield-50 flex items-center justify-center mx-auto mb-4">
+              <KeyRound className="w-8 h-8 text-shield-600" />
+            </div>
+            <h1 className="text-2xl font-bold text-slate-900">Two-Factor Authentication</h1>
+            <p className="text-slate-500 mt-1">
+              {useBackupCode
+                ? 'Enter one of your backup codes'
+                : 'Enter the 6-digit code from your authenticator app'}
+            </p>
+          </div>
+
+          <div className="bg-white rounded-2xl border border-slate-200 p-8">
+            <form onSubmit={handleMfaSubmit} className="space-y-5">
+              {error && (
+                <div className="p-3 rounded-xl bg-red-50 text-red-600 text-sm">{error}</div>
+              )}
+
+              {useBackupCode ? (
+                <Input
+                  ref={mfaInputRef}
+                  label="Backup Code"
+                  placeholder="Enter backup code"
+                  value={mfaCode}
+                  onChange={(e) => handleMfaCodeChange(e.target.value)}
+                  leftIcon={<Shield className="w-5 h-5" />}
+                  required
+                />
+              ) : (
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">Verification Code</label>
+                  <input
+                    ref={mfaInputRef}
+                    type="text"
+                    inputMode="numeric"
+                    autoComplete="one-time-code"
+                    placeholder="000000"
+                    value={mfaCode}
+                    onChange={(e) => handleMfaCodeChange(e.target.value)}
+                    className="w-full text-center text-3xl tracking-[0.5em] font-mono py-4 px-4 rounded-xl border border-slate-200 focus:border-shield-500 focus:ring-2 focus:ring-shield-500/20 outline-none transition-all"
+                    maxLength={6}
+                    required
+                  />
+                </div>
+              )}
+
+              <Button type="submit" variant="shield" size="lg" className="w-full" isLoading={loading}>
+                Verify
+              </Button>
+
+              <div className="flex items-center justify-between pt-2">
+                <button
+                  type="button"
+                  onClick={() => { setUseBackupCode(!useBackupCode); setMfaCode(''); setError(''); }}
+                  className="text-sm text-shield-600 hover:underline"
+                >
+                  {useBackupCode ? 'Use authenticator app' : 'Use a backup code'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setMfaToken(null); setMfaCode(''); setError(''); }}
+                  className="flex items-center gap-1 text-sm text-slate-500 hover:text-slate-700"
+                >
+                  <ArrowLeft className="w-3.5 h-3.5" />
+                  Back to login
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4 py-12">
