@@ -2,7 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
+
 
 return new class extends Migration
 {
@@ -16,12 +16,17 @@ return new class extends Migration
     {
         $now = now();
 
+        // Use admin user as default owner for demo agencies
+        $adminUser = DB::table('users')->where('role', 'admin')->first();
+        $ownerId = $adminUser?->id ?? DB::table('users')->first()?->id ?? 1;
+
         // Create missing agencies
         $agencies = [
             [
                 'name'        => 'Maximus Insurance Group',
                 'slug'        => 'maximus-insurance-group',
                 'agency_code' => 'MAXIMUS',
+                'owner_id'    => $ownerId,
                 'email'       => 'contact+maximus@ennhealth.com',
                 'phone'       => '(555) 400-0001',
                 'city'        => 'Austin',
@@ -36,6 +41,7 @@ return new class extends Migration
                 'name'        => 'Clearstone Insurance',
                 'slug'        => 'clearstone-insurance',
                 'agency_code' => 'CLRSTN',
+                'owner_id'    => $ownerId,
                 'email'       => 'contact+clearstone@ennhealth.com',
                 'phone'       => '(555) 400-0002',
                 'city'        => 'Tampa',
@@ -50,6 +56,7 @@ return new class extends Migration
                 'name'        => 'Bamboo Insurance',
                 'slug'        => 'bamboo-insurance',
                 'agency_code' => 'BAMBOO',
+                'owner_id'    => $ownerId,
                 'email'       => 'contact+bamboo@ennhealth.com',
                 'phone'       => '(555) 400-0003',
                 'city'        => 'Orlando',
