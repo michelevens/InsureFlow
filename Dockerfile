@@ -27,4 +27,4 @@ RUN php artisan config:clear || true
 
 EXPOSE 8080
 
-CMD php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=${PORT:-8080}
+CMD rm -f bootstrap/cache/routes-v7.php && php artisan route:clear && php artisan config:clear && php artisan config:cache && php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=${PORT:-8080}
