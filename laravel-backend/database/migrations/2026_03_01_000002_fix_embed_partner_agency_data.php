@@ -20,6 +20,7 @@ return new class extends Migration
         $agencies = [
             [
                 'name'        => 'Maximus Insurance Group',
+                'slug'        => 'maximus-insurance-group',
                 'agency_code' => 'MAXIMUS',
                 'email'       => 'contact+maximus@ennhealth.com',
                 'phone'       => '(555) 400-0001',
@@ -33,6 +34,7 @@ return new class extends Migration
             ],
             [
                 'name'        => 'Clearstone Insurance',
+                'slug'        => 'clearstone-insurance',
                 'agency_code' => 'CLRSTN',
                 'email'       => 'contact+clearstone@ennhealth.com',
                 'phone'       => '(555) 400-0002',
@@ -46,6 +48,7 @@ return new class extends Migration
             ],
             [
                 'name'        => 'Bamboo Insurance',
+                'slug'        => 'bamboo-insurance',
                 'agency_code' => 'BAMBOO',
                 'email'       => 'contact+bamboo@ennhealth.com',
                 'phone'       => '(555) 400-0003',
